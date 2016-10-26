@@ -6,7 +6,32 @@
 
     <groupId>cz.jan.maly</groupId>
     <artifactId>kusanagi</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>bot</module>
+    </modules>
 
+    <properties>
+        <bwmirror.version>2.5</bwmirror.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!--
+                BWMirror
+                In order to make this dependency work, run this command before building project:
+                mvn install:install-file -Dfile=<PATH TO BWMIRROR JAR> -DgroupId=bwmirror -DartifactId=bwmirror -Dversion=2.5 -Dpackaging=jar
+            -->
+            <dependency>
+                <groupId>bwmirror</groupId>
+                <artifactId>bwmirror</artifactId>
+                <version>${bwmirror.version}</version>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
 
 </project>
