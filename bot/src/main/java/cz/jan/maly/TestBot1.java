@@ -4,6 +4,8 @@ import bwapi.*;
 import bwta.BWTA;
 import bwta.BaseLocation;
 
+import java.io.IOException;
+
 public class TestBot1 extends DefaultBWListener {
 
     private Mirror mirror = new Mirror();
@@ -12,7 +14,7 @@ public class TestBot1 extends DefaultBWListener {
 
     private Player self;
 
-    public void run() {
+    public void run() throws IOException, InterruptedException {
         mirror.getModule().setEventListener(this);
         mirror.startGame();
     }
@@ -85,7 +87,7 @@ public class TestBot1 extends DefaultBWListener {
         game.drawTextScreen(10, 25, units.toString());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         new TestBot1().run();
     }
 }

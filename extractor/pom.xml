@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>bot</artifactId>
-    <description>Module defining bot.</description>
+    <artifactId>extractor</artifactId>
+    <description>Module to extract information about agents from game.</description>
 
     <dependencies>
         <dependency>
