@@ -25,3 +25,9 @@ paths-to-replays:
 
 chaosluncher-configuration:
   path: 'C:\Users\Jan\Desktop\Chaosluncher Run With Full Privileges.lnk'
+
+path-bwapi-ini:
+  path: 'C:\Program Files (x86)\StarCraft\bwapi-data\bwapi.ini'
+
+path-starcraft:
+  path: 'C:\Program Files (x86)\StarCraft'

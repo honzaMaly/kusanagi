@@ -1,6 +1,7 @@
 package cz.jan.maly;
 
-import cz.jan.maly.service.ParsingService;
+import cz.jan.maly.service.FileReplayParserService;
+import cz.jan.maly.service.ReplayParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Created by Jan on 30-Oct-16.
  */
 @SpringBootApplication(scanBasePackages = {
-        "cz.jan.maly"
+        "cz.jan.maly","cz.jan.maly.service"
 })
 @EnableScheduling
 @EntityScan(basePackages = {"cz.jan.maly.entities"})
@@ -28,7 +29,7 @@ public class ParserApplication extends SpringBootServletInitializer implements C
     }
 
     @Autowired
-    private ParsingService parsingService;
+    private ReplayParserService replayParserService;
 
     public static void main(String[] args) {
         SpringApplication.run(ParserApplication.class, args);
@@ -36,7 +37,7 @@ public class ParserApplication extends SpringBootServletInitializer implements C
 
     @Override
     public void run(String... strings) throws Exception {
-        parsingService.parseReplays();
+        replayParserService.parseReplays();
     }
 
 }
