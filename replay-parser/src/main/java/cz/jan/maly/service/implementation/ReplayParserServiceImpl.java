@@ -2,8 +2,9 @@ package cz.jan.maly.service.implementation;
 
 import bwapi.DefaultBWListener;
 import bwapi.Mirror;
-import bwapi.Player;
 import bwta.BWTA;
+import cz.jan.maly.debug.PainterForMap;
+import cz.jan.maly.debug.PainterForUnits;
 import cz.jan.maly.model.Replay;
 import cz.jan.maly.model.game_info.GameData;
 import cz.jan.maly.service.FileReplayParserService;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Concrete implementation of service to parse replays
@@ -35,6 +38,8 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
 
     private GameData currentGame;
     private Replay currentReplay;
+    private PainterForMap painterForMap;
+    private List<PainterForUnits> painterForUnitsList;
 
     /**
      * Method to start Chaosluncher with predefined configuration. Sadly process can be only started, not closed. See comment in method body to setup it appropriately
@@ -91,12 +96,16 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
             BWTA.analyze();
             log.info("Map data ready");
 
-            //speed up game to maximal possible
-            currentGame.getGame().setLocalSpeed(0);
-
             //todo check if game was already parsed, if so, leave game and move to next play
             //todo if not start processing of game
 
+            //speed up game to maximal possible
+            currentGame.getGame().setLocalSpeed(0);
+
+            painterForMap = new PainterForMap(currentGame.getGame());
+            painterForUnitsList = currentGame.getPlayers().stream()
+                    .map(player -> new PainterForUnits(currentGame.getGame(), player))
+                    .collect(Collectors.toList());
         }
 
         @Override
@@ -113,6 +122,9 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
 
             //todo collect game states
 
+
+            painterForMap.paintMapAnnotation();
+            painterForUnitsList.forEach(PainterForUnits::paintPlayersUnitAnnotation);
         }
 
         @Override

@@ -13,6 +13,7 @@
         <module>data-model</module>
         <module>extractor</module>
         <module>replay-parser</module>
+        <module>game-debug</module>
     </modules>
 
     <name>Kusunagi</name>
