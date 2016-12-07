@@ -1,8 +1,7 @@
-package cz.jan.maly.model.game_info;
+package cz.jan.maly.model.game;
 
 import bwapi.Game;
 import bwapi.Player;
-import bwapi.Unit;
 import lombok.Getter;
 import lombok.Setter;
 

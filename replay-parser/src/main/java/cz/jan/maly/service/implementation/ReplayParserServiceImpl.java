@@ -6,7 +6,7 @@ import bwta.BWTA;
 import cz.jan.maly.debug.PainterForMap;
 import cz.jan.maly.debug.PainterForUnits;
 import cz.jan.maly.model.Replay;
-import cz.jan.maly.model.game_info.GameData;
+import cz.jan.maly.model.game.GameData;
 import cz.jan.maly.service.FileReplayParserService;
 import cz.jan.maly.service.ReplayParserService;
 import lombok.extern.slf4j.Slf4j;
