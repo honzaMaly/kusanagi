@@ -1,6 +1,6 @@
 package cz.jan.maly.model;
 
-import cz.jan.maly.model.agent.PartOfCommonKnowledgeRequiredByAgent;
+import cz.jan.maly.model.agent.PartOfCommonKnowledgeRequestedByAgent;
 import cz.jan.maly.model.game.CommonKnowledge;
 
 /**
@@ -9,6 +9,6 @@ import cz.jan.maly.model.game.CommonKnowledge;
  */
 public interface ObtainingStrategyForPartOfCommonKnowledge {
 
-    PartOfCommonKnowledgeRequiredByAgent composeKnowledge(CommonKnowledge workingCommonKnowledge);
+    PartOfCommonKnowledgeRequestedByAgent composeKnowledge(CommonKnowledge workingCommonKnowledge);
 
 }
