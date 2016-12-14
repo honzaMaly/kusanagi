@@ -17,10 +17,6 @@
             <groupId>bwmirror</groupId>
             <artifactId>bwmirror</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.dagger</groupId>
-            <artifactId>dagger</artifactId>
-        </dependency>
     </dependencies>
 
 </project>

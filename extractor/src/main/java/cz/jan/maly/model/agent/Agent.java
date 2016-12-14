@@ -1,78 +1,35 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.model.ObtainingStrategyForPartOfCommonKnowledge;
-import cz.jan.maly.service.Mediator;
+import cz.jan.maly.service.AgentsManager;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 /**
+ * Agent abstraction class handles execution of main routine (in form of sequence) in agent.
+ * Concrete agent has to describe creation of sequence of actions to execute, type of agent's knowledge and method to decided
+ * if agent is still alive
  * Created by Jan on 09-Dec-16.
  */
 @Getter
-public abstract class Agent implements SubscriberOfGameObserver {
-    private final GameObserver gameObserver;
-    private final ObtainingStrategyForPartOfCommonKnowledge obtainingStrategyForPartOfCommonKnowledgeRequiredByThisAgent;
-    private final AgentsKnowledge agentsKnowledge;
-    @Inject
-    private Logger log;
-    @Inject
-    private Mediator mediator;
-    private List<GameObservation> gameObservations = new ArrayList<>();
-    private boolean isAlive = true;
+@AllArgsConstructor
+public abstract class Agent {
+    protected final AgentsKnowledge agentsKnowledge;
+    protected boolean isAlive = true;
 
-    protected Agent(GameObserver gameObserver, ObtainingStrategyForPartOfCommonKnowledge obtainingStrategyForPartOfCommonKnowledgeRequiredByThisAgent, AgentsKnowledge agentsKnowledge) {
-        this.gameObserver = gameObserver;
-        this.obtainingStrategyForPartOfCommonKnowledgeRequiredByThisAgent = obtainingStrategyForPartOfCommonKnowledgeRequiredByThisAgent;
-        this.agentsKnowledge = agentsKnowledge;
-        gameObserver.register(this);
-    }
+    //todo on creation. register to agent's manager and do own specific stuff
 
-    @Override
-    public void processObservation(GameObservation observation) {
-        synchronized (gameObservations) {
-            gameObservations.clear();
-            gameObservations.add(observation);
-            gameObservations.notifyAll();
-        }
-    }
+    //todo manage it subscribers (other agents) - it needs to be synchronized
+
+    //todo workflow -> using actions. use thread to handle actions (sleep, wait, execution)
+
+    //todo as it is abstract child should describe how to create action sequence, common knowledge and when is agent terminated
 
     /**
-     * Thread to consume new observations of game related to this agent. Upon receiving new observation agent acts
+     * Method to be called when one want to terminate agent
      */
-    private class ObservationConsumer implements Runnable {
-        @Override
-        public void run() {
-            while (isAlive) {
-
-                //wait for agent to act, then update his knowledge and notify him to act again upon new knowledge
-                synchronized (agentsKnowledge) {
-                    GameObservation gameObservation;
-                    synchronized (gameObservations) {
-                        while (gameObservations.isEmpty()) {
-                            try {
-                                gameObservations.wait();
-                            } catch (Exception ex) {
-                                log.warning(ex.getLocalizedMessage());
-                            }
-                        }
-
-                        //get latest observations
-                        gameObservation = gameObservations.remove(gameObservations.size() - 1);
-                    }
-                    agentsKnowledge.updateKnowledge(gameObservation);
-                    agentsKnowledge.notifyAll();
-                }
-            }
-        }
+    public void terminateAgent() {
+        this.isAlive = false;
+        AgentsManager.getInstance().removeAgent(this);
     }
-
-
-    //todo workflow -> read game, ask for features, make features in factory, act, add to queue for reading game
-
-    //todo act based on content in knowledge
 
 }

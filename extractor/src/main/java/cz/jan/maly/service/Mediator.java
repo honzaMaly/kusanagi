@@ -1,44 +1,56 @@
 package cz.jan.maly.service;
 
-import cz.jan.maly.model.ObtainingStrategyForPartOfCommonKnowledge;
-import cz.jan.maly.model.agent.GameObservation;
-import cz.jan.maly.model.agent.PartOfCommonKnowledgeRequestedByAgent;
+import cz.jan.maly.model.ServiceInterface;
+import cz.jan.maly.model.agent.AgentsKnowledge;
+import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import cz.jan.maly.model.game.CommonKnowledge;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
- * Mediator stores all knowledge from agents to reduce coupling between agents as agents ask mediator for features instead.
+ * Mediator stores all knowledge from agents to reduce coupling between agents (and communication) as agents ask mediator for knowledge instead.
  * Agents send theirs knowledge updates to Mediator to update common knowledge base. Those updates merge with previous common knowledge
  * to update working common knowledge after defined time interval.
  * Created by Jan on 07-Dec-16.
  */
 @Getter
-@Singleton
-public class Mediator {
-    private final long lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge;
-    private CommonKnowledge workingCommonKnowledge;
-    private final List<GameObservation> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
-    @Inject
-    private Logger log;
+public class Mediator implements ServiceInterface {
+    //how long to save knowledge from agents before updating common knowledge with new data
+    private static final long lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge = 100;
 
-    @Inject
-    public Mediator(long lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge) {
-        this.lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge = lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge;
+    private CommonKnowledge workingCommonKnowledge = new CommonKnowledge();
+    private final List<AgentsKnowledge> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
+    private static Mediator instance = null;
+
+    protected Mediator() {
+        // Exists only to defeat instantiation.
     }
 
-    public synchronized boolean receiveAgentsKnowledge(GameObservation gameObservation) {
-        return updateKnowledgeByKnowledgeFromAgents.add((GameObservation) gameObservation.getCopyOfKnowledge());
+    public static Mediator getInstance() {
+        if (instance == null) {
+            instance = new Mediator();
+        }
+        return instance;
     }
 
-    public synchronized PartOfCommonKnowledgeRequestedByAgent constructKnowledgeRequiredByAgentAccordingToStrategy(ObtainingStrategyForPartOfCommonKnowledge obtainingStrategyForPartOfCommonKnowledge) {
-        return obtainingStrategyForPartOfCommonKnowledge.composeKnowledge(workingCommonKnowledge);
+    public synchronized boolean receiveAgentsKnowledge(AgentsKnowledge gameObservation) {
+        return updateKnowledgeByKnowledgeFromAgents.add((AgentsKnowledge) gameObservation.getCopyOfKnowledge());
+    }
+
+    public void updateAgentsKnowledge(GetPartOfCommonKnowledgeAction updateKnowledgeAction) {
+        synchronized (workingCommonKnowledge) {
+            updateKnowledgeAction.updateAgentsKnowledge(workingCommonKnowledge);
+        }
+    }
+
+    @Override
+    public void reinitializedServiceForNewGame() {
+
+        //todo reset common knowledge (in case of new game for same agent). kill thread, remove all observations and reinit thread
+
     }
 
     @AllArgsConstructor
@@ -53,11 +65,11 @@ public class Mediator {
 
                     //update current knowledge by knowledge received from agents
                     if (!updateKnowledgeByKnowledgeFromAgents.isEmpty()) {
-                        GameObservation gameObservation;
+                        AgentsKnowledge agentsKnowledge;
                         synchronized (updateKnowledgeByKnowledgeFromAgents) {
-                            gameObservation = updateKnowledgeByKnowledgeFromAgents.remove(0);
+                            agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(0);
                         }
-                        updateCommonKnowledge(gameObservation);
+                        updateCommonKnowledge(agentsKnowledge);
                     }
 
                     //sleep until time is up or another message with knowledge was received
@@ -66,7 +78,7 @@ public class Mediator {
                         try {
                             Thread.sleep(Math.min(5, Math.max(0, lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge - duration)));
                         } catch (InterruptedException e) {
-                            log.warning(e.getLocalizedMessage());
+                            MyLogger.getLogger().warning(e.getLocalizedMessage());
                         }
                         duration = System.currentTimeMillis() - start;
                     }
@@ -83,7 +95,7 @@ public class Mediator {
             }
         }
 
-        private void updateCommonKnowledge(GameObservation gameObservation) {
+        private void updateCommonKnowledge(AgentsKnowledge agentsKnowledge) {
             //todo update knowledge
         }
     }
