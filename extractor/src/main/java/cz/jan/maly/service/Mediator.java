@@ -4,7 +4,6 @@ import cz.jan.maly.model.ServiceInterface;
 import cz.jan.maly.model.agent.AgentsKnowledge;
 import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import cz.jan.maly.model.game.CommonKnowledge;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -24,9 +23,11 @@ public class Mediator implements ServiceInterface {
     private CommonKnowledge workingCommonKnowledge = new CommonKnowledge();
     private final List<AgentsKnowledge> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
     private static Mediator instance = null;
+    private Consumer consumer = new Consumer(workingCommonKnowledge);
 
     protected Mediator() {
         // Exists only to defeat instantiation.
+        consumer.run();
     }
 
     public static Mediator getInstance() {
@@ -36,10 +37,19 @@ public class Mediator implements ServiceInterface {
         return instance;
     }
 
-    public synchronized boolean receiveAgentsKnowledge(AgentsKnowledge gameObservation) {
-        return updateKnowledgeByKnowledgeFromAgents.add((AgentsKnowledge) gameObservation.getCopyOfKnowledge());
+    /**
+     * Method to register new knowledge from agent
+     * @param agentsKnowledge
+     * @return
+     */
+    public synchronized boolean receiveAgentsKnowledge(AgentsKnowledge agentsKnowledge) {
+        return updateKnowledgeByKnowledgeFromAgents.add((AgentsKnowledge) agentsKnowledge.getCopyOfKnowledge());
     }
 
+    /**
+     * Method to be called by agent to update his knowledge by common knowledge in a way that is described by strategy implemented by him
+     * @param updateKnowledgeAction
+     */
     public void updateAgentsKnowledge(GetPartOfCommonKnowledgeAction updateKnowledgeAction) {
         synchronized (workingCommonKnowledge) {
             updateKnowledgeAction.updateAgentsKnowledge(workingCommonKnowledge);
@@ -48,14 +58,31 @@ public class Mediator implements ServiceInterface {
 
     @Override
     public void reinitializedServiceForNewGame() {
-
-        //todo reset common knowledge (in case of new game for same agent). kill thread, remove all observations and reinit thread
-
+        consumer.terminate();
+        while (!consumer.isTerminated){
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                MyLogger.getLogger().warning(e.getLocalizedMessage());
+            }
+        }
+        updateKnowledgeByKnowledgeFromAgents.clear();
+        workingCommonKnowledge = new CommonKnowledge();
+        consumer = new Consumer(workingCommonKnowledge);
+        consumer.run();
     }
 
-    @AllArgsConstructor
+    /**
+     * Class describing consumer of agents' knowledge. It process received knowledge of agents and integrate it to common one
+     */
     private class Consumer implements Runnable {
         private final CommonKnowledge commonKnowledge;
+        private Boolean shouldConsume = true;
+        protected boolean isTerminated = false;
+
+        private Consumer(CommonKnowledge commonKnowledge) {
+            this.commonKnowledge = commonKnowledge;
+        }
 
         @Override
         public void run() {
@@ -67,6 +94,9 @@ public class Mediator implements ServiceInterface {
                     if (!updateKnowledgeByKnowledgeFromAgents.isEmpty()) {
                         AgentsKnowledge agentsKnowledge;
                         synchronized (updateKnowledgeByKnowledgeFromAgents) {
+
+                            //todo go trough list to check if agent posted newer knowledge. if so, take newest and remove old. this should ensure most recent information
+
                             agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(0);
                         }
                         updateCommonKnowledge(agentsKnowledge);
@@ -91,12 +121,23 @@ public class Mediator implements ServiceInterface {
                 synchronized (workingCommonKnowledge) {
                     workingCommonKnowledge = (CommonKnowledge) commonKnowledge.getCopyOfKnowledge();
                 }
-
+                synchronized (shouldConsume){
+                    if (!shouldConsume){
+                        break;
+                    }
+                }
             }
+            isTerminated = true;
+        }
+
+        public synchronized void terminate(){
+            this.shouldConsume = false;
         }
 
         private void updateCommonKnowledge(AgentsKnowledge agentsKnowledge) {
-            //todo update knowledge
+
+            //todo update knowledge. make complete copy. exclude knowledge from other agents
+
         }
     }
 

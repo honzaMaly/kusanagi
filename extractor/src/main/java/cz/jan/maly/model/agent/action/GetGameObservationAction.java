@@ -8,14 +8,16 @@ import cz.jan.maly.model.agent.AgentKnowledgeUpdateByGameObservationStrategy;
 import cz.jan.maly.service.GameObserverManager;
 import cz.jan.maly.service.MyLogger;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class GetGameObservationAction add itself to queue of ObservationManager and waits until it can make observation of game to update agent's knowledge.
  * Knowledge is updated based on provided strategy.
  * Created by Jan on 14-Dec-16.
  */
-public class GetGameObservationAction extends AgentActionCycleWithNextActionAbstract implements GameObserver {
+public abstract class GetGameObservationAction extends AgentActionCycleWithNextActionAbstract implements GameObserver {
     //parameter of default time it takes to make observation of the game in milliseconds
     private static final long defaultTimeThatIsRequiredToMakeObservation = 40;
 
@@ -23,8 +25,8 @@ public class GetGameObservationAction extends AgentActionCycleWithNextActionAbst
     private final AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy;
     private long timeThatWasRequiredToMakeObservation = defaultTimeThatIsRequiredToMakeObservation;
 
-    public GetGameObservationAction(Agent agent, AgentActionCycleAbstract followingAction, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
-        super(agent, followingAction);
+    public GetGameObservationAction(Agent agent, List<AgentActionCycleAbstract> followingActions, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
+        super(agent, followingActions);
         this.agentKnowledgeUpdateByGameObservationStrategy = agentKnowledgeUpdateByGameObservationStrategy;
     }
 
@@ -33,7 +35,7 @@ public class GetGameObservationAction extends AgentActionCycleWithNextActionAbst
     }
 
     @Override
-    public Optional<AgentActionCycleAbstract> executeAction() {
+    public Optional<AgentActionCycleAbstract> executeAction(Set<Agent> agentsSentNotification) {
         synchronized (this) {
             if (gameObserverManager.isObserverOfGamePutInQueue(this)) {
                 try {
@@ -43,15 +45,17 @@ public class GetGameObservationAction extends AgentActionCycleWithNextActionAbst
                 }
             }
         }
-        return Optional.ofNullable(followingAction);
+        return decideNextAction(agentsSentNotification);
     }
 
 
     @Override
     public void makeObservation(Game game) {
-        long start = System.currentTimeMillis();
-        agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge());
-        timeThatWasRequiredToMakeObservation = System.currentTimeMillis() - start;
-        this.notifyAll();
+        synchronized (this) {
+            long start = System.currentTimeMillis();
+            agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge());
+            timeThatWasRequiredToMakeObservation = System.currentTimeMillis() - start;
+            this.notifyAll();
+        }
     }
 }
