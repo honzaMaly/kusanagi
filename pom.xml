@@ -14,6 +14,7 @@
         <module>extractor</module>
         <module>replay-parser</module>
         <module>game-debug</module>
+        <module>abstract-bot</module>
     </modules>
 
     <name>Kusunagi</name>
