@@ -17,13 +17,18 @@ public class LeafWasReachedAction extends AgentActionCycleAbstract {
     }
 
     @Override
-    public Optional<AgentActionCycleAbstract> executeAction(Set<Agent> agentsSentNotification) {
+    public Optional<AgentActionCycleAbstract> executeAction() {
         return Optional.empty();
     }
 
     @Override
     public boolean returnWorkflowExecutionBackToAgent() {
         return true;
+    }
+
+    @Override
+    public int getLongestLengthToEnd() {
+        return 1;
     }
 
     @Override

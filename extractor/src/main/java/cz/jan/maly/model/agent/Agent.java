@@ -1,7 +1,7 @@
 package cz.jan.maly.model.agent;
 
 import cz.jan.maly.service.AgentsManager;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -13,10 +13,13 @@ import java.util.Set;
  * if agent is still alive
  * Created by Jan on 09-Dec-16.
  */
+@EqualsAndHashCode(of = "id")
 public abstract class Agent {
     protected final AgentsKnowledge agentsKnowledge;
     private Boolean isAlive = true;
     protected final Set<Agent> agentsToNotifyInCaseOfTermination = new HashSet<>();
+    private final int id;
+    private final int lengthOfLongestPath;
 
     /**
      * Starting action is actually root of the tree. This tree is executed by this agent from root to one of the leafs in each cycle.
@@ -35,12 +38,13 @@ public abstract class Agent {
         this.agentsKnowledge = agentsKnowledge;
         this.timeBetweenCycles = timeBetweenCycles;
         this.startingActionOfWorkflow = composeWorkflow();
-        AgentsManager.getInstance().addAgent(this);
+        this.id = AgentsManager.getInstance().addAgent(this);
+        this.lengthOfLongestPath = startingActionOfWorkflow.getLongestLengthToEnd();
     }
 
-    public void receivedNotificationFromAgent(Agent agent){
-        synchronized (receivedNotificationFromAgents){
-            agentsToNotifyInCaseOfTermination.add(agent);
+    public void receivedNotificationFromAgent(Agent agent) {
+        synchronized (receivedNotificationFromAgents) {
+            receivedNotificationFromAgents.add(agent);
         }
     }
 
@@ -51,13 +55,17 @@ public abstract class Agent {
     /**
      * Method to be called to activate agent
      */
-    public void act(){
-        synchronized (hasStarted){
-            if (!hasStarted){
+    public void act() {
+        synchronized (hasStarted) {
+            if (!hasStarted) {
                 hasStarted = true;
                 worker.run();
             }
         }
+    }
+
+    public int getLengthOfLongestPath() {
+        return lengthOfLongestPath;
     }
 
     /**
@@ -71,20 +79,21 @@ public abstract class Agent {
         public void run() {
             Optional<AgentActionCycleAbstract> nextAction = Optional.ofNullable(startingActionOfWorkflow);
             while (true) {
-                synchronized (receivedNotificationFromAgents){
+                synchronized (receivedNotificationFromAgents) {
+                    receivedNotificationsFrom.clear();
                     receivedNotificationsFrom.addAll(receivedNotificationFromAgents);
                     receivedNotificationFromAgents.clear();
                 }
 
                 //pick next action. if notification was received and next action is empty new cycle should start immediately
                 boolean isNextActionLeaf = nextAction.get().isLeaf();
-                nextAction = nextAction.get().executeAction(receivedNotificationsFrom);
-                if (!nextAction.isPresent()){
-                    receivedNotificationsFrom.clear();
+                agentsKnowledge.propagateNewReceivedNotificationFromAgentsToKnowledge(receivedNotificationsFrom);
+                nextAction = nextAction.get().executeAction();
+                if (!nextAction.isPresent()) {
                     nextAction = Optional.ofNullable(startingActionOfWorkflow);
 
                     //if cycle reached end naturally, sleep for time interval or till notification
-                    if (isNextActionLeaf){
+                    if (isNextActionLeaf) {
 
                         //todo thread for watch
 
@@ -110,6 +119,7 @@ public abstract class Agent {
 
     /**
      * Another agent ask this instance to be notified in case of termination
+     *
      * @param agent
      * @return
      */
@@ -144,7 +154,7 @@ public abstract class Agent {
      */
     protected abstract void actOnAgentRemoval(Agent agent);
 
-    public synchronized boolean isAgentAlive(){
+    public synchronized boolean isAgentAlive() {
         return isAlive;
     }
 
@@ -159,9 +169,6 @@ public abstract class Agent {
         synchronized (agentsToNotifyInCaseOfTermination) {
             agentsToNotifyInCaseOfTermination.forEach(this::agentWasRemoved);
         }
-
-        //
-
         AgentsManager.getInstance().removeAgent(this);
     }
 

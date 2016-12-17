@@ -1,9 +1,9 @@
 package cz.jan.maly.service;
 
 import cz.jan.maly.model.ServiceInterface;
-import cz.jan.maly.model.agent.AgentsKnowledge;
+import cz.jan.maly.model.agent.SnapshotOfAgentOwnKnowledge;
 import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
-import cz.jan.maly.model.game.CommonKnowledge;
+import cz.jan.maly.model.CommonKnowledge;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -21,7 +21,8 @@ public class Mediator implements ServiceInterface {
     private static final long lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge = 100;
 
     private CommonKnowledge workingCommonKnowledge = new CommonKnowledge();
-    private final List<AgentsKnowledge> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
+    private final List<SnapshotOfAgentOwnKnowledge> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
+
     private static Mediator instance = null;
     private Consumer consumer = new Consumer(workingCommonKnowledge);
 
@@ -39,15 +40,17 @@ public class Mediator implements ServiceInterface {
 
     /**
      * Method to register new knowledge from agent
+     *
      * @param agentsKnowledge
      * @return
      */
-    public synchronized boolean receiveAgentsKnowledge(AgentsKnowledge agentsKnowledge) {
-        return updateKnowledgeByKnowledgeFromAgents.add((AgentsKnowledge) agentsKnowledge.getCopyOfKnowledge());
+    public synchronized boolean receiveAgentsKnowledge(SnapshotOfAgentOwnKnowledge agentsKnowledge) {
+        return updateKnowledgeByKnowledgeFromAgents.add(agentsKnowledge);
     }
 
     /**
      * Method to be called by agent to update his knowledge by common knowledge in a way that is described by strategy implemented by him
+     *
      * @param updateKnowledgeAction
      */
     public void updateAgentsKnowledge(GetPartOfCommonKnowledgeAction updateKnowledgeAction) {
@@ -59,7 +62,7 @@ public class Mediator implements ServiceInterface {
     @Override
     public void reinitializedServiceForNewGame() {
         consumer.terminate();
-        while (!consumer.isTerminated){
+        while (!consumer.isTerminated) {
             try {
                 Thread.sleep(5);
             } catch (InterruptedException e) {
@@ -81,7 +84,7 @@ public class Mediator implements ServiceInterface {
         protected boolean isTerminated = false;
 
         private Consumer(CommonKnowledge commonKnowledge) {
-            this.commonKnowledge = commonKnowledge;
+            this.commonKnowledge = commonKnowledge.getCloneOfKnowledge();
         }
 
         @Override
@@ -92,14 +95,25 @@ public class Mediator implements ServiceInterface {
 
                     //update current knowledge by knowledge received from agents
                     if (!updateKnowledgeByKnowledgeFromAgents.isEmpty()) {
-                        AgentsKnowledge agentsKnowledge;
+                        SnapshotOfAgentOwnKnowledge agentsKnowledge;
                         synchronized (updateKnowledgeByKnowledgeFromAgents) {
-
-                            //todo go trough list to check if agent posted newer knowledge. if so, take newest and remove old. this should ensure most recent information
-
                             agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(0);
+
+                            //check if there is more recent knowledge from agent. if so, take it and remove all older
+                            boolean foundNewestKnowledge = false;
+                            for (int i = updateKnowledgeByKnowledgeFromAgents.size()-1; i >= 0; i--) {
+                                if (updateKnowledgeByKnowledgeFromAgents.get(i).getAgent().equals(agentsKnowledge.getAgent())){
+                                    if (!foundNewestKnowledge){
+                                        foundNewestKnowledge = true;
+                                        agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(i);
+                                    } else {
+                                        updateKnowledgeByKnowledgeFromAgents.remove(i);
+                                    }
+                                }
+                            }
+
                         }
-                        updateCommonKnowledge(agentsKnowledge);
+                        commonKnowledge.addSnapshot(agentsKnowledge);
                     }
 
                     //sleep until time is up or another message with knowledge was received
@@ -119,10 +133,10 @@ public class Mediator implements ServiceInterface {
 
                 //update working knowledge by current one
                 synchronized (workingCommonKnowledge) {
-                    workingCommonKnowledge = (CommonKnowledge) commonKnowledge.getCopyOfKnowledge();
+                    workingCommonKnowledge = commonKnowledge.getCloneOfKnowledge();
                 }
-                synchronized (shouldConsume){
-                    if (!shouldConsume){
+                synchronized (shouldConsume) {
+                    if (!shouldConsume) {
                         break;
                     }
                 }
@@ -130,14 +144,8 @@ public class Mediator implements ServiceInterface {
             isTerminated = true;
         }
 
-        public synchronized void terminate(){
+        public synchronized void terminate() {
             this.shouldConsume = false;
-        }
-
-        private void updateCommonKnowledge(AgentsKnowledge agentsKnowledge) {
-
-            //todo update knowledge. make complete copy. exclude knowledge from other agents
-
         }
     }
 

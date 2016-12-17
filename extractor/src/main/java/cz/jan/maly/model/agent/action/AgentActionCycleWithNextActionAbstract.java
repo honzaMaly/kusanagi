@@ -21,11 +21,11 @@ public abstract class AgentActionCycleWithNextActionAbstract extends AgentAction
     }
 
     /**
-     * Method to decide which action to choose next based on current state of knowledge and received notifications from agents
-     * @param agentsSentNotification
+     * Method to decide which action to choose next based on current state of knowledge
+     *
      * @return
      */
-    protected abstract Optional<AgentActionCycleAbstract> decideNextAction(Set<Agent> agentsSentNotification);
+    protected abstract Optional<AgentActionCycleAbstract> decideNextAction();
 
     @Override
     public boolean returnWorkflowExecutionBackToAgent() {
@@ -34,8 +34,16 @@ public abstract class AgentActionCycleWithNextActionAbstract extends AgentAction
     }
 
     @Override
-    public boolean isLeaf(){
+    public boolean isLeaf() {
         return false;
+    }
+
+    public int getLongestLengthToEnd() {
+        int length = followingActions.stream()
+                .map(agentActionCycleAbstract -> agentActionCycleAbstract.getLongestLengthToEnd())
+                .max(Integer::compareTo)
+                .orElse(0);
+        return length + 1;
     }
 
 }

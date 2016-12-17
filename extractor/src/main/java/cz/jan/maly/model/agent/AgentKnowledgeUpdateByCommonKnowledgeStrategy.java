@@ -1,6 +1,6 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.model.game.CommonKnowledge;
+import cz.jan.maly.model.CommonKnowledge;
 
 /**
  * Interface describing strategy to update agent's knowledge by common knowledge

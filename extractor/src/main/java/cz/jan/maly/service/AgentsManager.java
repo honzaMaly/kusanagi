@@ -12,8 +12,8 @@ import java.util.Set;
  */
 public class AgentsManager implements ServiceInterface {
     private final Set<Agent> activeAgents = new HashSet<>();
-
     private static AgentsManager instance = null;
+    private int idCounter = 0;
 
     protected AgentsManager() {
         // Exists only to defeat instantiation.
@@ -29,8 +29,10 @@ public class AgentsManager implements ServiceInterface {
         activeAgents.remove(agent);
     }
 
-    public synchronized void addAgent(Agent agent) {
+    public synchronized int addAgent(Agent agent) {
         activeAgents.add(agent);
+        idCounter++;
+        return idCounter;
     }
 
     /**
@@ -45,10 +47,9 @@ public class AgentsManager implements ServiceInterface {
     }
 
     @Override
-    public void reinitializedServiceForNewGame() {
-
-        //todo reinit. todo create agent structure based on strategy
-
+    public synchronized void reinitializedServiceForNewGame() {
+        activeAgents.clear();
+        idCounter = 0;
     }
 
     /**

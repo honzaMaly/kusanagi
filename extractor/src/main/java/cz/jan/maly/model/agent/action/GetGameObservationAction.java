@@ -35,7 +35,7 @@ public abstract class GetGameObservationAction extends AgentActionCycleWithNextA
     }
 
     @Override
-    public Optional<AgentActionCycleAbstract> executeAction(Set<Agent> agentsSentNotification) {
+    public Optional<AgentActionCycleAbstract> executeAction() {
         synchronized (this) {
             if (gameObserverManager.isObserverOfGamePutInQueue(this)) {
                 try {
@@ -45,7 +45,7 @@ public abstract class GetGameObservationAction extends AgentActionCycleWithNextA
                 }
             }
         }
-        return decideNextAction(agentsSentNotification);
+        return decideNextAction();
     }
 
 

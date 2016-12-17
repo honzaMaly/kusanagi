@@ -1,7 +1,6 @@
 package cz.jan.maly.model.agent;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Abstract class to be implemented by each action agent takes during his run cycle.
@@ -19,13 +18,17 @@ public abstract class AgentActionCycleAbstract {
 
     /**
      * Method to be called when agent should act. Executed action depend on implementation. It returns optional of next possible action to be taken by agent.
-     * Its behaviour may differ based on notification from other agents - this can be primary used to start over execution cycle
-     * @param agentsSentNotification
      * @return
      */
-    public abstract Optional<AgentActionCycleAbstract> executeAction(Set<Agent> agentsSentNotification);
+    public abstract Optional<AgentActionCycleAbstract> executeAction();
 
     public abstract boolean returnWorkflowExecutionBackToAgent();
+
+    /**
+     * Method return longest length to end of action cycle
+     * @return
+     */
+    public abstract int getLongestLengthToEnd();
 
     /**
      * Return whatever this action nis leaf (end of the path)

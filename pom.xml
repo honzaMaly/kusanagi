@@ -34,6 +34,7 @@
         <postgresql.version>9.4.1209.jre7</postgresql.version>
         <guava.version>19.0</guava.version>
         <dagger.version>2.8</dagger.version>
+        <cloning.version>1.9.3</cloning.version>
     </properties>
 
     <build>
@@ -128,6 +129,12 @@
                 <groupId>ru.megadevelopers</groupId>
                 <artifactId>postgres-hibernate-mapper</artifactId>
                 <version>${postgres-hibernate-mapper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>uk.com.robust-it</groupId>
+                <artifactId>cloning</artifactId>
+                <version>${cloning.version}</version>
             </dependency>
 
             <dependency>

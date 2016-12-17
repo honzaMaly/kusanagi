@@ -3,7 +3,7 @@ package cz.jan.maly.model.agent.action;
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
 import cz.jan.maly.model.agent.AgentKnowledgeUpdateByCommonKnowledgeStrategy;
-import cz.jan.maly.model.game.CommonKnowledge;
+import cz.jan.maly.model.CommonKnowledge;
 import cz.jan.maly.service.Mediator;
 
 import java.util.List;
@@ -30,8 +30,8 @@ public abstract class GetPartOfCommonKnowledgeAction extends AgentActionCycleWit
     }
 
     @Override
-    public Optional<AgentActionCycleAbstract> executeAction(Set<Agent> agentsSentNotification) {
+    public Optional<AgentActionCycleAbstract> executeAction() {
         mediator.updateAgentsKnowledge(this);
-        return decideNextAction(agentsSentNotification);
+        return decideNextAction();
     }
 }
