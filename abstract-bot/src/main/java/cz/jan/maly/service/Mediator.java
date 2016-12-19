@@ -2,6 +2,7 @@ package cz.jan.maly.service;
 
 import cz.jan.maly.model.CommonKnowledge;
 import cz.jan.maly.model.ServiceInterface;
+import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.SnapshotOfAgentOwnKnowledge;
 import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import lombok.Getter;
@@ -55,7 +56,9 @@ public class Mediator implements ServiceInterface {
      */
     public void updateAgentsKnowledge(GetPartOfCommonKnowledgeAction updateKnowledgeAction) {
         synchronized (workingCommonKnowledge) {
-            updateKnowledgeAction.updateAgentsKnowledge(workingCommonKnowledge);
+            if (updateKnowledgeAction != null) {
+                updateKnowledgeAction.updateAgentsKnowledge(workingCommonKnowledge);
+            }
         }
     }
 
@@ -100,14 +103,16 @@ public class Mediator implements ServiceInterface {
                             agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(0);
 
                             //check if there is more recent knowledge from agent. if so, take it and remove all older
-                            boolean foundNewestKnowledge = false;
-                            for (int i = updateKnowledgeByKnowledgeFromAgents.size()-1; i >= 0; i--) {
-                                if (updateKnowledgeByKnowledgeFromAgents.get(i).getAgent().equals(agentsKnowledge.getAgent())){
-                                    if (!foundNewestKnowledge){
-                                        foundNewestKnowledge = true;
-                                        agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(i);
-                                    } else {
-                                        updateKnowledgeByKnowledgeFromAgents.remove(i);
+                            if (!updateKnowledgeByKnowledgeFromAgents.isEmpty()) {
+                                boolean foundNewestKnowledge = false;
+                                for (int i = updateKnowledgeByKnowledgeFromAgents.size() - 1; i >= 0; i--) {
+                                    if (updateKnowledgeByKnowledgeFromAgents.get(i).getAgent().equals(agentsKnowledge.getAgent())) {
+                                        if (!foundNewestKnowledge) {
+                                            foundNewestKnowledge = true;
+                                            agentsKnowledge = updateKnowledgeByKnowledgeFromAgents.remove(i);
+                                        } else {
+                                            updateKnowledgeByKnowledgeFromAgents.remove(i);
+                                        }
                                     }
                                 }
                             }

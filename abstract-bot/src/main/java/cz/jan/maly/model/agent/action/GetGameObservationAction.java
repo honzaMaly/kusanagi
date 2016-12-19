@@ -2,6 +2,7 @@ package cz.jan.maly.model.agent.action;
 
 import bwapi.Game;
 import cz.jan.maly.model.GameObserver;
+import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
 import cz.jan.maly.model.agent.AgentKnowledgeUpdateByGameObservationStrategy;
 import cz.jan.maly.model.agent.AgentWithGameRepresentation;
@@ -27,12 +28,12 @@ public class GetGameObservationAction extends AgentActionCycleAbstract implement
     private final AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy;
     private long timeThatWasRequiredToMakeObservation = defaultTimeThatIsRequiredToMakeObservation;
 
-    public GetGameObservationAction(AgentWithGameRepresentation agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
+    public GetGameObservationAction(Agent agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
         super(agent, followingActionsWithConditions);
         this.agentKnowledgeUpdateByGameObservationStrategy = agentKnowledgeUpdateByGameObservationStrategy;
     }
 
-    public GetGameObservationAction(AgentWithGameRepresentation agent, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
+    public GetGameObservationAction(Agent agent, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
         super(agent);
         this.agentKnowledgeUpdateByGameObservationStrategy = agentKnowledgeUpdateByGameObservationStrategy;
     }
@@ -61,7 +62,14 @@ public class GetGameObservationAction extends AgentActionCycleAbstract implement
     public void makeObservation(Game game) {
         synchronized (this) {
             long start = System.currentTimeMillis();
-            agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge(), ((AgentWithGameRepresentation) agent).getUnit());
+
+            //TODO refactor
+            if (agent instanceof AgentWithGameRepresentation) {
+                agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge(), ((AgentWithGameRepresentation) agent).getUnit());
+            } else {
+                agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge(), null);
+            }
+
             timeThatWasRequiredToMakeObservation = Math.min(System.currentTimeMillis() - start, maxFrameExecutionTime - 1);
             this.notifyAll();
         }

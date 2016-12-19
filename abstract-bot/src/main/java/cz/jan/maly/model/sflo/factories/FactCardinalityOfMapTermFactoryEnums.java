@@ -1,20 +1,19 @@
 package cz.jan.maly.model.sflo.factories;
 
 import cz.jan.maly.model.Fact;
-import cz.jan.maly.model.sflo.FactSetCardinalityTerm;
+import cz.jan.maly.model.sflo.FactMapCardinalityTerm;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * Enumeration of possible strategies how to evaluate truth of relationship of cardinality of set and constant
  * Created by Jan on 17-Dec-16.
  */
-public enum FactCardinalityOfSetTermFactoryEnums {
+public enum FactCardinalityOfMapTermFactoryEnums {
     EQUALS {
         @Override
-        public <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant) {
-            return new FactSetCardinalityTerm<V,T>(firstFact, constant) {
+        public <U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant) {
+            return new FactMapCardinalityTerm<U,V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().size() == constant;
@@ -24,8 +23,8 @@ public enum FactCardinalityOfSetTermFactoryEnums {
     },
     LESS {
         @Override
-        public <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant) {
-            return new FactSetCardinalityTerm<V,T>(firstFact, constant) {
+        public <U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant) {
+            return new FactMapCardinalityTerm<U,V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().size() < constant;
@@ -35,8 +34,8 @@ public enum FactCardinalityOfSetTermFactoryEnums {
     },
     LESS_EQUAL {
         @Override
-        public <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant) {
-            return new FactSetCardinalityTerm<V,T>(firstFact, constant) {
+        public <U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant) {
+            return new FactMapCardinalityTerm<U,V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().size() <= constant;
@@ -46,8 +45,8 @@ public enum FactCardinalityOfSetTermFactoryEnums {
     },
     GREATER {
         @Override
-        public <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant) {
-            return new FactSetCardinalityTerm<V,T>(firstFact, constant) {
+        public <U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant) {
+            return new FactMapCardinalityTerm<U,V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().size() > constant;
@@ -57,8 +56,8 @@ public enum FactCardinalityOfSetTermFactoryEnums {
     },
     GREATER_EQUAL {
         @Override
-        public <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant) {
-            return new FactSetCardinalityTerm<V,T>(firstFact, constant) {
+        public<U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant) {
+            return new FactMapCardinalityTerm<U,V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().size() >= constant;
@@ -68,8 +67,8 @@ public enum FactCardinalityOfSetTermFactoryEnums {
     },
     DIFFERENT {
         @Override
-        public <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant) {
-            return new FactSetCardinalityTerm<V,T>(firstFact, constant) {
+        public <U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant) {
+            return new FactMapCardinalityTerm<U,V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().size() != constant;
@@ -85,6 +84,6 @@ public enum FactCardinalityOfSetTermFactoryEnums {
      * @param constant
      * @return
      */
-    public abstract <V,T extends Fact<Set<V>>> FactSetCardinalityTerm<V,T> createExpression(T firstFact, double constant);
+    public abstract <U, V, T extends Fact<Map<U, V>>> FactMapCardinalityTerm<U,V,T> createExpression(T firstFact, double constant);
 
 }

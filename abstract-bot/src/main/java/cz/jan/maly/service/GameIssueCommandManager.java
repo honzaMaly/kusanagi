@@ -44,7 +44,7 @@ public class GameIssueCommandManager implements ServiceInterface, ServiceOnFrame
         //find first service which was executed last time in less time than is remaining time
         for (int i = 0; i < queueOfActionMakers.size(); i++) {
             if (queueOfActionMakers.get(i).getExecutionTime()<remainingTime){
-                queueOfActionMakers.remove(i).executeActionInGame();
+                queueOfActionMakers.remove(i).executeActionInGame(game);
                 break;
             }
         }

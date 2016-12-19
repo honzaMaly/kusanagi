@@ -50,7 +50,7 @@ public class AgentsKnowledge {
      * @param keyToFact
      * @return
      */
-    public Optional<Fact> getAgentsOwnFactByKey(KeyToFact keyToFact) {
+    public <V> Optional<Fact<V>> getAgentsOwnFactByKey(KeyToFact<V> keyToFact) {
         return Optional.ofNullable(ownFacts.get(keyToFact));
     }
 
@@ -60,7 +60,7 @@ public class AgentsKnowledge {
      * @param keyToFact
      * @return
      */
-    public Optional<Fact> getAggregatedFactFromCommonKnowledgeByKey(KeyToFact keyToFact) {
+    public <V> Optional<Fact<V>> getAggregatedFactFromCommonKnowledgeByKey(KeyToFact<V> keyToFact) {
         return Optional.ofNullable(aggregatedFactsFromCommonKnowledge.get(keyToFact));
     }
 
@@ -70,8 +70,7 @@ public class AgentsKnowledge {
      * @return
      */
     public SnapshotOfAgentOwnKnowledge createSnapshot() {
-        Map<KeyToFact, Fact> cloneOfOwnFacts = cloner.deepClone(ownFacts);
-        return new SnapshotOfAgentOwnKnowledge(cloneOfOwnFacts, agent);
+        return new SnapshotOfAgentOwnKnowledge(cloner.deepClone(ownFacts), agent);
     }
 
 }

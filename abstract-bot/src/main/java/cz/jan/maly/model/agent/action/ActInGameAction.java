@@ -1,5 +1,6 @@
 package cz.jan.maly.model.agent.action;
 
+import bwapi.Game;
 import cz.jan.maly.model.GameActionMaker;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
 import cz.jan.maly.model.agent.AgentWithGameRepresentation;
@@ -23,18 +24,21 @@ public class ActInGameAction extends AgentActionCycleAbstract implements GameAct
 
     protected final GameIssueCommandManager issueCommandManager = GameIssueCommandManager.getInstance();
     private final Action actionToExecute;
+    private final boolean actionTerminateAgent;
 
     //parameter of default time it takes to make action in milliseconds
     private long timeThatWasRequiredToMakeAction = defaultTimeThatIsRequiredToMakeAction;
 
-    public ActInGameAction(AgentWithGameRepresentation agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, Action actionToExecute) {
+    public ActInGameAction(AgentWithGameRepresentation agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, Action actionToExecute, boolean actionTerminateAgent) {
         super(agent, followingActionsWithConditions);
         this.actionToExecute = actionToExecute;
+        this.actionTerminateAgent = actionTerminateAgent;
     }
 
-    public ActInGameAction(AgentWithGameRepresentation agent, Action actionToExecute) {
+    public ActInGameAction(AgentWithGameRepresentation agent, Action actionToExecute, boolean actionTerminateAgent) {
         super(agent);
         this.actionToExecute = actionToExecute;
+        this.actionTerminateAgent = actionTerminateAgent;
     }
 
     @Override
@@ -52,10 +56,13 @@ public class ActInGameAction extends AgentActionCycleAbstract implements GameAct
     }
 
     @Override
-    public void executeActionInGame() {
+    public void executeActionInGame(Game game) {
         synchronized (this) {
             long start = System.currentTimeMillis();
-            actionToExecute.executeAction();
+            actionToExecute.executeAction(((AgentWithGameRepresentation) agent).getUnit(), game);
+            if (actionTerminateAgent) {
+                agent.terminateAgent();
+            }
             timeThatWasRequiredToMakeAction = Math.min(System.currentTimeMillis() - start, maxFrameExecutionTime - 1);
             this.notifyAll();
         }

@@ -10,8 +10,8 @@ import cz.jan.maly.model.sflo.FactConstantNumericalTerm;
 public enum FactConstantNumericalTermFactoryEnums {
     EQUALS {
         @Override
-        public <T extends Fact<Number>> FactConstantNumericalTerm<T> createExpression(T firstFact, double constant) {
-            return new FactConstantNumericalTerm<T>(firstFact, constant) {
+        public <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant) {
+            return new FactConstantNumericalTerm<V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().doubleValue() == constant;
@@ -21,8 +21,8 @@ public enum FactConstantNumericalTermFactoryEnums {
     },
     LESS {
         @Override
-        public <T extends Fact<Number>> FactConstantNumericalTerm<T> createExpression(T firstFact, double constant) {
-            return new FactConstantNumericalTerm<T>(firstFact, constant) {
+        public <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant) {
+            return new FactConstantNumericalTerm<V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().doubleValue() < constant;
@@ -32,8 +32,8 @@ public enum FactConstantNumericalTermFactoryEnums {
     },
     LESS_EQUAL {
         @Override
-        public <T extends Fact<Number>> FactConstantNumericalTerm<T> createExpression(T firstFact, double constant) {
-            return new FactConstantNumericalTerm<T>(firstFact, constant) {
+        public <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant) {
+            return new FactConstantNumericalTerm<V,T> (firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().doubleValue() <= constant;
@@ -43,8 +43,8 @@ public enum FactConstantNumericalTermFactoryEnums {
     },
     GREATER {
         @Override
-        public <T extends Fact<Number>> FactConstantNumericalTerm<T> createExpression(T firstFact, double constant) {
-            return new FactConstantNumericalTerm<T>(firstFact, constant) {
+        public <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant) {
+            return new FactConstantNumericalTerm<V,T> (firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().doubleValue() > constant;
@@ -54,8 +54,8 @@ public enum FactConstantNumericalTermFactoryEnums {
     },
     GREATER_EQUAL {
         @Override
-        public <T extends Fact<Number>> FactConstantNumericalTerm<T> createExpression(T firstFact, double constant) {
-            return new FactConstantNumericalTerm<T>(firstFact, constant) {
+        public <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant) {
+            return new FactConstantNumericalTerm<V,T> (firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().doubleValue() >= constant;
@@ -65,8 +65,8 @@ public enum FactConstantNumericalTermFactoryEnums {
     },
     DIFFERENT {
         @Override
-        public <T extends Fact<Number>> FactConstantNumericalTerm<T> createExpression(T firstFact, double constant) {
-            return new FactConstantNumericalTerm<T>(firstFact, constant) {
+        public <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant) {
+            return new FactConstantNumericalTerm<V,T>(firstFact, constant) {
                 @Override
                 public boolean evaluate() {
                     return firstFact.getContent().doubleValue() != constant;
@@ -82,5 +82,5 @@ public enum FactConstantNumericalTermFactoryEnums {
      * @param constant
      * @return
      */
-    public abstract <T extends Fact<Number>> FactConstantNumericalTerm createExpression(T firstFact, double constant);
+    public abstract <V extends Number, T extends Fact<V>> FactConstantNumericalTerm<V,T> createExpression(T firstFact, double constant);
 }

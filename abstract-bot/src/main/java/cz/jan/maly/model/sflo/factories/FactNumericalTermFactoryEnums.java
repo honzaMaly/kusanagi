@@ -73,7 +73,7 @@ public enum FactNumericalTermFactoryEnums {
                 }
             };
         }
-    },
+    }
     ;
 
     /**

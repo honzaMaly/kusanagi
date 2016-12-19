@@ -55,7 +55,7 @@ public class AgentsManager implements ServiceInterface {
     /**
      * Strategy to use to filter agents from list. For example one wants to get only agents representing workers
      */
-    private interface FilteringStrategy {
+    public interface FilteringStrategy {
         Set<Agent> filter(Set<Agent> agentsToFilterFrom);
     }
 

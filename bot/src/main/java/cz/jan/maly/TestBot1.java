@@ -4,6 +4,7 @@ import bwapi.*;
 import bwta.BWTA;
 import bwta.BaseLocation;
 import cz.jan.maly.model.agent.AgentUnitFactory;
+import cz.jan.maly.model.agent.Commander;
 import cz.jan.maly.service.OnFrameExecutor;
 
 import java.io.IOException;
@@ -29,6 +30,14 @@ public class TestBot1 extends DefaultBWListener {
     }
 
     @Override
+    public void onUnitMorph(Unit unit) {
+        if (unit.getPlayer().equals(self)) {
+            AgentUnitFactory.createAgentForUnit(unit);
+        }
+        System.out.println("New unit morphed " + unit.getType());
+    }
+
+    @Override
     public void onStart() {
         game = mirror.getGame();
         self = game.self();
@@ -49,6 +58,10 @@ public class TestBot1 extends DefaultBWListener {
             System.out.println();
         }
 
+        Commander.getInstance();
+
+        //speed up game to maximal possible
+        game.setLocalSpeed(0);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package cz.jan.maly.model.agent;
 
 import cz.jan.maly.service.AgentsManager;
+import cz.jan.maly.service.MyLogger;
 import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
@@ -39,6 +40,10 @@ public abstract class Agent {
         this.startingActionOfWorkflow = composeWorkflow();
         this.id = AgentsManager.getInstance().addAgent(this);
         this.lengthOfLongestPath = startingActionOfWorkflow.getLongestLengthToEnd();
+    }
+
+    public int getId() {
+        return id;
     }
 
     protected abstract AgentsKnowledge setupAgentsKnowledge();
@@ -88,7 +93,11 @@ public abstract class Agent {
                     nextAction = Optional.ofNullable(startingActionOfWorkflow);
 
                     //todo if cycle reached end naturally, sleep for time interval or till notification
-
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        MyLogger.getLogger().warning(e.getLocalizedMessage());
+                    }
                 }
                 synchronized (isAlive) {
                     if (!isAlive) {

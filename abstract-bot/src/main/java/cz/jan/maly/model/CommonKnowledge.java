@@ -14,23 +14,32 @@ import java.util.Optional;
  */
 public class CommonKnowledge {
     private static final Cloner cloner = new Cloner();
-    private final Map<Agent, Map<KeyToFact, Fact>> snapshotOfFactsByAgents = new HashMap<>();
+    private final Map<Agent, Map<KeyToFact, Fact>> snapshotOfFactsByAgents;
 
-    public void addSnapshot(SnapshotOfAgentOwnKnowledge snapshotOfAgentOwnKnowledge){
+    public void addSnapshot(SnapshotOfAgentOwnKnowledge snapshotOfAgentOwnKnowledge) {
         snapshotOfFactsByAgents.put(snapshotOfAgentOwnKnowledge.getAgent(), snapshotOfAgentOwnKnowledge.getSnapshotOfFacts());
+    }
+
+    public CommonKnowledge() {
+        this.snapshotOfFactsByAgents = new HashMap<>();
+    }
+
+    protected CommonKnowledge(Map<Agent, Map<KeyToFact, Fact>> snapshotOfFactsByAgents) {
+        this.snapshotOfFactsByAgents = snapshotOfFactsByAgents;
     }
 
     /**
      * Method returns optional of required fact. If fact is present, clone of fact is return in wrapper
+     *
      * @param agent
      * @param keyToFact
      * @return
      */
-    public Optional<Fact> getCloneOfFactOfAgentByKey(Agent agent, KeyToFact keyToFact){
+    public <V> Optional<Fact<V>> getCloneOfFactOfAgentByKey(Agent agent, KeyToFact<V> keyToFact) {
         Map<KeyToFact, Fact> map = snapshotOfFactsByAgents.get(agent);
-        if (map!=null){
-            Fact fact = map.get(keyToFact);
-            if (fact!=null){
+        if (map != null) {
+            Fact<V> fact = map.get(keyToFact);
+            if (fact != null) {
                 return Optional.ofNullable(cloner.deepClone(fact));
             }
         }
@@ -38,6 +47,8 @@ public class CommonKnowledge {
     }
 
     public CommonKnowledge getCloneOfKnowledge() {
-        return cloner.deepClone(this);
+        Map<Agent, Map<KeyToFact, Fact>> map = new HashMap<>();
+        snapshotOfFactsByAgents.forEach((agent, keyToFactFactMap) -> map.put(agent, cloner.deepClone(keyToFactFactMap)));
+        return new CommonKnowledge(map);
     }
 }

@@ -1,20 +1,16 @@
 package cz.jan.maly.model.agent.action.game;
 
+import bwapi.Game;
 import cz.jan.maly.model.game.wrappers.AUnit;
 
 /**
- * Abstract class defines strategy describing action to be executed in game
+ * Interface prescribes strategy of action to be executed in game
  * Created by Jan on 17-Dec-16.
  */
-public abstract class Action {
-    protected final AUnit unit;
-
-    protected Action(AUnit unit) {
-        this.unit = unit;
-    }
+public interface Action {
 
     /**
      * Command unit to execute action
      */
-    public abstract void executeAction();
+    void executeAction(AUnit unit, Game game);
 }

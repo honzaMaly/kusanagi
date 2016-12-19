@@ -16,6 +16,8 @@ public class AgentUnitFactory {
 
     static {
         UNIT_TYPE_AGENT_CREATION_STRATEGY_MAP.put(UnitType.Zerg_Drone, unit -> new Worker(0, AUnit.createFrom(unit)));
+        UNIT_TYPE_AGENT_CREATION_STRATEGY_MAP.put(UnitType.Zerg_Hatchery, unit -> new Base(0, AUnit.createFrom(unit)));
+        UNIT_TYPE_AGENT_CREATION_STRATEGY_MAP.put(UnitType.Zerg_Larva, unit -> new Larva(0, AUnit.createFrom(unit)));
     }
 
     public static void createAgentForUnit(Unit unit) {
