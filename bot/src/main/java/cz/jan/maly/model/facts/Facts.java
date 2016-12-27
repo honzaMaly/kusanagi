@@ -2,8 +2,6 @@ package cz.jan.maly.model.facts;
 
 import bwapi.TilePosition;
 import cz.jan.maly.model.KeyToFact;
-import cz.jan.maly.model.agent.Agent;
-import cz.jan.maly.model.game.wrappers.APosition;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
 

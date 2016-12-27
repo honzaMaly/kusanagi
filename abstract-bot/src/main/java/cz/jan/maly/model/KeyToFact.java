@@ -1,7 +1,8 @@
 package cz.jan.maly.model;
 
-import com.rits.cloning.Cloner;
 import lombok.Getter;
+
+import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Simple class defining key to fact with simple default method to generate new instance of fact given the parameters
@@ -9,7 +10,6 @@ import lombok.Getter;
  */
 @Getter
 public abstract class KeyToFact<V> {
-    private static final Cloner cloner = new Cloner();
     private final String name;
     private final int ID;
 
@@ -25,7 +25,7 @@ public abstract class KeyToFact<V> {
     }
 
     public Fact<V> createFact(V content) {
-        return new Fact<>(cloner.deepClone(content));
+        return new Fact<>(CLONER.deepClone(content));
     }
 
     @Override

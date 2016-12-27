@@ -5,7 +5,7 @@ import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
 import cz.jan.maly.model.agent.AgentKnowledgeUpdateByCommonKnowledgeStrategy;
 import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.service.Mediator;
+import cz.jan.maly.service.MediatorFoSharingKnowledge;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public class GetPartOfCommonKnowledgeAction extends AgentActionCycleAbstract {
 
     @Override
     public Optional<AgentActionCycleAbstract> executeAction() {
-        Mediator.getInstance().updateAgentsKnowledge(this);
+        MediatorFoSharingKnowledge.getInstance().updateAgentsKnowledge(this);
         return decideNextAction();
     }
 }

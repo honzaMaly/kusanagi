@@ -2,7 +2,6 @@ package cz.jan.maly.service;
 
 import cz.jan.maly.model.CommonKnowledge;
 import cz.jan.maly.model.ServiceInterface;
-import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.SnapshotOfAgentOwnKnowledge;
 import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import lombok.Getter;
@@ -11,34 +10,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Mediator stores all knowledge from agents to reduce coupling between agents (and communication) as agents ask mediator for knowledge instead.
- * Agents send theirs knowledge updates to Mediator to update common knowledge base. Those updates merge with previous common knowledge
+ * MediatorFoSharingKnowledge stores all knowledge from agents to reduce coupling between agents (and communication) as agents ask mediator for knowledge instead.
+ * Agents send theirs knowledge updates to MediatorFoSharingKnowledge to update common knowledge base. Those updates merge with previous common knowledge
  * to update working common knowledge after defined time interval.
  * Created by Jan on 07-Dec-16.
  */
 @Getter
-public class Mediator implements ServiceInterface {
+public class MediatorFoSharingKnowledge implements ServiceInterface {
     //how long to save knowledge from agents before updating common knowledge with new data
     private static final long lengthOfIntervalToSendUpdatesBeforeUpdatingCommonKnowledge = 100;
 
     private CommonKnowledge workingCommonKnowledge = new CommonKnowledge();
     private final List<SnapshotOfAgentOwnKnowledge> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
 
-    private static Mediator instance = null;
+    private static MediatorFoSharingKnowledge instance = null;
     private Consumer consumer = new Consumer(workingCommonKnowledge);
 
-    private Mediator() {
+    private MediatorFoSharingKnowledge() {
         // Exists only to defeat instantiation.
         consumer.start();
     }
 
-    public static Mediator getInstance() {
+    public static MediatorFoSharingKnowledge getInstance() {
         if (instance == null) {
-            instance = new Mediator();
+            instance = new MediatorFoSharingKnowledge();
         }
         return instance;
     }
 
+    //todo make sure to check if it is true in action to prevent lock
     /**
      * Method to register new knowledge from agent
      *

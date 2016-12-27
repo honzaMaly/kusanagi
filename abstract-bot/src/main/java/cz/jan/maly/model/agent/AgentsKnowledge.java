@@ -7,12 +7,13 @@ import cz.jan.maly.model.KeyToFact;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static cz.jan.maly.utils.FrameworkUtils.CLONER;
+
 /**
  * Class representing knowledge of agent
  * Created by Jan on 09-Dec-16.
  */
 public class AgentsKnowledge {
-    private static final Cloner cloner = new Cloner();
     private final Agent agent;
     private final static Random RANDOM = new Random();
     private Map<Agent, Integer> receivedNotificationFromAgentWithAssociatedPassedActions = new HashMap<>();
@@ -70,7 +71,7 @@ public class AgentsKnowledge {
      * @return
      */
     public SnapshotOfAgentOwnKnowledge createSnapshot() {
-        return new SnapshotOfAgentOwnKnowledge(cloner.deepClone(ownFacts), agent);
+        return new SnapshotOfAgentOwnKnowledge(CLONER.deepClone(ownFacts), agent);
     }
 
 }
