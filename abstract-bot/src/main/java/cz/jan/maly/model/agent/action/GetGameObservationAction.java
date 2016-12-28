@@ -1,19 +1,16 @@
 package cz.jan.maly.model.agent.action;
 
 import bwapi.Game;
-import cz.jan.maly.model.GameObserver;
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.agent.AgentKnowledgeUpdateByGameObservationStrategy;
-import cz.jan.maly.model.agent.AgentWithGameRepresentation;
-import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.service.GameObserverManager;
-import cz.jan.maly.service.MyLogger;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
+import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
-import static cz.jan.maly.service.OnFrameExecutor.maxFrameExecutionTime;
+import static cz.jan.maly.utils.FrameworkUtils.getMaxFrameExecutionTime;
 
 /**
  * Class GetGameObservationAction add itself to queue of ObservationManager and waits until it can make observation of game to update agent's knowledge.
@@ -28,8 +25,8 @@ public class GetGameObservationAction extends AgentActionCycleAbstract implement
     private final AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy;
     private long timeThatWasRequiredToMakeObservation = defaultTimeThatIsRequiredToMakeObservation;
 
-    public GetGameObservationAction(Agent agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
-        super(agent, followingActionsWithConditions);
+    public GetGameObservationAction(Agent agent, LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByGameObservationStrategy agentKnowledgeUpdateByGameObservationStrategy) {
+        super(agent, followingActionsWithConditions, actionCycleEnum);
         this.agentKnowledgeUpdateByGameObservationStrategy = agentKnowledgeUpdateByGameObservationStrategy;
     }
 
@@ -65,12 +62,12 @@ public class GetGameObservationAction extends AgentActionCycleAbstract implement
 
             //TODO refactor
             if (agent instanceof AgentWithGameRepresentation) {
-                agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge(), ((AgentWithGameRepresentation) agent).getUnit());
+                agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledgeBase(), ((AgentWithGameRepresentation) agent).getUnit());
             } else {
-                agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledge(), null);
+                agentKnowledgeUpdateByGameObservationStrategy.updateKnowledge(game, agent.getAgentsKnowledgeBase(), null);
             }
 
-            timeThatWasRequiredToMakeObservation = Math.min(System.currentTimeMillis() - start, maxFrameExecutionTime - 1);
+            timeThatWasRequiredToMakeObservation = Math.min(System.currentTimeMillis() - start, getMaxFrameExecutionTime() - 1);
             this.notifyAll();
         }
     }

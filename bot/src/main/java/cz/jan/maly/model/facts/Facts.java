@@ -1,7 +1,7 @@
 package cz.jan.maly.model.facts;
 
 import bwapi.TilePosition;
-import cz.jan.maly.model.KeyToFact;
+import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
 

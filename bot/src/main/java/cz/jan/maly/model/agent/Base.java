@@ -1,13 +1,15 @@
 package cz.jan.maly.model.agent;
 
 import bwapi.UnitType;
-import cz.jan.maly.model.KeyToFact;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
+import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.agent.action.GetGameObservationAction;
 import cz.jan.maly.model.agent.action.UpdateCommonKnowledgeAction;
+import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
 import cz.jan.maly.model.game.wrappers.AUnit;
-import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.model.sflo.factories.TermFactoryEnum;
-import cz.jan.maly.service.MyLogger;
+import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.model.sflo.factories.FormulaFactoryEnum;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,38 +30,38 @@ public class Base extends AgentWithGameRepresentation {
     }
 
     @Override
-    protected AgentsKnowledge setupAgentsKnowledge() {
+    protected AgentsKnowledgeBase setupAgentsKnowledge() {
         Set<KeyToFact> ownFactsToUse = new HashSet<>(), factsByOtherAgentToUse = new HashSet<>();
         ownFactsToUse.add(BUILDINGS_IN_EXPANSION);
         ownFactsToUse.add(AVAILABLE_LARVAE);
         ownFactsToUse.add(HEALTH);
         ownFactsToUse.add(ENEMIES_AROUND_BASE);
-        return new AgentsKnowledge(this, ownFactsToUse, factsByOtherAgentToUse);
+        return new AgentsKnowledgeBase(this, ownFactsToUse, factsByOtherAgentToUse);
     }
 
     @Override
-    protected AgentActionCycleAbstract composeWorkflow() {
+    protected AgentActionCycleAbstract actionsDefinedByUser() {
 
         UpdateCommonKnowledgeAction updateCommonKnowledgeAction = new UpdateCommonKnowledgeAction(this);
 
-        LinkedHashMap<TermInterface, AgentActionCycleAbstract> doAfterObservation = new LinkedHashMap<>();
-        doAfterObservation.put(TermFactoryEnum.TRUTH.createExpression(), updateCommonKnowledgeAction);
+        LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> doAfterObservation = new LinkedHashMap<>();
+        doAfterObservation.put(FormulaFactoryEnum.TRUTH.createExpression(), updateCommonKnowledgeAction);
 
         GetGameObservationAction sense = new GetGameObservationAction(this, doAfterObservation, (game, agentsKnowledgeToUpdateAgentsKnowledge, unit) -> {
-            agentsKnowledge.getAgentsOwnFactByKey(HEALTH).get().setContent(unit.getHP());
+            agentsKnowledgeBase.getAgentsOwnFactByKey(HEALTH).get().setContent(unit.getHP());
             Set<AUnit> larvae = unit.u().getUnitsInRadius(unit.u().getType().sightRange()).stream()
                     .filter(unit1 -> unit1.getType().equals(UnitType.Zerg_Larva))
                     .map(AUnit::createFrom)
                     .collect(Collectors.toSet());
-            agentsKnowledge.getAgentsOwnFactByKey(AVAILABLE_LARVAE).get().setContent(larvae);
+            agentsKnowledgeBase.getAgentsOwnFactByKey(AVAILABLE_LARVAE).get().setContent(larvae);
             Set<AUnit> buildings = unit.u().getUnitsInRadius(unit.u().getType().sightRange()).stream()
                     .filter(unit1 -> unit1.getType().equals(UnitType.Zerg_Spawning_Pool))
                     .map(AUnit::createFrom)
                     .collect(Collectors.toSet());
-            agentsKnowledge.getAgentsOwnFactByKey(BUILDINGS_IN_EXPANSION).get().setContent(buildings);
+            agentsKnowledgeBase.getAgentsOwnFactByKey(BUILDINGS_IN_EXPANSION).get().setContent(buildings);
             Boolean areThereAnyEnemies = unit.u().getUnitsInRadius(unit.u().getType().sightRange()).stream()
                     .anyMatch(unit1 -> unit1.getPlayer().isEnemy(unit.getPlayer()));
-            agentsKnowledge.getAgentsOwnFactByKey(ENEMIES_AROUND_BASE).get().setContent(areThereAnyEnemies);
+            agentsKnowledgeBase.getAgentsOwnFactByKey(ENEMIES_AROUND_BASE).get().setContent(areThereAnyEnemies);
         });
 
         return sense;

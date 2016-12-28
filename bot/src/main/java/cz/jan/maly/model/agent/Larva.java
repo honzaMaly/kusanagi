@@ -1,16 +1,18 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.model.Fact;
-import cz.jan.maly.model.KeyToFact;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
+import cz.jan.maly.model.data.Fact;
+import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.agent.action.ActInGameAction;
 import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import cz.jan.maly.model.agent.action.game.Morph;
+import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
-import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.model.sflo.factories.SingleFactTermFactoryEnums;
-import cz.jan.maly.model.sflo.factories.UnaryTermFactoryEnums;
-import cz.jan.maly.service.MyLogger;
+import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.model.sflo.factories.SingleFactFormulaFactoryEnums;
+import cz.jan.maly.model.sflo.factories.UnaryFormulaFactoryEnums;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.*;
 
@@ -29,25 +31,25 @@ public class Larva extends AgentWithGameRepresentation {
 
     @Override
     protected void initializeKnowledgeOnCreation() {
-        agentsKnowledge.getAgentsOwnFactByKey(HEALTH).get().setContent(unit.getHP());
+        agentsKnowledgeBase.getAgentsOwnFactByKey(HEALTH).get().setContent(unit.getHP());
     }
 
     @Override
-    protected AgentsKnowledge setupAgentsKnowledge() {
+    protected AgentsKnowledgeBase setupAgentsKnowledge() {
         Set<KeyToFact> ownFactsToUse = new HashSet<>(), factsByOtherAgentToUse = new HashSet<>();
         ownFactsToUse.add(HEALTH);
         ownFactsToUse.add(MORPH_TO);
-        return new AgentsKnowledge(this, ownFactsToUse, factsByOtherAgentToUse);
+        return new AgentsKnowledgeBase(this, ownFactsToUse, factsByOtherAgentToUse);
     }
 
     @Override
-    protected AgentActionCycleAbstract composeWorkflow() {
+    protected AgentActionCycleAbstract actionsDefinedByUser() {
 
         //morph to
-        ActInGameAction morphTo = new ActInGameAction(this, new Morph(agentsKnowledge.getAgentsOwnFactByKey(MORPH_TO).get()), true);
+        ActInGameAction morphTo = new ActInGameAction(this, new Morph(agentsKnowledgeBase.getAgentsOwnFactByKey(MORPH_TO).get()), true);
 
-        LinkedHashMap<TermInterface, AgentActionCycleAbstract> doAfterCheckingMorph = new LinkedHashMap<>();
-        doAfterCheckingMorph.put(UnaryTermFactoryEnums.NEGATION.createExpression(SingleFactTermFactoryEnums.IS_EMPTY.createExpression(agentsKnowledge.getAgentsOwnFactByKey(MORPH_TO).get())), morphTo);
+        LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> doAfterCheckingMorph = new LinkedHashMap<>();
+        doAfterCheckingMorph.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MORPH_TO).get())), morphTo);
 
 
         //read from agents
@@ -57,7 +59,7 @@ public class Larva extends AgentWithGameRepresentation {
             if (morphsRequests.isPresent()) {
                 AUnitType typeToMorphTo = morphsRequests.get().getContent().get(getId());
                 if (typeToMorphTo != null) {
-                    agentsKnowledge.getAgentsOwnFactByKey(MORPH_TO).get().setContent(typeToMorphTo);
+                    agentsKnowledgeBase.getAgentsOwnFactByKey(MORPH_TO).get().setContent(typeToMorphTo);
                 }
             }
 

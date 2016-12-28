@@ -1,11 +1,10 @@
 package cz.jan.maly.model.agent.action;
 
-import cz.jan.maly.model.CommonKnowledge;
+import cz.jan.maly.model.data.CommonKnowledge;
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.agent.AgentKnowledgeUpdateByCommonKnowledgeStrategy;
-import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.service.MediatorFoSharingKnowledge;
+import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.service.implementation.MediatorFoSharingKnowledge;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -19,8 +18,8 @@ public class GetPartOfCommonKnowledgeAction extends AgentActionCycleAbstract {
     //strategy to update knowledge
     private final AgentKnowledgeUpdateByCommonKnowledgeStrategy knowledgeStrategy;
 
-    public GetPartOfCommonKnowledgeAction(Agent agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByCommonKnowledgeStrategy knowledgeStrategy) {
-        super(agent, followingActionsWithConditions);
+    public GetPartOfCommonKnowledgeAction(Agent agent, LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByCommonKnowledgeStrategy knowledgeStrategy) {
+        super(agent, followingActionsWithConditions, actionCycleEnum);
         this.knowledgeStrategy = knowledgeStrategy;
     }
 
@@ -30,7 +29,7 @@ public class GetPartOfCommonKnowledgeAction extends AgentActionCycleAbstract {
     }
 
     public void updateAgentsKnowledge(CommonKnowledge workingCommonKnowledge){
-        knowledgeStrategy.updateKnowledge(workingCommonKnowledge, agent.getAgentsKnowledge());
+        knowledgeStrategy.updateKnowledge(workingCommonKnowledge, agent.getAgentsKnowledgeBase());
     }
 
     @Override

@@ -1,18 +1,16 @@
 package cz.jan.maly.model.agent.action;
 
 import bwapi.Game;
-import cz.jan.maly.model.GameActionMaker;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.agent.AgentWithGameRepresentation;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
 import cz.jan.maly.model.agent.action.game.Action;
-import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.service.GameIssueCommandManager;
-import cz.jan.maly.service.MyLogger;
+import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
 
-import static cz.jan.maly.service.OnFrameExecutor.maxFrameExecutionTime;
+import static cz.jan.maly.utils.FrameworkUtils.getMaxFrameExecutionTime;
 
 /**
  * Abstract class ActInGameAction issues command to game based on its implementation trough GameIssueCommandManager
@@ -29,8 +27,8 @@ public class ActInGameAction extends AgentActionCycleAbstract implements GameAct
     //parameter of default time it takes to make action in milliseconds
     private long timeThatWasRequiredToMakeAction = defaultTimeThatIsRequiredToMakeAction;
 
-    public ActInGameAction(AgentWithGameRepresentation agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, Action actionToExecute, boolean actionTerminateAgent) {
-        super(agent, followingActionsWithConditions);
+    public ActInGameAction(AgentWithGameRepresentation agent, LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> followingActionsWithConditions, Action actionToExecute, boolean actionTerminateAgent) {
+        super(agent, followingActionsWithConditions, actionCycleEnum);
         this.actionToExecute = actionToExecute;
         this.actionTerminateAgent = actionTerminateAgent;
     }
@@ -63,7 +61,7 @@ public class ActInGameAction extends AgentActionCycleAbstract implements GameAct
             if (actionTerminateAgent) {
                 agent.terminateAgent();
             }
-            timeThatWasRequiredToMakeAction = Math.min(System.currentTimeMillis() - start, maxFrameExecutionTime - 1);
+            timeThatWasRequiredToMakeAction = Math.min(System.currentTimeMillis() - start, getMaxFrameExecutionTime() - 1);
             this.notifyAll();
         }
     }

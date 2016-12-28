@@ -1,51 +1,36 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.model.sflo.TermInterface;
+import cz.jan.maly.model.sflo.FormulaInterface;
 
-import java.util.LinkedHashMap;
-import java.util.Optional;
+import java.util.List;
 
 /**
- * Abstract class to remove repetitive code which would appear in each concrete implementation of AgentActionCycleAbstract
- * referencing to actions which should be executed next
+ * Abstract class to be used as template for each concrete AgentActionCycle. Each implementation should define method
+ * executedAction() which is called when conditions to run this action are met
  * Created by Jan on 14-Dec-16.
  */
 public abstract class AgentActionCycleAbstract {
-    protected final LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions;
+    private final List<FormulaInterface> formulasWhenActionCanBeExecuted;
     protected final Agent agent;
 
-    public AgentActionCycleAbstract(Agent agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions) {
+    public AgentActionCycleAbstract(Agent agent, List<FormulaInterface> formulasWhenActionCanBeExecuted) {
         this.agent = agent;
-        this.followingActionsWithConditions = followingActionsWithConditions;
+        this.formulasWhenActionCanBeExecuted = formulasWhenActionCanBeExecuted;
     }
-
-    public AgentActionCycleAbstract(Agent agent) {
-        this.agent = agent;
-        this.followingActionsWithConditions = new LinkedHashMap<>();
-    }
-
-    public abstract Optional<AgentActionCycleAbstract> executeAction();
 
     /**
-     * Method to decide which action to choose next based on current state of knowledge
-     *
+     * OR - if any of the formulas evaluates as true, returns true
      * @return
      */
-    protected Optional<AgentActionCycleAbstract> decideNextAction() {
-        Optional<TermInterface> firstTruthfulTerm = followingActionsWithConditions.keySet().stream()
-                .filter(TermInterface::evaluate).findFirst();
-        if (firstTruthfulTerm.isPresent()) {
-            return Optional.ofNullable(followingActionsWithConditions.get(firstTruthfulTerm.get()));
-        }
-        return Optional.empty();
+    public boolean areConditionForExecutionMet(){
+        return formulasWhenActionCanBeExecuted.stream()
+                .anyMatch(FormulaInterface::evaluate);
     }
 
-    public int getLongestLengthToEnd() {
-        int length = followingActionsWithConditions.values().stream()
-                .map(agentActionCycleAbstract -> agentActionCycleAbstract.getLongestLengthToEnd())
-                .max(Integer::compareTo)
-                .orElse(0);
-        return length + 1;
-    }
+    /**
+     * Method try to execute action implemented by concrete AgentActionCycle and returns if execution was successful
+     * @return
+     */
+    public abstract boolean executedAction();
 
 }

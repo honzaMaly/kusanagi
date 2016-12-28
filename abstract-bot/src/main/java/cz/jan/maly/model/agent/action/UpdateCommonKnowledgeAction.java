@@ -2,8 +2,8 @@ package cz.jan.maly.model.agent.action;
 
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.sflo.TermInterface;
-import cz.jan.maly.service.MediatorFoSharingKnowledge;
+import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.service.implementation.MediatorFoSharingKnowledge;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -14,8 +14,8 @@ import java.util.Optional;
  */
 public class UpdateCommonKnowledgeAction extends AgentActionCycleAbstract {
 
-    public UpdateCommonKnowledgeAction(Agent agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions) {
-        super(agent, followingActionsWithConditions);
+    public UpdateCommonKnowledgeAction(Agent agent, LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> followingActionsWithConditions) {
+        super(agent, followingActionsWithConditions, actionCycleEnum);
     }
 
     public UpdateCommonKnowledgeAction(Agent agent) {
@@ -24,7 +24,7 @@ public class UpdateCommonKnowledgeAction extends AgentActionCycleAbstract {
 
     @Override
     public Optional<AgentActionCycleAbstract> executeAction() {
-        MediatorFoSharingKnowledge.getInstance().receiveAgentsKnowledge(agent.getAgentsKnowledge().createSnapshot());
+        MediatorFoSharingKnowledge.getInstance().receiveAgentsKnowledge(agent.getAgentsKnowledgeBase().createSnapshot());
         return decideNextAction();
     }
 }

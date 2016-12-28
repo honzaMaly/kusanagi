@@ -2,8 +2,7 @@ package cz.jan.maly.model.agent.action;
 
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.agent.AgentKnowledgeUpdateByReasoning;
-import cz.jan.maly.model.sflo.TermInterface;
+import cz.jan.maly.model.sflo.FormulaInterface;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -20,14 +19,14 @@ public class ReasonAboutKnowledgeAction extends AgentActionCycleAbstract {
         this.reasoningStrategy = reasoningStrategy;
     }
 
-    public ReasonAboutKnowledgeAction(Agent agent, LinkedHashMap<TermInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByReasoning reasoningStrategy) {
-        super(agent, followingActionsWithConditions);
+    public ReasonAboutKnowledgeAction(Agent agent, LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> followingActionsWithConditions, AgentKnowledgeUpdateByReasoning reasoningStrategy) {
+        super(agent, followingActionsWithConditions, actionCycleEnum);
         this.reasoningStrategy = reasoningStrategy;
     }
 
     @Override
     public Optional<AgentActionCycleAbstract> executeAction() {
-        reasoningStrategy.updateKnowledge(agent.getAgentsKnowledge());
+        reasoningStrategy.updateKnowledge(agent.getAgentsKnowledgeBase());
         return decideNextAction();
     }
 }

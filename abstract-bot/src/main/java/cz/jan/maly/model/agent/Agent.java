@@ -1,161 +1,179 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.service.AgentsManager;
-import cz.jan.maly.service.MyLogger;
+import cz.jan.maly.model.agent.data.ActionToEvaluateTogether;
+import cz.jan.maly.model.data.KeyToFact;
+import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
+import cz.jan.maly.model.agent.data.AgentsKnowledgeCache;
+import cz.jan.maly.service.implementation.AgentsManager;
+import cz.jan.maly.service.implementation.MASService;
+import cz.jan.maly.utils.MyLogger;
 import lombok.EqualsAndHashCode;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Agent abstraction class handles execution of main routine (in form of sequence) in agent.
- * Concrete agent has to describe creation of sequence of actions to execute, type of agent's knowledge and method to decided
- * if agent is still alive
+ * Agent abstraction class handles execution of main routine (action workflow, in form of sequence) in agent.
+ * Concrete agent has to describe actions to execute, type of agent's knowledge and requests, initialization and destruction
  * Created by Jan on 09-Dec-16.
  */
 @EqualsAndHashCode(of = "id")
 public abstract class Agent {
-    protected final AgentsKnowledge agentsKnowledge;
+
+    protected final AgentsKnowledgeBase agentsKnowledgeBaseInternal;
+    protected final AgentsKnowledgeCache agentsKnowledgeCache;
+
+    //todo
+    //this structure contains request made by agent
+    //this structure contains request agent is committed to
+
     private Boolean isAlive = true;
-    protected final Set<Agent> agentsToNotifyInCaseOfTermination = new HashSet<>();
+    private boolean isRunning = true;
     private final int id;
-    private final int lengthOfLongestPath;
-
-    /**
-     * Starting action is actually root of the tree. This tree is executed by this agent from root to one of the leafs in each cycle.
-     * Path depends on current knowledge. This kind of representation enable one for example to change behaviour when actual
-     * race of opponent is discovered. This put emphasis on implementing simple action over action which performs different behaviour
-     * given current knowledge
-     */
-    private final AgentActionCycleAbstract startingActionOfWorkflow;
-
+    protected static final Random RANDOM = new Random();
     private final long timeBetweenCycles;
-    private final Set<Agent> receivedNotificationFromAgents = new HashSet<>();
     private final Worker worker = new Worker();
+    private final boolean isAbstract;
 
-    protected Agent(long timeBetweenCycles) {
-        this.agentsKnowledge = setupAgentsKnowledge();
+    //definition of workflow specific for agent
+    private final Map<ActionCycleEnums, List<ActionToEvaluateTogether>> actionDefinition = new HashMap<>();
+    private final List<ActionCycleEnums> actionTypeExecutionOrder;
+
+    private final Map<ActionCycleEnums, Long> gameRelatedActionWasCalledInFrame = new HashMap<>();
+
+    //to have access to different services
+    protected final MASService service;
+
+    protected Agent(long timeBetweenCycles, Set<KeyToFact> factsToUseInInternalKnowledge, Set<KeyToFact> factsToUseInCache, boolean isAbstract, MASService service) {
+        this.agentsKnowledgeBaseInternal = new AgentsKnowledgeBase(factsToUseInInternalKnowledge, this);
+        this.agentsKnowledgeCache = new AgentsKnowledgeCache(factsToUseInCache);
         this.timeBetweenCycles = timeBetweenCycles;
-        this.startingActionOfWorkflow = composeWorkflow();
-        this.id = AgentsManager.getInstance().addAgent(this);
-        this.lengthOfLongestPath = startingActionOfWorkflow.getLongestLengthToEnd();
+        this.isAbstract = isAbstract;
+        this.service = service;
+        initializeActionWorkflow();
+        this.actionTypeExecutionOrder = actionDefinition.keySet().stream()
+                .sorted(Comparator.comparingInt(Enum::ordinal))
+                .collect(Collectors.toList());
+        actionTypeExecutionOrder.stream()
+                .filter(ActionCycleEnums::isCanBeExecutedOncePerFrameOnly)
+                .forEach(actionCycleEnums -> gameRelatedActionWasCalledInFrame.put(actionCycleEnums, -1L));
+        this.id = service.getAgentsManager().getFreeId();
+        worker.start();
+    }
+
+    public boolean isAbstract() {
+        return isAbstract;
     }
 
     public int getId() {
         return id;
     }
 
-    protected abstract AgentsKnowledge setupAgentsKnowledge();
-
-    public void receivedNotificationFromAgent(Agent agent) {
-        synchronized (receivedNotificationFromAgents) {
-            receivedNotificationFromAgents.add(agent);
-        }
-    }
-
-    public AgentsKnowledge getAgentsKnowledge() {
-        return agentsKnowledge;
-    }
-
     /**
-     * Method to be called to activate agent
-     */
-    protected void act() {
-        worker.start();
-    }
-
-    public int getLengthOfLongestPath() {
-        return lengthOfLongestPath;
-    }
-
-    /**
-     * Worker execute workflow of this agent. It makes sure that worker sleeps for defined amount of time after
-     * cycle was executed or is awaken sooner in case of receiving notification from another agent to act
+     * Worker execute workflow of this agent. It makes sure that worker sleeps for defined amount of time.
+     * If action failed to be executed, cycle start over.
      */
     private class Worker extends Thread {
-        private final Set<Agent> receivedNotificationsFrom = new HashSet<>();
 
         @Override
         public void run() {
-            Optional<AgentActionCycleAbstract> nextAction = Optional.ofNullable(startingActionOfWorkflow);
             while (true) {
-                synchronized (receivedNotificationFromAgents) {
-                    receivedNotificationsFrom.clear();
-                    receivedNotificationsFrom.addAll(receivedNotificationFromAgents);
-                    receivedNotificationFromAgents.clear();
-                }
-
-                //pick next action. if notification was received and next action is empty new cycle should start immediately
-                agentsKnowledge.propagateNewReceivedNotificationFromAgentsToKnowledge(receivedNotificationsFrom);
-                nextAction = nextAction.get().executeAction();
-                if (!nextAction.isPresent()) {
-                    nextAction = Optional.ofNullable(startingActionOfWorkflow);
-
-                    //todo if cycle reached end naturally, sleep for time interval or till notification
-                    try {
-                        Thread.sleep(5);
-                    } catch (InterruptedException e) {
-                        MyLogger.getLogger().warning(e.getLocalizedMessage());
-                    }
-                }
                 synchronized (isAlive) {
                     if (!isAlive) {
-                        removeAgent();
                         break;
                     }
                 }
+
+                //action of particular type are executed in order given by ActionCycleEnums ordinal
+                boolean hasActionFailed = false;
+                for (ActionCycleEnums nextAction : actionTypeExecutionOrder) {
+
+                    //todo check if action is frame dependant. if so skip it if it was executed recently
+
+                    //only actions in one ActionToEvaluateTogether can be executed at once and only those for which conditions are met
+                    boolean wasAnyActionExecuted = false;
+                    for (ActionToEvaluateTogether actionToEvaluateTogether : actionDefinition.get(nextAction)) {
+                        while (actionToEvaluateTogether.hasNext()) {
+                            AgentActionCycleAbstract action = actionToEvaluateTogether.next();
+                            if (action.areConditionForExecutionMet()) {
+
+                                //execute action. if execution fail, action type execution start over
+                                if (!action.executedAction()) {
+                                    hasActionFailed = true;
+                                    break;
+                                }
+                                wasAnyActionExecuted = true;
+                            }
+                        }
+                        if (wasAnyActionExecuted || hasActionFailed) {
+                            break;
+                        }
+                    }
+                    if (hasActionFailed) {
+                        break;
+                    }
+
+                    //todo update last execution of action
+
+                    //check this after each action
+                    synchronized (isAlive) {
+                        if (!isAlive) {
+                            break;
+                        }
+                    }
+                }
+
+                //todo if cycle reached end naturally, sleep for time interval
+                try {
+                    Thread.sleep(timeBetweenCycles);
+                } catch (InterruptedException e) {
+                    MyLogger.getLogger().warning(e.getLocalizedMessage());
+                }
             }
+            isRunning = false;
+            removeAgent();
         }
 
     }
 
+    //todo
     /**
-     * This is crucial method to be implemented by each agent as it should return valid workflow for agent to execute
+     * Method merge user defined actions with internal ones. To create map of actions to execute per type.
      *
      * @return
      */
-    protected abstract AgentActionCycleAbstract composeWorkflow();
+    private void initializeActionWorkflow() {
+        Map<ActionCycleEnums, List<ActionToEvaluateTogether>> actionsDefinedByUser = actionsDefinedByUser();
+        if (actionsDefinedByUser.keySet().stream().anyMatch(ActionCycleEnums::isInternal)) {
+            MyLogger.getLogger().info("Internal actions con not be define by user. Default values for those actions will be used instead.");
+        }
+
+        //todo. check that in game action are size one
+        for (ActionCycleEnums actionCycleEnums : ActionCycleEnums.values()) {
+            switch (actionCycleEnums) {
+                case ACT_IN_GAME:
+
+                    break;
+                case READ_MAP:
+
+                    break;
+            }
+        }
+    }
 
     /**
-     * Another agent ask this instance to be notified in case of termination
+     * This is crucial method to be implemented by each agent as it should return valid map of actions for agent to execute.
+     * This method is on class as it works with inner knowledge and requests. Value - list in map, is evaluate from first
+     * element until at least one action in ActionToEvaluateTogether is executed (or there are no more options).
+     * After that program continue with next level if action was executed/no action was executed.
+     * If action failed to be executed cycle start over.
      *
-     * @param agent
      * @return
      */
-    public synchronized boolean wasAgentRegisterInNotifyListForCaseOfTermination(Agent agent) {
-        synchronized (isAlive) {
-            if (!isAlive) {
-                return false;
-            }
-            synchronized (agentsToNotifyInCaseOfTermination) {
-                agentsToNotifyInCaseOfTermination.add(agent);
-            }
-            return true;
-        }
-    }
+    protected abstract Map<ActionCycleEnums, List<ActionToEvaluateTogether>> actionsDefinedByUser();
 
-    /**
-     * Act on agent removal
-     *
-     * @param agent
-     */
-    public void agentWasRemoved(Agent agent) {
-        synchronized (agentsToNotifyInCaseOfTermination) {
-            agentsToNotifyInCaseOfTermination.remove(agent);
-        }
-        actOnAgentRemoval(agent);
-    }
-
-    /**
-     * Abstract method to decide how to act on agent removal - for example to terminate as well
-     *
-     * @param agent
-     */
-    protected abstract void actOnAgentRemoval(Agent agent);
-
-    public synchronized boolean isAgentAlive() {
-        return isAlive;
+    public boolean isAgentAlive() {
+        return isRunning;
     }
 
     /**
@@ -165,11 +183,6 @@ public abstract class Agent {
         this.isAlive = false;
     }
 
-    private void removeAgent() {
-        synchronized (agentsToNotifyInCaseOfTermination) {
-            agentsToNotifyInCaseOfTermination.forEach(this::agentWasRemoved);
-        }
-        AgentsManager.getInstance().removeAgent(this);
-    }
+    protected abstract void removeAgent();
 
 }

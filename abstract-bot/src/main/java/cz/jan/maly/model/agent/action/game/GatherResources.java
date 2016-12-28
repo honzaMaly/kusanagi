@@ -1,7 +1,7 @@
 package cz.jan.maly.model.agent.action.game;
 
 import bwapi.Game;
-import cz.jan.maly.model.Fact;
+import cz.jan.maly.model.data.Fact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 
 /**
