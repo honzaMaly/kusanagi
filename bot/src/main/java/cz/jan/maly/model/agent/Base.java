@@ -1,11 +1,11 @@
 package cz.jan.maly.model.agent;
 
 import bwapi.UnitType;
-import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
-import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.agent.action.GetGameObservationAction;
 import cz.jan.maly.model.agent.action.UpdateCommonKnowledgeAction;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
+import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.sflo.FormulaInterface;
 import cz.jan.maly.model.sflo.factories.FormulaFactoryEnum;

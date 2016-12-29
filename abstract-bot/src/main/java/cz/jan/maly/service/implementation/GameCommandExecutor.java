@@ -30,7 +30,7 @@ public class GameCommandExecutor {
         return countOfPassedFrames;
     }
 
-    public synchronized void incrementCountOfPassedFrames() {
+    private synchronized void incrementCountOfPassedFrames() {
         countOfPassedFrames++;
     }
 

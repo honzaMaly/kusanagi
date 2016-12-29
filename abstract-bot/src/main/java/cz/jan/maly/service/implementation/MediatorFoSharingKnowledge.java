@@ -1,8 +1,8 @@
 package cz.jan.maly.service.implementation;
 
-import cz.jan.maly.model.data.CommonKnowledge;
 import cz.jan.maly.model.agent.data.SnapshotOfAgentOwnKnowledge;
-import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
+import cz.jan.maly.model.data.ReadOnlyCommonKnowledge;
+import cz.jan.maly.model.data.WorkingCommonKnowledge;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
@@ -19,15 +19,18 @@ import static cz.jan.maly.utils.FrameworkUtils.getLengthOfIntervalToSendUpdatesB
  */
 @Getter
 public class MediatorFoSharingKnowledge {
-    private CommonKnowledge workingCommonKnowledge = new CommonKnowledge();
+    private WorkingCommonKnowledge workingCommonKnowledge = new WorkingCommonKnowledge();
+    private ReadOnlyCommonKnowledge readOnlyCommonKnowledge = workingCommonKnowledge.getCloneOfKnowledge();
     private final List<SnapshotOfAgentOwnKnowledge> updateKnowledgeByKnowledgeFromAgents = new ArrayList<>();
-    private Consumer consumer = new Consumer(workingCommonKnowledge);
+    private boolean shouldConsume = true;
+    private final Object isAliveLockMonitor = new Object();
+    private final Object isRegisterLockMonitor = new Object();
 
     public MediatorFoSharingKnowledge() {
+        Consumer consumer = new Consumer();
         consumer.start();
     }
 
-    //todo make sure to check if it is true in action to prevent lock
     /**
      * Method to register new knowledge from agent
      *
@@ -39,15 +42,13 @@ public class MediatorFoSharingKnowledge {
     }
 
     /**
-     * Method to be called by agent to update his knowledge by common knowledge in a way that is described by strategy implemented by him
+     * Method to be called by agent to get snapshot of recent common knowledge
      *
-     * @param updateKnowledgeAction
+     * @return
      */
-    public void updateAgentsKnowledge(GetPartOfCommonKnowledgeAction updateKnowledgeAction) {
-        synchronized (workingCommonKnowledge) {
-            if (updateKnowledgeAction != null) {
-                updateKnowledgeAction.updateAgentsKnowledge(workingCommonKnowledge);
-            }
+    public ReadOnlyCommonKnowledge getCommonKnowledge() {
+        synchronized (isRegisterLockMonitor) {
+            return readOnlyCommonKnowledge;
         }
     }
 
@@ -55,13 +56,6 @@ public class MediatorFoSharingKnowledge {
      * Class describing consumer of agents' knowledge. It process received knowledge of agents and integrate it to common one
      */
     private class Consumer extends Thread {
-        private final CommonKnowledge commonKnowledge;
-        private Boolean shouldConsume = true;
-        protected boolean isTerminated = false;
-
-        private Consumer(CommonKnowledge commonKnowledge) {
-            this.commonKnowledge = commonKnowledge.getCloneOfKnowledge();
-        }
 
         @Override
         public void run() {
@@ -91,7 +85,7 @@ public class MediatorFoSharingKnowledge {
                             }
 
                         }
-                        commonKnowledge.addSnapshot(agentsKnowledge);
+                        workingCommonKnowledge.addSnapshot(agentsKnowledge);
                     }
 
                     //sleep until time is up or another message with knowledge was received
@@ -110,19 +104,20 @@ public class MediatorFoSharingKnowledge {
                 }
 
                 //update working knowledge by current one
-                synchronized (workingCommonKnowledge) {
-                    workingCommonKnowledge = commonKnowledge.getCloneOfKnowledge();
+                synchronized (isRegisterLockMonitor) {
+                    readOnlyCommonKnowledge = workingCommonKnowledge.getCloneOfKnowledge();
                 }
-                synchronized (shouldConsume) {
+                synchronized (isAliveLockMonitor) {
                     if (!shouldConsume) {
                         break;
                     }
                 }
             }
-            isTerminated = true;
         }
+    }
 
-        public synchronized void terminate() {
+    public void terminate() {
+        synchronized (isAliveLockMonitor){
             this.shouldConsume = false;
         }
     }

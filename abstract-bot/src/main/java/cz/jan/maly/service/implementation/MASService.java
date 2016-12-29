@@ -60,10 +60,11 @@ public class MASService extends DefaultBWListener {
         MyLogger.getLogger().info("Analyzing map");
         BWTA.readMap();
         BWTA.analyze();
+
         MyLogger.getLogger().info("Map data ready");
 
         //create all abstract agents
-        abstractAgentInitializer.initializeAbstractAgentOnStartOfTheGame();
+        abstractAgentInitializer.initializeAbstractAgentOnStartOfTheGame().forEach(abstractAgentInitializationStrategy -> abstractAgentInitializationStrategy.createAbstractAgent(this));
 
         //speed up game to setup value
         game.setLocalSpeed(getGameDefaultSpeed());
@@ -111,5 +112,12 @@ public class MASService extends DefaultBWListener {
     @Override
     public void onEnd(boolean b) {
         agentsManager.terminateAllAgents();
+        mediatorForSharingRequests.terminate();
+        mediatorFoSharingKnowledge.terminate();
+    }
+
+    @Override
+    public void onFrame() {
+        gameCommandExecutor.actOnFrame(game);
     }
 }

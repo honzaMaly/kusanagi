@@ -1,6 +1,5 @@
 package cz.jan.maly;
 
-import cz.jan.maly.service.FileReplayParserService;
 import cz.jan.maly.service.ReplayParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;

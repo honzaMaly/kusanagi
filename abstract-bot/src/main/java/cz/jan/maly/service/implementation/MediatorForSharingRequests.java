@@ -1,11 +1,13 @@
 package cz.jan.maly.service.implementation;
 
 import cz.jan.maly.model.agent.Agent;
+import cz.jan.maly.model.agent.CommitmentCommand;
 import cz.jan.maly.model.data.KeyToRequest;
 import cz.jan.maly.model.data.Request;
 import cz.jan.maly.model.data.RequestRegisterReadOnly;
 import cz.jan.maly.model.data.WorkingRequestRegister;
 import cz.jan.maly.utils.MyLogger;
+import lombok.AllArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +26,12 @@ public class MediatorForSharingRequests {
     private RequestRegisterReadOnly requestRegisterReadOnly = workingRequestRegister.getSnapshotOfRegister();
     //queue to update register
     private final List<QueuedItem> queue = new ArrayList<>();
-    private Consumer consumer = new Consumer();
+    private boolean shouldConsume = true;
+    private final Object isAliveLockMonitor = new Object();
+    private final Object isRegisterLockMonitor = new Object();
 
     public MediatorForSharingRequests() {
+        Consumer consumer = new Consumer();
         consumer.start();
     }
 
@@ -38,13 +43,15 @@ public class MediatorForSharingRequests {
      * @param agentWhoWantsToCommit
      * @return
      */
-    public synchronized boolean makeCommitmentToRequest(KeyToRequest keyToRequest, Request request, Agent agentWhoWantsToCommit) {
-        return queue.add(new QueuedItem() {
-            @Override
-            protected boolean executeItem() {
-                return workingRequestRegister.madeCommitmentToRequest(keyToRequest, request, agentWhoWantsToCommit, false);
-            }
-        });
+    public boolean makeCommitmentToRequest(KeyToRequest keyToRequest, Request request, Agent agentWhoWantsToCommit, CommitmentCommand command) {
+        synchronized (queue) {
+            return queue.add(new QueuedItem(command) {
+                @Override
+                protected boolean executeItem() {
+                    return workingRequestRegister.madeCommitmentToRequest(keyToRequest, request, agentWhoWantsToCommit, false);
+                }
+            });
+        }
     }
 
     /**
@@ -55,13 +62,15 @@ public class MediatorForSharingRequests {
      * @param agentWhoWantsToCommit
      * @return
      */
-    public synchronized boolean removeCommitmentToRequest(KeyToRequest keyToRequest, Request request, Agent agentWhoWantsToCommit) {
-        return queue.add(new QueuedItem() {
-            @Override
-            protected boolean executeItem() {
-                return workingRequestRegister.madeCommitmentToRequest(keyToRequest, request, agentWhoWantsToCommit, true);
-            }
-        });
+    public boolean removeCommitmentToRequest(KeyToRequest keyToRequest, Request request, Agent agentWhoWantsToCommit, CommitmentCommand command) {
+        synchronized (queue) {
+            return queue.add(new QueuedItem(command) {
+                @Override
+                protected boolean executeItem() {
+                    return workingRequestRegister.madeCommitmentToRequest(keyToRequest, request, agentWhoWantsToCommit, true);
+                }
+            });
+        }
     }
 
     /**
@@ -72,13 +81,15 @@ public class MediatorForSharingRequests {
      * @param agent
      * @return
      */
-    public synchronized boolean addRequest(KeyToRequest keyToRequest, Request request, Agent agent) {
-        return queue.add(new QueuedItem() {
-            @Override
-            protected boolean executeItem() {
-                return workingRequestRegister.madeRequest(keyToRequest, request, agent, false);
-            }
-        });
+    public boolean addRequest(KeyToRequest keyToRequest, Request request, Agent agent, CommitmentCommand command) {
+        synchronized (queue) {
+            return queue.add(new QueuedItem(command) {
+                @Override
+                protected boolean executeItem() {
+                    return workingRequestRegister.madeRequest(keyToRequest, request, agent, false);
+                }
+            });
+        }
     }
 
     /**
@@ -89,13 +100,15 @@ public class MediatorForSharingRequests {
      * @param agent
      * @return
      */
-    public synchronized boolean removeRequest(KeyToRequest keyToRequest, Request request, Agent agent) {
-        return queue.add(new QueuedItem() {
-            @Override
-            protected boolean executeItem() {
-                return workingRequestRegister.madeRequest(keyToRequest, request, agent, true);
-            }
-        });
+    public boolean removeRequest(KeyToRequest keyToRequest, Request request, Agent agent, CommitmentCommand command) {
+        synchronized (queue) {
+            return queue.add(new QueuedItem(command) {
+                @Override
+                protected boolean executeItem() {
+                    return workingRequestRegister.madeRequest(keyToRequest, request, agent, true);
+                }
+            });
+        }
     }
 
     /**
@@ -103,8 +116,6 @@ public class MediatorForSharingRequests {
      * It process received requests of agents and integrate it to register
      */
     private class Consumer extends Thread {
-        private Boolean shouldConsume = true;
-        protected boolean isTerminated = false;
 
         @Override
         public void run() {
@@ -118,9 +129,7 @@ public class MediatorForSharingRequests {
                         synchronized (queue) {
                             queuedItem = queue.remove(0);
                         }
-
-                        //todo return result of operation to action
-                        queuedItem.executeItem();
+                        queuedItem.handleRequest();
                     }
 
                     //sleep until time is up or another request was received
@@ -139,20 +148,15 @@ public class MediatorForSharingRequests {
                 }
 
                 //update read only register by copy of current one
-                synchronized (requestRegisterReadOnly) {
+                synchronized (isRegisterLockMonitor) {
                     requestRegisterReadOnly = workingRequestRegister.getSnapshotOfRegister();
                 }
-                synchronized (shouldConsume) {
+                synchronized (isAliveLockMonitor) {
                     if (!shouldConsume) {
                         break;
                     }
                 }
             }
-            isTerminated = true;
-        }
-
-        public synchronized void terminate() {
-            this.shouldConsume = false;
         }
     }
 
@@ -161,19 +165,31 @@ public class MediatorForSharingRequests {
      *
      * @return
      */
-    public synchronized RequestRegisterReadOnly returnCopyOfRegister() {
-        return requestRegisterReadOnly;
+    public RequestRegisterReadOnly returnCopyOfRegister() {
+        synchronized (isRegisterLockMonitor) {
+            return requestRegisterReadOnly;
+        }
     }
 
     /**
      * Class represent one item in queue with operation to be done upon register (based on method implementation).
      * This ensure uniform interface for request handling
      */
+    @AllArgsConstructor
     protected abstract class QueuedItem {
+        private final CommitmentCommand commitmentCommand;
 
-        //todo action to call to return it result of operation. Action should implement new interface with method to resume
+        public void handleRequest() {
+            commitmentCommand.handleResultOfCommitmentRequest(executeItem());
+        }
 
         protected abstract boolean executeItem();
+    }
+
+    public void terminate() {
+        synchronized (isAliveLockMonitor) {
+            this.shouldConsume = false;
+        }
     }
 
 }

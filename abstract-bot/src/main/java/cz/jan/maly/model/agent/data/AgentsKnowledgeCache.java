@@ -1,9 +1,9 @@
 package cz.jan.maly.model.agent.data;
 
+import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.data.CommonKnowledge;
 import cz.jan.maly.model.data.Fact;
 import cz.jan.maly.model.data.KeyToFact;
-import cz.jan.maly.model.agent.Agent;
 
 import java.util.HashMap;
 import java.util.Map;

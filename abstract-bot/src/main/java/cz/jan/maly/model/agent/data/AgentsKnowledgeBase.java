@@ -1,10 +1,12 @@
 package cz.jan.maly.model.agent.data;
 
+import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.data.Fact;
 import cz.jan.maly.model.data.KeyToFact;
-import cz.jan.maly.model.agent.Agent;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 

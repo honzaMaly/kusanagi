@@ -1,9 +1,6 @@
 package cz.jan.maly.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.*;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;

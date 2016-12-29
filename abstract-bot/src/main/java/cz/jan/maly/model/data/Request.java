@@ -51,9 +51,7 @@ public class Request {
      * @return
      */
     public boolean removeCommitment(Agent agent) {
-        if (committedAgents.contains(agent))
-            return committedAgents.remove(agent);
-        return true;
+        return !committedAgents.contains(agent) || committedAgents.remove(agent);
     }
 
     /**

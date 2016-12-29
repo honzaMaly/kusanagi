@@ -1,10 +1,9 @@
 package cz.jan.maly.model.agent;
 
 import cz.jan.maly.model.agent.data.ActionToEvaluateTogether;
-import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeCache;
-import cz.jan.maly.service.implementation.AgentsManager;
+import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.service.implementation.MASService;
 import cz.jan.maly.utils.MyLogger;
 import lombok.EqualsAndHashCode;
@@ -23,16 +22,16 @@ public abstract class Agent {
     protected final AgentsKnowledgeBase agentsKnowledgeBaseInternal;
     protected final AgentsKnowledgeCache agentsKnowledgeCache;
 
-    //todo
-    //this structure contains request made by agent
-    //this structure contains request agent is committed to
+    //todo. add sets of available values to constructor
+    //structure contains request made by agent
+    //structure contains request agent is committed to
+    //cache of request agent can commit to
 
-    private Boolean isAlive = true;
-    private boolean isRunning = true;
+    private final Object isAliveLockMonitor = new Object();
+    private boolean isAlive = true;
     private final int id;
     protected static final Random RANDOM = new Random();
     private final long timeBetweenCycles;
-    private final Worker worker = new Worker();
     private final boolean isAbstract;
 
     //definition of workflow specific for agent
@@ -41,7 +40,7 @@ public abstract class Agent {
 
     private final Map<ActionCycleEnums, Long> gameRelatedActionWasCalledInFrame = new HashMap<>();
 
-    //to have access to different services
+    //to have access to different services provided by framework
     protected final MASService service;
 
     protected Agent(long timeBetweenCycles, Set<KeyToFact> factsToUseInInternalKnowledge, Set<KeyToFact> factsToUseInCache, boolean isAbstract, MASService service) {
@@ -58,6 +57,7 @@ public abstract class Agent {
                 .filter(ActionCycleEnums::isCanBeExecutedOncePerFrameOnly)
                 .forEach(actionCycleEnums -> gameRelatedActionWasCalledInFrame.put(actionCycleEnums, -1L));
         this.id = service.getAgentsManager().getFreeId();
+        Worker worker = new Worker();
         worker.start();
     }
 
@@ -78,7 +78,7 @@ public abstract class Agent {
         @Override
         public void run() {
             while (true) {
-                synchronized (isAlive) {
+                synchronized (isAliveLockMonitor) {
                     if (!isAlive) {
                         break;
                     }
@@ -88,7 +88,12 @@ public abstract class Agent {
                 boolean hasActionFailed = false;
                 for (ActionCycleEnums nextAction : actionTypeExecutionOrder) {
 
-                    //todo check if action is frame dependant. if so skip it if it was executed recently
+                    //check if action is frame dependant. if so skip action if it was executed recently
+                    if (nextAction.isCanBeExecutedOncePerFrameOnly()) {
+                        if (gameRelatedActionWasCalledInFrame.get(nextAction) >= service.getGameCommandExecutor().getCountOfPassedFrames()) {
+                            continue;
+                        }
+                    }
 
                     //only actions in one ActionToEvaluateTogether can be executed at once and only those for which conditions are met
                     boolean wasAnyActionExecuted = false;
@@ -99,6 +104,11 @@ public abstract class Agent {
 
                                 //execute action. if execution fail, action type execution start over
                                 if (!action.executedAction()) {
+
+                                    //update last execution time
+                                    if (nextAction.isCanBeExecutedOncePerFrameOnly()) {
+                                        gameRelatedActionWasCalledInFrame.put(nextAction, service.getGameCommandExecutor().getCountOfPassedFrames());
+                                    }
                                     hasActionFailed = true;
                                     break;
                                 }
@@ -113,30 +123,30 @@ public abstract class Agent {
                         break;
                     }
 
-                    //todo update last execution of action
-
                     //check this after each action
-                    synchronized (isAlive) {
+                    synchronized (isAliveLockMonitor) {
                         if (!isAlive) {
                             break;
                         }
                     }
                 }
 
-                //todo if cycle reached end naturally, sleep for time interval
-                try {
-                    Thread.sleep(timeBetweenCycles);
-                } catch (InterruptedException e) {
-                    MyLogger.getLogger().warning(e.getLocalizedMessage());
+                //if cycle reached end without interruption, sleep for given time interval
+                if (!hasActionFailed) {
+                    try {
+                        Thread.sleep(timeBetweenCycles);
+                    } catch (InterruptedException e) {
+                        MyLogger.getLogger().warning(e.getLocalizedMessage());
+                    }
                 }
             }
-            isRunning = false;
             removeAgent();
         }
 
     }
 
     //todo
+
     /**
      * Method merge user defined actions with internal ones. To create map of actions to execute per type.
      *
@@ -172,15 +182,13 @@ public abstract class Agent {
      */
     protected abstract Map<ActionCycleEnums, List<ActionToEvaluateTogether>> actionsDefinedByUser();
 
-    public boolean isAgentAlive() {
-        return isRunning;
-    }
-
     /**
      * Method to be called when one want to terminate agent
      */
-    public synchronized void terminateAgent() {
-        this.isAlive = false;
+    public void terminateAgent() {
+        synchronized (isAliveLockMonitor) {
+            this.isAlive = false;
+        }
     }
 
     protected abstract void removeAgent();

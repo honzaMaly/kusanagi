@@ -2,8 +2,8 @@ package cz.jan.maly.model.agent.action;
 
 import bwapi.Game;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
 import cz.jan.maly.model.agent.action.game.Action;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
 import cz.jan.maly.model.sflo.FormulaInterface;
 import cz.jan.maly.utils.MyLogger;
 

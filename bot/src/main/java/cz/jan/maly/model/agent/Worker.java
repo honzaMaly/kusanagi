@@ -1,9 +1,6 @@
 package cz.jan.maly.model.agent;
 
 import bwapi.UnitType;
-import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
-import cz.jan.maly.model.data.Fact;
-import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.agent.action.ActInGameAction;
 import cz.jan.maly.model.agent.action.GetGameObservationAction;
 import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
@@ -11,12 +8,15 @@ import cz.jan.maly.model.agent.action.ReasonAboutKnowledgeAction;
 import cz.jan.maly.model.agent.action.game.Build;
 import cz.jan.maly.model.agent.action.game.GatherResources;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
+import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
+import cz.jan.maly.model.data.Fact;
+import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
 import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.model.sflo.factories.FormulaFactoryEnum;
 import cz.jan.maly.model.sflo.factories.SingleBooleanFactFormulaFactoryEnums;
 import cz.jan.maly.model.sflo.factories.SingleFactFormulaFactoryEnums;
-import cz.jan.maly.model.sflo.factories.FormulaFactoryEnum;
 import cz.jan.maly.model.sflo.factories.UnaryFormulaFactoryEnums;
 import cz.jan.maly.utils.MyLogger;
 
