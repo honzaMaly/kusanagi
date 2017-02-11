@@ -1,9 +1,9 @@
 package cz.jan.maly.model.agent.data;
 
 import cz.jan.maly.model.agent.Agent;
-import cz.jan.maly.model.data.CommonKnowledge;
-import cz.jan.maly.model.data.Fact;
+import cz.jan.maly.model.data.knowledge_representation.Fact;
 import cz.jan.maly.model.data.KeyToFact;
+import cz.jan.maly.model.data.ReadOnlyCommonKnowledge;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class AgentsKnowledgeCache {
      * Method which takes all interesting facts from knowledge and store them to cache
      * @param commonKnowledge
      */
-    public void cacheUsefulPartsOfCommonKnowledge(CommonKnowledge commonKnowledge){
+    public void cacheUsefulPartsOfCommonKnowledge(ReadOnlyCommonKnowledge commonKnowledge){
         snapshotOfFactsByAgents.keySet().forEach(keyToFact -> {
             Optional<Set<Agent>> agentsWithTypeInKnowledge = commonKnowledge.returnAgentsWithThisTypeOfKnowledge(keyToFact);
             Map<Agent, Fact> mapWithFactPerAgentOfThisFactType = new HashMap<>();

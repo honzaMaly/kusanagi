@@ -5,13 +5,13 @@ import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import cz.jan.maly.model.agent.action.game.Morph;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
 import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
-import cz.jan.maly.model.data.Fact;
+import cz.jan.maly.model.data.knowledge_representation.Fact;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
-import cz.jan.maly.model.sflo.FormulaInterface;
-import cz.jan.maly.model.sflo.factories.SingleFactFormulaFactoryEnums;
-import cz.jan.maly.model.sflo.factories.UnaryFormulaFactoryEnums;
+import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sflo.factories.SingleFactFormulaFactoryEnums;
+import cz.jan.maly.sflo.factories.UnaryFormulaFactoryEnums;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.*;

@@ -20,6 +20,10 @@ public abstract class KeyToRequest {
                 .collect(Collectors.toSet());
     }
 
+    public Set<KeyToFact> getFactsInProposal() {
+        return factsInProposal.stream().collect(Collectors.toSet());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -33,7 +33,7 @@ public class WorkingCommonKnowledge extends CommonKnowledge {
      * @return
      */
     public ReadOnlyCommonKnowledge getCloneOfKnowledge() {
-        Map<Agent, Map<KeyToFact, Fact>> map = new HashMap<>();
+        Map<Agent, Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact>> map = new HashMap<>();
         snapshotOfFactsByAgents.forEach((agent, keyToFactFactMap) -> map.put(agent, CLONER.deepClone(keyToFactFactMap)));
         Map<KeyToFact, Set<Agent>> agentsByKnowledgeType = new HashMap<>();
         agentsWithByTypeOfKnowledge.forEach((keyToFact, agents) -> agentsByKnowledgeType.put(keyToFact, agents.stream().collect(Collectors.toSet())));

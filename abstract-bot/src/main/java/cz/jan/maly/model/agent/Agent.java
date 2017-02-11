@@ -1,6 +1,6 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.model.agent.data.ActionToEvaluateTogether;
+import cz.jan.maly.model.data.ActionToEvaluateTogether;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeCache;
 import cz.jan.maly.model.data.KeyToFact;

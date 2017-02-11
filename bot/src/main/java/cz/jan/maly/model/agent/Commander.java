@@ -5,12 +5,12 @@ import cz.jan.maly.model.agent.action.GetPartOfCommonKnowledgeAction;
 import cz.jan.maly.model.agent.action.ReasonAboutKnowledgeAction;
 import cz.jan.maly.model.agent.action.UpdateCommonKnowledgeAction;
 import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
-import cz.jan.maly.model.data.Fact;
+import cz.jan.maly.model.data.knowledge_representation.Fact;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
-import cz.jan.maly.model.sflo.FormulaInterface;
-import cz.jan.maly.model.sflo.factories.*;
+import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sflo.factories.*;
 import cz.jan.maly.service.implementation.AgentsManager;
 import cz.jan.maly.utils.MyLogger;
 

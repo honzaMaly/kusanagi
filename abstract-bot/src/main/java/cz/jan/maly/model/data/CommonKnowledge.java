@@ -10,10 +10,10 @@ import java.util.Set;
  * Created by Jan on 07-Dec-16.
  */
 public abstract class CommonKnowledge {
-    protected final Map<Agent, Map<KeyToFact, Fact>> snapshotOfFactsByAgents;
+    protected final Map<Agent, Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact>> snapshotOfFactsByAgents;
     protected final Map<KeyToFact, Set<Agent>> agentsWithByTypeOfKnowledge;
 
-    protected CommonKnowledge(Map<Agent, Map<KeyToFact, Fact>> snapshotOfFactsByAgents, Map<KeyToFact, Set<Agent>> agentsWithByTypeOfKnowledge) {
+    protected CommonKnowledge(Map<Agent, Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact>> snapshotOfFactsByAgents, Map<KeyToFact, Set<Agent>> agentsWithByTypeOfKnowledge) {
         this.snapshotOfFactsByAgents = snapshotOfFactsByAgents;
         this.agentsWithByTypeOfKnowledge = agentsWithByTypeOfKnowledge;
     }

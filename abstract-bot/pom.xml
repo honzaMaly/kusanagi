@@ -21,6 +21,11 @@
             <groupId>uk.com.robust-it</groupId>
             <artifactId>cloning</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cz.jan.maly</groupId>
+            <artifactId>bot-framework</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

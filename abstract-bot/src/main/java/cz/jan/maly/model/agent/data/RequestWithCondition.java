@@ -1,26 +1,19 @@
 package cz.jan.maly.model.agent.data;
 
 import cz.jan.maly.model.agent.Agent;
-import cz.jan.maly.model.data.Fact;
+import cz.jan.maly.model.data.knowledge_representation.Fact;
 import cz.jan.maly.model.data.KeyToFact;
-import cz.jan.maly.model.data.Request;
-import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.sflo.FormulaInterface;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * This class extend request and is used by agent to decide when to remove request as at least one condition to remove it is met
+ * Class adds to RequestMadeByAgent possibility to decide if request should be removed based on formulas - at least one condition to remove it is met
  * Created by Jan on 21-Dec-16.
  */
-public class RequestWithCondition extends Request {
+public class RequestWithCondition extends RequestMadeByAgent {
     private final List<FormulaInterface> conditionsToRemoveRequest;
-
-    public RequestWithCondition(Map<KeyToFact, Fact> facts, Set<Agent> agents, boolean canCommitOneAgentOnly, Agent requestFrom, int id, List<FormulaInterface> conditionsToRemoveRequest) {
-        super(facts, agents, canCommitOneAgentOnly, requestFrom, id);
-        this.conditionsToRemoveRequest = conditionsToRemoveRequest;
-    }
 
     public RequestWithCondition(Map<KeyToFact, Fact> facts, boolean canCommitOneAgentOnly, Agent requestFrom, int id, List<FormulaInterface> conditionsToRemoveRequest) {
         super(facts, canCommitOneAgentOnly, requestFrom, id);
@@ -28,11 +21,13 @@ public class RequestWithCondition extends Request {
     }
 
     /**
-     * OR - if any of the formula evaluates as true, returns true
+     * OR - if any of the formula evaluates as true, returns true, or request removal is decided by user explicitly
+     *
      * @return
      */
-    public boolean canBeRequestRemoved(){
-        return conditionsToRemoveRequest.stream()
+    @Override
+    public boolean canBeRequestRemoved() {
+        return canBeRemoved || conditionsToRemoveRequest.stream()
                 .anyMatch(FormulaInterface::evaluate);
     }
 }

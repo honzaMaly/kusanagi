@@ -2,7 +2,7 @@ package cz.jan.maly.model.agent.action;
 
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
-import cz.jan.maly.model.sflo.FormulaInterface;
+import cz.jan.maly.sflo.FormulaInterface;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;

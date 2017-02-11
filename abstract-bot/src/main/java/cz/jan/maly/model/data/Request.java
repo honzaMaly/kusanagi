@@ -3,6 +3,7 @@ package cz.jan.maly.model.data;
 import cz.jan.maly.model.agent.Agent;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
@@ -12,14 +13,14 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * Created by Jan on 21-Dec-16.
  */
 public class Request {
-    protected final Map<KeyToFact, Fact> factsAboutThisProposal = new HashMap<>();
+    private final Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> factsAboutThisProposal = new HashMap<>();
     protected final Set<Agent> committedAgents = new HashSet<>();
     protected final boolean canCommitOneAgentOnly;
     private final Agent requestFrom;
     private final int id;
 
     //it makes copy of sets
-    public Request(Map<KeyToFact, Fact> facts, Set<Agent> agents, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
+    public Request(Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> facts, Set<Agent> agents, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
         this.canCommitOneAgentOnly = canCommitOneAgentOnly;
         this.requestFrom = requestFrom;
         this.id = id;
@@ -28,11 +29,15 @@ public class Request {
     }
 
     //it makes copy of sets
-    public Request(Map<KeyToFact, Fact> facts, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
+    public Request(Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> facts, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
         this.canCommitOneAgentOnly = canCommitOneAgentOnly;
         this.requestFrom = requestFrom;
         this.id = id;
         facts.forEach((keyToFact, fact) -> factsAboutThisProposal.put(keyToFact, keyToFact.createFact(fact)));
+    }
+
+    public int getId() {
+        return id;
     }
 
     /**
@@ -41,7 +46,16 @@ public class Request {
      * @return
      */
     public Set<Agent> committedAgents() {
-        return committedAgents;
+        return committedAgents.stream()
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Return number of committed agents to this request
+     * @return
+     */
+    public int numberOfCommittedAgents(){
+        return committedAgents.size();
     }
 
     /**
@@ -98,8 +112,8 @@ public class Request {
      * @param keyToFact
      * @return
      */
-    public <V> Optional<Fact<V>> getCloneOfFactByKey(KeyToFact<V> keyToFact) {
-        Fact<V> fact = factsAboutThisProposal.get(keyToFact);
+    public <V> Optional<cz.jan.maly.model.data.knowledge_representation.Fact<V>> getCloneOfFactByKey(KeyToFact<V> keyToFact) {
+        cz.jan.maly.model.data.knowledge_representation.Fact<V> fact = factsAboutThisProposal.get(keyToFact);
         if (fact != null) {
             return Optional.ofNullable(CLONER.deepClone(fact));
         }
