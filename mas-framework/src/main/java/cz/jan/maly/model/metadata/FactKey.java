@@ -1,6 +1,7 @@
-package cz.jan.maly.model.data.knowledge_representation;
+package cz.jan.maly.model.metadata;
 
-import cz.jan.maly.model.data.Key;
+import cz.jan.maly.model.knowledge.Fact;
+import cz.jan.maly.model.knowledge.FactSet;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -18,14 +19,14 @@ public abstract class FactKey<V> extends Key {
     @Getter
     private final boolean isFading;
 
-    public FactKey(String name, int id, int howLongStayInMemoryWithoutUpdate, boolean isFading) {
-        super(name, id);
+    public FactKey(String name, int howLongStayInMemoryWithoutUpdate, boolean isFading) {
+        super(name, FactKey.class);
         this.howLongStayInMemoryWithoutUpdate = howLongStayInMemoryWithoutUpdate;
         this.isFading = isFading;
     }
 
 
-    abstract V getInitValue();
+    public abstract V getInitValue();
 
     /**
      * Returns new instance of fact of this type with initialization value
@@ -45,21 +46,4 @@ public abstract class FactKey<V> extends Key {
         return new FactSet<>(new HashMap<>(), this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FactKey<?> factKey = (FactKey<?>) o;
-
-        if (id != factKey.id) return false;
-        return name.equals(factKey.name);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + id;
-        return result;
-    }
 }

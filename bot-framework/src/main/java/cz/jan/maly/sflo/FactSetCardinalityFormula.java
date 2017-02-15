@@ -1,6 +1,6 @@
 package cz.jan.maly.sflo;
 
-import cz.jan.maly.model.data.knowledge_representation.Fact;
+import cz.jan.maly.model.metadata.Fact;
 
 import java.util.Set;
 

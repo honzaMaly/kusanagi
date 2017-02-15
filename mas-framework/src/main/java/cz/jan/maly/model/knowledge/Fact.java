@@ -1,7 +1,7 @@
-package cz.jan.maly.model.data.knowledge_representation;
+package cz.jan.maly.model.knowledge;
 
+import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
-import lombok.Setter;
 
 import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
@@ -9,25 +9,46 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * Generic type of knowledge content
  * Created by Jan on 10-Feb-17.
  */
-public class Fact<K, V extends FactKey<K>> {
+public class Fact<V, K extends FactKey<V>> {
+
+    private V content;
 
     @Getter
-    @Setter
-    private K content;
+    private final K type;
 
-    private final V type;
+    private int decay = 0;
 
-    Fact(K content, V type) {
+    public Fact(V content, K type) {
         this.content = content;
         this.type = type;
     }
+
+    public V getContent() {
+        return CLONER.deepClone(content);
+    }
+
+    public void removeFact() {
+        this.content = type.getInitValue();
+        decay = 0;
+    }
+
+    public void addFact(V factValue) {
+        this.content = factValue;
+        if (type.isFading()) {
+            decay = 0;
+        }
+    }
+
 
     /**
      * Method erases no longer relevant information
      */
     public void forget() {
         if (type.isFading()) {
-            content = type.getInitValue();
+            decay++;
+            if (decay >= type.getHowLongStayInMemoryWithoutUpdate()) {
+                removeFact();
+            }
         }
     }
 
@@ -46,7 +67,7 @@ public class Fact<K, V extends FactKey<K>> {
      *
      * @return
      */
-    public Fact<K, V> copyFact() {
+    public Fact<V, K> copyFact() {
         return new Fact<>(CLONER.deepClone(content), type);
     }
 

@@ -15,7 +15,7 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  */
 public class ReadOnlyCommonKnowledge extends CommonKnowledge {
 
-    public ReadOnlyCommonKnowledge(Map<Agent, Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact>> snapshotOfFactsByAgents, Map<KeyToFact, Set<Agent>> agentsWithByTypeOfKnowledge) {
+    public ReadOnlyCommonKnowledge(Map<Agent, Map<KeyToFact, cz.jan.maly.model.metadata.Fact>> snapshotOfFactsByAgents, Map<KeyToFact, Set<Agent>> agentsWithByTypeOfKnowledge) {
         super(snapshotOfFactsByAgents, agentsWithByTypeOfKnowledge);
     }
 
@@ -36,10 +36,10 @@ public class ReadOnlyCommonKnowledge extends CommonKnowledge {
      * @param keyToFact
      * @return
      */
-    public cz.jan.maly.model.data.knowledge_representation.Fact getCloneOfFactOfAgentByKey(Agent agent, KeyToFact keyToFact) {
-        Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> map = snapshotOfFactsByAgents.get(agent);
+    public cz.jan.maly.model.metadata.Fact getCloneOfFactOfAgentByKey(Agent agent, KeyToFact keyToFact) {
+        Map<KeyToFact, cz.jan.maly.model.metadata.Fact> map = snapshotOfFactsByAgents.get(agent);
         if (map != null) {
-            cz.jan.maly.model.data.knowledge_representation.Fact fact = map.get(keyToFact);
+            cz.jan.maly.model.metadata.Fact fact = map.get(keyToFact);
             if (fact != null) {
                 return CLONER.deepClone(fact);
             }

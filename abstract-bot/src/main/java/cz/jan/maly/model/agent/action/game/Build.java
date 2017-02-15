@@ -4,7 +4,7 @@ import bwapi.Game;
 import bwapi.TilePosition;
 import bwapi.Unit;
 import bwapi.UnitType;
-import cz.jan.maly.model.data.knowledge_representation.Fact;
+import cz.jan.maly.model.metadata.Fact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
 

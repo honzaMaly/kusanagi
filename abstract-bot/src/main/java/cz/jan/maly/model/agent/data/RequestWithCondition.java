@@ -1,7 +1,7 @@
 package cz.jan.maly.model.agent.data;
 
 import cz.jan.maly.model.agent.Agent;
-import cz.jan.maly.model.data.knowledge_representation.Fact;
+import cz.jan.maly.model.metadata.Fact;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.sflo.FormulaInterface;
 

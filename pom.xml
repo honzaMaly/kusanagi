@@ -17,6 +17,7 @@
         <module>abstract-bot</module>
         <module>botframework</module>
         <module>bot-framework</module>
+        <module>mas-framework</module>
     </modules>
 
     <name>Kusunagi</name>

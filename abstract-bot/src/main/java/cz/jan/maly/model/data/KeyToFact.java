@@ -20,12 +20,12 @@ public abstract class KeyToFact<V> {
 
     protected abstract V getInitValue();
 
-    public cz.jan.maly.model.data.knowledge_representation.Fact createEmptyFact() {
-        return new cz.jan.maly.model.data.knowledge_representation.Fact<>(getInitValue());
+    public cz.jan.maly.model.metadata.Fact createEmptyFact() {
+        return new cz.jan.maly.model.metadata.Fact<>(getInitValue());
     }
 
-    public cz.jan.maly.model.data.knowledge_representation.Fact<V> createFact(V content) {
-        return new cz.jan.maly.model.data.knowledge_representation.Fact<>(CLONER.deepClone(content));
+    public cz.jan.maly.model.metadata.Fact<V> createFact(V content) {
+        return new cz.jan.maly.model.metadata.Fact<>(CLONER.deepClone(content));
     }
 
     @Override

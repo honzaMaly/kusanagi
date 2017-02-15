@@ -13,14 +13,14 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * Created by Jan on 21-Dec-16.
  */
 public class Request {
-    private final Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> factsAboutThisProposal = new HashMap<>();
+    private final Map<KeyToFact, cz.jan.maly.model.metadata.Fact> factsAboutThisProposal = new HashMap<>();
     protected final Set<Agent> committedAgents = new HashSet<>();
     protected final boolean canCommitOneAgentOnly;
     private final Agent requestFrom;
     private final int id;
 
     //it makes copy of sets
-    public Request(Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> facts, Set<Agent> agents, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
+    public Request(Map<KeyToFact, cz.jan.maly.model.metadata.Fact> facts, Set<Agent> agents, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
         this.canCommitOneAgentOnly = canCommitOneAgentOnly;
         this.requestFrom = requestFrom;
         this.id = id;
@@ -29,7 +29,7 @@ public class Request {
     }
 
     //it makes copy of sets
-    public Request(Map<KeyToFact, cz.jan.maly.model.data.knowledge_representation.Fact> facts, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
+    public Request(Map<KeyToFact, cz.jan.maly.model.metadata.Fact> facts, boolean canCommitOneAgentOnly, Agent requestFrom, int id) {
         this.canCommitOneAgentOnly = canCommitOneAgentOnly;
         this.requestFrom = requestFrom;
         this.id = id;
@@ -112,8 +112,8 @@ public class Request {
      * @param keyToFact
      * @return
      */
-    public <V> Optional<cz.jan.maly.model.data.knowledge_representation.Fact<V>> getCloneOfFactByKey(KeyToFact<V> keyToFact) {
-        cz.jan.maly.model.data.knowledge_representation.Fact<V> fact = factsAboutThisProposal.get(keyToFact);
+    public <V> Optional<cz.jan.maly.model.metadata.Fact<V>> getCloneOfFactByKey(KeyToFact<V> keyToFact) {
+        cz.jan.maly.model.metadata.Fact<V> fact = factsAboutThisProposal.get(keyToFact);
         if (fact != null) {
             return Optional.ofNullable(CLONER.deepClone(fact));
         }

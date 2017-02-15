@@ -1,5 +1,9 @@
-package cz.jan.maly.model.data.knowledge_representation;
+package cz.jan.maly.model.knowledge;
 
+import cz.jan.maly.model.metadata.FactKey;
+import lombok.Getter;
+
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +17,7 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 public class FactSet<V, K extends FactKey<V>> {
     private final Map<V, Integer> decayMap;
 
+    @Getter
     private final K type;
 
     public FactSet(Map<V, Integer> decayMap, K type) {
@@ -20,8 +25,13 @@ public class FactSet<V, K extends FactKey<V>> {
         this.type = type;
     }
 
-    public Set<V> getSimpleFacts() {
-        return decayMap.keySet();
+    public FactSet(K type) {
+        this.type = type;
+        this.decayMap = new HashMap<>();
+    }
+
+    public Set<V> getContent() {
+        return CLONER.deepClone(decayMap.keySet());
     }
 
     public void removeFact(V factValue) {
@@ -51,4 +61,18 @@ public class FactSet<V, K extends FactKey<V>> {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FactSet<?, ?> factSet = (FactSet<?, ?>) o;
+
+        return type.equals(factSet.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
 }
