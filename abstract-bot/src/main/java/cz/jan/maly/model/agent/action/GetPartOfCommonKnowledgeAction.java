@@ -3,7 +3,7 @@ package cz.jan.maly.model.agent.action;
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
 import cz.jan.maly.model.data.CommonKnowledge;
-import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sfol.FormulaInterface;
 import cz.jan.maly.service.implementation.MediatorFoSharingKnowledge;
 
 import java.util.LinkedHashMap;

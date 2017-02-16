@@ -1,5 +1,6 @@
 package cz.jan.maly.model.planing;
 
+import cz.jan.maly.model.FactObtainingInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.CommandKey;
 import cz.jan.maly.model.metadata.FactKey;
@@ -15,7 +16,7 @@ import java.util.Set;
  * by agent (not exclusively) on system behalf. It works with current beliefs.
  * Created by Jan on 15-Feb-17.
  */
-public abstract class Command {
+public abstract class Command implements FactObtainingInterface {
     private final Map<FactKey, Object> factParameterMap = new HashMap<>();
     private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
 
@@ -61,10 +62,9 @@ public abstract class Command {
      *
      * @param factKey
      * @param <V>
-     * @param <S>
      * @return
      */
-    protected <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKeyFromIntention(FactKey<V> factKey) {
+    protected <V> Optional<Set<V>> returnFactSetValueForGivenKeyFromIntention(FactKey<V> factKey) {
         return intention.returnFactSetValueForGivenKey(factKey);
     }
 
@@ -84,10 +84,9 @@ public abstract class Command {
      *
      * @param factKey
      * @param <V>
-     * @param <S>
      * @return
      */
-    protected <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKeyFromDesire(FactKey<V> factKey) {
+    protected <V> Optional<Set<V>> returnFactSetValueForGivenKeyFromDesire(FactKey<V> factKey) {
         return intention.getOriginalDesire().returnFactSetValueForGivenKey(factKey);
     }
 
@@ -98,7 +97,7 @@ public abstract class Command {
      * @param <V>
      * @return
      */
-    protected <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
+    public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
         Object value = factParameterMap.get(factKey);
         if (value != null) {
             return Optional.of((V) value);
@@ -111,10 +110,9 @@ public abstract class Command {
      *
      * @param factKey
      * @param <V>
-     * @param <S>
      * @return
      */
-    protected <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
         Set values = factSetParameterMap.get(factKey);
         if (values != null) {
             return Optional.of((S) values);

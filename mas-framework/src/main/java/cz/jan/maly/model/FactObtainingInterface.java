@@ -26,7 +26,6 @@ public interface FactObtainingInterface {
      *
      * @param factKey
      * @param <V>
-     * @param <S>
      * @return
      */
     <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey);

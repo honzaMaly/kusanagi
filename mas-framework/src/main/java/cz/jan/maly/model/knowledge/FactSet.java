@@ -14,24 +14,24 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * The typical use case is for example to forget some enemies, allies met long time ago.
  * Created by Jan on 10-Feb-17.
  */
-public class FactSet<V, K extends FactKey<V>> {
+public class FactSet<V> {
     private final Map<V, Integer> decayMap;
 
     @Getter
-    private final K type;
+    private final FactKey<V> type;
 
-    public FactSet(Map<V, Integer> decayMap, K type) {
+    public FactSet(Map<V, Integer> decayMap, FactKey<V> type) {
         this.decayMap = decayMap;
         this.type = type;
     }
 
-    public FactSet(K type) {
+    public FactSet(FactKey<V> type) {
         this.type = type;
         this.decayMap = new HashMap<>();
     }
 
     public Set<V> getContent() {
-        return CLONER.deepClone(decayMap.keySet());
+        return decayMap.keySet();
     }
 
     public void removeFact(V factValue) {
@@ -42,12 +42,16 @@ public class FactSet<V, K extends FactKey<V>> {
         decayMap.put(factValue, 0);
     }
 
+    public void eraseSet() {
+        decayMap.clear();
+    }
+
     /**
      * Returns copy of fact set. Content is cloned so using the content is thread safe
      *
      * @return
      */
-    public FactSet<V, K> copyFact() {
+    public FactSet<V> copyFact() {
         return new FactSet<>(CLONER.deepClone(decayMap), type);
     }
 
@@ -66,7 +70,7 @@ public class FactSet<V, K extends FactKey<V>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FactSet<?, ?> factSet = (FactSet<?, ?>) o;
+        FactSet<?> factSet = (FactSet<?>) o;
 
         return type.equals(factSet.type);
     }

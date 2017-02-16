@@ -9,8 +9,8 @@ import cz.jan.maly.model.metadata.Fact;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
-import cz.jan.maly.sflo.FormulaInterface;
-import cz.jan.maly.sflo.factories.*;
+import cz.jan.maly.sfol.FormulaInterface;
+import cz.jan.maly.sfol.factories.*;
 import cz.jan.maly.service.implementation.AgentsManager;
 import cz.jan.maly.utils.MyLogger;
 
@@ -92,7 +92,7 @@ public class Commander extends Agent {
         LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> doAfterLoadingOthersAgentsMemory = new LinkedHashMap<>();
         doAfterLoadingOthersAgentsMemory.put(
                 BinaryFormulaFactoryEnums.AND.createExpression(FactCardinalityOfMapFormulaFactoryEnums.LESS.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(AGENTS_TO_BUILD).get(), 1),
-                        BinaryFormulaFactoryEnums.AND.createExpression(FactConstantNumericalFormulaFactoryEnums.GREATER_EQUAL.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MINED_MINERAL).get(), 200),
+                        BinaryFormulaFactoryEnums.AND.createExpression(ConstantNumericalFactFormulaFactoryEnums.GREATER_EQUAL.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MINED_MINERAL).get(), 200),
                                 FactCardinalityOfSetFormulaFactoryEnums.LESS.createExpression(agentsKnowledgeBase.getFactInCacheByKey(BUILDINGS_IN_EXPANSION).get(), 1))), buildPool);
         doAfterLoadingOthersAgentsMemory.put(FactCardinalityOfMapFormulaFactoryEnums.LESS.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(AGENTS_TO_MORPH).get(), 1), morphToDrone);
 

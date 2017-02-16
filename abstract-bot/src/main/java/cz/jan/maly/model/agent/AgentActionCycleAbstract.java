@@ -1,6 +1,6 @@
 package cz.jan.maly.model.agent;
 
-import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sfol.FormulaInterface;
 
 import java.util.List;
 

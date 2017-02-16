@@ -1,12 +1,12 @@
-package cz.jan.maly.sflo.factories;
+package cz.jan.maly.sfol.factories;
 
-import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sfol.FormulaInterface;
 
 /**
  * Enumeration of possible strategies how to evaluate term
  * Created by Jan on 18-Dec-16.
  */
-public enum FormulaFactoryEnum {
+enum FormulaFactoryEnum {
     TRUTH {
         @Override
         public FormulaInterface createExpression() {
@@ -19,5 +19,5 @@ public enum FormulaFactoryEnum {
      *
      * @return
      */
-    public abstract FormulaInterface createExpression();
+    abstract FormulaInterface createExpression();
 }

@@ -33,7 +33,7 @@ public abstract class FactKey<V> extends Key {
      *
      * @return
      */
-    public Fact<V, FactKey<V>> returnEmptyFact() {
+    public Fact<V> returnEmptyFact() {
         return new Fact<>(getInitValue(), this);
     }
 
@@ -42,8 +42,8 @@ public abstract class FactKey<V> extends Key {
      *
      * @return
      */
-    public FactSet<V, FactKey<V>> returnEmptyFactSet() {
-        return new FactSet<>(new HashMap<>(), this);
+    public FactSet<V> returnEmptyFactSet() {
+        return new FactSet<>(this);
     }
 
 }

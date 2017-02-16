@@ -3,7 +3,7 @@ package cz.jan.maly.model.agent.data;
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.metadata.Fact;
 import cz.jan.maly.model.data.KeyToFact;
-import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sfol.FormulaInterface;
 
 import java.util.List;
 import java.util.Map;

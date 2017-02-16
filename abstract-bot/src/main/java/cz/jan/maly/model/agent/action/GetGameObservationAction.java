@@ -4,7 +4,7 @@ import bwapi.Game;
 import cz.jan.maly.model.agent.Agent;
 import cz.jan.maly.model.agent.AgentActionCycleAbstract;
 import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
-import cz.jan.maly.sflo.FormulaInterface;
+import cz.jan.maly.sfol.FormulaInterface;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.LinkedHashMap;

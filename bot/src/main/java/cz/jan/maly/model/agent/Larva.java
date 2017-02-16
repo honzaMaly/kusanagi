@@ -9,9 +9,9 @@ import cz.jan.maly.model.metadata.Fact;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
-import cz.jan.maly.sflo.FormulaInterface;
-import cz.jan.maly.sflo.factories.SingleFactFormulaFactoryEnums;
-import cz.jan.maly.sflo.factories.UnaryFormulaFactoryEnums;
+import cz.jan.maly.sfol.FormulaInterface;
+import cz.jan.maly.sfol.factories.SingleFactSetFormulaFactoryEnums;
+import cz.jan.maly.sfol.factories.UnaryFormulaFactoryEnums;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.*;
@@ -49,7 +49,7 @@ public class Larva extends AgentWithGameRepresentation {
         ActInGameAction morphTo = new ActInGameAction(this, new Morph(agentsKnowledgeBase.getAgentsOwnFactByKey(MORPH_TO).get()), true);
 
         LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> doAfterCheckingMorph = new LinkedHashMap<>();
-        doAfterCheckingMorph.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MORPH_TO).get())), morphTo);
+        doAfterCheckingMorph.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactSetFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MORPH_TO).get())), morphTo);
 
 
         //read from agents

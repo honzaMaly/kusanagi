@@ -7,8 +7,8 @@ import cz.jan.maly.model.agent.data.AgentsKnowledgeBase;
 import cz.jan.maly.model.agent.implementation.AgentWithGameRepresentation;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
-import cz.jan.maly.sflo.FormulaInterface;
-import cz.jan.maly.sflo.factories.FormulaFactoryEnum;
+import cz.jan.maly.sfol.FormulaInterface;
+import cz.jan.maly.sfol.factories.FormulaFactoryEnum;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.HashSet;

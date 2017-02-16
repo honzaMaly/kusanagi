@@ -9,22 +9,22 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * Generic type of knowledge content
  * Created by Jan on 10-Feb-17.
  */
-public class Fact<V, K extends FactKey<V>> {
+public class Fact<V> {
 
     private V content;
 
     @Getter
-    private final K type;
+    private final FactKey<V> type;
 
     private int decay = 0;
 
-    public Fact(V content, K type) {
+    public Fact(V content, FactKey<V> type) {
         this.content = content;
         this.type = type;
     }
 
     public V getContent() {
-        return CLONER.deepClone(content);
+        return content;
     }
 
     public void removeFact() {
@@ -38,7 +38,6 @@ public class Fact<V, K extends FactKey<V>> {
             decay = 0;
         }
     }
-
 
     /**
      * Method erases no longer relevant information
@@ -57,7 +56,7 @@ public class Fact<V, K extends FactKey<V>> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Fact<?, ?> fact = (Fact<?, ?>) o;
+        Fact<?> fact = (Fact<?>) o;
 
         return type.equals(fact.type);
     }
@@ -67,7 +66,7 @@ public class Fact<V, K extends FactKey<V>> {
      *
      * @return
      */
-    public Fact<V, K> copyFact() {
+    public Fact<V> copyFact() {
         return new Fact<>(CLONER.deepClone(content), type);
     }
 

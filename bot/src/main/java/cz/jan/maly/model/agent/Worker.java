@@ -13,11 +13,11 @@ import cz.jan.maly.model.metadata.Fact;
 import cz.jan.maly.model.data.KeyToFact;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitType;
-import cz.jan.maly.sflo.FormulaInterface;
-import cz.jan.maly.sflo.factories.FormulaFactoryEnum;
-import cz.jan.maly.sflo.factories.SingleBooleanFactFormulaFactoryEnums;
-import cz.jan.maly.sflo.factories.SingleFactFormulaFactoryEnums;
-import cz.jan.maly.sflo.factories.UnaryFormulaFactoryEnums;
+import cz.jan.maly.sfol.FormulaInterface;
+import cz.jan.maly.sfol.factories.FormulaFactoryEnum;
+import cz.jan.maly.sfol.factories.SingleBooleanFactFormulaFactoryEnums;
+import cz.jan.maly.sfol.factories.SingleFactSetFormulaFactoryEnums;
+import cz.jan.maly.sfol.factories.UnaryFormulaFactoryEnums;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.*;
@@ -61,7 +61,7 @@ public class Worker extends AgentWithGameRepresentation {
         ActInGameAction mineMinerals = new ActInGameAction(this, new GatherResources(agentsKnowledgeBase.getAgentsOwnFactByKey(MINING_MINERAL).get()), false);
 
         LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> doAfterChoosingMineral = new LinkedHashMap<>();
-        doAfterChoosingMineral.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MINING_MINERAL).get())), mineMinerals);
+        doAfterChoosingMineral.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactSetFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(MINING_MINERAL).get())), mineMinerals);
 
         ReasonAboutKnowledgeAction chooseMinerals = new ReasonAboutKnowledgeAction(this, doAfterChoosingMineral, agentsKnowledgeToUpdate -> {
             List<AUnit> mineralsInSight = agentsKnowledgeBase.getAgentsOwnFactByKey(MINERALS_IN_SIGHT).get().getContent();
@@ -74,7 +74,7 @@ public class Worker extends AgentWithGameRepresentation {
         });
 
         LinkedHashMap<FormulaInterface, AgentActionCycleAbstract> doAfterKnowledgeObtain = new LinkedHashMap<>();
-        doAfterKnowledgeObtain.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(BUILD).get())), buildBuilding);
+        doAfterKnowledgeObtain.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleFactSetFormulaFactoryEnums.IS_EMPTY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(BUILD).get())), buildBuilding);
         doAfterKnowledgeObtain.put(UnaryFormulaFactoryEnums.NEGATION.createExpression(SingleBooleanFactFormulaFactoryEnums.IDENTITY.createExpression(agentsKnowledgeBase.getAgentsOwnFactByKey(IS_GATHERING_MINERALS).get())), chooseMinerals);
 
         //get knowledge from other agents

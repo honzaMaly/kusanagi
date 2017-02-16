@@ -1,4 +1,4 @@
-package cz.jan.maly.sflo;
+package cz.jan.maly.sfol;
 
 /**
  * Interface to be implemented by each formula
