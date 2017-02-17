@@ -1,6 +1,8 @@
 package cz.jan.maly.utils;
 
 import com.rits.cloning.Cloner;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Utils for framework to be used internally.
@@ -9,5 +11,9 @@ import com.rits.cloning.Cloner;
 public class FrameworkUtils {
 
     public static final Cloner CLONER = new Cloner();
+
+    @Getter
+    @Setter
+    private static int lengthOfIntervalBeforeUpdatingRegisterWithDesires = 50;
 
 }

@@ -20,9 +20,9 @@ abstract class Intention<T extends Desire> implements FactObtainingInterface {
     private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
 
     @Getter
-    private final Desire<T> originalDesire;
+    private final T originalDesire;
 
-    Intention(Desire<T> originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
+    Intention(T originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
         this.originalDesire = originalDesire;
         parametersTypesForFact.forEach(factKey -> {
             Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
@@ -50,4 +50,23 @@ abstract class Intention<T extends Desire> implements FactObtainingInterface {
         return Optional.empty();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Intention)) return false;
+
+        Intention<?> intention = (Intention<?>) o;
+
+        if (!factParameterMap.equals(intention.factParameterMap)) return false;
+        if (!factSetParameterMap.equals(intention.factSetParameterMap)) return false;
+        return originalDesire.equals(intention.originalDesire);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = factParameterMap.hashCode();
+        result = 31 * result + factSetParameterMap.hashCode();
+        result = 31 * result + originalDesire.hashCode();
+        return result;
+    }
 }

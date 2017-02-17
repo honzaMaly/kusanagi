@@ -20,4 +20,8 @@ public abstract class Agent {
         this.beliefs = beliefs;
     }
 
+    //TODO factory to make from committed desire intention
+
+    //TODO factory for specification when to commit to desire / remove commitment to intention
+
 }

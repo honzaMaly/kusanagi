@@ -16,11 +16,9 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * <p>
  * Created by Jan on 09-Feb-17.
  */
-abstract class Desire<T extends Desire> implements FactObtainingInterface {
+abstract class Desire implements FactObtainingInterface {
     final Map<FactKey, Object> factParameterMap;
     final Map<FactKey, Set> factSetParameterMap;
-
-    //todo agent identification + equals and hash
 
     @Getter
     final DesireKey desireKey;
@@ -51,13 +49,6 @@ abstract class Desire<T extends Desire> implements FactObtainingInterface {
         this.desireKey = desireKey;
     }
 
-    /**
-     * Method returns copy of desire
-     *
-     * @return
-     */
-    public abstract T copyDesire();
-
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
         Object value = factParameterMap.get(factKey);
         if (value != null) {
@@ -74,4 +65,23 @@ abstract class Desire<T extends Desire> implements FactObtainingInterface {
         return Optional.empty();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Desire)) return false;
+
+        Desire desire = (Desire) o;
+
+        if (!factParameterMap.equals(desire.factParameterMap)) return false;
+        if (!factSetParameterMap.equals(desire.factSetParameterMap)) return false;
+        return desireKey.equals(desire.desireKey);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = factParameterMap.hashCode();
+        result = 31 * result + factSetParameterMap.hashCode();
+        result = 31 * result + desireKey.hashCode();
+        return result;
+    }
 }

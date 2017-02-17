@@ -1,6 +1,7 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.QueuedItemInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.CommandKey;
 import cz.jan.maly.model.metadata.FactKey;
@@ -42,9 +43,9 @@ public abstract class Command implements FactObtainingInterface {
     }
 
     /**
-     * Execute command. Method called by Executor to make action on agent's behalf. To get facts use class methods
+     * Method called by Executor to get action to make on agent's behalf
      */
-    public abstract void execute();
+    public abstract QueuedItemInterface<Boolean> execute();
 
     /**
      * Get content of fact for given key from intention
