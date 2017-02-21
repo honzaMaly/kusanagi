@@ -16,15 +16,19 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * <p>
  * Created by Jan on 09-Feb-17.
  */
-abstract class Desire implements FactObtainingInterface {
+public abstract class Desire implements FactObtainingInterface, Commitment {
     final Map<FactKey, Object> factParameterMap;
     final Map<FactKey, Set> factSetParameterMap;
 
     @Getter
+    final boolean isAbstract;
+
+    @Getter
     final DesireKey desireKey;
 
-    Desire(DesireKey desireKey, Agent agent) {
+    Desire(DesireKey desireKey, Agent agent, boolean isAbstract) {
         this.desireKey = desireKey;
+        this.isAbstract = isAbstract;
 
         //fill maps with actual parameters from beliefs
         factParameterMap = new HashMap<>();
@@ -41,7 +45,8 @@ abstract class Desire implements FactObtainingInterface {
                 });
     }
 
-    Desire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey) {
+    Desire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, boolean isAbstract, DesireKey desireKey) {
+        this.isAbstract = isAbstract;
         this.factParameterMap = new HashMap<>();
         factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, CLONER.deepClone(o)));
         this.factSetParameterMap = new HashMap<>();

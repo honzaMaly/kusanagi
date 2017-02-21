@@ -21,24 +21,4 @@ public abstract class IntentionWithPlan<V extends Desire> extends Intention<V> {
      */
     public abstract Command getCommand();
 
-    /**
-     * Initiated by own desire...
-     */
-    public abstract class FromSelf extends IntentionWithPlan<OwnDesire> {
-
-        protected FromSelf(OwnDesire originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
-            super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
-        }
-    }
-
-    /**
-     * Initiated by another agent's desire...
-     */
-    public abstract class FromAnotherAgent extends IntentionWithPlan<DesireFromAnotherAgent> {
-
-        protected FromAnotherAgent(DesireFromAnotherAgent originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
-            super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
-        }
-    }
-
 }
