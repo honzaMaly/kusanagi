@@ -1,11 +1,14 @@
 package cz.jan.maly.model.servicies.desires;
 
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.planing.DesireForOthers;
-import cz.jan.maly.model.planing.DesireFromAnotherAgent;
+import cz.jan.maly.model.planing.SharedDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
+import cz.jan.maly.model.planing.SharedDesireInRegister;
 import cz.jan.maly.model.servicies.WorkingRegister;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Concrete implementation of DesireRegister. This class is intended as working register -
@@ -29,9 +32,12 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @param desireForOthers
      * @return
      */
-    public boolean addedDesire(DesireForOthers desireForOthers) {
-        Set<DesireForOthers> desiresByAgent = desiresForOthersByOriginator.computeIfAbsent(desireForOthers.getOriginatedFromAgent(), agent -> new HashSet<>());
-        return desiresByAgent.contains(desireForOthers) || desiresByAgent.add(desireForOthers);
+    public boolean addedDesire(SharedDesireInRegister desireForOthers) {
+        Map<SharedDesire, SharedDesireInRegister> desiresByAgent = desiresForOthersByOriginator.computeIfAbsent(desireForOthers.getOriginatedFromAgent(), agent -> new HashMap<>());
+        if (!desiresByAgent.containsKey(desireForOthers)) {
+            desiresByAgent.put(desireForOthers, desireForOthers);
+        }
+        return true;
     }
 
     /**
@@ -40,14 +46,13 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @param desireForOthers
      * @return
      */
-    public boolean removedDesire(DesireForOthers desireForOthers) {
+    public boolean removedDesire(SharedDesireInRegister desireForOthers) {
         if (desiresForOthersByOriginator.containsKey(desireForOthers.getOriginatedFromAgent())) {
-            Set<DesireForOthers> desiresByAgent = desiresForOthersByOriginator.get(desireForOthers.getOriginatedFromAgent());
-            boolean removed = desiresByAgent.remove(desireForOthers);
+            Map<SharedDesire, SharedDesireInRegister> desiresByAgent = desiresForOthersByOriginator.get(desireForOthers.getOriginatedFromAgent());
+            desiresByAgent.remove(desireForOthers);
             if (desiresByAgent.isEmpty()) {
                 desiresForOthersByOriginator.remove(desireForOthers.getOriginatedFromAgent());
             }
-            return removed;
         }
         return true;
     }
@@ -59,14 +64,14 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @param desireForOthersHeWantsToCommitTo
      * @return
      */
-    public Optional<DesireFromAnotherAgent> commitToDesire(Agent agentWhoWantsToCommitTo, DesireForOthers desireForOthersHeWantsToCommitTo) {
-        Optional<DesireForOthers> desire = desiresForOthersByOriginator.getOrDefault(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent(), new HashSet<>()).stream()
-                .filter(desireForOthers -> desireForOthers.equals(desireForOthersHeWantsToCommitTo))
-                .findAny();
-        if (desire.isPresent()) {
-            boolean isCommitted = desire.get().commitToDesire(agentWhoWantsToCommitTo);
-            if (isCommitted) {
-                return Optional.of(desire.get().getDesireToCommitTo());
+    public Optional<SharedDesireForAgents> commitToDesire(Agent agentWhoWantsToCommitTo, SharedDesireForAgents desireForOthersHeWantsToCommitTo) {
+        if (desiresForOthersByOriginator.containsKey(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent())) {
+            SharedDesireInRegister desire = desiresForOthersByOriginator.get(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent()).getOrDefault(desireForOthersHeWantsToCommitTo, null);
+            if (desire != null) {
+                boolean isCommitted = desire.commitToDesire(agentWhoWantsToCommitTo);
+                if (isCommitted) {
+                    return Optional.of(desire.getCopyOfSharedDesireForAgents());
+                }
             }
         }
         return Optional.empty();
@@ -79,11 +84,14 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @param desireHeWantsToRemoveCommitmentTo
      * @return
      */
-    public boolean removeCommitmentToDesire(Agent agentWhoWantsToRemoveCommitment, DesireFromAnotherAgent desireHeWantsToRemoveCommitmentTo) {
-        Optional<DesireForOthers> desire = desiresForOthersByOriginator.getOrDefault(desireHeWantsToRemoveCommitmentTo.getDesireOriginatedFrom().getOriginatedFromAgent(), new HashSet<>()).stream()
-                .filter(desireForOthers -> desireForOthers.equals(desireHeWantsToRemoveCommitmentTo.getDesireOriginatedFrom()))
-                .findAny();
-        return desire.map(desireForOthers -> desireForOthers.removeCommitment(agentWhoWantsToRemoveCommitment)).orElse(true);
+    public boolean removeCommitmentToDesire(Agent agentWhoWantsToRemoveCommitment, SharedDesireForAgents desireHeWantsToRemoveCommitmentTo) {
+        if (desiresForOthersByOriginator.containsKey(desireHeWantsToRemoveCommitmentTo.getOriginatedFromAgent())) {
+            SharedDesireInRegister desire = desiresForOthersByOriginator.get(desireHeWantsToRemoveCommitmentTo.getOriginatedFromAgent()).getOrDefault(desireHeWantsToRemoveCommitmentTo, null);
+            if (desire != null) {
+                return desire.removeCommitment(agentWhoWantsToRemoveCommitment);
+            }
+        }
+        return true;
     }
 
 }

@@ -1,12 +1,15 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
@@ -16,19 +19,15 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * <p>
  * Created by Jan on 09-Feb-17.
  */
-public abstract class Desire implements FactObtainingInterface, Commitment {
+public abstract class Desire implements FactObtainingInterface {
     final Map<FactKey, Object> factParameterMap;
     final Map<FactKey, Set> factSetParameterMap;
 
     @Getter
-    final boolean isAbstract;
-
-    @Getter
     final DesireKey desireKey;
 
-    Desire(DesireKey desireKey, Agent agent, boolean isAbstract) {
+    Desire(DesireKey desireKey, Agent agent) {
         this.desireKey = desireKey;
-        this.isAbstract = isAbstract;
 
         //fill maps with actual parameters from beliefs
         factParameterMap = new HashMap<>();
@@ -45,8 +44,7 @@ public abstract class Desire implements FactObtainingInterface, Commitment {
                 });
     }
 
-    Desire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, boolean isAbstract, DesireKey desireKey) {
-        this.isAbstract = isAbstract;
+    Desire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey) {
         this.factParameterMap = new HashMap<>();
         factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, CLONER.deepClone(o)));
         this.factSetParameterMap = new HashMap<>();

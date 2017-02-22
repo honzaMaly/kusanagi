@@ -3,7 +3,10 @@ package cz.jan.maly.model.knowledge;
 import cz.jan.maly.model.FactObtainingInterface;
 import cz.jan.maly.model.metadata.FactKey;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class represents agent's own memory - it stores facts and sets of facts

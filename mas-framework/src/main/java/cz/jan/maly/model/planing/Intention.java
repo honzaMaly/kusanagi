@@ -1,7 +1,7 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
@@ -15,7 +15,7 @@ import java.util.Set;
  * what agent has committed to achieve to. It may contain other desires related to this intention to be consider.
  * Created by Jan on 10-Feb-17.
  */
-public abstract class Intention<T extends Desire> implements FactObtainingInterface, Commitment {
+public abstract class Intention<T extends InternalDesire> implements FactObtainingInterface, Commitment {
     private final Map<FactKey, Object> factParameterMap = new HashMap<>();
     private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
 

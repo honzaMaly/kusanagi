@@ -1,10 +1,11 @@
 package cz.jan.maly.model.servicies.desires;
 
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.planing.DesireForOthers;
+import cz.jan.maly.model.planing.SharedDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
+import cz.jan.maly.model.planing.SharedDesireInRegister;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Concrete implementation of DesireRegister. Instance of class is intended as read only as it is shared among agents.
@@ -13,10 +14,22 @@ import java.util.Set;
  */
 public class ReadOnlyDesireRegister extends DesireRegister {
 
-    ReadOnlyDesireRegister(Map<Agent, Set<DesireForOthers>> desiresForOthersByOriginator) {
+    ReadOnlyDesireRegister(Map<Agent, Map<SharedDesire, SharedDesireInRegister>> desiresForOthersByOriginator) {
         super(desiresForOthersByOriginator);
     }
 
-    //todo methods - get / update desires agent is committed to
+    /**
+     * Method update set of committed agents registered in provided sharedDesireForAgents with current one
+     *
+     * @param sharedDesireForAgents
+     */
+    public void updateCommitmentToDesires(SharedDesireForAgents sharedDesireForAgents) {
+        if (desiresForOthersByOriginator.containsKey(sharedDesireForAgents.getOriginatedFromAgent())) {
+            SharedDesireInRegister desire = desiresForOthersByOriginator.get(sharedDesireForAgents.getOriginatedFromAgent()).getOrDefault(sharedDesireForAgents, null);
+            if (desire != null) {
+                sharedDesireForAgents.updateCommittedAgentsSet(desire.getCommittedAgents());
+            }
+        }
+    }
 
 }

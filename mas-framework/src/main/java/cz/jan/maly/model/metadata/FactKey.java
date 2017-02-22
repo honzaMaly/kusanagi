@@ -4,8 +4,6 @@ import cz.jan.maly.model.knowledge.Fact;
 import cz.jan.maly.model.knowledge.FactSet;
 import lombok.Getter;
 
-import java.util.HashMap;
-
 /**
  * Simple class describing metadata for fact - used for identification. It contains factory method do instantiate new
  * fact of this type.

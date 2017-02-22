@@ -1,6 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.planing.*;
+import cz.jan.maly.model.planing.DesireForOthers;
+import cz.jan.maly.model.planing.IntentionWithDesireForOtherAgents;
 
 /**
  * Leaf node with desire for other agent

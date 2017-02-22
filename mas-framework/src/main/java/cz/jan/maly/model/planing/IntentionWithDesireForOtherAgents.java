@@ -1,10 +1,10 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -14,26 +14,25 @@ import java.util.Set;
 public abstract class IntentionWithDesireForOtherAgents extends Intention<DesireForOthers> {
 
     @Getter
-    private final Set<Agent> committedAgents = new HashSet<>();
+    private final SharedDesireForAgents sharedDesire;
 
-    @Getter
-    private final int limitOnNumberOfAgentsToCommit;
-
-    @Getter
-    private final Agent originatedFromAgent;
-
-    protected IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, int limitOnNumberOfAgentsToCommit, Agent agent) {
+    protected IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, int limitOnNumberOfAgentsToCommit, Agent agent, DesireKey sharedDesireKey) {
         super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
-        this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;
-        this.originatedFromAgent = agent;
+        this.sharedDesire = new SharedDesireForAgents(sharedDesireKey, agent, limitOnNumberOfAgentsToCommit);
     }
 
-    protected IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
+    protected IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent, DesireKey sharedDesireKey) {
         super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
-        this.limitOnNumberOfAgentsToCommit = Integer.MAX_VALUE;
-        this.originatedFromAgent = agent;
+        this.sharedDesire = new SharedDesireForAgents(sharedDesireKey, agent, Integer.MAX_VALUE);
     }
 
-    //TODO methods to handle sharing trough mediator
+    /**
+     * Returns clone of desire as instance of desire to share
+     *
+     * @return
+     */
+    public SharedDesireInRegister makeDesireToShare() {
+        return new SharedDesireInRegister(sharedDesire.factParameterMap, sharedDesire.factSetParameterMap, sharedDesire.desireKey, sharedDesire.originatedFromAgent, sharedDesire.limitOnNumberOfAgentsToCommit);
+    }
 
 }

@@ -1,7 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.planing.Desire;
 import cz.jan.maly.model.planing.Intention;
+import cz.jan.maly.model.planing.InternalDesire;
 
 import java.util.Optional;
 
@@ -11,7 +11,7 @@ import java.util.Optional;
  * bound desires and intentions types as well as define method to accept visitor which handles data structures.
  * Created by Jan on 21-Feb-17.
  */
-abstract class TreeNode<T extends Desire, V extends Intention<T>> implements VisitorAcceptor {
+abstract class TreeNode<T extends InternalDesire, V extends Intention<T>> implements VisitorAcceptor {
     protected final T desire;
     protected Optional<V> intention = Optional.empty();
 

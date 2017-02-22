@@ -9,7 +9,7 @@ import java.util.Set;
  * Template for intention which returns instance of Command
  * Created by Jan on 16-Feb-17.
  */
-public abstract class IntentionWithPlan<V extends Desire> extends Intention<V> {
+public abstract class IntentionWithPlan<V extends InternalDesire> extends Intention<V> {
     IntentionWithPlan(V originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
         super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
     }
