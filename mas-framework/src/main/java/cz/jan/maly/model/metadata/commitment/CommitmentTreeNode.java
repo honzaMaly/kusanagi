@@ -15,7 +15,7 @@ import java.util.Set;
  * commitment process by agents
  * Created by Jan on 24-Feb-17.
  */
-abstract class TreeNode<V extends TreeNode> implements FactContainerInterface, DesireKeyIdentificationInterface {
+abstract class CommitmentTreeNode<V extends CommitmentTreeNode> implements FactContainerInterface, DesireKeyIdentificationInterface {
     final DesireParameters desireParameters;
 
     @Getter
@@ -24,13 +24,13 @@ abstract class TreeNode<V extends TreeNode> implements FactContainerInterface, D
     @Getter
     private final boolean isAgentCommittedToIt;
 
-    TreeNode(DesireParameters desireParameters, V parent, boolean isAgentCommittedToIt) {
+    CommitmentTreeNode(DesireParameters desireParameters, V parent, boolean isAgentCommittedToIt) {
         this.desireParameters = desireParameters;
         this.parent = Optional.ofNullable(parent);
         this.isAgentCommittedToIt = isAgentCommittedToIt;
     }
 
-    TreeNode(DesireParameters desireParameters, boolean isAgentCommittedToIt) {
+    CommitmentTreeNode(DesireParameters desireParameters, boolean isAgentCommittedToIt) {
         this.desireParameters = desireParameters;
         this.parent = Optional.empty();
         this.isAgentCommittedToIt = isAgentCommittedToIt;
@@ -54,11 +54,11 @@ abstract class TreeNode<V extends TreeNode> implements FactContainerInterface, D
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TreeNode)) return false;
+        if (!(o instanceof CommitmentTreeNode)) return false;
 
-        TreeNode treeNode = (TreeNode) o;
+        CommitmentTreeNode commitmentTreeNode = (CommitmentTreeNode) o;
 
-        return desireParameters.equals(treeNode.desireParameters);
+        return desireParameters.equals(commitmentTreeNode.desireParameters);
     }
 
     @Override

@@ -8,29 +8,24 @@ import lombok.Getter;
  */
 @Getter
 public class CommandKey {
-    private final AgentTypeKey agentTypeKey;
     private final DesireKey desireKey;
 
-    public CommandKey(AgentTypeKey agentTypeKey, DesireKey desireKey) {
-        this.agentTypeKey = agentTypeKey;
+    public CommandKey(DesireKey desireKey) {
         this.desireKey = desireKey;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof CommandKey)) return false;
 
         CommandKey that = (CommandKey) o;
 
-        if (!agentTypeKey.equals(that.agentTypeKey)) return false;
         return desireKey.equals(that.desireKey);
     }
 
     @Override
     public int hashCode() {
-        int result = agentTypeKey.hashCode();
-        result = 31 * result + desireKey.hashCode();
-        return result;
+        return desireKey.hashCode();
     }
 }

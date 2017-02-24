@@ -13,7 +13,7 @@ import java.util.Map;
  */
 abstract class DesireRegister extends Register<Map<SharedDesire, SharedDesireInRegister>> {
 
-    DesireRegister(Map<Agent, Map<SharedDesire, SharedDesireInRegister>> desiresForOthersByOriginator) {
-        super(desiresForOthersByOriginator);
+    DesireRegister(Map<Agent, Map<SharedDesire, SharedDesireInRegister>> dataByOriginator) {
+        super(dataByOriginator);
     }
 }

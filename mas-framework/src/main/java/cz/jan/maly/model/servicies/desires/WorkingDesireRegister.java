@@ -23,7 +23,13 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
     }
 
     public ReadOnlyDesireRegister makeSnapshot() {
-        return new ReadOnlyDesireRegister(desiresForOthersByOriginator);
+        Map<Agent, Map<SharedDesire, SharedDesireInRegister>> copy = new HashMap<>();
+        dataByOriginator.forEach((agent, sharedDesireSharedDesireInRegisterMap) -> {
+            Map<SharedDesire, SharedDesireInRegister> content = new HashMap<>();
+            sharedDesireSharedDesireInRegisterMap.forEach(content::put);
+            copy.put(agent, content);
+        });
+        return new ReadOnlyDesireRegister(copy);
     }
 
     /**
@@ -33,10 +39,21 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @return
      */
     public boolean addedDesire(SharedDesireInRegister desireForOthers) {
-        Map<SharedDesire, SharedDesireInRegister> desiresByAgent = desiresForOthersByOriginator.computeIfAbsent(desireForOthers.getOriginatedFromAgent(), agent -> new HashMap<>());
+        Map<SharedDesire, SharedDesireInRegister> desiresByAgent = dataByOriginator.computeIfAbsent(desireForOthers.getOriginatedFromAgent(), agent -> new HashMap<>());
         if (!desiresByAgent.containsKey(desireForOthers)) {
             desiresByAgent.put(desireForOthers, desireForOthers);
         }
+        return true;
+    }
+
+    /**
+     * Remove agent from register
+     *
+     * @param agentToRemove
+     * @return
+     */
+    public boolean removeAgent(Agent agentToRemove) {
+        dataByOriginator.remove(agentToRemove);
         return true;
     }
 
@@ -47,11 +64,11 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @return
      */
     public boolean removedDesire(SharedDesireInRegister desireForOthers) {
-        if (desiresForOthersByOriginator.containsKey(desireForOthers.getOriginatedFromAgent())) {
-            Map<SharedDesire, SharedDesireInRegister> desiresByAgent = desiresForOthersByOriginator.get(desireForOthers.getOriginatedFromAgent());
+        if (dataByOriginator.containsKey(desireForOthers.getOriginatedFromAgent())) {
+            Map<SharedDesire, SharedDesireInRegister> desiresByAgent = dataByOriginator.get(desireForOthers.getOriginatedFromAgent());
             desiresByAgent.remove(desireForOthers);
             if (desiresByAgent.isEmpty()) {
-                desiresForOthersByOriginator.remove(desireForOthers.getOriginatedFromAgent());
+                dataByOriginator.remove(desireForOthers.getOriginatedFromAgent());
             }
         }
         return true;
@@ -65,8 +82,8 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @return
      */
     public Optional<SharedDesireForAgents> commitToDesire(Agent agentWhoWantsToCommitTo, SharedDesireForAgents desireForOthersHeWantsToCommitTo) {
-        if (desiresForOthersByOriginator.containsKey(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent())) {
-            SharedDesireInRegister desire = desiresForOthersByOriginator.get(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent()).getOrDefault(desireForOthersHeWantsToCommitTo, null);
+        if (dataByOriginator.containsKey(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent())) {
+            SharedDesireInRegister desire = dataByOriginator.get(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent()).getOrDefault(desireForOthersHeWantsToCommitTo, null);
             if (desire != null) {
                 boolean isCommitted = desire.commitToDesire(agentWhoWantsToCommitTo);
                 if (isCommitted) {
@@ -85,8 +102,8 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @return
      */
     public boolean removeCommitmentToDesire(Agent agentWhoWantsToRemoveCommitment, SharedDesireForAgents desireHeWantsToRemoveCommitmentTo) {
-        if (desiresForOthersByOriginator.containsKey(desireHeWantsToRemoveCommitmentTo.getOriginatedFromAgent())) {
-            SharedDesireInRegister desire = desiresForOthersByOriginator.get(desireHeWantsToRemoveCommitmentTo.getOriginatedFromAgent()).getOrDefault(desireHeWantsToRemoveCommitmentTo, null);
+        if (dataByOriginator.containsKey(desireHeWantsToRemoveCommitmentTo.getOriginatedFromAgent())) {
+            SharedDesireInRegister desire = dataByOriginator.get(desireHeWantsToRemoveCommitmentTo.getOriginatedFromAgent()).getOrDefault(desireHeWantsToRemoveCommitmentTo, null);
             if (desire != null) {
                 return desire.removeCommitment(agentWhoWantsToRemoveCommitment);
             }

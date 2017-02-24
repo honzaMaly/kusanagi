@@ -12,8 +12,15 @@ public class FrameworkUtils {
 
     public static final Cloner CLONER = new Cloner();
 
-    @Getter
     @Setter
-    private static int lengthOfIntervalBeforeUpdatingRegisterWithDesires = 50;
+    @Getter
+    private static int lengthOfIntervalBeforeUpdatingRegisterWithDesires = 100;
+
+    @Setter
+    public static int howManyCyclesStayAgentsMemoryInRegisterWithoutUpdate = 100;
+
+    @Setter
+    @Getter
+    private static int lengthOfIntervalBeforeUpdatingRegisterWithMemory = 100;
 
 }

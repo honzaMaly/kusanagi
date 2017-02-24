@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * Class describing metadata for agent type - used for identification and parameter type definition - fact types and
- * fact set types in memory (beliefs) as well as supported (implemented) desires by agent type and desires it may request
+ * fact set types in memory (internal_beliefs) as well as supported (implemented) desires by agent type and desires it may request
  * Created by Jan on 15-Feb-17.
  */
 public abstract class AgentTypeKey extends Key {

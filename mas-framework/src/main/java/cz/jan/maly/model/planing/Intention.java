@@ -26,7 +26,7 @@ public abstract class Intention<T extends InternalDesire> implements FactContain
     Intention(T originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
         this.originalDesire = originalDesire;
 
-        //fill maps with actual parameters from beliefs
+        //fill maps with actual parameters from internal_beliefs
         parametersTypesForFact.forEach(factKey -> {
             Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
             value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));

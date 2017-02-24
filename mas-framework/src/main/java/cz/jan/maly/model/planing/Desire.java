@@ -25,7 +25,7 @@ public abstract class Desire implements FactContainerInterface, DesireKeyIdentif
 
     Desire(DesireKey desireKey, Agent agent) {
 
-        //fill maps with actual parameters from beliefs
+        //fill maps with actual parameters from internal_beliefs
         Map<FactKey, Object> factParameterMap = new HashMap<>();
         desireKey.getParametersTypesForFacts()
                 .forEach(factKey -> {

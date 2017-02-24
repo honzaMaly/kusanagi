@@ -13,7 +13,7 @@ import cz.jan.maly.utils.FrameworkUtils;
 import java.util.Optional;
 
 /**
- * DesireMediator instance enables agents to propose desires to commit to to other agents. It keeps status what is available
+ * DesireMediator instance enables agents to propose desires for other agents to commit to. It keeps status what is available
  * and which agent is committed to what. This information are available then to other agents. Class defines method to access
  * queue.
  * <p>
@@ -38,6 +38,29 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.addedDesire(sharedDesire);
+                }
+
+                @Override
+                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                    return responseReceiver;
+                }
+            });
+        }
+    }
+
+    /**
+     * Method to remove agent from register of desires
+     *
+     * @param agent
+     * @param responseReceiver
+     * @return
+     */
+    public boolean removeAgentFromRegister(Agent agent, ResponseReceiverInterface<Boolean> responseReceiver) {
+        synchronized (queuedItems) {
+            return queuedItems.add(new QueuedItemInterface<Boolean>() {
+                @Override
+                public Boolean executeCode() {
+                    return workingRegister.removeAgent(agent);
                 }
 
                 @Override

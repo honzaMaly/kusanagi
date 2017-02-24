@@ -14,7 +14,7 @@ import java.util.Set;
 
 /**
  * Template class Command defines method to be called by system to execute some action
- * by agent (not exclusively) on system behalf. It works with current beliefs.
+ * by agent (not exclusively) on system behalf. It works with current internal_beliefs.
  * Created by Jan on 15-Feb-17.
  */
 public abstract class Command implements FactContainerInterface {
@@ -27,9 +27,9 @@ public abstract class Command implements FactContainerInterface {
     private final Intention intention;
 
     protected Command(Intention intention, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
-        this.commandKey = new CommandKey(agent.getAgentTypeKey(), intention.getDesireKey());
+        this.commandKey = new CommandKey(intention.getDesireKey());
 
-        //fill maps with actual parameters from beliefs
+        //fill maps with actual parameters from internal_beliefs
         parametersTypesForFact.forEach(factKey -> {
             Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
             value.ifPresent(o -> factParameterMap.put(factKey, o));

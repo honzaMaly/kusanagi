@@ -6,12 +6,12 @@ import cz.jan.maly.model.metadata.DesireParameters;
  * Contract to be implemented by each node in working memory to return copy of subtree induced by it
  * Created by Jan on 24-Feb-17.
  */
-public abstract class TreeNodeInWorkingMemory extends TreeNode<IntentionNodeInWorkingMemory> {
-    TreeNodeInWorkingMemory(DesireParameters desireParameters, IntentionNodeInWorkingMemory parent, boolean isAgentCommittedToIt) {
+public abstract class CommitmentTreeNodeInWorkingMemory extends CommitmentTreeNode<IntentionNodeInWorkingMemoryCommitment> {
+    CommitmentTreeNodeInWorkingMemory(DesireParameters desireParameters, IntentionNodeInWorkingMemoryCommitment parent, boolean isAgentCommittedToIt) {
         super(desireParameters, parent, isAgentCommittedToIt);
     }
 
-    TreeNodeInWorkingMemory(DesireParameters desireParameters, boolean isAgentCommittedToIt) {
+    CommitmentTreeNodeInWorkingMemory(DesireParameters desireParameters, boolean isAgentCommittedToIt) {
         super(desireParameters, isAgentCommittedToIt);
     }
 
@@ -21,13 +21,13 @@ public abstract class TreeNodeInWorkingMemory extends TreeNode<IntentionNodeInWo
      * @param parent
      * @return
      */
-    abstract TreeNodeReadOnly getCopy(IntentionNode parent);
+    abstract CommitmentTreeNodeReadOnly getCopy(IntentionNodeCommitment parent);
 
     /**
      * Returns copy of subtree
      *
      * @return
      */
-    abstract TreeNodeReadOnly getCopy();
+    abstract CommitmentTreeNodeReadOnly getCopy();
 
 }

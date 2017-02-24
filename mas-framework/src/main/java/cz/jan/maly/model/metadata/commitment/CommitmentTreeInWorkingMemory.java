@@ -8,14 +8,14 @@ import java.util.stream.Collectors;
  * Internal representation of agent commitment process
  * Created by Jan on 24-Feb-17.
  */
-public class CommitmentTreeInWorkingMemory {
-    private final Set<TreeNodeInWorkingMemory> nodeList = new HashSet<>();
+public class CommitmentTreeInWorkingMemory implements CommitmentTreeInterface {
+    private final Set<CommitmentTreeNodeInWorkingMemory> nodeList = new HashSet<>();
 
-    void addChild(TreeNodeInWorkingMemory treeNodeInWorkingMemory) {
+    void addChild(CommitmentTreeNodeInWorkingMemory treeNodeInWorkingMemory) {
         nodeList.add(treeNodeInWorkingMemory);
     }
 
-    void removeChild(TreeNodeInWorkingMemory treeNodeInWorkingMemory) {
+    void removeChild(CommitmentTreeNodeInWorkingMemory treeNodeInWorkingMemory) {
         nodeList.remove(treeNodeInWorkingMemory);
     }
 
@@ -32,10 +32,10 @@ public class CommitmentTreeInWorkingMemory {
      *
      * @return
      */
-    public Set<IntentionNodeInWorkingMemory> getTopLevelIntentions() {
+    public Set<IntentionNodeInWorkingMemoryCommitment> getTopLevelIntentions() {
         return nodeList.stream()
-                .filter(treeNodeInWorkingMemory -> treeNodeInWorkingMemory instanceof IntentionNodeInWorkingMemory)
-                .map(treeNodeInWorkingMemory -> (IntentionNodeInWorkingMemory) treeNodeInWorkingMemory)
+                .filter(treeNodeInWorkingMemory -> treeNodeInWorkingMemory instanceof IntentionNodeInWorkingMemoryCommitment)
+                .map(treeNodeInWorkingMemory -> (IntentionNodeInWorkingMemoryCommitment) treeNodeInWorkingMemory)
                 .collect(Collectors.toSet());
     }
 
@@ -44,10 +44,10 @@ public class CommitmentTreeInWorkingMemory {
      *
      * @return
      */
-    public Set<DesireNodeInWorkingMemory> getTopLevelDesires() {
+    public Set<DesireNodeInWorkingMemoryCommitment> getTopLevelDesires() {
         return nodeList.stream()
-                .filter(treeNodeInWorkingMemory -> treeNodeInWorkingMemory instanceof DesireNodeInWorkingMemory)
-                .map(treeNodeInWorkingMemory -> (DesireNodeInWorkingMemory) treeNodeInWorkingMemory)
+                .filter(treeNodeInWorkingMemory -> treeNodeInWorkingMemory instanceof DesireNodeInWorkingMemoryCommitment)
+                .map(treeNodeInWorkingMemory -> (DesireNodeInWorkingMemoryCommitment) treeNodeInWorkingMemory)
                 .collect(Collectors.toSet());
     }
 

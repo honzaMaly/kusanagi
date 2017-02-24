@@ -10,20 +10,20 @@ import java.util.Set;
  * other agents what is going on in another agent to make better informed decisions
  * Created by Jan on 24-Feb-17.
  */
-public class CommitmentTreeReadOnly {
+public class CommitmentTreeReadOnly implements CommitmentTreeInterface {
     @Getter
-    final Set<IntentionNode> intentionsOnTopLevel = new HashSet<>();
+    final Set<IntentionNodeCommitment> intentionsOnTopLevel = new HashSet<>();
 
     @Getter
-    final Set<DesireNode> desiresOnTopLevel = new HashSet<>();
+    final Set<DesireNodeCommitment> desiresOnTopLevel = new HashSet<>();
 
-    CommitmentTreeReadOnly(Set<TreeNodeInWorkingMemory> topLevelNodes) {
+    CommitmentTreeReadOnly(Set<CommitmentTreeNodeInWorkingMemory> topLevelNodes) {
         topLevelNodes.forEach(treeNodeInWorkingMemory -> {
-            TreeNodeReadOnly treeNode = treeNodeInWorkingMemory.getCopy();
-            if (treeNode instanceof IntentionNode) {
-                intentionsOnTopLevel.add((IntentionNode) treeNode);
+            CommitmentTreeNodeReadOnly treeNode = treeNodeInWorkingMemory.getCopy();
+            if (treeNode instanceof IntentionNodeCommitment) {
+                intentionsOnTopLevel.add((IntentionNodeCommitment) treeNode);
             } else {
-                desiresOnTopLevel.add((DesireNode) treeNode);
+                desiresOnTopLevel.add((DesireNodeCommitment) treeNode);
             }
         });
     }
