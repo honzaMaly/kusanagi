@@ -1,6 +1,6 @@
 package cz.jan.maly.model.knowledge;
 
-import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.metadata.FactKey;
 
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import java.util.Set;
  * Class represents agent's own memory - it stores facts and sets of facts
  * Created by Jan on 16-Feb-17.
  */
-public class InternalMemory implements Memory<InternalMemory>, FactObtainingInterface {
+public class InternalMemory implements Memory<InternalMemory>, FactContainerInterface {
     private final Map<FactKey, Fact> factParameterMap;
     private final Map<FactKey, FactSet> factSetParameterMap;
 

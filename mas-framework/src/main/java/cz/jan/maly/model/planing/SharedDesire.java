@@ -2,11 +2,10 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import lombok.Getter;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -29,8 +28,8 @@ public abstract class SharedDesire extends Desire {
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;
     }
 
-    SharedDesire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit, Set<Agent> committedAgents) {
-        super(factParameterMap, factSetParameterMap, desireKey);
+    SharedDesire(DesireParameters desireParameters, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit, Set<Agent> committedAgents) {
+        super(desireParameters);
         this.originatedFromAgent = originatedFromAgent;
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;
         this.committedAgents.addAll(committedAgents);

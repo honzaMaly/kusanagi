@@ -2,11 +2,8 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import lombok.Getter;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Class extending Desire describes template for internal desires agents may want to commit to. Concrete implementation
@@ -23,8 +20,8 @@ public abstract class InternalDesire extends Desire implements Commitment {
         this.isAbstract = isAbstract;
     }
 
-    InternalDesire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey, boolean isAbstract) {
-        super(factParameterMap, factSetParameterMap, desireKey);
+    InternalDesire(DesireParameters desireParameters, boolean isAbstract) {
+        super(desireParameters);
         this.isAbstract = isAbstract;
     }
 

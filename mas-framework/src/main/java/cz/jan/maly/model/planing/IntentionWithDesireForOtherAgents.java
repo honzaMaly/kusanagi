@@ -32,7 +32,7 @@ public abstract class IntentionWithDesireForOtherAgents extends Intention<Desire
      * @return
      */
     public SharedDesireInRegister makeDesireToShare() {
-        return new SharedDesireInRegister(sharedDesire.factParameterMap, sharedDesire.factSetParameterMap, sharedDesire.desireKey, sharedDesire.originatedFromAgent, sharedDesire.limitOnNumberOfAgentsToCommit);
+        return new SharedDesireInRegister(sharedDesire.desireParameters, sharedDesire.originatedFromAgent, sharedDesire.limitOnNumberOfAgentsToCommit);
     }
 
 }

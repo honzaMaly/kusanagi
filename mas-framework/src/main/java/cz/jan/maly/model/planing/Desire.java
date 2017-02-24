@@ -1,10 +1,11 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.DesireKeyIdentificationInterface;
+import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
-import lombok.Getter;
+import cz.jan.maly.model.metadata.DesireParameters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,53 +20,41 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * <p>
  * Created by Jan on 09-Feb-17.
  */
-public abstract class Desire implements FactObtainingInterface {
-    final Map<FactKey, Object> factParameterMap;
-    final Map<FactKey, Set> factSetParameterMap;
-
-    @Getter
-    final DesireKey desireKey;
+public abstract class Desire implements FactContainerInterface, DesireKeyIdentificationInterface {
+    final DesireParameters desireParameters;
 
     Desire(DesireKey desireKey, Agent agent) {
-        this.desireKey = desireKey;
 
         //fill maps with actual parameters from beliefs
-        factParameterMap = new HashMap<>();
-        this.desireKey.getParametersTypesForFacts()
+        Map<FactKey, Object> factParameterMap = new HashMap<>();
+        desireKey.getParametersTypesForFacts()
                 .forEach(factKey -> {
                     Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
-                    value.ifPresent(o -> factParameterMap.put(factKey, o));
+                    value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
                 });
-        factSetParameterMap = new HashMap<>();
-        this.desireKey.getParametersTypesForFactSets()
+        Map<FactKey, Set> factSetParameterMap = new HashMap<>();
+        desireKey.getParametersTypesForFactSets()
                 .forEach(factKey -> {
                     Optional<Set> value = agent.getBeliefs().returnFactSetValueForGivenKey(factKey);
-                    value.ifPresent(o -> factSetParameterMap.put(factKey, o));
+                    value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
                 });
+        this.desireParameters = new DesireParameters(factParameterMap, factSetParameterMap, desireKey);
     }
 
-    Desire(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey) {
-        this.factParameterMap = new HashMap<>();
-        factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, CLONER.deepClone(o)));
-        this.factSetParameterMap = new HashMap<>();
-        factSetParameterMap.forEach((factKey, set) -> this.factSetParameterMap.put(factKey, CLONER.deepClone(set)));
-        this.desireKey = desireKey;
+    Desire(DesireParameters desireParameters) {
+        this.desireParameters = desireParameters;
+    }
+
+    public DesireKey getDesireKey() {
+        return desireParameters.getDesireKey();
     }
 
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
-        Object value = factParameterMap.get(factKey);
-        if (value != null) {
-            return Optional.of((V) value);
-        }
-        return Optional.empty();
+        return desireParameters.returnFactValueForGivenKey(factKey);
     }
 
     public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
-        Set values = factSetParameterMap.get(factKey);
-        if (values != null) {
-            return Optional.of((S) values);
-        }
-        return Optional.empty();
+        return desireParameters.returnFactSetValueForGivenKey(factKey);
     }
 
     @Override
@@ -75,16 +64,11 @@ public abstract class Desire implements FactObtainingInterface {
 
         Desire desire = (Desire) o;
 
-        if (!factParameterMap.equals(desire.factParameterMap)) return false;
-        if (!factSetParameterMap.equals(desire.factSetParameterMap)) return false;
-        return desireKey.equals(desire.desireKey);
+        return desireParameters.equals(desire.desireParameters);
     }
 
     @Override
     public int hashCode() {
-        int result = factParameterMap.hashCode();
-        result = 31 * result + factSetParameterMap.hashCode();
-        result = 31 * result + desireKey.hashCode();
-        return result;
+        return desireParameters.hashCode();
     }
 }

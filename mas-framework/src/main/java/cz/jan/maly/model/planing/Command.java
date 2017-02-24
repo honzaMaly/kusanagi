@@ -1,6 +1,6 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.QueuedItemInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.CommandKey;
@@ -17,7 +17,7 @@ import java.util.Set;
  * by agent (not exclusively) on system behalf. It works with current beliefs.
  * Created by Jan on 15-Feb-17.
  */
-public abstract class Command implements FactObtainingInterface {
+public abstract class Command implements FactContainerInterface {
     private final Map<FactKey, Object> factParameterMap = new HashMap<>();
     private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
 
@@ -27,7 +27,7 @@ public abstract class Command implements FactObtainingInterface {
     private final Intention intention;
 
     protected Command(Intention intention, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
-        this.commandKey = new CommandKey(agent.getAgentTypeKey(), intention.getOriginalDesire().getDesireKey());
+        this.commandKey = new CommandKey(agent.getAgentTypeKey(), intention.getDesireKey());
 
         //fill maps with actual parameters from beliefs
         parametersTypesForFact.forEach(factKey -> {
@@ -77,7 +77,7 @@ public abstract class Command implements FactObtainingInterface {
      * @return
      */
     protected <V> Optional<V> returnFactValueForGivenKeyFromDesire(FactKey<V> factKey) {
-        return intention.getOriginalDesire().returnFactValueForGivenKey(factKey);
+        return intention.returnFactValueForGivenKeyForOriginalDesire(factKey);
     }
 
     /**
@@ -88,7 +88,7 @@ public abstract class Command implements FactObtainingInterface {
      * @return
      */
     protected <V> Optional<Set<V>> returnFactSetValueForGivenKeyFromDesire(FactKey<V> factKey) {
-        return intention.getOriginalDesire().returnFactSetValueForGivenKey(factKey);
+        return intention.returnFactSetValueForGivenKeyForOriginalDesire(factKey);
     }
 
     /**

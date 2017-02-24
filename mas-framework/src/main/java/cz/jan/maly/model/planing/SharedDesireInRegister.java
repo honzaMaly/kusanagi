@@ -1,11 +1,9 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,8 +13,8 @@ import java.util.stream.Collectors;
  */
 public class SharedDesireInRegister extends SharedDesire {
 
-    SharedDesireInRegister(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit) {
-        super(factParameterMap, factSetParameterMap, desireKey, originatedFromAgent, limitOnNumberOfAgentsToCommit, new HashSet<>());
+    SharedDesireInRegister(DesireParameters desireParameters, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit) {
+        super(desireParameters, originatedFromAgent, limitOnNumberOfAgentsToCommit, new HashSet<>());
     }
 
     /**
@@ -59,7 +57,7 @@ public class SharedDesireInRegister extends SharedDesire {
      * @return
      */
     public SharedDesireForAgents getCopyOfSharedDesireForAgents() {
-        return new SharedDesireForAgents(factParameterMap, factSetParameterMap, desireKey, originatedFromAgent, limitOnNumberOfAgentsToCommit, committedAgents);
+        return new SharedDesireForAgents(desireParameters, originatedFromAgent, limitOnNumberOfAgentsToCommit, committedAgents);
     }
 
 }

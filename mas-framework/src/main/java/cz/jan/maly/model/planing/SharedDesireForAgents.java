@@ -2,9 +2,8 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,8 +16,8 @@ public class SharedDesireForAgents extends SharedDesire {
         super(desireKey, originatedFromAgent, limitOnNumberOfAgentsToCommit);
     }
 
-    SharedDesireForAgents(Map<FactKey, Object> factParameterMap, Map<FactKey, Set> factSetParameterMap, DesireKey desireKey, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit, Set<Agent> committedAgents) {
-        super(factParameterMap, factSetParameterMap, desireKey, originatedFromAgent, limitOnNumberOfAgentsToCommit, committedAgents);
+    SharedDesireForAgents(DesireParameters desireParameters, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit, Set<Agent> committedAgents) {
+        super(desireParameters, originatedFromAgent, limitOnNumberOfAgentsToCommit, committedAgents);
     }
 
     /**

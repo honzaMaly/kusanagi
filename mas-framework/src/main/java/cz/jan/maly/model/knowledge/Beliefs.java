@@ -1,6 +1,6 @@
 package cz.jan.maly.model.knowledge;
 
-import cz.jan.maly.model.FactObtainingInterface;
+import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.metadata.FactKey;
 
 import java.util.Optional;
@@ -9,9 +9,9 @@ import java.util.Set;
 /**
  * Created by Jan on 14-Feb-17.
  */
-public class Beliefs implements FactObtainingInterface, Memory<Beliefs> {
+public class Beliefs implements FactContainerInterface, Memory<Beliefs> {
 
-    //todo clone values - for thread safety
+    //todo do not clone values - too much overhead, user not suppose to edit them
 
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
         return Optional.empty();
@@ -25,7 +25,5 @@ public class Beliefs implements FactObtainingInterface, Memory<Beliefs> {
     public Beliefs cloneMemory() {
         return null;
     }
-
-    //todo factory for fol - reason about features contained in memories
 
 }

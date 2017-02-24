@@ -6,6 +6,6 @@ package cz.jan.maly.model.planing;
  */
 public abstract class DesireFromAnotherAgent extends InternalDesire {
     DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, boolean isAbstract) {
-        super(desireOriginatedFrom.factParameterMap, desireOriginatedFrom.factSetParameterMap, desireOriginatedFrom.desireKey, isAbstract);
+        super(desireOriginatedFrom.desireParameters, isAbstract);
     }
 }
