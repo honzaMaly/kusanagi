@@ -2,6 +2,8 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.FactKey;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 
@@ -10,6 +12,11 @@ import java.util.Set;
  * Created by Jan on 16-Feb-17.
  */
 public abstract class IntentionWithPlan<V extends InternalDesire> extends Intention<V> {
+
+    @Getter
+    @Setter
+    private boolean executed = false;
+
     IntentionWithPlan(V originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
         super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
     }

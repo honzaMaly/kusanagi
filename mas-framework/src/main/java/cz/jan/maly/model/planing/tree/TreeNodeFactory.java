@@ -10,18 +10,20 @@ import cz.jan.maly.model.planing.OwnDesire;
  */
 public class TreeNodeFactory {
 
-    public static TreeNode getTreeNode(OwnDesire ownDesire) {
-        if (!ownDesire.isAbstract()) {
-            return new LeafNodeWithPlan.WithOwnDesire(ownDesire);
-        }
-        return new WithOwnDesireIntermediateNode(ownDesire);
+    public static TreeNode getTreeNode(OwnDesire.WithIntentionWithPlan desire) {
+        return new LeafNodeWithPlan.WithOwnDesire(desire);
     }
 
-    public static TreeNode getTreeNode(DesireFromAnotherAgent desireFromAnotherAgent) {
-        if (!desireFromAnotherAgent.isAbstract()) {
-            return new LeafNodeWithPlan.WithAnotherAgentDesire(desireFromAnotherAgent);
-        }
-        return new WithAnotherAgentDesireIntermediateNode(desireFromAnotherAgent);
+    public static TreeNode getTreeNode(OwnDesire.WithAbstractIntention desire) {
+        return new WithOwnDesireIntermediateNode(desire);
+    }
+
+    public static TreeNode getTreeNode(DesireFromAnotherAgent.WithAbstractIntention desire) {
+        return new WithAnotherAgentDesireIntermediateNode(desire);
+    }
+
+    public static TreeNode getTreeNode(DesireFromAnotherAgent.WithIntentionWithPlan desire) {
+        return new LeafNodeWithPlan.WithAnotherAgentDesire(desire);
     }
 
     public static TreeNode getTreeNode(DesireForOthers desireForOthers) {

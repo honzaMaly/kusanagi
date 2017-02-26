@@ -5,7 +5,7 @@ package cz.jan.maly.model.planing.tree;
  * design pattern Visitor enables to have logic to handle flow implemented by concrete visitor.
  * Created by Jan on 21-Feb-17.
  */
-interface TreeVisitorInterface {
+public interface TreeVisitorInterface {
 
     void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire);
 

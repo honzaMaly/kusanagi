@@ -13,6 +13,11 @@ public class LeafNodeWithDesireForOtherAgents extends LeafNode<DesireForOthers, 
     }
 
     @Override
+    IntentionWithDesireForOtherAgents getIntention() {
+        return desire.formIntention();
+    }
+
+    @Override
     public void accept(TreeVisitorInterface treeVisitor) {
         treeVisitor.visit(this);
     }

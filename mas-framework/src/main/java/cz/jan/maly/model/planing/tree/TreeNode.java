@@ -19,6 +19,49 @@ abstract class TreeNode<T extends InternalDesire, V extends Intention<T>> implem
         this.desire = desire;
     }
 
+    /**
+     * Method try to commit to desire. If gate for commitment is opened, intention is added.
+     * Returns status of this operation
+     *
+     * @return
+     */
+    public boolean madeCommitment() {
+        if (desire.shouldCommit()) {
+            intention = Optional.ofNullable(getIntention());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Method try to remove commitment to intention. Returns status of this operation
+     *
+     * @return
+     */
+    public boolean removedCommitment() {
+        if (intention.get().shouldRemoveCommitment()) {
+            intention = Optional.empty();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns whether this node represents intention
+     *
+     * @return
+     */
+    public boolean isCommitted() {
+        return intention.isPresent();
+    }
+
+    /**
+     * Get correct type of intention - subclass type usage dependant (specified by subtype)
+     *
+     * @return
+     */
+    abstract V getIntention();
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

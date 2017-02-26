@@ -1,6 +1,7 @@
 package cz.jan.maly.model.agents;
 
 import cz.jan.maly.model.knowledge.Beliefs;
+import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.service.implementation.AgentsRegister;
 import lombok.Getter;
 
@@ -15,8 +16,12 @@ public abstract class Agent {
     @Getter
     private Beliefs beliefs;
 
-    public Agent(AgentsRegister agentsRegister) {
+    @Getter
+    private final AgentTypeKey agentType;
+
+    public Agent(AgentsRegister agentsRegister, AgentTypeKey agentType) {
         this.id = agentsRegister.getFreeId();
+        this.agentType = agentType;
     }
 
     //TODO initialize beliefs, when starting agent, check environment

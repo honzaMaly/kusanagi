@@ -3,7 +3,7 @@ package cz.jan.maly.model.planing;
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.QueuedItemInterface;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.CommandKey;
+import cz.jan.maly.model.metadata.CommandManagerKey;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
@@ -17,17 +17,17 @@ import java.util.Set;
  * by agent (not exclusively) on system behalf. It works with current internal_beliefs.
  * Created by Jan on 15-Feb-17.
  */
-public abstract class Command implements FactContainerInterface {
+public abstract class Command<K extends CommandManagerKey> implements FactContainerInterface {
     private final Map<FactKey, Object> factParameterMap = new HashMap<>();
     private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
 
     @Getter
-    private final CommandKey commandKey;
+    private final K commandManagerKey;
 
     private final Intention intention;
 
-    protected Command(Intention intention, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
-        this.commandKey = new CommandKey(intention.getDesireKey());
+    protected Command(Intention intention, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent, K commandManagerKey) {
+        this.commandManagerKey = commandManagerKey;
 
         //fill maps with actual parameters from internal_beliefs
         parametersTypesForFact.forEach(factKey -> {

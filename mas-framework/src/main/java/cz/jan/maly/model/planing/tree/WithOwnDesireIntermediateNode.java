@@ -7,9 +7,14 @@ import cz.jan.maly.model.planing.OwnDesire;
  * Concrete implementation of intermediate node with own desire
  * Created by Jan on 21-Feb-17.
  */
-public class WithOwnDesireIntermediateNode extends IntermediateNode<OwnDesire, AbstractIntention<OwnDesire>> {
-    WithOwnDesireIntermediateNode(OwnDesire desire) {
+public class WithOwnDesireIntermediateNode extends IntermediateNode<OwnDesire.WithAbstractIntention, AbstractIntention<OwnDesire.WithAbstractIntention>> {
+    WithOwnDesireIntermediateNode(OwnDesire.WithAbstractIntention desire) {
         super(desire);
+    }
+
+    @Override
+    AbstractIntention<OwnDesire.WithAbstractIntention> getIntention() {
+        return desire.formIntention();
     }
 
     @Override

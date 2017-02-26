@@ -7,8 +7,27 @@ import cz.jan.maly.model.metadata.DesireKey;
  * Template for agent's own desires
  * Created by Jan on 15-Feb-17.
  */
-public abstract class OwnDesire extends InternalDesire {
-    public OwnDesire(DesireKey desireKey, Agent agent, boolean isAbstract) {
+public abstract class OwnDesire<V extends OwnDesire, T extends Intention<V>> extends InternalDesire<V, T> {
+    OwnDesire(DesireKey desireKey, Agent agent, boolean isAbstract) {
         super(desireKey, agent, isAbstract);
     }
+
+    /**
+     * Desire to initialize abstract intention
+     */
+    public abstract static class WithAbstractIntention extends OwnDesire<WithAbstractIntention, AbstractIntention<WithAbstractIntention>> {
+        protected WithAbstractIntention(DesireKey desireKey, Agent agent, boolean isAbstract) {
+            super(desireKey, agent, isAbstract);
+        }
+    }
+
+    /**
+     * Desire to initialize intention with plan
+     */
+    public abstract static class WithIntentionWithPlan extends OwnDesire<WithIntentionWithPlan, IntentionWithPlan<WithIntentionWithPlan>> {
+        protected WithIntentionWithPlan(DesireKey desireKey, Agent agent, boolean isAbstract) {
+            super(desireKey, agent, isAbstract);
+        }
+    }
+
 }
