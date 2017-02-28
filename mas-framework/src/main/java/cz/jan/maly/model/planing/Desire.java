@@ -4,8 +4,9 @@ import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.DesireParameters;
+import cz.jan.maly.model.metadata.FactKey;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,8 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * Created by Jan on 09-Feb-17.
  */
 public abstract class Desire implements FactContainerInterface, DesireKeyIdentificationInterface {
+
+    @Getter
     final DesireParameters desireParameters;
 
     Desire(DesireKey desireKey, Agent agent) {

@@ -1,6 +1,6 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
-import cz.jan.maly.model.planing.tree.*;
+import cz.jan.maly.model.planing.tree.TreeVisitorInterface;
 
 /**
  * Commitment visitor traverse subtrees to decide commitments to desires - for given desire in root of subtree decide

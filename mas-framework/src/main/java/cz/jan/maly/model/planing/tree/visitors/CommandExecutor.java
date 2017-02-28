@@ -3,7 +3,7 @@ package cz.jan.maly.model.planing.tree.visitors;
 import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.CommandManagerKey;
 import cz.jan.maly.model.planing.Command;
-import cz.jan.maly.model.planing.tree.*;
+import cz.jan.maly.model.planing.tree.TreeVisitorInterface;
 import cz.jan.maly.service.CommandManager;
 
 import java.util.HashMap;

@@ -7,14 +7,12 @@ package cz.jan.maly.model.planing.tree;
  */
 public interface TreeVisitorInterface {
 
-    void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire);
+    void visit(DesireNodeAtTopLevel node);
 
-    void visit(LeafNodeWithPlan.WithAnotherAgentDesire leafNodeWithAnotherAgentDesire);
+    void visit(IntentionNodeAtTopLevel.WithDesireForOthers node);
 
-    void visit(LeafNodeWithDesireForOtherAgents leafNodeWithDesireForOtherAgents);
+    void visit(IntentionNodeAtTopLevel.WithAbstractPlan node);
 
-    void visit(WithOwnDesireIntermediateNode withOwnDesireIntermediateNode);
-
-    void visit(WithAnotherAgentDesireIntermediateNode withAnotherAgentDesireIntermediateNode);
+    void visit(IntentionNodeAtTopLevel.WithPlan node);
 
 }

@@ -10,7 +10,7 @@ import lombok.Getter;
  * of this are used in planning tree.
  * Created by Jan on 22-Feb-17.
  */
-public abstract class InternalDesire<V extends InternalDesire, T extends Intention<V>> extends Desire implements Commitment {
+public abstract class InternalDesire<T extends Intention<? extends InternalDesire>> extends Desire implements Commitment {
 
     @Getter
     final boolean isAbstract;

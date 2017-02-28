@@ -6,7 +6,7 @@ import cz.jan.maly.model.metadata.FactKey;
 import java.util.Set;
 
 /**
- * Template class for intention with abstract plan - set of other intentions to commit to. 3 sets are defined
+ * Template class for intention with abstract plan - set of other intentions to commit to. 3 sets a
  * Created by Jan on 15-Feb-17.
  */
 public abstract class AbstractIntention<T extends InternalDesire> extends Intention<T> {
