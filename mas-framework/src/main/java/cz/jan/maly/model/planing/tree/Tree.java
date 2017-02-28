@@ -1,15 +1,21 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.PlanningTreeInterface;
 import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.knowledge.PlanningTreeOfAnotherAgent;
+import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
+ * Facade for planning tree. Tree manages nodes at top level.
  * Created by Jan on 28-Feb-17.
  */
-public class Tree {
+public class Tree implements VisitorAcceptor, PlanningTreeInterface {
     private final Map<Intention<?>, IntentionNodeAtTopLevel<?, ?>> intentionsInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, DesireNodeAtTopLevel<?>> desiresInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, Intention<?>> desireIntentionAssociation = new HashMap<>();
@@ -30,6 +36,18 @@ public class Tree {
         } else {
             desiresInTopLevel.remove(desireToRemove);
         }
+    }
+
+    /**
+     * Returns read only copy of this tree to be shared with other agents
+     *
+     * @return
+     */
+    public PlanningTreeOfAnotherAgent getReadOnlyCopy() {
+        return new PlanningTreeOfAnotherAgent(collectKeysOfCommittedDesiresInTreeCounts(),
+                collectKeysOfDesiresInTreeCounts(),
+                getParametersOfCommittedDesiresOnTopLevel(),
+                getParametersOfDesiresOnTopLevel());
     }
 
     /**
@@ -84,17 +102,43 @@ public class Tree {
         desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.ForOthers(this, desire));
     }
 
-    /**
-     * Method to visit childes. Desires nodes are visited first.
-     *
-     * @param treeVisitorInterface
-     */
-    public void payVisitToChildes(TreeVisitorInterface treeVisitorInterface) {
-        desiresInTopLevel.values().forEach(node -> node.accept(treeVisitorInterface));
-        intentionsInTopLevel.values().forEach(node -> node.accept(treeVisitorInterface));
+    @Override
+    public void accept(TreeVisitorInterface treeVisitor) {
+
+        //visit childes. Desires nodes are visited first.
+        desiresInTopLevel.values().forEach(node -> node.accept(treeVisitor));
+        intentionsInTopLevel.values().forEach(node -> node.accept(treeVisitor));
     }
 
+    @Override
+    public Map<DesireKey, Long> collectKeysOfCommittedDesiresInTreeCounts() {
+        List<DesireKey> list = new ArrayList<>();
+        intentionsInTopLevel.values().forEach(intentionNode -> intentionNode.collectKeysOfCommittedDesiresInSubtree(list));
+        return list.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    }
 
-    //todo aggregated data, update them
+    @Override
+    public Map<DesireKey, Long> collectKeysOfDesiresInTreeCounts() {
+        List<DesireKey> list = desiresInTopLevel.values().stream()
+                .map(Node::getDesireKey)
+                .collect(Collectors.toList());
+        intentionsInTopLevel.values().forEach(intentionNode -> intentionNode.collectKeysOfDesiresInSubtree(list));
+        return list.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    }
 
+    @Override
+    public Set<DesireParameters> getParametersOfCommittedDesiresOnTopLevel() {
+        return intentionsInTopLevel.values().stream()
+                .map(intentionNode -> intentionNode.desireParameters)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<DesireParameters> getParametersOfDesiresOnTopLevel() {
+        return desiresInTopLevel.values().stream()
+                .map(desiresNode -> desiresNode.desireParameters)
+                .collect(Collectors.toSet());
+    }
 }

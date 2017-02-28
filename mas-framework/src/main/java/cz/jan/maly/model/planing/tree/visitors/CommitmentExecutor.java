@@ -1,6 +1,6 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
-import cz.jan.maly.model.planing.tree.TreeVisitorInterface;
+import cz.jan.maly.model.planing.tree.*;
 
 /**
  * Commitment visitor traverse subtrees to decide commitments to desires - for given desire in root of subtree decide
@@ -9,83 +9,123 @@ import cz.jan.maly.model.planing.tree.TreeVisitorInterface;
  * Created by Jan on 22-Feb-17.
  */
 public class CommitmentExecutor implements TreeVisitorInterface {
-
     @Override
-    public void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire) {
+    public void visit(DesireNodeAtTopLevel node) {
 
-        //only try to decide commitment if node is not intention yet
-        if (!leafNodeWithOwnDesire.isCommitted()) {
-            if (leafNodeWithOwnDesire.madeCommitment()) {
-
-                //todo reflect this in meta tree
-            }
-        }
     }
 
     @Override
-    public void visit(LeafNodeWithPlan.WithAnotherAgentDesire leafNodeWithAnotherAgentDesire) {
+    public void visit(DesireNodeNotTopLevel node) {
 
-        //only try to decide commitment if node is not intention yet
-        if (!leafNodeWithAnotherAgentDesire.isCommitted()) {
-            if (leafNodeWithAnotherAgentDesire.madeCommitment()) {
-
-                //todo reflect this in meta tree
-                //TODO add itself to register. if operation failed, remove commitment
-            }
-        }
     }
 
     @Override
-    public void visit(LeafNodeWithDesireForOtherAgents leafNodeWithDesireForOtherAgents) {
+    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node) {
 
-        //only try to decide commitment if node is not intention yet
-        if (!leafNodeWithDesireForOtherAgents.isCommitted()) {
-            if (leafNodeWithDesireForOtherAgents.madeCommitment()) {
-
-                //todo reflect this in meta tree
-                //todo add to register - share with mediator, put shared object to agent, to easily update it by data from mediator
-            }
-        }
     }
 
     @Override
-    public void visit(WithOwnDesireIntermediateNode withOwnDesireIntermediateNode) {
+    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan node) {
 
-        //only try to decide commitment if node is not intention yet
-        if (!withOwnDesireIntermediateNode.isCommitted()) {
-            if (withOwnDesireIntermediateNode.madeCommitment()) {
-
-                //todo reflect this in meta tree
-
-                //go to subtree as root is opened but first add those nodes
-                withOwnDesireIntermediateNode.addChildes();
-                withOwnDesireIntermediateNode.branch(this);
-            }
-        } else {
-
-            //go to subtree as root is opened
-            withOwnDesireIntermediateNode.branch(this);
-        }
     }
 
     @Override
-    public void visit(WithAnotherAgentDesireIntermediateNode withAnotherAgentDesireIntermediateNode) {
+    public void visit(IntentionNodeAtTopLevel.WithPlan node) {
 
-        //only try to decide commitment if node is not intention yet
-        if (!withAnotherAgentDesireIntermediateNode.isCommitted()) {
-            if (withAnotherAgentDesireIntermediateNode.madeCommitment()) {
-
-                //todo reflect this in meta tree
-                //TODO add itself to register. if operation failed, remove commitment
-
-                //go to subtree as root is opened but first add those nodes
-                withAnotherAgentDesireIntermediateNode.addChildes();
-                withAnotherAgentDesireIntermediateNode.branch(this);
-            }
-        } else {
-
-            //go to subtree as root is opened
-            withAnotherAgentDesireIntermediateNode.branch(this);
-        }
     }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.ForOthers node) {
+
+    }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan node) {
+
+    }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.WithPlan node) {
+
+    }
+
+
+//    @Override
+//    public void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire) {
+//
+//        //only try to decide commitment if node is not intention yet
+//        if (!leafNodeWithOwnDesire.isCommitted()) {
+//            if (leafNodeWithOwnDesire.madeCommitment()) {
+//
+//                //todo reflect this in meta tree
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void visit(LeafNodeWithPlan.WithAnotherAgentDesire leafNodeWithAnotherAgentDesire) {
+//
+//        //only try to decide commitment if node is not intention yet
+//        if (!leafNodeWithAnotherAgentDesire.isCommitted()) {
+//            if (leafNodeWithAnotherAgentDesire.madeCommitment()) {
+//
+//                //todo reflect this in meta tree
+//                //TODO add itself to register. if operation failed, remove commitment
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void visit(LeafNodeWithDesireForOtherAgents leafNodeWithDesireForOtherAgents) {
+//
+//        //only try to decide commitment if node is not intention yet
+//        if (!leafNodeWithDesireForOtherAgents.isCommitted()) {
+//            if (leafNodeWithDesireForOtherAgents.madeCommitment()) {
+//
+//                //todo reflect this in meta tree
+//                //todo add to register - share with mediator, put shared object to agent, to easily update it by data from mediator
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void visit(WithOwnDesireIntermediateNode withOwnDesireIntermediateNode) {
+//
+//        //only try to decide commitment if node is not intention yet
+//        if (!withOwnDesireIntermediateNode.isCommitted()) {
+//            if (withOwnDesireIntermediateNode.madeCommitment()) {
+//
+//                //todo reflect this in meta tree
+//
+//                //go to subtree as root is opened but first add those nodes
+//                withOwnDesireIntermediateNode.addChildes();
+//                withOwnDesireIntermediateNode.branch(this);
+//            }
+//        } else {
+//
+//            //go to subtree as root is opened
+//            withOwnDesireIntermediateNode.branch(this);
+//        }
+//    }
+//
+//    @Override
+//    public void visit(WithAnotherAgentDesireIntermediateNode withAnotherAgentDesireIntermediateNode) {
+//
+//        //only try to decide commitment if node is not intention yet
+//        if (!withAnotherAgentDesireIntermediateNode.isCommitted()) {
+//            if (withAnotherAgentDesireIntermediateNode.madeCommitment()) {
+//
+//                //todo reflect this in meta tree
+//                //TODO add itself to register. if operation failed, remove commitment
+//
+//                //go to subtree as root is opened but first add those nodes
+//                withAnotherAgentDesireIntermediateNode.addChildes();
+//                withAnotherAgentDesireIntermediateNode.branch(this);
+//            }
+//        } else {
+//
+//            //go to subtree as root is opened
+//            withAnotherAgentDesireIntermediateNode.branch(this);
+//        }
+//    }
 }

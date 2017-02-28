@@ -3,7 +3,7 @@ package cz.jan.maly.model.planing.tree.visitors;
 import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.CommandManagerKey;
 import cz.jan.maly.model.planing.Command;
-import cz.jan.maly.model.planing.tree.TreeVisitorInterface;
+import cz.jan.maly.model.planing.tree.*;
 import cz.jan.maly.service.CommandManager;
 
 import java.util.HashMap;
@@ -33,39 +33,79 @@ public class CommandExecutor implements TreeVisitorInterface {
     }
 
     @Override
-    public void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire) {
+    public void visit(DesireNodeAtTopLevel node) {
 
-        //only get command if leaf is intention
-        if (leafNodeWithOwnDesire.isCommitted()) {
-            leafNodeWithOwnDesire.updateIntentionWithCommandExecutionStatus(executeCommand(leafNodeWithOwnDesire.getCommand()));
-        }
     }
 
     @Override
-    public void visit(LeafNodeWithPlan.WithAnotherAgentDesire leafNodeWithAnotherAgentDesire) {
+    public void visit(DesireNodeNotTopLevel node) {
 
-        //only get command if leaf is intention
-        if (leafNodeWithAnotherAgentDesire.isCommitted()) {
-            leafNodeWithAnotherAgentDesire.updateIntentionWithCommandExecutionStatus(executeCommand(leafNodeWithAnotherAgentDesire.getCommand()));
-        }
     }
 
     @Override
-    public void visit(LeafNodeWithDesireForOtherAgents leafNodeWithDesireForOtherAgents) {
-        //no command to execute, skip
+    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node) {
+
     }
 
     @Override
-    public void visit(WithOwnDesireIntermediateNode withOwnDesireIntermediateNode) {
+    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan node) {
 
-        //no command to execute, branch
-        withOwnDesireIntermediateNode.branch(this);
     }
 
     @Override
-    public void visit(WithAnotherAgentDesireIntermediateNode withAnotherAgentDesireIntermediateNode) {
+    public void visit(IntentionNodeAtTopLevel.WithPlan node) {
 
-        //no command to execute, branch
-        withAnotherAgentDesireIntermediateNode.branch(this);
     }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.ForOthers node) {
+
+    }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan node) {
+
+    }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.WithPlan node) {
+
+    }
+
+//    @Override
+//    public void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire) {
+//
+//        //only get command if leaf is intention
+//        if (leafNodeWithOwnDesire.isCommitted()) {
+//            leafNodeWithOwnDesire.updateIntentionWithCommandExecutionStatus(executeCommand(leafNodeWithOwnDesire.getCommand()));
+//        }
+//    }
+//
+//    @Override
+//    public void visit(LeafNodeWithPlan.WithAnotherAgentDesire leafNodeWithAnotherAgentDesire) {
+//
+//        //only get command if leaf is intention
+//        if (leafNodeWithAnotherAgentDesire.isCommitted()) {
+//            leafNodeWithAnotherAgentDesire.updateIntentionWithCommandExecutionStatus(executeCommand(leafNodeWithAnotherAgentDesire.getCommand()));
+//        }
+//    }
+//
+//    @Override
+//    public void visit(LeafNodeWithDesireForOtherAgents leafNodeWithDesireForOtherAgents) {
+//        //no command to execute, skip
+//    }
+//
+//    @Override
+//    public void visit(WithOwnDesireIntermediateNode withOwnDesireIntermediateNode) {
+//
+//        //no command to execute, branch
+//        withOwnDesireIntermediateNode.branch(this);
+//    }
+//
+//    @Override
+//    public void visit(WithAnotherAgentDesireIntermediateNode withAnotherAgentDesireIntermediateNode) {
+//
+//        //no command to execute, branch
+//        withAnotherAgentDesireIntermediateNode.branch(this);
+//    }
 }

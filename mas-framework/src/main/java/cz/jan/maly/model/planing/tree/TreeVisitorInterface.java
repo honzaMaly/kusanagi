@@ -9,10 +9,18 @@ public interface TreeVisitorInterface {
 
     void visit(DesireNodeAtTopLevel node);
 
+    void visit(DesireNodeNotTopLevel node);
+
     void visit(IntentionNodeAtTopLevel.WithDesireForOthers node);
 
     void visit(IntentionNodeAtTopLevel.WithAbstractPlan node);
 
     void visit(IntentionNodeAtTopLevel.WithPlan node);
+
+    void visit(IntentionNodeNotTopLevel.ForOthers node);
+
+    void visit(IntentionNodeNotTopLevel.WithAbstractPlan node);
+
+    void visit(IntentionNodeNotTopLevel.WithPlan node);
 
 }

@@ -3,7 +3,7 @@ package cz.jan.maly.model.knowledge;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.metadata.commitment.CommitmentTreeInWorkingMemory;
+import cz.jan.maly.model.planing.tree.Tree;
 
 import java.util.Set;
 
@@ -11,9 +11,9 @@ import java.util.Set;
  * Represents agent's own memory
  * Created by Jan on 24-Feb-17.
  */
-public class WorkingMemory extends Memory<CommitmentTreeInWorkingMemory> {
-    public WorkingMemory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, CommitmentTreeInWorkingMemory commitmentTree, AgentTypeKey agentTypeKey) {
-        super(parametersTypesForFact, parametersTypesForFactSets, commitmentTree, agentTypeKey);
+public class WorkingMemory extends Memory<Tree> {
+    public WorkingMemory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Tree tree, AgentTypeKey agentTypeKey) {
+        super(parametersTypesForFact, parametersTypesForFactSets, tree, agentTypeKey);
     }
 
     /**
@@ -24,7 +24,7 @@ public class WorkingMemory extends Memory<CommitmentTreeInWorkingMemory> {
      */
     public ReadOnlyMemory cloneMemory(Agent owner) {
         forget();
-        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, commitmentTree.getReadOnlyCopy(), owner, agentTypeKey);
+        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentTypeKey);
     }
 
     /**

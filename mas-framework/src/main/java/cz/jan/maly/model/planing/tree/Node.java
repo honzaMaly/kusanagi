@@ -1,6 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
+import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 
@@ -9,7 +10,7 @@ import cz.jan.maly.model.metadata.DesireParameters;
  * Created by Jan on 28-Feb-17.
  */
 abstract class Node implements DesireKeyIdentificationInterface, VisitorAcceptor {
-    private final DesireParameters desireParameters;
+    final DesireParameters desireParameters;
     final int level;
 
     //to only extend classes defined in this scope
@@ -17,6 +18,13 @@ abstract class Node implements DesireKeyIdentificationInterface, VisitorAcceptor
         this.desireParameters = desireParameters;
         this.level = level;
     }
+
+    /**
+     * Get agent
+     *
+     * @return
+     */
+    abstract Agent getAgent();
 
     @Override
     public DesireKey getDesireKey() {
@@ -51,6 +59,11 @@ abstract class Node implements DesireKeyIdentificationInterface, VisitorAcceptor
             super(desireParameters, 0);
             this.tree = tree;
         }
+
+        @Override
+        Agent getAgent() {
+            return tree.agent;
+        }
     }
 
     /**
@@ -62,6 +75,11 @@ abstract class Node implements DesireKeyIdentificationInterface, VisitorAcceptor
         NotTopLevel(K parent, DesireParameters desireParameters) {
             super(desireParameters, parent.level + 1);
             this.parent = parent;
+        }
+
+        @Override
+        Agent getAgent() {
+            return parent.getAgent();
         }
     }
 

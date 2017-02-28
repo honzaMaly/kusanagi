@@ -33,6 +33,12 @@ public abstract class Agent {
 
     public abstract DesireForOthers formDesireForOthers(DesireKey desireKey);
 
+    public abstract DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey);
+
+    public abstract OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey);
+
+    public abstract OwnDesire.WithIntentionWithPlan formOwnDesireWithIntentionWithPlan(DesireKey desireKey, DesireKey parentDesireKey);
+
     //TODO initialize beliefs, when starting agent, check environment
 
     //TODO factory to make from committed desire intention

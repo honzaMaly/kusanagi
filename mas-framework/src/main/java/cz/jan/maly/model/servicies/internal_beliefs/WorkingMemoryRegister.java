@@ -44,9 +44,9 @@ public class WorkingMemoryRegister extends MemoryRegister implements WorkingRegi
      * @param readOnlyMemory
      * @return
      */
-    public boolean addAgentsMemory(ReadOnlyMemory readOnlyMemory) {
-        dataByOriginator.put(readOnlyMemory.getOwner(), readOnlyMemory);
-        decayMap.put(readOnlyMemory.getOwner(), 1);
+    public boolean addAgentsMemory(ReadOnlyMemory readOnlyMemory, Agent owner) {
+        dataByOriginator.put(owner, readOnlyMemory);
+        decayMap.put(owner, 1);
         return true;
     }
 }

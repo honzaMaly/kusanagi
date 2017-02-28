@@ -1,15 +1,20 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Template for intention in top level
  * Created by Jan on 28-Feb-17.
  */
-abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDesire>, T extends InternalDesire<V>> extends Node.TopLevel implements IntentionNodeInterface {
+public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDesire>, T extends InternalDesire<V>> extends Node.TopLevel implements IntentionNodeInterface {
     final V intention;
 
     private IntentionNodeAtTopLevel(Tree tree, T desire) {
@@ -31,9 +36,19 @@ abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDes
     /**
      * Class to extend template - to define intention node without child
      */
-    abstract static class WithPlan<V extends IntentionWithPlan<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> {
+    public abstract static class WithPlan<V extends IntentionWithPlan<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> {
         private WithPlan(Tree tree, T desire) {
             super(tree, desire);
+        }
+
+        @Override
+        public void collectKeysOfCommittedDesiresInSubtree(List<DesireKey> list) {
+            list.add(getDesireKey());
+        }
+
+        @Override
+        public void collectKeysOfDesiresInSubtree(List<DesireKey> list) {
+            //skip
         }
 
         @Override
@@ -76,9 +91,19 @@ abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDes
     /**
      * Concrete implementation, intention's desire for other agents is formed anew
      */
-    static class WithDesireForOthers extends IntentionNodeAtTopLevel<IntentionWithDesireForOtherAgents, DesireForOthers> {
+    public static class WithDesireForOthers extends IntentionNodeAtTopLevel<IntentionWithDesireForOtherAgents, DesireForOthers> {
         WithDesireForOthers(Tree tree, DesireForOthers desire) {
             super(tree, desire);
+        }
+
+        @Override
+        public void collectKeysOfCommittedDesiresInSubtree(List<DesireKey> list) {
+            list.add(getDesireKey());
+        }
+
+        @Override
+        public void collectKeysOfDesiresInSubtree(List<DesireKey> list) {
+            //skip
         }
 
         @Override
@@ -95,15 +120,41 @@ abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDes
     /**
      * Class to extend template - to define intention node with childes
      */
-    abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes {
-        private final Map<Intention<?>, IntentionNodeNotTopLevel<?, ?, ?>> intentionsInTopLevel = new HashMap<>();
-        private final Map<InternalDesire<?>, DesireNodeNotTopLevel<?, ?>> desiresInTopLevel = new HashMap<>();
+    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes {
+        private final Map<Intention<?>, IntentionNodeNotTopLevel<?, ?, ?>> intentions = new HashMap<>();
+        private final Map<InternalDesire<?>, DesireNodeNotTopLevel<?, ?>> desires = new HashMap<>();
 
         private WithAbstractPlan(Tree tree, T desire) {
             super(tree, desire);
+            intention.returnPlanAsSetOfDesiresForOthers().forEach(desireForOthers -> desires.put(desireForOthers, new DesireNodeNotTopLevel.ForOthers.TopLevelParent(this, desireForOthers)));
+            intention.returnPlanAsSetOfDesiresWithIntentionWithPlan().forEach(withIntentionWithPlan -> desires.put(withIntentionWithPlan, new DesireNodeNotTopLevel.WithPlan.AtTopLevelParent(this, withIntentionWithPlan)));
+            intention.returnPlanAsSetOfDesiresWithAbstractIntention().forEach(withAbstractIntention -> desires.put(withAbstractIntention, new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(this, withAbstractIntention)));
+        }
 
-            //todo init intermediate nodes
+        @Override
+        public Set<DesireParameters> getParametersOfCommittedDesires() {
+            return intentions.values().stream()
+                    .map(intentionNode -> intentionNode.desireParameters)
+                    .collect(Collectors.toSet());
+        }
 
+        @Override
+        public Set<DesireParameters> getParametersOfDesires() {
+            return desires.values().stream()
+                    .map(desiresNode -> desiresNode.desireParameters)
+                    .collect(Collectors.toSet());
+        }
+
+        @Override
+        public void collectKeysOfCommittedDesiresInSubtree(List<DesireKey> list) {
+            list.add(intention.getDesireKey());
+            intentions.values().forEach(intentionNode -> intentionNode.collectKeysOfCommittedDesiresInSubtree(list));
+        }
+
+        @Override
+        public void collectKeysOfDesiresInSubtree(List<DesireKey> list) {
+            desires.values().forEach(desireNode -> list.add(desireNode.getDesireKey()));
+            intentions.values().forEach(intentionNode -> intentionNode.collectKeysOfDesiresInSubtree(list));
         }
 
         @Override
@@ -113,9 +164,9 @@ abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDes
 
         @Override
         public void replaceDesireByIntention(DesireNodeNotTopLevel<?, ?> desireNode, IntentionNodeNotTopLevel<?, ?, ?> intentionNode) {
-            if (desiresInTopLevel.containsKey(desireNode.desire)) {
-                desiresInTopLevel.remove(desireNode.desire);
-                intentionsInTopLevel.put(intentionNode.intention, intentionNode);
+            if (desires.containsKey(desireNode.desire)) {
+                desires.remove(desireNode.desire);
+                intentions.put(intentionNode.intention, intentionNode);
             } else {
                 throw new RuntimeException("Could not replace desire by intention, desire node is missing.");
             }
@@ -123,9 +174,9 @@ abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDes
 
         @Override
         public void replaceIntentionByDesire(IntentionNodeNotTopLevel<?, ?, ?> intentionNode, DesireNodeNotTopLevel<?, ?> desireNode) {
-            if (intentionsInTopLevel.containsKey(intentionNode.intention)) {
-                intentionsInTopLevel.remove(intentionNode.intention);
-                desiresInTopLevel.put(desireNode.desire, desireNode);
+            if (intentions.containsKey(intentionNode.intention)) {
+                intentions.remove(intentionNode.intention);
+                desires.put(desireNode.desire, desireNode);
             } else {
                 throw new RuntimeException("Could not replace intention by desire, intention node is missing.");
             }
@@ -133,8 +184,8 @@ abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDes
 
         @Override
         public void payVisitToChildes(TreeVisitorInterface treeVisitorInterface) {
-            desiresInTopLevel.values().forEach(node -> node.accept(treeVisitorInterface));
-            intentionsInTopLevel.values().forEach(node -> node.accept(treeVisitorInterface));
+            desires.values().forEach(node -> node.accept(treeVisitorInterface));
+            intentions.values().forEach(node -> node.accept(treeVisitorInterface));
         }
 
         /**

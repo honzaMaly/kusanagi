@@ -1,9 +1,9 @@
 package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.FactContainerInterface;
+import cz.jan.maly.model.PlanningTreeInterface;
 import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.metadata.commitment.CommitmentTreeInterface;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,14 +15,16 @@ import java.util.Set;
  * access to this data
  * Created by Jan on 16-Feb-17.
  */
-abstract class Memory<V extends CommitmentTreeInterface> implements FactContainerInterface {
+abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface {
     final Map<FactKey, Fact> factParameterMap = new HashMap<>();
     final Map<FactKey, FactSet> factSetParameterMap = new HashMap<>();
-    final V commitmentTree;
+    final V tree;
     final AgentTypeKey agentTypeKey;
 
-    Memory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, V commitmentTree, AgentTypeKey agentTypeKey) {
-        this.commitmentTree = commitmentTree;
+    //todo wrappers around tree + agent type
+
+    Memory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, V tree, AgentTypeKey agentTypeKey) {
+        this.tree = tree;
         this.agentTypeKey = agentTypeKey;
         parametersTypesForFact.forEach(factKey -> this.factParameterMap.put(factKey, factKey.returnEmptyFact()));
         parametersTypesForFactSets.forEach(factKey -> this.factSetParameterMap.put(factKey, factKey.returnEmptyFactSet()));
@@ -33,17 +35,15 @@ abstract class Memory<V extends CommitmentTreeInterface> implements FactContaine
      *
      * @param factParameterMap
      * @param factSetParameterMap
-     * @param commitmentTree
+     * @param tree
      * @param agentTypeKey
      */
-    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V commitmentTree, AgentTypeKey agentTypeKey) {
-        this.commitmentTree = commitmentTree;
+    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentTypeKey agentTypeKey) {
+        this.tree = tree;
         this.agentTypeKey = agentTypeKey;
         factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, o.copyFact()));
         factSetParameterMap.forEach((factKey, set) -> this.factSetParameterMap.put(factKey, set.copyFact()));
     }
-
-    //todo wrappers around tree + agent type
 
     @Override
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {

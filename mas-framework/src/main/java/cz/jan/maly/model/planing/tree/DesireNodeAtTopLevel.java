@@ -8,7 +8,7 @@ import java.util.Optional;
  * Template for desire in top level
  * Created by Jan on 28-Feb-17.
  */
-abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends Intention>> extends Node.TopLevel implements DesireNodeInterface<IntentionNodeAtTopLevel<?, ?>> {
+public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends Intention>> extends Node.TopLevel implements DesireNodeInterface<IntentionNodeAtTopLevel<?, ?>> {
     final T desire;
 
     private DesireNodeAtTopLevel(Tree tree, T desire) {
