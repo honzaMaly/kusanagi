@@ -18,7 +18,7 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  * what agent has committed to achieve to. It may contain other desires related to this intention to be consider.
  * Created by Jan on 10-Feb-17.
  */
-public abstract class Intention<T extends InternalDesire> implements FactContainerInterface, RemoveCommitment, DesireKeyIdentificationInterface {
+public abstract class Intention<T extends InternalDesire> implements FactContainerInterface, RemoveCommitment, DesireKeyIdentificationInterface, DecisionAboutCommitment {
     private final Map<FactKey, Object> factParameterMap = new HashMap<>();
     private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
     private final T originalDesire;

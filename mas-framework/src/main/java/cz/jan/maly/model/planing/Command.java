@@ -43,7 +43,7 @@ public abstract class Command<K extends CommandManagerKey> implements FactContai
     }
 
     /**
-     * Method called by Executor to get action to make on agent's behalf
+     * Method called by CommitmentDecider to get action to make on agent's behalf
      */
     public abstract QueuedItemInterface<Boolean> execute();
 

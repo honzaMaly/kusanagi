@@ -1,5 +1,8 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.knowledge.DataForDecision;
+import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
 
 import java.util.Optional;
@@ -16,20 +19,25 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         this.desire = desire;
     }
 
+    @Override
+    public DesireKey getAssociatedDesireKey() {
+        return getDesireKey();
+    }
+
     abstract IntentionNodeAtTopLevel<?, ?> formIntentionNode();
 
-    public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment() {
-        if (desire.shouldCommit()) {
+    public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
+        if (desire.shouldCommit(dataForDecision)) {
             IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
-            tree.replaceDesireByIntention(this, node);
+            parent.replaceDesireByIntention(this, node);
             return Optional.of(node);
         }
         return Optional.empty();
     }
 
     @Override
-    public void accept(TreeVisitorInterface treeVisitor) {
-        treeVisitor.visit(this);
+    public DecisionContainerParameters getParametersToLoad() {
+        return desire.getParametersToLoad();
     }
 
     /**
@@ -42,7 +50,12 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
         @Override
         protected IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-            return new IntentionNodeAtTopLevel.WithDesireForOthers(tree, desire);
+            return new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
+        }
+
+        @Override
+        public void accept(TreeVisitorInterface treeVisitor) {
+            treeVisitor.visit(this);
         }
     }
 
@@ -51,9 +64,14 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
      *
      * @param <V>
      */
-    abstract static class FromAnotherAgent<V extends DesireFromAnotherAgent<? extends Intention>> extends DesireNodeAtTopLevel<V> {
+    public abstract static class FromAnotherAgent<V extends DesireFromAnotherAgent<? extends Intention>> extends DesireNodeAtTopLevel<V> {
         FromAnotherAgent(Tree tree, V desire) {
             super(tree, desire);
+        }
+
+        @Override
+        public void accept(TreeVisitorInterface treeVisitor) {
+            treeVisitor.visit(this);
         }
 
         /**
@@ -66,7 +84,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
             @Override
             IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithAbstractPlan.FromAnotherAgent(tree, desire);
+                return new IntentionNodeAtTopLevel.WithAbstractPlan.FromAnotherAgent(parent, desire);
             }
         }
 
@@ -80,7 +98,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
             @Override
             IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithPlan.FromAnotherAgent(tree, desire);
+                return new IntentionNodeAtTopLevel.WithPlan.FromAnotherAgent(parent, desire);
             }
         }
 
@@ -96,6 +114,11 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             super(tree, desire);
         }
 
+        @Override
+        public void accept(TreeVisitorInterface treeVisitor) {
+            treeVisitor.visit(this);
+        }
+
         /**
          * Concrete implementation, desire forms intention with abstract plan
          */
@@ -106,7 +129,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
             @Override
             IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithAbstractPlan.Own(tree, desire);
+                return new IntentionNodeAtTopLevel.WithAbstractPlan.Own(parent, desire);
             }
         }
 
@@ -120,7 +143,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
             @Override
             IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithPlan.Own(tree, desire);
+                return new IntentionNodeAtTopLevel.WithPlan.Own(parent, desire);
             }
         }
 

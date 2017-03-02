@@ -1,30 +1,27 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
+import cz.jan.maly.model.planing.DecisionAboutCommitment;
 
 /**
  * Template for node. It defines common data structure (methods) for various nodes which extend it.
  * Created by Jan on 28-Feb-17.
  */
-abstract class Node implements DesireKeyIdentificationInterface, VisitorAcceptor {
+public abstract class Node<K extends Parent> implements DesireKeyIdentificationInterface, VisitorAcceptor, DecisionAboutCommitment {
     final DesireParameters desireParameters;
     final int level;
+    final K parent;
 
     //to only extend classes defined in this scope
-    private Node(DesireParameters desireParameters, int level) {
+    private Node(DesireParameters desireParameters, int level, K parent) {
         this.desireParameters = desireParameters;
         this.level = level;
+        this.parent = parent;
     }
 
-    /**
-     * Get agent
-     *
-     * @return
-     */
-    abstract Agent getAgent();
+
 
     @Override
     public DesireKey getDesireKey() {
@@ -52,34 +49,19 @@ abstract class Node implements DesireKeyIdentificationInterface, VisitorAcceptor
     /**
      * Template for nodes in top level
      */
-    static abstract class TopLevel extends Node {
-        final Tree tree;
+    static abstract class TopLevel extends Node<Tree> {
 
-        TopLevel(Tree tree, DesireParameters desireParameters) {
-            super(desireParameters, 0);
-            this.tree = tree;
-        }
-
-        @Override
-        Agent getAgent() {
-            return tree.agent;
+        TopLevel(Tree parent, DesireParameters desireParameters) {
+            super(desireParameters, 0, parent);
         }
     }
 
     /**
      * Template for nodes not in top level
      */
-    static abstract class NotTopLevel<K extends Node & IntentionNodeWithChildes> extends Node {
-        final K parent;
-
+    static abstract class NotTopLevel<K extends Node & IntentionNodeWithChildes & Parent> extends Node<K> {
         NotTopLevel(K parent, DesireParameters desireParameters) {
-            super(desireParameters, parent.level + 1);
-            this.parent = parent;
-        }
-
-        @Override
-        Agent getAgent() {
-            return parent.getAgent();
+            super(desireParameters, parent.level + 1, parent);
         }
     }
 

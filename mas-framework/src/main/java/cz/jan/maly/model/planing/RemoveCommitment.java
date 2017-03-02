@@ -1,5 +1,7 @@
 package cz.jan.maly.model.planing;
 
+import cz.jan.maly.model.knowledge.DataForDecision;
+
 /**
  * Interface to be implemented by intention instances to decide if agent
  * should remove its commitment to intention
@@ -10,8 +12,9 @@ interface RemoveCommitment {
     /**
      * Returns if agent should remove commitment to intention
      *
+     * @param dataForDecision
      * @return
      */
-    boolean shouldRemoveCommitment();
+    boolean shouldRemoveCommitment(DataForDecision dataForDecision);
 
 }

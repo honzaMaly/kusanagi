@@ -1,13 +1,13 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.knowledge.DataForDecision;
+import cz.jan.maly.model.metadata.DecisionContainerParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,15 +22,20 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         this.intention = desire.formIntention();
     }
 
-    abstract DesireNodeAtTopLevel<?> formDesireNode();
+    abstract DesireNodeAtTopLevel<?> formDesireNode(Agent agent);
 
     @Override
-    public boolean removeCommitment() {
-        if (intention.shouldRemoveCommitment()) {
-            tree.replaceIntentionByDesire(this, formDesireNode());
+    public boolean removeCommitment(DataForDecision dataForDecision, Agent agent) {
+        if (intention.shouldRemoveCommitment(dataForDecision)) {
+            parent.replaceIntentionByDesire(this, formDesireNode(agent));
             return true;
         }
         return false;
+    }
+
+    @Override
+    public DecisionContainerParameters getParametersToLoad() {
+        return intention.getParametersToLoad();
     }
 
     /**
@@ -68,8 +73,8 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            DesireNodeAtTopLevel<?> formDesireNode() {
-                return new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(tree, desire);
+            DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
+                return new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(parent, desire);
             }
         }
 
@@ -82,8 +87,8 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            DesireNodeAtTopLevel<?> formDesireNode() {
-                return new DesireNodeAtTopLevel.Own.WithIntentionWithPlan(tree, tree.agent.formOwnDesireWithIntentionWithPlan(intention.getDesireKey()));
+            DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
+                return new DesireNodeAtTopLevel.Own.WithIntentionWithPlan(parent, agent.formOwnDesireWithIntentionWithPlan(intention.getDesireKey()));
             }
         }
     }
@@ -107,8 +112,8 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        DesireNodeAtTopLevel<?> formDesireNode() {
-            return new DesireNodeAtTopLevel.ForOthers(tree, tree.agent.formDesireForOthers(getDesireKey()));
+        DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
+            return new DesireNodeAtTopLevel.ForOthers(parent, agent.formDesireForOthers(getDesireKey()));
         }
 
         @Override
@@ -120,7 +125,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
     /**
      * Class to extend template - to define intention node with childes
      */
-    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes {
+    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes, Parent {
         private final Map<Intention<?>, IntentionNodeNotTopLevel<?, ?, ?>> intentions = new HashMap<>();
         private final Map<InternalDesire<?>, DesireNodeNotTopLevel<?, ?>> desires = new HashMap<>();
 
@@ -129,6 +134,18 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             intention.returnPlanAsSetOfDesiresForOthers().forEach(desireForOthers -> desires.put(desireForOthers, new DesireNodeNotTopLevel.ForOthers.TopLevelParent(this, desireForOthers)));
             intention.returnPlanAsSetOfDesiresWithIntentionWithPlan().forEach(withIntentionWithPlan -> desires.put(withIntentionWithPlan, new DesireNodeNotTopLevel.WithPlan.AtTopLevelParent(this, withIntentionWithPlan)));
             intention.returnPlanAsSetOfDesiresWithAbstractIntention().forEach(withAbstractIntention -> desires.put(withAbstractIntention, new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(this, withAbstractIntention)));
+        }
+
+        @Override
+        public List<Node> getNodesWithDesire() {
+            return desires.values().stream()
+                    .collect(Collectors.toList());
+        }
+
+        @Override
+        public List<Node> getNodesWithIntention() {
+            return intentions.values().stream()
+                    .collect(Collectors.toList());
         }
 
         @Override
@@ -182,12 +199,6 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
         }
 
-        @Override
-        public void payVisitToChildes(TreeVisitorInterface treeVisitorInterface) {
-            desires.values().forEach(node -> node.accept(treeVisitorInterface));
-            intentions.values().forEach(node -> node.accept(treeVisitorInterface));
-        }
-
         /**
          * Concrete implementation, abstract intention's desire from another agent forms node
          */
@@ -200,8 +211,13 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            DesireNodeAtTopLevel<?> formDesireNode() {
-                return new DesireNodeAtTopLevel.FromAnotherAgent.WithAbstractIntention(tree, desire);
+            DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
+                return new DesireNodeAtTopLevel.FromAnotherAgent.WithAbstractIntention(parent, desire);
+            }
+
+            @Override
+            public Optional<DesireKey> getDesireKeyAssociatedWithParent() {
+                return Optional.of(getDesireKey());
             }
         }
 
@@ -214,8 +230,13 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            DesireNodeAtTopLevel<?> formDesireNode() {
-                return new DesireNodeAtTopLevel.Own.WithAbstractIntention(tree, tree.agent.formOwnDesireWithAbstractIntention(intention.getDesireKey()));
+            DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
+                return new DesireNodeAtTopLevel.Own.WithAbstractIntention(parent, agent.formOwnDesireWithAbstractIntention(intention.getDesireKey()));
+            }
+
+            @Override
+            public Optional<DesireKey> getDesireKeyAssociatedWithParent() {
+                return Optional.of(getDesireKey());
             }
         }
 

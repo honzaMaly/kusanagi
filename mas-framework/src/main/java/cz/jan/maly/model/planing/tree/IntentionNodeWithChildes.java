@@ -27,13 +27,6 @@ interface IntentionNodeWithChildes {
     void replaceIntentionByDesire(IntentionNodeNotTopLevel<?, ?, ?> intentionNode, DesireNodeNotTopLevel<?, ?> desireNode);
 
     /**
-     * Method to visit childes. Desires nodes are visited first.
-     *
-     * @param treeVisitorInterface
-     */
-    void payVisitToChildes(TreeVisitorInterface treeVisitorInterface);
-
-    /**
      * Get parameters of desires agent is committed to
      *
      * @return

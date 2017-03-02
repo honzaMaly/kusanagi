@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.PlanningTreeInterface;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.PlanningTreeOfAnotherAgent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
@@ -15,15 +14,10 @@ import java.util.stream.Collectors;
  * Facade for planning tree. Tree manages nodes at top level.
  * Created by Jan on 28-Feb-17.
  */
-public class Tree implements VisitorAcceptor, PlanningTreeInterface {
+public class Tree implements PlanningTreeInterface, Parent {
     private final Map<Intention<?>, IntentionNodeAtTopLevel<?, ?>> intentionsInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, DesireNodeAtTopLevel<?>> desiresInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, Intention<?>> desireIntentionAssociation = new HashMap<>();
-    final Agent agent;
-
-    public Tree(Agent agent) {
-        this.agent = agent;
-    }
 
     /**
      * Removes desire (in case of agent commitment to it - intention) from tree
@@ -102,12 +96,19 @@ public class Tree implements VisitorAcceptor, PlanningTreeInterface {
         desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.ForOthers(this, desire));
     }
 
-    @Override
-    public void accept(TreeVisitorInterface treeVisitor) {
+    public List<Node> getNodesWithDesire() {
+        return desiresInTopLevel.values().stream()
+                .collect(Collectors.toList());
+    }
 
-        //visit childes. Desires nodes are visited first.
-        desiresInTopLevel.values().forEach(node -> node.accept(treeVisitor));
-        intentionsInTopLevel.values().forEach(node -> node.accept(treeVisitor));
+    public List<Node> getNodesWithIntention() {
+        return intentionsInTopLevel.values().stream()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<DesireKey> getDesireKeyAssociatedWithParent() {
+        return Optional.empty();
     }
 
     @Override

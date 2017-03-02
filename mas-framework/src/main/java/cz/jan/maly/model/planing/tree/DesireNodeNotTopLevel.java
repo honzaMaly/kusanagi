@@ -1,6 +1,12 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.planing.*;
+import cz.jan.maly.model.knowledge.DataForDecision;
+import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.planing.DesireForOthers;
+import cz.jan.maly.model.planing.Intention;
+import cz.jan.maly.model.planing.InternalDesire;
+import cz.jan.maly.model.planing.OwnDesire;
 
 import java.util.Optional;
 
@@ -8,7 +14,7 @@ import java.util.Optional;
  * Template for desire not in top level
  * Created by Jan on 28-Feb-17.
  */
-public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes> extends Node.NotTopLevel<K> implements DesireNodeInterface<IntentionNodeNotTopLevel<?, ?, ?>> {
+public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes & Parent> extends Node.NotTopLevel<K> implements DesireNodeInterface<IntentionNodeNotTopLevel<?, ?, ?>> {
     final T desire;
 
     private DesireNodeNotTopLevel(K parent, T desire) {
@@ -18,13 +24,23 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
 
     abstract IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode();
 
-    public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment() {
-        if (desire.shouldCommit()) {
+    public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
+        if (desire.shouldCommit(dataForDecision)) {
             IntentionNodeNotTopLevel<?, ?, ?> node = formIntentionNode();
             parent.replaceDesireByIntention(this, node);
             return Optional.of(node);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public DesireKey getAssociatedDesireKey() {
+        return getDesireKey();
+    }
+
+    @Override
+    public DecisionContainerParameters getParametersToLoad() {
+        return desire.getParametersToLoad();
     }
 
     @Override
@@ -35,7 +51,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     /**
      * Implementation of top node with desire for other agents
      */
-    static abstract class ForOthers<K extends Node & IntentionNodeWithChildes> extends DesireNodeNotTopLevel<DesireForOthers, K> {
+    static abstract class ForOthers<K extends Node & IntentionNodeWithChildes & Parent> extends DesireNodeNotTopLevel<DesireForOthers, K> {
         private ForOthers(K parent, DesireForOthers desire) {
             super(parent, desire);
         }
@@ -73,7 +89,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     /**
      * Implementation of top node with desire for other agents
      */
-    static abstract class WithAbstractPlan<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes> extends DesireNodeNotTopLevel<T, K> {
+    static abstract class WithAbstractPlan<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes & Parent> extends DesireNodeNotTopLevel<T, K> {
         private WithAbstractPlan(K parent, T desire) {
             super(parent, desire);
         }
@@ -111,7 +127,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     /**
      * Class to extend template - to define desire node without child
      */
-    abstract static class WithPlan<K extends Node & IntentionNodeWithChildes> extends WithAbstractPlan<OwnDesire.WithIntentionWithPlan, K> {
+    abstract static class WithPlan<K extends Node & IntentionNodeWithChildes & Parent> extends WithAbstractPlan<OwnDesire.WithIntentionWithPlan, K> {
         private WithPlan(K parent, OwnDesire.WithIntentionWithPlan desire) {
             super(parent, desire);
         }

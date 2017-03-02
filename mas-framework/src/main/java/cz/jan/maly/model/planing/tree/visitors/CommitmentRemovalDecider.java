@@ -9,7 +9,12 @@ import cz.jan.maly.model.planing.tree.*;
  * else do backtrack to go to other branches
  * Created by Jan on 22-Feb-17.
  */
-public class RemoveCommitmentExecutor implements TreeVisitorInterface {
+public class CommitmentRemovalDecider implements TreeVisitorInterface {
+    @Override
+    public void visitTree() {
+
+    }
+
     @Override
     public void visit(DesireNodeAtTopLevel node) {
 

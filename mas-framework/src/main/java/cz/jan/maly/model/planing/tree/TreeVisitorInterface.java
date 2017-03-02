@@ -7,6 +7,11 @@ package cz.jan.maly.model.planing.tree;
  */
 public interface TreeVisitorInterface {
 
+    /**
+     * Visit tree
+     */
+    void visitTree();
+
     void visit(DesireNodeAtTopLevel node);
 
     void visit(DesireNodeNotTopLevel node);

@@ -33,6 +33,11 @@ public class CommandExecutor implements TreeVisitorInterface {
     }
 
     @Override
+    public void visitTree() {
+
+    }
+
+    @Override
     public void visit(DesireNodeAtTopLevel node) {
 
     }

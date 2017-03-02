@@ -5,6 +5,7 @@ import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.DesireForOthers;
 import cz.jan.maly.model.planing.OwnDesire;
+import cz.jan.maly.model.planing.tree.Tree;
 import cz.jan.maly.service.implementation.AgentsRegister;
 import lombok.Getter;
 
@@ -22,9 +23,12 @@ public abstract class Agent {
     @Getter
     private final AgentTypeKey agentType;
 
-    public Agent(AgentsRegister agentsRegister, AgentTypeKey agentType) {
+    private final Tree tree;
+
+    public Agent(AgentsRegister agentsRegister, AgentTypeKey agentType, Tree tree) {
         this.id = agentsRegister.getFreeId();
         this.agentType = agentType;
+        this.tree = tree;
     }
 
     public abstract OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey);
