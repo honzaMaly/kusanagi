@@ -43,11 +43,6 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         return desire.getParametersToLoad();
     }
 
-    @Override
-    public void accept(TreeVisitorInterface treeVisitor) {
-        treeVisitor.visit(this);
-    }
-
     /**
      * Implementation of top node with desire for other agents
      */
@@ -66,7 +61,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
 
             @Override
             IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.ForOthers.TopLevelParent(parent, desire);
+                return new IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent(parent, desire);
             }
         }
 
@@ -80,7 +75,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
 
             @Override
             IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.ForOthers.NotTopLevelParent(parent, desire);
+                return new IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent(parent, desire);
             }
         }
 

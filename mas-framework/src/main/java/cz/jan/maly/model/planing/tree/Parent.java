@@ -1,5 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.Optional;
  * Contract for parent - it has at least one children
  * Created by Jan on 02-Mar-17.
  */
-public interface Parent<V extends Node & DesireNodeInterface, K extends Node & IntentionNodeInterface> {
+public interface Parent<V extends Node<?> & DesireNodeInterface, K extends Node<?> & IntentionNodeInterface & VisitorAcceptor> {
 
     /**
      * Get nodes for desires
@@ -31,5 +32,12 @@ public interface Parent<V extends Node & DesireNodeInterface, K extends Node & I
      * @return
      */
     Optional<DesireKey> getDesireKeyAssociatedWithParent();
+
+    /**
+     * Return agent of the tree
+     *
+     * @return
+     */
+    Agent getAgent();
 
 }

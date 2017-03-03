@@ -26,6 +26,6 @@ public abstract class IntentionWithPlan<V extends InternalDesire> extends Intent
      *
      * @return
      */
-    public abstract Command getCommand();
+    public abstract Command<?> getCommand();
 
 }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Template for intention in top level
  * Created by Jan on 28-Feb-17.
  */
-public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDesire>, T extends InternalDesire<V>> extends Node.TopLevel implements IntentionNodeInterface {
+public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDesire>, T extends InternalDesire<V>> extends Node.TopLevel implements IntentionNodeInterface, VisitorAcceptor {
     final V intention;
 
     private IntentionNodeAtTopLevel(Tree tree, T desire) {
@@ -41,7 +41,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
     /**
      * Class to extend template - to define intention node without child
      */
-    public abstract static class WithPlan<V extends IntentionWithPlan<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> {
+    public abstract static class WithPlan<V extends IntentionWithPlan<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand {
         private WithPlan(Tree tree, T desire) {
             super(tree, desire);
         }
@@ -58,7 +58,12 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
         @Override
         public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this);
+            treeVisitor.visit(this, getAgent());
+        }
+
+        @Override
+        public Command<?> getCommand() {
+            return intention.getCommand();
         }
 
         /**
@@ -118,14 +123,14 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
         @Override
         public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this);
+            treeVisitor.visit(this, getAgent());
         }
     }
 
     /**
      * Class to extend template - to define intention node with childes
      */
-    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes, Parent {
+    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes, Parent<DesireNodeNotTopLevel<?, ?>, IntentionNodeNotTopLevel<?, ?, ?>> {
         private final Map<Intention<?>, IntentionNodeNotTopLevel<?, ?, ?>> intentions = new HashMap<>();
         private final Map<InternalDesire<?>, DesireNodeNotTopLevel<?, ?>> desires = new HashMap<>();
 
@@ -137,13 +142,13 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        public List<Node> getNodesWithDesire() {
+        public List<DesireNodeNotTopLevel<?, ?>> getNodesWithDesire() {
             return desires.values().stream()
                     .collect(Collectors.toList());
         }
 
         @Override
-        public List<Node> getNodesWithIntention() {
+        public List<IntentionNodeNotTopLevel<?, ?, ?>> getNodesWithIntention() {
             return intentions.values().stream()
                     .collect(Collectors.toList());
         }
@@ -176,7 +181,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
         @Override
         public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this);
+            treeVisitor.visit(this, getAgent());
         }
 
         @Override

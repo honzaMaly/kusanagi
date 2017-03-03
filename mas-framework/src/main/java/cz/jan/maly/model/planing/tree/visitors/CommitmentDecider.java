@@ -18,28 +18,20 @@ import java.util.stream.Collectors;
  * Created by Jan on 22-Feb-17.
  */
 public class CommitmentDecider implements TreeVisitorInterface {
-    private final Agent agent;
-    private final Tree tree;
-
-    public CommitmentDecider(Agent agent, Tree tree) {
-        this.agent = agent;
-        this.tree = tree;
-    }
 
     @Override
-    public void visitTree() {
-        branch(tree);
+    public void visitTree(Tree tree, Agent agent) {
+        branch(tree, agent);
     }
-
-    //todo add desire mediator to constructor and use it in commitment method for nodes with desire from another agent, desire for others. same for intention to remove them
 
     /**
      * Decides commitment of parent's childes and sends this visitor to subtree
+     *
      * @param parent
      * @param <V>
      * @param <K>
      */
-    private <V extends Node & DesireNodeInterface, K extends Node & IntentionNodeInterface> void branch(Parent<V, K> parent) {
+    private <K extends Node<?> & IntentionNodeInterface & VisitorAcceptor, V extends Node<?> & DesireNodeInterface<K>> void branch(Parent<V, K> parent, Agent agent) {
         List<V> desiresNodes = parent.getNodesWithDesire();
         List<DesireKey> didNotMakeCommitmentToTypes = new ArrayList<>();
 
@@ -59,8 +51,6 @@ public class CommitmentDecider implements TreeVisitorInterface {
                                     .collect(Collectors.toList()),
                             parent.getDesireKeyAssociatedWithParent()
                     ));
-
-            //visit
             if (!committedDesire.isPresent()) {
                 didNotMakeCommitmentToTypes.add(node.getDesireKey());
             }
@@ -72,42 +62,32 @@ public class CommitmentDecider implements TreeVisitorInterface {
     }
 
     @Override
-    public void visit(DesireNodeAtTopLevel node) {
-        throw new IllegalStateException("Desire node should not be visited when deciding commitment");
+    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node, Agent agent) {
+        branch(node, agent);
     }
 
     @Override
-    public void visit(DesireNodeNotTopLevel node) {
-        throw new IllegalStateException("Desire node should not be visited when deciding commitment");
-    }
-
-    @Override
-    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node) {
+    public void visit(IntentionNodeAtTopLevel.WithPlan<?, ?> node, Agent agent) {
         //do nothing, already committed
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan node) {
-        branch(node);
+    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node, Agent agent) {
+        branch(node, agent);
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithPlan node) {
+    public void visit(IntentionNodeNotTopLevel.WithPlan<?> node, Agent agent) {
         //do nothing, already committed
     }
 
     @Override
-    public void visit(IntentionNodeNotTopLevel.ForOthers node) {
+    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node, Agent agent) {
         //do nothing, already committed
     }
 
     @Override
-    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan node) {
-        branch(node);
-    }
-
-    @Override
-    public void visit(IntentionNodeNotTopLevel.WithPlan node) {
+    public void visit(IntentionNodeNotTopLevel.WithDesireForOthers<?> node, Agent agent) {
         //do nothing, already committed
     }
 }

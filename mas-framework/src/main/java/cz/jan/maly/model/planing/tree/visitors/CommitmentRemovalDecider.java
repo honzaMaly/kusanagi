@@ -1,6 +1,12 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
+import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.planing.tree.*;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Commitment visitor traverse subtrees to decide commitments to intentions removal - for given intention in root of subtree decide
@@ -10,123 +16,76 @@ import cz.jan.maly.model.planing.tree.*;
  * Created by Jan on 22-Feb-17.
  */
 public class CommitmentRemovalDecider implements TreeVisitorInterface {
-    @Override
-    public void visitTree() {
 
+    @Override
+    public void visitTree(Tree tree, Agent agent) {
+        branch(tree, agent);
+    }
+
+    /**
+     * Decides commitment removal of node and sends this visitor to subtree
+     *
+     * @param parent
+     * @param <V>
+     * @param <K>
+     */
+    private <K extends Node<?> & IntentionNodeInterface & VisitorAcceptor, V extends Node<?> & DesireNodeInterface<K>> void branch(Parent<V, K> parent, Agent agent) {
+        List<K> intentionNodes = parent.getNodesWithIntention();
+
+        //decide removal of commitment to intentions
+        Iterator<K> it = intentionNodes.iterator();
+        while (it.hasNext()) {
+            K node = it.next();
+            node.removeCommitment(
+                    new DataForDecision(node.getParametersToLoad(),
+                            agent,
+                            parent.getNodesWithIntention().stream()
+                                    .map(Node::getDesireKey)
+                                    .collect(Collectors.toList()),
+                            parent.getNodesWithDesire().stream()
+                                    .map(Node::getDesireKey)
+                                    .collect(Collectors.toList()),
+                            intentionNodes.stream()
+                                    .map(Node::getDesireKey)
+                                    .collect(Collectors.toList()),
+                            parent.getDesireKeyAssociatedWithParent()
+                    ),
+                    agent
+            );
+            it.remove();
+        }
+
+        //visit subtrees induced by remaining intentions
+        parent.getNodesWithIntention().forEach(k -> k.accept(this));
     }
 
     @Override
-    public void visit(DesireNodeAtTopLevel node) {
-
+    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node, Agent agent) {
+        branch(node, agent);
     }
 
     @Override
-    public void visit(DesireNodeNotTopLevel node) {
-
+    public void visit(IntentionNodeAtTopLevel.WithPlan<?, ?> node, Agent agent) {
+        //do nothing, already decided
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node) {
-
+    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node, Agent agent) {
+        branch(node, agent);
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan node) {
-
+    public void visit(IntentionNodeNotTopLevel.WithPlan<?> node, Agent agent) {
+        //do nothing, already decided
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithPlan node) {
-
+    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node, Agent agent) {
+        //do nothing, already decided
     }
 
     @Override
-    public void visit(IntentionNodeNotTopLevel.ForOthers node) {
-
+    public void visit(IntentionNodeNotTopLevel.WithDesireForOthers<?> node, Agent agent) {
+        //do nothing, already decided
     }
-
-    @Override
-    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan node) {
-
-    }
-
-    @Override
-    public void visit(IntentionNodeNotTopLevel.WithPlan node) {
-
-    }
-
-//    @Override
-//    public void visit(LeafNodeWithPlan.WithOwnDesire leafNodeWithOwnDesire) {
-//
-//        //only try to decide commitment if node is intention
-//        if (leafNodeWithOwnDesire.isCommitted()) {
-//            if (leafNodeWithOwnDesire.removedCommitment()) {
-//
-//                //todo reflect this in meta tree
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void visit(LeafNodeWithPlan.WithAnotherAgentDesire leafNodeWithAnotherAgentDesire) {
-//
-//        //only try to decide commitment if node is intention
-//        if (leafNodeWithAnotherAgentDesire.isCommitted()) {
-//            if (leafNodeWithAnotherAgentDesire.removedCommitment()) {
-//
-//                //todo reflect this in meta tree
-//                //TODO remove itself from shared register
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void visit(LeafNodeWithDesireForOtherAgents leafNodeWithDesireForOtherAgents) {
-//
-//        //only try to decide commitment if node is intention
-//        if (leafNodeWithDesireForOtherAgents.isCommitted()) {
-//            if (leafNodeWithDesireForOtherAgents.removedCommitment()) {
-//
-//                //todo reflect this in meta tree
-//                //TODO remove itself from shared register
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void visit(WithOwnDesireIntermediateNode withOwnDesireIntermediateNode) {
-//
-//        //only try to decide commitment if node is intention
-//        if (withOwnDesireIntermediateNode.isCommitted()) {
-//            if (withOwnDesireIntermediateNode.removedCommitment()) {
-//
-//                //todo reflect this in meta tree
-//
-//                withOwnDesireIntermediateNode.cut();
-//            } else {
-//
-//                //go to childes to decide their commitment
-//                withOwnDesireIntermediateNode.branch(this);
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void visit(WithAnotherAgentDesireIntermediateNode withAnotherAgentDesireIntermediateNode) {
-//
-//        //only try to decide commitment if node is intention
-//        if (withAnotherAgentDesireIntermediateNode.isCommitted()) {
-//            if (withAnotherAgentDesireIntermediateNode.removedCommitment()) {
-//
-//                //todo reflect this in meta tree
-//                //TODO remove itself from shared register
-//
-//                withAnotherAgentDesireIntermediateNode.cut();
-//            } else {
-//
-//                //go to childes to decide their commitment
-//                withAnotherAgentDesireIntermediateNode.branch(this);
-//            }
-//        }
-//    }
 }

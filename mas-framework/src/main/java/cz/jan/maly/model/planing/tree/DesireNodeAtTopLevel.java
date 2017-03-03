@@ -52,11 +52,6 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         protected IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
             return new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
         }
-
-        @Override
-        public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this);
-        }
     }
 
     /**
@@ -67,11 +62,6 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     public abstract static class FromAnotherAgent<V extends DesireFromAnotherAgent<? extends Intention>> extends DesireNodeAtTopLevel<V> {
         FromAnotherAgent(Tree tree, V desire) {
             super(tree, desire);
-        }
-
-        @Override
-        public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this);
         }
 
         /**
@@ -112,11 +102,6 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     abstract static class Own<V extends OwnDesire<? extends Intention>> extends DesireNodeAtTopLevel<V> {
         Own(Tree tree, V desire) {
             super(tree, desire);
-        }
-
-        @Override
-        public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this);
         }
 
         /**

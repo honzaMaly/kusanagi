@@ -1,6 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.PlanningTreeInterface;
+import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.PlanningTreeOfAnotherAgent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
@@ -14,10 +15,16 @@ import java.util.stream.Collectors;
  * Facade for planning tree. Tree manages nodes at top level.
  * Created by Jan on 28-Feb-17.
  */
-public class Tree implements PlanningTreeInterface, Parent {
+public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>> {
     private final Map<Intention<?>, IntentionNodeAtTopLevel<?, ?>> intentionsInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, DesireNodeAtTopLevel<?>> desiresInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, Intention<?>> desireIntentionAssociation = new HashMap<>();
+
+    private final Agent agent;
+
+    public Tree(Agent agent) {
+        this.agent = agent;
+    }
 
     /**
      * Removes desire (in case of agent commitment to it - intention) from tree
@@ -96,12 +103,12 @@ public class Tree implements PlanningTreeInterface, Parent {
         desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.ForOthers(this, desire));
     }
 
-    public List<Node> getNodesWithDesire() {
+    public List<DesireNodeAtTopLevel<?>> getNodesWithDesire() {
         return desiresInTopLevel.values().stream()
                 .collect(Collectors.toList());
     }
 
-    public List<Node> getNodesWithIntention() {
+    public List<IntentionNodeAtTopLevel<?, ?>> getNodesWithIntention() {
         return intentionsInTopLevel.values().stream()
                 .collect(Collectors.toList());
     }
@@ -109,6 +116,11 @@ public class Tree implements PlanningTreeInterface, Parent {
     @Override
     public Optional<DesireKey> getDesireKeyAssociatedWithParent() {
         return Optional.empty();
+    }
+
+    @Override
+    public Agent getAgent() {
+        return agent;
     }
 
     @Override
