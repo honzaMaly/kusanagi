@@ -11,6 +11,7 @@ import lombok.Setter;
  */
 public class FrameworkUtils {
 
+    @Getter
     public static final CommandManagerKey REASONING_MANAGER = new CommandManagerKey("REASONING_MANAGER");
 
     public static final Cloner CLONER = new Cloner();

@@ -15,7 +15,7 @@ import java.util.Set;
  * access to this data
  * Created by Jan on 16-Feb-17.
  */
-abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface {
+public abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface {
     final Map<FactKey, Fact> factParameterMap = new HashMap<>();
     final Map<FactKey, FactSet> factSetParameterMap = new HashMap<>();
     final V tree;

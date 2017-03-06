@@ -1,6 +1,6 @@
 package cz.jan.maly.service.implementation;
 
-import cz.jan.maly.model.QueuedItemInterface;
+import cz.jan.maly.model.QueuedItemInterfaceWithResponse;
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
@@ -29,7 +29,7 @@ public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, 
      */
     public boolean registerDesire(ReadOnlyMemory readOnlyMemory, Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterface<Boolean>() {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.addAgentsMemory(readOnlyMemory, owner);

@@ -115,7 +115,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         }
 
         @Override
-        public Command<?> getCommand() {
+        public Command getCommand() {
             return intention.getCommand();
         }
 

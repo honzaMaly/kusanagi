@@ -13,6 +13,6 @@ interface NodeWithCommand {
      *
      * @return
      */
-    Command<?> getCommand();
+    Command getCommand();
 
 }

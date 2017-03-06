@@ -3,6 +3,7 @@ package cz.jan.maly.model.planing.tree.visitors;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.planing.tree.VisitorAcceptor;
 import cz.jan.maly.model.planing.tree.*;
 
 import java.util.ArrayList;

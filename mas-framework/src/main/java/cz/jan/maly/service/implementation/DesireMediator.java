@@ -1,6 +1,6 @@
 package cz.jan.maly.service.implementation;
 
-import cz.jan.maly.model.QueuedItemInterface;
+import cz.jan.maly.model.QueuedItemInterfaceWithResponse;
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
@@ -34,7 +34,7 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      */
     public boolean registerDesire(SharedDesireInRegister sharedDesire, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterface<Boolean>() {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.addedDesire(sharedDesire);
@@ -57,7 +57,7 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      */
     public boolean removeAgentFromRegister(Agent agent, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterface<Boolean>() {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.removeAgent(agent);
@@ -80,7 +80,7 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      */
     public boolean unregisterDesire(SharedDesireInRegister sharedDesire, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterface<Boolean>() {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.removedDesire(sharedDesire);
@@ -104,7 +104,7 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      */
     public boolean addCommitmentToDesire(Agent agentWhoWantsToCommitTo, SharedDesireForAgents desireForOthersHeWantsToCommitTo, ResponseReceiverInterface<Optional<SharedDesireForAgents>> responseReceiver) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterface<Optional<SharedDesireForAgents>>() {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Optional<SharedDesireForAgents>>() {
                 @Override
                 public Optional<SharedDesireForAgents> executeCode() {
                     return workingRegister.commitToDesire(agentWhoWantsToCommitTo, desireForOthersHeWantsToCommitTo);
@@ -128,7 +128,7 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      */
     public boolean removeCommitmentToDesire(Agent agentWhoWantsToRemoveCommitment, SharedDesireForAgents desireHeWantsToRemoveCommitmentTo, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterface<Boolean>() {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo);

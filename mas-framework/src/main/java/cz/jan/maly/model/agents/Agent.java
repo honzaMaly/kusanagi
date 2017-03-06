@@ -1,6 +1,7 @@
 package cz.jan.maly.model.agents;
 
-import cz.jan.maly.model.knowledge.Beliefs;
+import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.CommandManagerKey;
 import cz.jan.maly.model.metadata.DesireKey;
@@ -10,12 +11,10 @@ import cz.jan.maly.model.planing.OwnDesire;
 import cz.jan.maly.model.planing.tree.Tree;
 import cz.jan.maly.service.CommandManager;
 import cz.jan.maly.service.implementation.AgentsRegister;
+import cz.jan.maly.service.implementation.ReasoningManager;
 import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Jan on 09-Feb-17.
@@ -23,32 +22,61 @@ import java.util.Set;
 public abstract class Agent {
     private final Map<CommandManagerKey, CommandManager> commandManagersByKey = new HashMap<>();
 
+    //instance of reasoning manager, it can be shared by agents as it is stateless
+    private static final ReasoningManager REASONING_MANAGER = new ReasoningManager();
+
+    //register of agents - to assign ids to them
+    private static final AgentsRegister AGENTS_REGISTER = new AgentsRegister();
+
     @Getter
     private final int id;
 
-    @Getter
-    private Beliefs beliefs;
+    //TODO init
+    private WorkingMemory beliefs;
 
     @Getter
     private final AgentTypeKey agentType;
 
-    private final Tree tree;
+    private final Tree tree = new Tree(this);
 
-    //TODO initialize beliefs, when starting agent, check environment
 
-    //TODO factory to make from committed desire intention
-
-    //TODO factory for specification when to commit to desire / remove commitment to intention
-
-    public Agent(AgentsRegister agentsRegister, AgentTypeKey agentType, Tree tree, Set<CommandManager> commandManagers) {
-        this.id = agentsRegister.getFreeId();
+    public Agent(AgentTypeKey agentType, Set<CommandManager> commandManagers) {
+        this.id = AGENTS_REGISTER.getFreeId();
         this.agentType = agentType;
-        this.tree = tree;
+        commandManagersByKey.put(REASONING_MANAGER.getCommandManagerKey(), REASONING_MANAGER);
         commandManagers.forEach(commandManager -> commandManagersByKey.put(commandManager.getCommandManagerKey(), commandManager));
+
+        //init desires from types provided by user
+        getInitialOwnDesireWithAbstractIntentionTypes().forEach(desireKey -> tree.addDesire(formOwnDesireWithAbstractIntention(desireKey)));
+        getInitialOwnDesireWithIntentionWithPlanTypes().forEach(desireKey -> tree.addDesire(formOwnDesireWithIntentionWithPlan(desireKey)));
+        getDesireForOthersTypes().forEach(desireKey -> tree.addDesire(formDesireForOthers(desireKey)));
     }
 
-    public void executeCommand(Command<?> command) {
+    /**
+     * Get memory of agent
+     *
+     * @return
+     */
+    public Memory getBeliefs() {
+        return beliefs;
+    }
+
+    /**
+     * For given command appropriate manager to execute it is found. Command is then executed.
+     *
+     * @param command
+     */
+    public void executeCommand(Command command) {
+        Optional<CommandManager> manager = getCommandManager(command.getCommandManagerKey());
+        if (!manager.isPresent()) {
+            throw new NoSuchFieldError(agentType.getName() + " does not support " + command.getCommandManagerKey().getName() + " type.");
+        }
+        manager.get().executeCommand(command);
+    }
+
+    public WorkingMemory getWorkingMemory() {
         //todo
+        return null;
     }
 
     private Optional<CommandManager> getCommandManager(CommandManagerKey key) {
@@ -61,9 +89,15 @@ public abstract class Agent {
 
     public abstract OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey);
 
+    protected abstract Set<DesireKey> getInitialOwnDesireWithAbstractIntentionTypes();
+
     public abstract OwnDesire.WithIntentionWithPlan formOwnDesireWithIntentionWithPlan(DesireKey desireKey);
 
+    protected abstract Set<DesireKey> getInitialOwnDesireWithIntentionWithPlanTypes();
+
     public abstract DesireForOthers formDesireForOthers(DesireKey desireKey);
+
+    protected abstract Set<DesireKey> getDesireForOthersTypes();
 
     public abstract DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey);
 

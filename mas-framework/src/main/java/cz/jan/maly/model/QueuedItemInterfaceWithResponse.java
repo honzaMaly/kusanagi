@@ -5,7 +5,7 @@ package cz.jan.maly.model;
  * by queue manager and send result to receiver of result for executed operation
  * Created by Jan on 17-Feb-17.
  */
-public interface QueuedItemInterface<V> {
+public interface QueuedItemInterfaceWithResponse<V> {
 
     /**
      * Execute code and returns result of executed method

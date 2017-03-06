@@ -1,6 +1,6 @@
 package cz.jan.maly.service;
 
-import cz.jan.maly.model.QueuedItemInterface;
+import cz.jan.maly.model.QueuedItemInterfaceWithResponse;
 import cz.jan.maly.model.servicies.Register;
 import cz.jan.maly.model.servicies.WorkingRegister;
 import cz.jan.maly.utils.MyLogger;
@@ -19,7 +19,7 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
     protected final T workingRegister;
     private V readOnlyRegister;
     private final Object registerLockMonitor = new Object();
-    protected final List<QueuedItemInterface<?>> queuedItems = new ArrayList<>();
+    protected final List<QueuedItemInterfaceWithResponse<?>> queuedItems = new ArrayList<>();
     private final LengthOfIntervalObtainingStrategy lengthOfIntervalObtainingStrategy;
     private boolean shouldConsume = true;
     private final Object isAliveLockMonitor = new Object();
@@ -75,7 +75,7 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
 
                     //execute requests from queue
                     if (!queuedItems.isEmpty()) {
-                        QueuedItemInterface queuedItem;
+                        QueuedItemInterfaceWithResponse queuedItem;
                         synchronized (queuedItems) {
                             queuedItem = queuedItems.remove(0);
                         }

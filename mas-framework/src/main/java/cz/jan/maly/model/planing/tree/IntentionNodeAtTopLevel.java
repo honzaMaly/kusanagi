@@ -62,7 +62,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        public Command<?> getCommand() {
+        public Command getCommand() {
             return intention.getCommand();
         }
 

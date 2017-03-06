@@ -1,6 +1,5 @@
 package cz.jan.maly.service;
 
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.CommandManagerKey;
 import cz.jan.maly.model.planing.Command;
 import lombok.Getter;
@@ -22,10 +21,9 @@ public abstract class CommandManager {
      * Execute command and returns result of operation
      *
      * @param commandToExecute
-     * @param agent
      * @return
      */
-    public abstract boolean executeCommand(Command commandToExecute, Agent agent);
+    public abstract boolean executeCommand(Command commandToExecute);
 
     @Override
     public boolean equals(Object o) {
