@@ -16,7 +16,7 @@ import cz.jan.maly.utils.FrameworkUtils;
  */
 public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, WorkingMemoryRegister> {
 
-    protected KnowledgeMediator() {
+    public KnowledgeMediator() {
         super(new WorkingMemoryRegister(), FrameworkUtils::getLengthOfIntervalBeforeUpdatingRegisterWithMemory);
     }
 

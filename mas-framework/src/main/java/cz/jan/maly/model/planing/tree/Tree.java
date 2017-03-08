@@ -18,7 +18,11 @@ import java.util.stream.Collectors;
 public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>> {
     private final Map<Intention<?>, IntentionNodeAtTopLevel<?, ?>> intentionsInTopLevel = new HashMap<>();
     private final Map<InternalDesire<?>, DesireNodeAtTopLevel<?>> desiresInTopLevel = new HashMap<>();
+
+    //todo generify as only desires from another agent can be removed without deciding commitment
     private final Map<InternalDesire<?>, Intention<?>> desireIntentionAssociation = new HashMap<>();
+
+    //todo each turn reinit not committed own desires with current data. Do that on all levels
 
     private final Agent agent;
 

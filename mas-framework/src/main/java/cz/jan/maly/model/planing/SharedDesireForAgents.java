@@ -23,10 +23,10 @@ public class SharedDesireForAgents extends SharedDesire {
     /**
      * Updates internal set of committed agents by current one
      *
-     * @param currentlyCommittedAgents
+     * @param sharedDesireForAgentsInSystem
      */
-    public void updateCommittedAgentsSet(Set<Agent> currentlyCommittedAgents) {
-        committedAgents.removeIf(agent -> !currentlyCommittedAgents.contains(agent));
-        committedAgents.addAll(currentlyCommittedAgents);
+    public void updateCommittedAgentsSet(SharedDesireForAgents sharedDesireForAgentsInSystem) {
+        committedAgents.removeIf(agent -> !sharedDesireForAgentsInSystem.committedAgents.contains(agent));
+        committedAgents.addAll(sharedDesireForAgentsInSystem.committedAgents);
     }
 }

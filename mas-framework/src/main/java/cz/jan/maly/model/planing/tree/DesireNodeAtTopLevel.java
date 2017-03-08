@@ -1,9 +1,12 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.ResponseReceiverInterface;
+import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DecisionContainerParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.Optional;
 
@@ -24,17 +27,6 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         return getDesireKey();
     }
 
-    abstract IntentionNodeAtTopLevel<?, ?> formIntentionNode();
-
-    public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
-        if (desire.shouldCommit(dataForDecision)) {
-            IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
-            parent.replaceDesireByIntention(this, node);
-            return Optional.of(node);
-        }
-        return Optional.empty();
-    }
-
     @Override
     public DecisionContainerParameters getParametersToLoad() {
         return desire.getParametersToLoad();
@@ -43,14 +35,49 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     /**
      * Implementation of top node with desire for other agents
      */
-    static class ForOthers extends DesireNodeAtTopLevel<DesireForOthers> {
+    static class ForOthers extends DesireNodeAtTopLevel<DesireForOthers> implements ResponseReceiverInterface<Boolean> {
+        private final Object lockMonitor = new Object();
+        private Boolean registered = false;
+
         ForOthers(Tree tree, DesireForOthers desire) {
             super(tree, desire);
         }
 
         @Override
-        protected IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-            return new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
+        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
+            if (desire.shouldCommit(dataForDecision)) {
+                IntentionNodeAtTopLevel.WithDesireForOthers node = new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
+
+                //share desire and wait for response of registration
+                SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
+                if (Agent.getDESIRE_MEDIATOR().registerDesire(sharedDesire, this)) {
+                    synchronized (lockMonitor) {
+                        try {
+                            lockMonitor.wait();
+                        } catch (InterruptedException e) {
+                            MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                        }
+                    }
+
+                    //is desire register, if so, make intention out of it
+                    if (registered) {
+                        getAgent().addSharedDesire(sharedDesire);
+                        parent.replaceDesireByIntention(this, node);
+                        return Optional.of(node);
+                    }
+                }
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public void receiveResponse(Boolean response) {
+
+            //update desire if registered is nonempty and notify waiting method to decide commitment
+            synchronized (lockMonitor) {
+                this.registered = response;
+                lockMonitor.notify();
+            }
         }
     }
 
@@ -59,9 +86,49 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
      *
      * @param <V>
      */
-    public abstract static class FromAnotherAgent<V extends DesireFromAnotherAgent<? extends Intention>> extends DesireNodeAtTopLevel<V> {
+    abstract static class FromAnotherAgent<V extends DesireFromAnotherAgent<? extends Intention>> extends DesireNodeAtTopLevel<V> implements ResponseReceiverInterface<Optional<SharedDesireForAgents>> {
+        private final Object lockMonitor = new Object();
+
         FromAnotherAgent(Tree tree, V desire) {
             super(tree, desire);
+        }
+
+        abstract IntentionNodeAtTopLevel<?, ?> formIntentionNode();
+
+        @Override
+        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
+            if (desire.shouldCommit(dataForDecision)) {
+
+                if (Agent.getDESIRE_MEDIATOR().addCommitmentToDesire(getAgent(), desire.getDesireForAgents(), this)) {
+
+                    //wait for registered
+                    synchronized (lockMonitor) {
+                        try {
+                            lockMonitor.wait();
+                        } catch (InterruptedException e) {
+                            MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                        }
+                    }
+
+                    //if agent is committed according to system...
+                    if (desire.getDesireForAgents().isAgentCommittedToDesire(getAgent())) {
+                        IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
+                        parent.replaceDesireByIntention(this, node);
+                        return Optional.of(node);
+                    }
+                }
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public void receiveResponse(Optional<SharedDesireForAgents> response) {
+
+            //update desire if registered is nonempty and notify waiting method to decide commitment
+            synchronized (lockMonitor) {
+                response.ifPresent(sharedDesireForAgents -> desire.getDesireForAgents().updateCommittedAgentsSet(sharedDesireForAgents));
+                lockMonitor.notify();
+            }
         }
 
         /**
@@ -103,6 +170,18 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         Own(Tree tree, V desire) {
             super(tree, desire);
         }
+
+        @Override
+        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
+            if (desire.shouldCommit(dataForDecision)) {
+                IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
+                parent.replaceDesireByIntention(this, node);
+                return Optional.of(node);
+            }
+            return Optional.empty();
+        }
+
+        abstract IntentionNodeAtTopLevel<?, ?> formIntentionNode();
 
         /**
          * Concrete implementation, desire forms intention with abstract plan

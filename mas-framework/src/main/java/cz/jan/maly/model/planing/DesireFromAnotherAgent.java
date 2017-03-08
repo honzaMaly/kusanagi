@@ -1,12 +1,19 @@
 package cz.jan.maly.model.planing;
 
+import lombok.Getter;
+
 /**
  * Template for agent's desires transformation. Desire originated from another agent is transformed
  * Created by Jan on 16-Feb-17.
  */
 public abstract class DesireFromAnotherAgent<T extends Intention<? extends DesireFromAnotherAgent>> extends InternalDesire<T> {
+
+    @Getter
+    private final SharedDesireForAgents desireForAgents;
+
     DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, boolean isAbstract) {
         super(desireOriginatedFrom.desireParameters, isAbstract);
+        this.desireForAgents = desireOriginatedFrom;
     }
 
     /**

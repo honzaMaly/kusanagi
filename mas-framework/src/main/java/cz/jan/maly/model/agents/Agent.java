@@ -5,16 +5,19 @@ import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentTypeKey;
 import cz.jan.maly.model.metadata.CommandManagerKey;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.planing.Command;
-import cz.jan.maly.model.planing.DesireForOthers;
-import cz.jan.maly.model.planing.OwnDesire;
+import cz.jan.maly.model.planing.*;
 import cz.jan.maly.model.planing.tree.Tree;
 import cz.jan.maly.service.CommandManager;
 import cz.jan.maly.service.implementation.AgentsRegister;
+import cz.jan.maly.service.implementation.DesireMediator;
+import cz.jan.maly.service.implementation.KnowledgeMediator;
 import cz.jan.maly.service.implementation.ReasoningManager;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by Jan on 09-Feb-17.
@@ -28,6 +31,13 @@ public abstract class Agent {
     //register of agents - to assign ids to them
     private static final AgentsRegister AGENTS_REGISTER = new AgentsRegister();
 
+    //shared desire mediator
+    @Getter
+    private static final DesireMediator DESIRE_MEDIATOR = new DesireMediator();
+
+    //shared knowledge mediator
+    private static final KnowledgeMediator KNOWLEDGE_MEDIATOR = new KnowledgeMediator();
+
     @Getter
     private final int id;
 
@@ -38,7 +48,6 @@ public abstract class Agent {
     private final AgentTypeKey agentType;
 
     private final Tree tree = new Tree(this);
-
 
     public Agent(AgentTypeKey agentType, Set<CommandManager> commandManagers) {
         this.id = AGENTS_REGISTER.getFreeId();
@@ -75,10 +84,24 @@ public abstract class Agent {
     }
 
     public WorkingMemory getWorkingMemory() {
-        //todo
+        //todo, replace by methods to prevent access
         return null;
     }
 
+    public void addSharedDesire(SharedDesireInRegister sharedDesire) {
+        beliefs.addSharedDesire(sharedDesire);
+    }
+
+    public void removeSharedDesire(SharedDesireInRegister sharedDesire) {
+        beliefs.removeSharedDesire(sharedDesire);
+    }
+
+    /**
+     * Return command manager for given command if present
+     *
+     * @param key
+     * @return
+     */
     private Optional<CommandManager> getCommandManager(CommandManagerKey key) {
         CommandManager manager = commandManagersByKey.get(key);
         if (manager != null) {

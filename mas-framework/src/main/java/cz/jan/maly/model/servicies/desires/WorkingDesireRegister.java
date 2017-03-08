@@ -85,10 +85,10 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
         if (dataByOriginator.containsKey(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent())) {
             SharedDesireInRegister desire = dataByOriginator.get(desireForOthersHeWantsToCommitTo.getOriginatedFromAgent()).getOrDefault(desireForOthersHeWantsToCommitTo, null);
             if (desire != null) {
-                boolean isCommitted = desire.commitToDesire(agentWhoWantsToCommitTo);
-                if (isCommitted) {
-                    return Optional.of(desire.getCopyOfSharedDesireForAgents());
-                }
+
+                //try to commit agent and return copy of current instance
+                desire.commitToDesire(agentWhoWantsToCommitTo);
+                return Optional.of(desire.getCopyOfSharedDesireForAgents());
             }
         }
         return Optional.empty();
