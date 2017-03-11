@@ -1,14 +1,16 @@
 package cz.jan.maly.model.metadata;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Set;
 
 /**
- * Class describing metadata for desire - used for identification and parameter type definition.
- * Created by Jan on 14-Feb-17.
+ * Class describes metadata required to form intention - its parameters
+ * Created by Jan on 10-Mar-17.
  */
-public abstract class DesireKey extends Key {
+@Builder
+public class IntentionParameters {
 
     @Getter
     private final Set<FactKey<?>> parametersTypesForFacts;
@@ -16,10 +18,8 @@ public abstract class DesireKey extends Key {
     @Getter
     private final Set<FactKey<?>> parametersTypesForFactSets;
 
-    protected DesireKey(String name, Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets) {
-        super(name, DesireKey.class);
+    public IntentionParameters(Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets) {
         this.parametersTypesForFacts = parametersTypesForFacts;
         this.parametersTypesForFactSets = parametersTypesForFactSets;
     }
-
 }

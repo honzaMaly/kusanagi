@@ -14,6 +14,34 @@ import java.util.Set;
 public interface PlanningTreeInterface {
 
     /**
+     * Get set of desires type shared by other agents
+     *
+     * @return
+     */
+    Set<DesireParameters> committedSharedDesiresParametersByOtherAgents();
+
+    /**
+     * Get set of desires type shared by this agent
+     *
+     * @return
+     */
+    Set<DesireParameters> sharedDesiresParameters();
+
+    /**
+     * Return count of shared desires by other agents
+     *
+     * @return
+     */
+    int countOfCommittedSharedDesiresByOtherAgents();
+
+    /**
+     * Return count of shared desires
+     *
+     * @return
+     */
+    int countOfSharedDesires();
+
+    /**
      * Method to get counts of types of intentions in tree
      */
     Map<DesireKey, Long> collectKeysOfCommittedDesiresInTreeCounts();

@@ -50,7 +50,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
                 //share desire and wait for response of registration
                 SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                if (Agent.getDESIRE_MEDIATOR().registerDesire(sharedDesire, this)) {
+                if (Agent.DESIRE_MEDIATOR.registerDesire(sharedDesire, this)) {
                     synchronized (lockMonitor) {
                         try {
                             lockMonitor.wait();
@@ -61,7 +61,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
                     //is desire register, if so, make intention out of it
                     if (registered) {
-                        getAgent().addSharedDesire(sharedDesire);
+                        parent.addSharedDesireForOtherAgents(sharedDesire);
                         parent.replaceDesireByIntention(this, node);
                         return Optional.of(node);
                     }
@@ -99,7 +99,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
             if (desire.shouldCommit(dataForDecision)) {
 
-                if (Agent.getDESIRE_MEDIATOR().addCommitmentToDesire(getAgent(), desire.getDesireForAgents(), this)) {
+                if (Agent.DESIRE_MEDIATOR.addCommitmentToDesire(getAgent(), desire.getDesireForAgents(), this)) {
 
                     //wait for registered
                     synchronized (lockMonitor) {
@@ -114,6 +114,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
                     if (desire.getDesireForAgents().isAgentCommittedToDesire(getAgent())) {
                         IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
                         parent.replaceDesireByIntention(this, node);
+                        parent.addCommittedSharedDesireByOtherAgents(desire.getDesireForAgents());
                         return Optional.of(node);
                     }
                 }

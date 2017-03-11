@@ -2,9 +2,12 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
-import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.knowledge.DataForDecision;
+import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.model.metadata.DecisionContainerParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.IntentionParameters;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,21 +23,39 @@ import static cz.jan.maly.utils.FrameworkUtils.CLONER;
  */
 public abstract class Intention<T extends InternalDesire> implements FactContainerInterface, RemoveCommitment, DesireKeyIdentificationInterface, DecisionAboutCommitment {
     private final Map<FactKey, Object> factParameterMap = new HashMap<>();
-    private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
+    private final Map<FactKey, Set<?>> factSetParameterMap = new HashMap<>();
     private final T originalDesire;
+    private final RemoveCommitment removeCommitment;
+    private final DecisionContainerParameters decisionParameters;
 
-    Intention(T originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
+    Intention(T originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionContainerParameters decisionParameters) {
         this.originalDesire = originalDesire;
+        this.removeCommitment = removeCommitment;
+        this.decisionParameters = decisionParameters;
 
         //fill maps with actual parameters from internal_beliefs
-        parametersTypesForFact.forEach(factKey -> {
-            Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
+        intentionParameters.getParametersTypesForFacts().forEach(factKey -> {
+            Optional<?> value = memory.returnFactValueForGivenKey(factKey);
             value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
         });
-        parametersTypesForFactSets.forEach(factKey -> {
-            Optional<Set> value = agent.getBeliefs().returnFactSetValueForGivenKey(factKey);
+        intentionParameters.getParametersTypesForFactSets().forEach(factKey -> {
+            Optional<Set<?>> value = memory.returnFactSetValueForGivenKey(factKey);
             value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
         });
+    }
+
+    @Override
+    public DecisionContainerParameters getParametersToLoad() {
+        return decisionParameters;
+    }
+
+    /**
+     * Should agent remove commitment to this intention?
+     * @param dataForDecision
+     * @return
+     */
+    public boolean shouldRemoveCommitment(DataForDecision dataForDecision) {
+        return removeCommitment.shouldRemoveCommitment(dataForDecision);
     }
 
     @Override

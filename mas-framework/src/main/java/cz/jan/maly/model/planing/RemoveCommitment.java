@@ -7,7 +7,7 @@ import cz.jan.maly.model.knowledge.DataForDecision;
  * should remove its commitment to intention
  * Created by Jan on 26-Feb-17.
  */
-interface RemoveCommitment {
+public interface RemoveCommitment {
 
     /**
      * Returns if agent should remove commitment to intention

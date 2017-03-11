@@ -1,8 +1,12 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.knowledge.DataForDecision;
+import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.model.metadata.DecisionContainerParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
+import cz.jan.maly.model.metadata.IntentionParameters;
 import lombok.Getter;
 
 /**
@@ -10,27 +14,58 @@ import lombok.Getter;
  * of this are used in planning tree.
  * Created by Jan on 22-Feb-17.
  */
-public abstract class InternalDesire<T extends Intention<? extends InternalDesire>> extends Desire implements Commitment, DecisionAboutCommitment {
+public abstract class InternalDesire<T extends Intention<? extends InternalDesire>> extends Desire implements DecisionAboutCommitment {
+    final Commitment commitment;
+    final DecisionContainerParameters decisionDesire;
+    final RemoveCommitment removeCommitment;
+    final DecisionContainerParameters decisionIntention;
+    final IntentionParameters intentionParameters;
 
     @Getter
     final boolean isAbstract;
 
-    InternalDesire(DesireKey desireKey, Agent agent, boolean isAbstract) {
-        super(desireKey, agent);
+    InternalDesire(DesireKey desireKey, Memory memory, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
+        super(desireKey, memory);
+        this.commitment = commitment;
+        this.decisionDesire = decisionDesire;
+        this.removeCommitment = removeCommitment;
+        this.decisionIntention = decisionIntention;
+        this.intentionParameters = intentionParameters;
         this.isAbstract = isAbstract;
     }
 
-    InternalDesire(DesireParameters desireParameters, boolean isAbstract) {
+    InternalDesire(DesireParameters desireParameters, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
         super(desireParameters);
+        this.commitment = commitment;
+        this.decisionDesire = decisionDesire;
+        this.removeCommitment = removeCommitment;
+        this.decisionIntention = decisionIntention;
+        this.intentionParameters = intentionParameters;
         this.isAbstract = isAbstract;
+    }
+
+    @Override
+    public DecisionContainerParameters getParametersToLoad() {
+        return decisionDesire;
     }
 
     /**
-     * Return intention of given desire
+     * Decides commitment - should agent commit?
      *
+     * @param dataForDecision
      * @return
      */
-    public abstract T formIntention();
+    public boolean shouldCommit(DataForDecision dataForDecision) {
+        return commitment.shouldCommit(dataForDecision);
+    }
+
+    /**
+     * Return intention induced by this desire for given agent
+     *
+     * @param agent
+     * @return
+     */
+    public abstract T formIntention(Agent agent);
 
     @Override
     public boolean equals(Object o) {

@@ -16,12 +16,36 @@ public class PlanningTreeOfAnotherAgent implements PlanningTreeInterface {
     private final Map<DesireKey, Long> keysOfDesiresInTreeCounts;
     private final Set<DesireParameters> parametersOfCommittedDesiresOnTopLevel;
     private final Set<DesireParameters> parametersOfDesiresOnTopLevel;
+    private final Set<DesireParameters> sharedDesiresParametersByOtherAgents;
+    private final Set<DesireParameters> sharedDesiresParameters;
 
-    public PlanningTreeOfAnotherAgent(Map<DesireKey, Long> keysOfCommittedDesiresInTreeCounts, Map<DesireKey, Long> keysOfDesiresInTreeCounts, Set<DesireParameters> parametersOfCommittedDesiresOnTopLevel, Set<DesireParameters> parametersOfDesiresOnTopLevel) {
+    public PlanningTreeOfAnotherAgent(Map<DesireKey, Long> keysOfCommittedDesiresInTreeCounts, Map<DesireKey, Long> keysOfDesiresInTreeCounts, Set<DesireParameters> parametersOfCommittedDesiresOnTopLevel, Set<DesireParameters> parametersOfDesiresOnTopLevel, Set<DesireParameters> sharedDesiresParametersByOtherAgents, Set<DesireParameters> sharedDesiresParameters) {
         this.keysOfCommittedDesiresInTreeCounts = keysOfCommittedDesiresInTreeCounts;
         this.keysOfDesiresInTreeCounts = keysOfDesiresInTreeCounts;
         this.parametersOfCommittedDesiresOnTopLevel = parametersOfCommittedDesiresOnTopLevel;
         this.parametersOfDesiresOnTopLevel = parametersOfDesiresOnTopLevel;
+        this.sharedDesiresParametersByOtherAgents = sharedDesiresParametersByOtherAgents;
+        this.sharedDesiresParameters = sharedDesiresParameters;
+    }
+
+    @Override
+    public Set<DesireParameters> committedSharedDesiresParametersByOtherAgents() {
+        return sharedDesiresParametersByOtherAgents;
+    }
+
+    @Override
+    public Set<DesireParameters> sharedDesiresParameters() {
+        return sharedDesiresParameters;
+    }
+
+    @Override
+    public int countOfCommittedSharedDesiresByOtherAgents() {
+        return sharedDesiresParametersByOtherAgents.size();
+    }
+
+    @Override
+    public int countOfSharedDesires() {
+        return sharedDesiresParameters.size();
     }
 
     @Override

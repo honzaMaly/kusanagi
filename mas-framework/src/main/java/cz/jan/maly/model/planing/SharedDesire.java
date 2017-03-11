@@ -23,7 +23,7 @@ public abstract class SharedDesire extends Desire {
     protected final int limitOnNumberOfAgentsToCommit;
 
     SharedDesire(DesireKey desireKey, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit) {
-        super(desireKey, originatedFromAgent);
+        super(desireKey, originatedFromAgent.getBeliefs());
         this.originatedFromAgent = originatedFromAgent;
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;
     }

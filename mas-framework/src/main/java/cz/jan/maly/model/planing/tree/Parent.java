@@ -2,6 +2,7 @@ package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.planing.SharedDesireInRegister;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,5 +40,19 @@ public interface Parent<V extends Node<?> & DesireNodeInterface, K extends Node<
      * @return
      */
     Agent getAgent();
+
+    /**
+     * Register desire to share with other agents
+     *
+     * @param sharedDesire
+     */
+    void addSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire);
+
+    /**
+     * Unregister desire to share with other agents
+     *
+     * @param sharedDesire
+     */
+    void removeSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire);
 
 }

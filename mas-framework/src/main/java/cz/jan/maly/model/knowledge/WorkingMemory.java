@@ -1,9 +1,7 @@
 package cz.jan.maly.model.knowledge;
 
-import cz.jan.maly.model.metadata.AgentTypeKey;
+import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.planing.SharedDesireForAgents;
-import cz.jan.maly.model.planing.SharedDesireInRegister;
 import cz.jan.maly.model.planing.tree.Tree;
 
 import java.util.Set;
@@ -13,8 +11,9 @@ import java.util.Set;
  * Created by Jan on 24-Feb-17.
  */
 public class WorkingMemory extends Memory<Tree> {
-    public WorkingMemory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Tree tree, AgentTypeKey agentTypeKey) {
-        super(parametersTypesForFact, parametersTypesForFactSets, tree, agentTypeKey);
+
+    public WorkingMemory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Tree tree, AgentType agentType, int agentId) {
+        super(parametersTypesForFact, parametersTypesForFactSets, tree, agentType, agentId);
     }
 
     /**
@@ -24,7 +23,7 @@ public class WorkingMemory extends Memory<Tree> {
      */
     public ReadOnlyMemory cloneMemory() {
         forget();
-        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentTypeKey, sharedDesires, sharedDesiresByOtherAgents);
+        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentType, agentId);
     }
 
     /**
@@ -34,26 +33,6 @@ public class WorkingMemory extends Memory<Tree> {
         factParameterMap.values().forEach(Fact::forget);
         factSetParameterMap.values().forEach(FactSet::forget);
     }
-
-    public void addSharedDesire(SharedDesireInRegister sharedDesire) {
-        sharedDesires.add(sharedDesire);
-    }
-
-    public void removeSharedDesire(SharedDesireInRegister sharedDesire) {
-        sharedDesires.remove(sharedDesire);
-    }
-
-    public void addSharedDesireByOtherAgent(SharedDesireForAgents sharedDesire) {
-        sharedDesiresByOtherAgents.add(sharedDesire);
-    }
-
-    public void removeSharedDesireByOtherAgent(SharedDesireForAgents sharedDesire) {
-        sharedDesiresByOtherAgents.remove(sharedDesire);
-    }
-
-    //TODO update commitments for own shared desires - pass read only register
-
-    //TODO update commitments for another agents' desires, remove ones not in memory and return them (to delete them in agent) - pass read only register
 
     /**
      * Update fact value

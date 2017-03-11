@@ -2,97 +2,55 @@ package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.PlanningTreeInterface;
-import cz.jan.maly.model.metadata.AgentTypeKey;
+import cz.jan.maly.model.metadata.AgentType;
+import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.planing.SharedDesire;
-import cz.jan.maly.model.planing.SharedDesireForAgents;
-import cz.jan.maly.model.planing.SharedDesireInRegister;
+import lombok.Getter;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Template class for memory - it stores facts, sets of facts, agent type and commitment process in form of tree, and provide
  * access to this data
  * Created by Jan on 16-Feb-17.
  */
-public abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface {
+public abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface, PlanningTreeInterface {
     final Map<FactKey, Fact> factParameterMap = new HashMap<>();
     final Map<FactKey, FactSet> factSetParameterMap = new HashMap<>();
     final V tree;
-    final AgentTypeKey agentTypeKey;
-    final Set<SharedDesireInRegister> sharedDesires;
-    final Set<SharedDesireForAgents> sharedDesiresByOtherAgents;
 
-    //todo wrappers around tree + agent type
+    @Getter
+    final AgentType agentType;
 
-    Memory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, V tree, AgentTypeKey agentTypeKey) {
+    @Getter
+    final int agentId;
+
+    Memory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, V tree, AgentType agentType, int agentId) {
         this.tree = tree;
-        this.agentTypeKey = agentTypeKey;
-        this.sharedDesires = new HashSet<>();
-        this.sharedDesiresByOtherAgents = new HashSet<>();
+        this.agentType = agentType;
+        this.agentId = agentId;
         parametersTypesForFact.forEach(factKey -> this.factParameterMap.put(factKey, factKey.returnEmptyFact()));
         parametersTypesForFactSets.forEach(factKey -> this.factSetParameterMap.put(factKey, factKey.returnEmptyFactSet()));
     }
 
     /**
      * To make read only copy...
-     *
-     * @param factParameterMap
+     *  @param factParameterMap
      * @param factSetParameterMap
      * @param tree
-     * @param agentTypeKey
-     * @param sharedDesires
-     * @param sharedDesiresByOtherAgents
+     * @param agentType
+     * @param agentId
      */
-    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentTypeKey agentTypeKey, Set<SharedDesireInRegister> sharedDesires, Set<SharedDesireForAgents> sharedDesiresByOtherAgents) {
+    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentType agentType, int agentId) {
         this.tree = tree;
-        this.agentTypeKey = agentTypeKey;
-        this.sharedDesires = sharedDesires;
-        this.sharedDesiresByOtherAgents = sharedDesiresByOtherAgents;
+        this.agentType = agentType;
+        this.agentId = agentId;
         factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, o.copyFact()));
         factSetParameterMap.forEach((factKey, set) -> this.factSetParameterMap.put(factKey, set.copyFact()));
-    }
-
-    /**
-     * Return count of shared desires by other agents
-     *
-     * @return
-     */
-    public int countOfSharedDesiresByOtherAgents() {
-        return sharedDesires.size();
-    }
-
-    /**
-     * Return count of shared desires
-     *
-     * @return
-     */
-    public int countOfSharedDesires() {
-        return sharedDesires.size();
-    }
-
-    /**
-     * Get set of desires type shared by other agents
-     *
-     * @return
-     */
-    public Set<DesireParameters> sharedDesiresParametersByOtherAgents() {
-        return sharedDesiresByOtherAgents.stream()
-                .map(SharedDesire::getDesireParameters)
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Get set of desires type shared by this agent
-     *
-     * @return
-     */
-    public Set<DesireParameters> sharedDesiresParameters() {
-        return sharedDesires.stream()
-                .map(SharedDesire::getDesireParameters)
-                .collect(Collectors.toSet());
     }
 
     @Override
@@ -111,6 +69,46 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
             return Optional.of((S) factSet.getContent());
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Set<DesireParameters> committedSharedDesiresParametersByOtherAgents() {
+        return tree.committedSharedDesiresParametersByOtherAgents();
+    }
+
+    @Override
+    public Set<DesireParameters> sharedDesiresParameters() {
+        return tree.sharedDesiresParameters();
+    }
+
+    @Override
+    public int countOfCommittedSharedDesiresByOtherAgents() {
+        return tree.countOfCommittedSharedDesiresByOtherAgents();
+    }
+
+    @Override
+    public int countOfSharedDesires() {
+        return tree.countOfSharedDesires();
+    }
+
+    @Override
+    public Map<DesireKey, Long> collectKeysOfCommittedDesiresInTreeCounts() {
+        return tree.collectKeysOfCommittedDesiresInTreeCounts();
+    }
+
+    @Override
+    public Map<DesireKey, Long> collectKeysOfDesiresInTreeCounts() {
+        return tree.collectKeysOfDesiresInTreeCounts();
+    }
+
+    @Override
+    public Set<DesireParameters> getParametersOfCommittedDesiresOnTopLevel() {
+        return tree.getParametersOfCommittedDesiresOnTopLevel();
+    }
+
+    @Override
+    public Set<DesireParameters> getParametersOfDesiresOnTopLevel() {
+        return tree.getParametersOfDesiresOnTopLevel();
     }
 }
 

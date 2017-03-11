@@ -1,24 +1,19 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.FactKey;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.util.Set;
+import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.IntentionParameters;
 
 /**
  * Template for intention which returns instance of Command
  * Created by Jan on 16-Feb-17.
  */
-public abstract class IntentionWithPlan<V extends InternalDesire> extends Intention<V> {
+public class IntentionWithPlan<V extends InternalDesire> extends Intention<V> {
+    private final Command command;
 
-    @Getter
-    @Setter
-    private boolean executed = false;
-
-    IntentionWithPlan(V originalDesire, Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Agent agent) {
-        super(originalDesire, parametersTypesForFact, parametersTypesForFactSets, agent);
+    IntentionWithPlan(V originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionContainerParameters decisionParameters, Command command) {
+        super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
+        this.command = command;
     }
 
     /**
@@ -26,6 +21,8 @@ public abstract class IntentionWithPlan<V extends InternalDesire> extends Intent
      *
      * @return
      */
-    public abstract Command getCommand();
+    public Command getCommand() {
+        return command;
+    }
 
 }

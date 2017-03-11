@@ -7,7 +7,7 @@ import cz.jan.maly.model.knowledge.DataForDecision;
  * should commit to desire
  * Created by Jan on 21-Feb-17.
  */
-interface Commitment {
+public interface Commitment {
 
     /**
      * Returns if agent should commit to desire and make intention from it

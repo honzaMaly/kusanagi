@@ -24,10 +24,27 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
 
     //todo each turn reinit not committed own desires with current data. Do that on all levels
 
+    private final Set<SharedDesireInRegister> sharedDesiresForOtherAgents = new HashSet<>();
+    private final Set<SharedDesireForAgents> committedSharedDesiresByOtherAgents = new HashSet<>();
+
     private final Agent agent;
 
     public Tree(Agent agent) {
         this.agent = agent;
+    }
+
+    @Override
+    public void addSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
+        sharedDesiresForOtherAgents.add(sharedDesire);
+    }
+
+    @Override
+    public void removeSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
+        sharedDesiresForOtherAgents.remove(sharedDesire);
+    }
+
+    void addCommittedSharedDesireByOtherAgents(SharedDesireForAgents sharedDesire) {
+        committedSharedDesiresByOtherAgents.add(sharedDesire);
     }
 
     /**
@@ -52,7 +69,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
         return new PlanningTreeOfAnotherAgent(collectKeysOfCommittedDesiresInTreeCounts(),
                 collectKeysOfDesiresInTreeCounts(),
                 getParametersOfCommittedDesiresOnTopLevel(),
-                getParametersOfDesiresOnTopLevel());
+                getParametersOfDesiresOnTopLevel(), committedSharedDesiresParametersByOtherAgents(), sharedDesiresParameters());
     }
 
     /**
@@ -125,6 +142,30 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
     @Override
     public Agent getAgent() {
         return agent;
+    }
+
+    @Override
+    public Set<DesireParameters> committedSharedDesiresParametersByOtherAgents() {
+        return committedSharedDesiresByOtherAgents.stream()
+                .map(Desire::getDesireParameters)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<DesireParameters> sharedDesiresParameters() {
+        return sharedDesiresForOtherAgents.stream()
+                .map(Desire::getDesireParameters)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public int countOfCommittedSharedDesiresByOtherAgents() {
+        return committedSharedDesiresByOtherAgents.size();
+    }
+
+    @Override
+    public int countOfSharedDesires() {
+        return sharedDesiresForOtherAgents.size();
     }
 
     @Override

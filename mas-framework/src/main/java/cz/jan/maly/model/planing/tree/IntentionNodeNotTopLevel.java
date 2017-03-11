@@ -19,7 +19,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
 
     private IntentionNodeNotTopLevel(K parent, T desire) {
         super(parent, desire.getDesireParameters());
-        this.intention = desire.formIntention();
+        this.intention = desire.formIntention(getAgent());
     }
 
     @Override

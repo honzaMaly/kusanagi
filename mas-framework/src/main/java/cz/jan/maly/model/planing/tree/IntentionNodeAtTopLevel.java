@@ -19,7 +19,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
     private IntentionNodeAtTopLevel(Tree tree, T desire) {
         super(tree, desire.getDesireParameters());
-        this.intention = desire.formIntention();
+        this.intention = desire.formIntention(getAgent());
     }
 
     abstract DesireNodeAtTopLevel<?> formDesireNode(Agent agent);

@@ -2,7 +2,7 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
-import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.FactKey;
@@ -26,19 +26,19 @@ public abstract class Desire implements FactContainerInterface, DesireKeyIdentif
     @Getter
     final DesireParameters desireParameters;
 
-    Desire(DesireKey desireKey, Agent agent) {
+    Desire(DesireKey desireKey, Memory memory) {
 
         //fill maps with actual parameters from internal_beliefs
         Map<FactKey, Object> factParameterMap = new HashMap<>();
         desireKey.getParametersTypesForFacts()
                 .forEach(factKey -> {
-                    Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
+                    Optional<?> value = memory.returnFactValueForGivenKey(factKey);
                     value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
                 });
         Map<FactKey, Set> factSetParameterMap = new HashMap<>();
         desireKey.getParametersTypesForFactSets()
                 .forEach(factKey -> {
-                    Optional<Set> value = agent.getBeliefs().returnFactSetValueForGivenKey(factKey);
+                    Optional<Set<?>> value = memory.returnFactSetValueForGivenKey(factKey);
                     value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
                 });
         this.desireParameters = new DesireParameters(factParameterMap, factSetParameterMap, desireKey);
