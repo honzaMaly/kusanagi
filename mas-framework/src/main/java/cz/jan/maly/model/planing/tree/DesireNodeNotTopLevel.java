@@ -1,7 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.DesireForOthers;
 import cz.jan.maly.model.planing.Intention;
@@ -39,7 +39,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     }
 
     @Override
-    public DecisionContainerParameters getParametersToLoad() {
+    public DecisionParameters getParametersToLoad() {
         return desire.getParametersToLoad();
     }
 

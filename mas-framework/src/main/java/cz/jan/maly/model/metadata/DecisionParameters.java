@@ -8,7 +8,7 @@ import java.util.Set;
  * Class defines data to be loaded in DataForDecision instance
  * Created by Jan on 02-Mar-17.
  */
-public class DecisionContainerParameters extends Key {
+public class DecisionParameters {
 
     @Getter
     private final Set<FactKey<?>> parametersTypesForFacts;
@@ -19,8 +19,7 @@ public class DecisionContainerParameters extends Key {
     @Getter
     private final Set<DesireKey> typesOfDesiresToConsider;
 
-    DecisionContainerParameters(String name, Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets, Set<DesireKey> typesOfDesiresToConsider) {
-        super(name, DecisionContainerParameters.class);
+    public DecisionParameters(Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets, Set<DesireKey> typesOfDesiresToConsider) {
         this.parametersTypesForFacts = parametersTypesForFacts;
         this.parametersTypesForFactSets = parametersTypesForFactSets;
         this.typesOfDesiresToConsider = typesOfDesiresToConsider;

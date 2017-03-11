@@ -2,7 +2,7 @@ package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
@@ -38,7 +38,7 @@ public class DataForDecision implements FactContainerInterface {
     @Getter
     private final boolean isAtTopLevel;
 
-    public DataForDecision(DecisionContainerParameters parameters, Agent agent, List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision, Optional<DesireKey> parentsType) {
+    public DataForDecision(DecisionParameters parameters, Agent agent, List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision, Optional<DesireKey> parentsType) {
         this.isAtTopLevel = !parentsType.isPresent();
 
         //filter keys

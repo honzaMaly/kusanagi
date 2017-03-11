@@ -2,7 +2,7 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
 
@@ -14,7 +14,7 @@ public class DesireForOthers extends InternalDesire<IntentionWithDesireForOtherA
     private final DesireKey sharedDesireKey;
     private final int limitOnNumberOfAgentsToCommit;
 
-    public DesireForOthers(DesireKey desireKey, Memory memory, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, DesireKey sharedDesireKey, int limitOnNumberOfAgentsToCommit) {
+    public DesireForOthers(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, DesireKey sharedDesireKey, int limitOnNumberOfAgentsToCommit) {
         super(desireKey, memory, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
         this.sharedDesireKey = sharedDesireKey;
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;

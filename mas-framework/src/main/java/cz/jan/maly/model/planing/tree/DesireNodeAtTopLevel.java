@@ -3,7 +3,7 @@ package cz.jan.maly.model.planing.tree;
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
 import cz.jan.maly.utils.MyLogger;
@@ -28,7 +28,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     }
 
     @Override
-    public DecisionContainerParameters getParametersToLoad() {
+    public DecisionParameters getParametersToLoad() {
         return desire.getParametersToLoad();
     }
 

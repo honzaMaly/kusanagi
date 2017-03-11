@@ -1,7 +1,7 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
 import lombok.Getter;
@@ -17,7 +17,7 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     @Getter
     private final SharedDesireForAgents desireForAgents;
 
-    DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
+    DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
         super(desireOriginatedFrom.desireParameters, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, isAbstract);
         this.desireForAgents = desireOriginatedFrom;
     }
@@ -30,7 +30,7 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
         private final Set<DesireKey> desiresWithAbstractIntention;
         private final Set<DesireKey> desiresWithIntentionWithPlan;
 
-        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionWithPlan) {
+        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionWithPlan) {
             super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, true);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
@@ -49,7 +49,7 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionWithPlan<WithIntentionWithPlan>> {
         private final Command command;
 
-        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, Command command) {
+        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, Command command) {
             super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
             this.command = command;
         }

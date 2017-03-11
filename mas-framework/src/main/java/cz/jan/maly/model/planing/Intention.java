@@ -4,7 +4,7 @@ import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
@@ -26,9 +26,9 @@ public abstract class Intention<T extends InternalDesire> implements FactContain
     private final Map<FactKey, Set<?>> factSetParameterMap = new HashMap<>();
     private final T originalDesire;
     private final RemoveCommitment removeCommitment;
-    private final DecisionContainerParameters decisionParameters;
+    private final DecisionParameters decisionParameters;
 
-    Intention(T originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionContainerParameters decisionParameters) {
+    Intention(T originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters) {
         this.originalDesire = originalDesire;
         this.removeCommitment = removeCommitment;
         this.decisionParameters = decisionParameters;
@@ -45,7 +45,7 @@ public abstract class Intention<T extends InternalDesire> implements FactContain
     }
 
     @Override
-    public DecisionContainerParameters getParametersToLoad() {
+    public DecisionParameters getParametersToLoad() {
         return decisionParameters;
     }
 

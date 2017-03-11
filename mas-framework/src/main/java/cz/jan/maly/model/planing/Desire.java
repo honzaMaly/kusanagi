@@ -8,12 +8,8 @@ import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Class describing template for desire. Desire instance represents high level abstraction of
@@ -27,21 +23,7 @@ public abstract class Desire implements FactContainerInterface, DesireKeyIdentif
     final DesireParameters desireParameters;
 
     Desire(DesireKey desireKey, Memory memory) {
-
-        //fill maps with actual parameters from internal_beliefs
-        Map<FactKey, Object> factParameterMap = new HashMap<>();
-        desireKey.getParametersTypesForFacts()
-                .forEach(factKey -> {
-                    Optional<?> value = memory.returnFactValueForGivenKey(factKey);
-                    value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
-                });
-        Map<FactKey, Set> factSetParameterMap = new HashMap<>();
-        desireKey.getParametersTypesForFactSets()
-                .forEach(factKey -> {
-                    Optional<Set<?>> value = memory.returnFactSetValueForGivenKey(factKey);
-                    value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
-                });
-        this.desireParameters = new DesireParameters(factParameterMap, factSetParameterMap, desireKey);
+        this.desireParameters = new DesireParameters(memory, desireKey);
     }
 
     Desire(DesireParameters desireParameters) {

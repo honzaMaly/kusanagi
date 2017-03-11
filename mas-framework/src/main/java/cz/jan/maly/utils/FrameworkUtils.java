@@ -1,7 +1,6 @@
 package cz.jan.maly.utils;
 
 import com.rits.cloning.Cloner;
-import cz.jan.maly.model.metadata.CommandManagerKey;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,9 +9,6 @@ import lombok.Setter;
  * Created by Jan on 14-Feb-17.
  */
 public class FrameworkUtils {
-
-    @Getter
-    public static final CommandManagerKey REASONING_MANAGER = new CommandManagerKey("REASONING_MANAGER");
 
     public static final Cloner CLONER = new Cloner();
 

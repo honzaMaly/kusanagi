@@ -3,7 +3,7 @@ package cz.jan.maly.model.planing;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.IntentionParameters;
@@ -16,15 +16,15 @@ import lombok.Getter;
  */
 public abstract class InternalDesire<T extends Intention<? extends InternalDesire>> extends Desire implements DecisionAboutCommitment {
     final Commitment commitment;
-    final DecisionContainerParameters decisionDesire;
+    final DecisionParameters decisionDesire;
     final RemoveCommitment removeCommitment;
-    final DecisionContainerParameters decisionIntention;
+    final DecisionParameters decisionIntention;
     final IntentionParameters intentionParameters;
 
     @Getter
     final boolean isAbstract;
 
-    InternalDesire(DesireKey desireKey, Memory memory, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
+    InternalDesire(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
         super(desireKey, memory);
         this.commitment = commitment;
         this.decisionDesire = decisionDesire;
@@ -34,7 +34,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
         this.isAbstract = isAbstract;
     }
 
-    InternalDesire(DesireParameters desireParameters, Commitment commitment, DecisionContainerParameters decisionDesire, RemoveCommitment removeCommitment, DecisionContainerParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
+    InternalDesire(DesireParameters desireParameters, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
         super(desireParameters);
         this.commitment = commitment;
         this.decisionDesire = decisionDesire;
@@ -45,7 +45,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
     }
 
     @Override
-    public DecisionContainerParameters getParametersToLoad() {
+    public DecisionParameters getParametersToLoad() {
         return decisionDesire;
     }
 

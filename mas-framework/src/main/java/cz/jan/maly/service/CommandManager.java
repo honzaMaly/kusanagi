@@ -1,42 +1,20 @@
 package cz.jan.maly.service;
 
-import cz.jan.maly.model.metadata.CommandManagerKey;
+import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.planing.Command;
-import lombok.Getter;
 
 /**
- * Template for CommandManager. Each command manager should implement method execute for commands with same key as command manager
+ * Contract for CommandManager
  * Created by Jan on 26-Feb-17.
  */
-public abstract class CommandManager {
-
-    @Getter
-    private final CommandManagerKey commandManagerKey;
-
-    protected CommandManager(CommandManagerKey commandManagerKey) {
-        this.commandManagerKey = commandManagerKey;
-    }
+public interface CommandManager<T extends Command<?, K>, K extends Memory<?>> {
 
     /**
      * Execute command and returns result of operation
      *
+     * @param memory
      * @param commandToExecute
      * @return
      */
-    public abstract boolean executeCommand(Command commandToExecute);
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CommandManager)) return false;
-
-        CommandManager that = (CommandManager) o;
-
-        return commandManagerKey.equals(that.commandManagerKey);
-    }
-
-    @Override
-    public int hashCode() {
-        return commandManagerKey.hashCode();
-    }
+    boolean executeCommand(T commandToExecute, K memory);
 }

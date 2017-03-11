@@ -1,9 +1,12 @@
 package cz.jan.maly.model.metadata.agents;
 
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.*;
+import cz.jan.maly.model.planing.Commitment;
+import cz.jan.maly.model.planing.DesireFromAnotherAgent;
+import cz.jan.maly.model.planing.RemoveCommitment;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,22 +39,22 @@ public class AnotherAgentsDesireWithAbstractIntentionFormulation extends DesireF
      * Add configuration for desire
      *
      * @param key
-     * @param decisionContainerParametersForDesire
+     * @param decisionParametersForDesire
      * @param decisionInDesire
-     * @param decisionContainerParametersForIntention
+     * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
      * @param desiresForOthers
      * @param desiresWithAbstractIntention
      * @param desiresWithIntentionWithPlan
      */
-    public void addDesireFormulationConfiguration(DesireKey key, DecisionContainerParameters decisionContainerParametersForDesire,
-                                                  Commitment decisionInDesire, DecisionContainerParameters decisionContainerParametersForIntention,
+    public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
+                                                  Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
                                                   RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
                                                   Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                                   Set<DesireKey> desiresWithIntentionWithPlan) {
-        addDesireFormulationConfiguration(key, decisionContainerParametersForDesire, decisionInDesire,
-                decisionContainerParametersForIntention, decisionInIntention, intentionParameters);
+        addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
+                decisionParametersForIntention, decisionInIntention, intentionParameters);
         desiresForOthersByKey.put(key, desiresForOthers);
         desiresWithAbstractIntentionByKey.put(key, desiresWithAbstractIntention);
         desiresWithIntentionWithPlanByKey.put(key, desiresWithIntentionWithPlan);

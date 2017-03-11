@@ -1,6 +1,6 @@
 package cz.jan.maly.model.metadata.agents;
 
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
  */
 abstract class DesireFormulation {
     //configurations to form desire
-    private final Map<DesireKey, DecisionContainerParameters> parametersForDecisionByDesire = new HashMap<>();
+    private final Map<DesireKey, DecisionParameters> parametersForDecisionByDesire = new HashMap<>();
     private final Map<DesireKey, Commitment> decisionsByDesire = new HashMap<>();
 
     //configurations to form intention
-    private final Map<DesireKey, DecisionContainerParameters> parametersForDecisionByIntention = new HashMap<>();
+    private final Map<DesireKey, DecisionParameters> parametersForDecisionByIntention = new HashMap<>();
     private final Map<DesireKey, RemoveCommitment> decisionsByIntention = new HashMap<>();
     private final Map<DesireKey, IntentionParameters> parametersOfIntentions = new HashMap<>();
 
@@ -85,7 +85,7 @@ abstract class DesireFormulation {
         return decisionsByIntention.get(key);
     }
 
-    protected DecisionContainerParameters getParametersForDecisionInIntention(DesireKey key) {
+    protected DecisionParameters getParametersForDecisionInIntention(DesireKey key) {
         return parametersForDecisionByIntention.get(key);
     }
 
@@ -93,7 +93,7 @@ abstract class DesireFormulation {
         return parametersForDecisionByDesire.containsKey(key);
     }
 
-    protected DecisionContainerParameters getParametersForDecisionInDesire(DesireKey key) {
+    protected DecisionParameters getParametersForDecisionInDesire(DesireKey key) {
         return parametersForDecisionByDesire.get(key);
     }
 
@@ -105,18 +105,18 @@ abstract class DesireFormulation {
      * Add configuration for desire
      *
      * @param key
-     * @param decisionContainerParametersForDesire
+     * @param decisionParametersForDesire
      * @param decisionInDesire
-     * @param decisionContainerParametersForIntention
+     * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
      */
-    protected void addDesireFormulationConfiguration(DesireKey key, DecisionContainerParameters decisionContainerParametersForDesire,
-                                                     Commitment decisionInDesire, DecisionContainerParameters decisionContainerParametersForIntention,
+    protected void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
+                                                     Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters) {
-        parametersForDecisionByDesire.put(key, decisionContainerParametersForDesire);
+        parametersForDecisionByDesire.put(key, decisionParametersForDesire);
         decisionsByDesire.put(key, decisionInDesire);
-        parametersForDecisionByIntention.put(key, decisionContainerParametersForIntention);
+        parametersForDecisionByIntention.put(key, decisionParametersForIntention);
         decisionsByIntention.put(key, decisionInIntention);
         parametersOfIntentions.put(key, intentionParameters);
     }

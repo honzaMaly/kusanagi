@@ -5,10 +5,10 @@ import lombok.Getter;
 import java.util.Set;
 
 /**
- * Class describes metadata required to form intention - its parameters
- * Created by Jan on 10-Mar-17.
+ * Class describes metadata required to form command to act by agent - its parameters
+ * Created by Jan on 11-Mar-17.
  */
-public class IntentionParameters {
+public class ActCommandParameters {
 
     @Getter
     private final Set<FactKey<?>> parametersTypesForFacts;
@@ -16,7 +16,7 @@ public class IntentionParameters {
     @Getter
     private final Set<FactKey<?>> parametersTypesForFactSets;
 
-    public IntentionParameters(Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets) {
+    public ActCommandParameters(Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets) {
         this.parametersTypesForFacts = parametersTypesForFacts;
         this.parametersTypesForFactSets = parametersTypesForFactSets;
     }

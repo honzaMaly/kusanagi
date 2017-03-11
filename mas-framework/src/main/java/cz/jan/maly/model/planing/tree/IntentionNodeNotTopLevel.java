@@ -2,7 +2,7 @@ package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.metadata.DecisionContainerParameters;
+import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
@@ -23,7 +23,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
     }
 
     @Override
-    public DecisionContainerParameters getParametersToLoad() {
+    public DecisionParameters getParametersToLoad() {
         return intention.getParametersToLoad();
     }
 
