@@ -14,13 +14,15 @@ import java.util.Set;
 public class AbstractIntention<T extends InternalDesire<?>> extends Intention<T> {
     private final Set<DesireKey> desiresForOthers;
     private final Set<DesireKey> desiresWithAbstractIntention;
-    private final Set<DesireKey> desiresWithIntentionWithPlan;
+    private final Set<DesireKey> desiresWithIntentionToAct;
+    private final Set<DesireKey> desiresWithIntentionToReason;
 
-    protected AbstractIntention(T originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionWithPlan) {
+    protected AbstractIntention(T originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
         super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
-        this.desiresWithIntentionWithPlan = desiresWithIntentionWithPlan;
+        this.desiresWithIntentionToAct = desiresWithIntentionToAct;
+        this.desiresWithIntentionToReason = desiresWithIntentionToReason;
     }
 
     /**
@@ -42,12 +44,21 @@ public class AbstractIntention<T extends InternalDesire<?>> extends Intention<T>
     }
 
     /**
-     * Returns plan as set of own desires with intention with command
+     * Returns plan as set of own desires with intention with act command
      *
      * @return
      */
-    public Set<DesireKey> returnPlanAsSetOfDesiresWithIntentionWithPlan() {
-        return desiresWithIntentionWithPlan;
+    public Set<DesireKey> returnPlanAsSetOfDesiresWithIntentionToAct() {
+        return desiresWithIntentionToAct;
+    }
+
+    /**
+     * Returns plan as set of own desires with intention with reason command
+     *
+     * @return
+     */
+    public Set<DesireKey> returnPlanAsSetOfDesiresWithIntentionToReason() {
+        return desiresWithIntentionToReason;
     }
 
 }

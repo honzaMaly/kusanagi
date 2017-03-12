@@ -4,12 +4,11 @@ import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.planing.Command;
 import cz.jan.maly.model.planing.DesireForOthers;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.OwnDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.model.planing.tree.Tree;
-import cz.jan.maly.service.CommandManager;
 import cz.jan.maly.service.implementation.AgentsRegister;
 import cz.jan.maly.service.implementation.DesireMediator;
 import cz.jan.maly.service.implementation.KnowledgeMediator;
@@ -17,7 +16,6 @@ import cz.jan.maly.service.implementation.ReasoningExecutor;
 import lombok.Getter;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by Jan on 09-Feb-17.
@@ -47,7 +45,7 @@ public class Agent implements AgentTypeBehaviourFactory {
     private final Tree tree = new Tree(this);
 
     //TODO init beliefs using facts in type, other executors
-    public Agent(AgentType agentType, Set<CommandManager> commandManagers) {
+    public Agent(AgentType agentType) {
         this.id = AGENTS_REGISTER.getFreeId();
         this.agentType = agentType;
 
@@ -83,41 +81,51 @@ public class Agent implements AgentTypeBehaviourFactory {
 
     @Override
     public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey) {
-        return;
+        return agentType.formOwnDesireWithAbstractIntention(desireKey, beliefs);
     }
 
     @Override
     public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey) {
-        return;
+        return agentType.formOwnDesireWithAbstractIntention(parentDesireKey, desireKey, beliefs);
     }
 
     @Override
-    public OwnDesire.WithIntentionWithPlan formOwnDesireWithIntentionWithPlan(DesireKey desireKey) {
-        return;
+    public OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey) {
+        return agentType.formOwnReasoningDesire(desireKey, beliefs);
     }
 
     @Override
-    public OwnDesire.WithIntentionWithPlan formOwnDesireWithIntentionWithPlan(DesireKey desireKey, DesireKey parentDesireKey) {
-        return;
+    public OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey, DesireKey parentDesireKey) {
+        return agentType.formOwnReasoningDesire(parentDesireKey, desireKey, beliefs);
+    }
+
+    @Override
+    public OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey) {
+        return agentType.formOwnActingDesire(desireKey, beliefs);
+    }
+
+    @Override
+    public OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey, DesireKey parentDesireKey) {
+        return agentType.formOwnActingDesire(parentDesireKey, desireKey, beliefs);
     }
 
     @Override
     public DesireForOthers formDesireForOthers(DesireKey desireKey) {
-        return;
+        return agentType.formDesireForOthers(desireKey, beliefs);
     }
 
     @Override
     public DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey) {
-        return;
+        return agentType.formDesireForOthers(parentDesireKey, desireKey, beliefs);
     }
 
     @Override
-    public DesireFromAnotherAgent.WithAbstractIntention formDesireFromOtherAgentWithAbstractIntention(DesireKey desireKey) {
-        return;
+    public Optional<DesireFromAnotherAgent.WithAbstractIntention> formDesireFromOtherAgentWithAbstractIntention(SharedDesireForAgents desireForAgents) {
+        return agentType.formAnotherAgentsDesireWithAbstractIntention(desireForAgents);
     }
 
     @Override
-    public DesireFromAnotherAgent.WithIntentionWithPlan formDesireFromOtherAgentWithIntentionWithPlan(DesireKey desireKey) {
-        return;
+    public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesireFromOtherAgentWithIntentionWithPlan(SharedDesireForAgents desireForAgents) {
+        return agentType.formAnotherAgentsDesireWithCommand(desireForAgents);
     }
 }

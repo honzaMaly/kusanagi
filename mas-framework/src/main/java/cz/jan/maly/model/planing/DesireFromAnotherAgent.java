@@ -4,6 +4,7 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
+import cz.jan.maly.model.planing.command.ActCommand;
 import lombok.Getter;
 
 import java.util.Set;
@@ -28,35 +29,39 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     public static class WithAbstractIntention extends DesireFromAnotherAgent<AbstractIntention<WithAbstractIntention>> {
         private final Set<DesireKey> desiresForOthers;
         private final Set<DesireKey> desiresWithAbstractIntention;
-        private final Set<DesireKey> desiresWithIntentionWithPlan;
+        private final Set<DesireKey> desiresWithIntentionToAct;
+        private final Set<DesireKey> desiresWithIntentionToReason;
 
-        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionWithPlan) {
+        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
             super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, true);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
-            this.desiresWithIntentionWithPlan = desiresWithIntentionWithPlan;
+            this.desiresWithIntentionToAct = desiresWithIntentionToAct;
+            this.desiresWithIntentionToReason = desiresWithIntentionToReason;
         }
 
         @Override
         public AbstractIntention<DesireFromAnotherAgent.WithAbstractIntention> formIntention(Agent agent) {
-            return new AbstractIntention<>(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionWithPlan);
+            return new AbstractIntention<>(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason);
         }
     }
 
     /**
      * Desire to initialize intention with plan
      */
-    public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionWithPlan<WithIntentionWithPlan>> {
-        private final Command command;
+    public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionCommand.FromAnotherAgent> {
+        private final ActCommand.DesiredByAnotherAgent command;
 
-        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, Command command) {
+        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommand.DesiredByAnotherAgent command) {
             super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
             this.command = command;
         }
 
+
         @Override
-        public IntentionWithPlan<DesireFromAnotherAgent.WithIntentionWithPlan> formIntention(Agent agent) {
-            return new IntentionWithPlan<>(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, command);
+        public IntentionCommand.FromAnotherAgent formIntention(Agent agent) {
+            return new IntentionCommand.FromAnotherAgent(this, intentionParameters, agent.getBeliefs(),
+                    removeCommitment, decisionIntention, command);
         }
     }
 

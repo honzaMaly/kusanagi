@@ -54,7 +54,7 @@ public class DataForDecision implements FactContainerInterface {
 
         this.parentsType = parentsType;
 
-        //fill maps with actual parameters from internal_beliefs
+        //fill maps with actual parameters from beliefs
         parameters.getParametersTypesForFacts().forEach(factKey -> {
             Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
             value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));

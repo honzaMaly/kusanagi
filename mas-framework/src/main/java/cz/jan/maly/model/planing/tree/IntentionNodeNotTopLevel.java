@@ -94,7 +94,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
     /**
      * Class to extend template - to define intention node without child
      */
-    public abstract static class WithPlan<K extends Node & IntentionNodeWithChildes & Parent> extends IntentionNodeNotTopLevel<IntentionWithPlan<OwnDesire.WithIntentionWithPlan>, OwnDesire.WithIntentionWithPlan, K> implements NodeWithCommand {
+    public abstract static class WithPlan<K extends Node & IntentionNodeWithChildes & Parent> extends IntentionNodeNotTopLevel<IntentionCommand<OwnDesire.WithIntentionWithPlan>, OwnDesire.WithIntentionWithPlan, K> implements NodeWithCommand {
         private WithPlan(K parent, OwnDesire.WithIntentionWithPlan desire) {
             super(parent, desire);
         }

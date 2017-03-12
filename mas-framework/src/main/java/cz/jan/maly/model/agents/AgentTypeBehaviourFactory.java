@@ -4,6 +4,9 @@ import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.DesireForOthers;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.OwnDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
+
+import java.util.Optional;
 
 /**
  * Interface for each agent to form desires
@@ -29,21 +32,38 @@ interface AgentTypeBehaviourFactory {
     OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey);
 
     /**
-     * Forms OwnDesire WithIntentionWithPlan
+     * Forms OwnDesire with reasoning command
      *
      * @param desireKey
      * @return
      */
-    OwnDesire.WithIntentionWithPlan formOwnDesireWithIntentionWithPlan(DesireKey desireKey);
+    OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey);
 
     /**
-     * Forms OwnDesire WithIntentionWithPlan with parent node
+     * Forms OwnDesire with reasoning command with parent node
      *
      * @param desireKey
      * @param parentDesireKey
      * @return
      */
-    OwnDesire.WithIntentionWithPlan formOwnDesireWithIntentionWithPlan(DesireKey desireKey, DesireKey parentDesireKey);
+    OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey, DesireKey parentDesireKey);
+
+    /**
+     * Forms OwnDesire with reasoning command
+     *
+     * @param desireKey
+     * @return
+     */
+    OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey);
+
+    /**
+     * Forms OwnDesire with reasoning command with parent node
+     *
+     * @param desireKey
+     * @param parentDesireKey
+     * @return
+     */
+    OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey, DesireKey parentDesireKey);
 
     /**
      * Forms DesireForOthers
@@ -65,17 +85,17 @@ interface AgentTypeBehaviourFactory {
     /**
      * Forms DesireFromAnotherAgent WithAbstractIntention
      *
-     * @param desireKey
+     * @param desireForAgents
      * @return
      */
-    DesireFromAnotherAgent.WithAbstractIntention formDesireFromOtherAgentWithAbstractIntention(DesireKey desireKey);
+    Optional<DesireFromAnotherAgent.WithAbstractIntention> formDesireFromOtherAgentWithAbstractIntention(SharedDesireForAgents desireForAgents);
 
     /**
      * Forms DesireFromAnotherAgent WithAbstractIntention
      *
-     * @param desireKey
+     * @param desireForAgents
      * @return
      */
-    DesireFromAnotherAgent.WithIntentionWithPlan formDesireFromOtherAgentWithIntentionWithPlan(DesireKey desireKey);
+    Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesireFromOtherAgentWithIntentionWithPlan(SharedDesireForAgents desireForAgents);
 
 }

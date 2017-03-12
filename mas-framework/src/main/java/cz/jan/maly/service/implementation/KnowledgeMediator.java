@@ -4,8 +4,8 @@ import cz.jan.maly.model.QueuedItemInterfaceWithResponse;
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
-import cz.jan.maly.model.servicies.internal_beliefs.ReadOnlyMemoryRegister;
-import cz.jan.maly.model.servicies.internal_beliefs.WorkingMemoryRegister;
+import cz.jan.maly.model.servicies.beliefs.ReadOnlyMemoryRegister;
+import cz.jan.maly.model.servicies.beliefs.WorkingMemoryRegister;
 import cz.jan.maly.service.MediatorTemplate;
 import cz.jan.maly.utils.FrameworkUtils;
 

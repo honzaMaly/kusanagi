@@ -4,6 +4,7 @@ import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
+import cz.jan.maly.model.planing.Command;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.RemoveCommitment;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * Created by Jan on 11-Mar-17.
  */
 abstract class DesireFormulation {
+
     //configurations to form desire
     private final Map<DesireKey, DecisionParameters> parametersForDecisionByDesire = new HashMap<>();
     private final Map<DesireKey, Commitment> decisionsByDesire = new HashMap<>();
@@ -77,27 +79,27 @@ abstract class DesireFormulation {
         return parametersForDecisionByDesire.keySet();
     }
 
-    protected IntentionParameters getIntentionParameters(DesireKey key) {
+    IntentionParameters getIntentionParameters(DesireKey key) {
         return parametersOfIntentions.get(key);
     }
 
-    protected RemoveCommitment getDecisionInIntention(DesireKey key) {
+    RemoveCommitment getDecisionInIntention(DesireKey key) {
         return decisionsByIntention.get(key);
     }
 
-    protected DecisionParameters getParametersForDecisionInIntention(DesireKey key) {
+    DecisionParameters getParametersForDecisionInIntention(DesireKey key) {
         return parametersForDecisionByIntention.get(key);
     }
 
-    protected boolean supportsDesireType(DesireKey key) {
+    boolean supportsDesireType(DesireKey key) {
         return parametersForDecisionByDesire.containsKey(key);
     }
 
-    protected DecisionParameters getParametersForDecisionInDesire(DesireKey key) {
+    DecisionParameters getParametersForDecisionInDesire(DesireKey key) {
         return parametersForDecisionByDesire.get(key);
     }
 
-    protected Commitment getDecisionInDesire(DesireKey key) {
+    Commitment getDecisionInDesire(DesireKey key) {
         return decisionsByDesire.get(key);
     }
 
@@ -119,6 +121,70 @@ abstract class DesireFormulation {
         parametersForDecisionByIntention.put(key, decisionParametersForIntention);
         decisionsByIntention.put(key, decisionInIntention);
         parametersOfIntentions.put(key, intentionParameters);
+    }
+
+    /**
+     * Defines common structure to add configuration for abstract plan
+     */
+    protected static abstract class WithAbstractPlan extends DesireFormulation {
+        final Map<DesireKey, Set<DesireKey>> desiresForOthersByKey = new HashMap<>();
+        final Map<DesireKey, Set<DesireKey>> desiresWithAbstractIntentionByKey = new HashMap<>();
+        final Map<DesireKey, Set<DesireKey>> desiresWithIntentionToActByKey = new HashMap<>();
+        final Map<DesireKey, Set<DesireKey>> desiresWithIntentionToReasonByKey = new HashMap<>();
+
+        /**
+         * Add configuration for desire
+         *
+         * @param key
+         * @param decisionParametersForDesire
+         * @param decisionInDesire
+         * @param decisionParametersForIntention
+         * @param intentionParameters
+         * @param decisionInIntention
+         * @param desiresForOthers
+         * @param desiresWithAbstractIntention
+         * @param desiresWithIntentionToAct
+         * @param desiresWithIntentionToReason
+         */
+        public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
+                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
+                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
+                                                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
+                                                      Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
+            addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
+                    decisionParametersForIntention, decisionInIntention, intentionParameters);
+            desiresForOthersByKey.put(key, desiresForOthers);
+            desiresWithAbstractIntentionByKey.put(key, desiresWithAbstractIntention);
+            desiresWithIntentionToActByKey.put(key, desiresWithIntentionToAct);
+            desiresWithIntentionToReasonByKey.put(key, desiresWithIntentionToReason);
+        }
+    }
+
+    /**
+     * Defines common structure to add configuration for intention with command
+     */
+    static abstract class WithCommand<V extends Command<?, ?>> extends DesireFormulation {
+        final Map<DesireKey, V> commandsByKey = new HashMap<>();
+
+        /**
+         * Add configuration for desire
+         *
+         * @param key
+         * @param decisionParametersForDesire
+         * @param decisionInDesire
+         * @param decisionParametersForIntention
+         * @param intentionParameters
+         * @param decisionInIntention
+         * @param command
+         */
+        public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
+                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
+                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
+                                                      V command) {
+            addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
+                    decisionParametersForIntention, decisionInIntention, intentionParameters);
+            commandsByKey.put(key, command);
+        }
     }
 
 }

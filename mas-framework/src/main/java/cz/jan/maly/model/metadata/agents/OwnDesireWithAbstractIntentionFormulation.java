@@ -17,10 +17,7 @@ import java.util.Set;
  * Concrete implementation of own desire with abstract plan formulation
  * Created by Jan on 11-Mar-17.
  */
-public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation implements OwnInternalDesireFormulation<OwnDesire.WithAbstractIntention> {
-    final Map<DesireKey, Set<DesireKey>> desiresForOthersByKey = new HashMap<>();
-    final Map<DesireKey, Set<DesireKey>> desiresWithAbstractIntentionByKey = new HashMap<>();
-    final Map<DesireKey, Set<DesireKey>> desiresWithIntentionWithPlanByKey = new HashMap<>();
+public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation.WithAbstractPlan implements OwnInternalDesireFormulation<OwnDesire.WithAbstractIntention> {
 
     @Override
     public Optional<OwnDesire.WithAbstractIntention> formDesire(DesireKey key, Memory memory) {
@@ -28,34 +25,61 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
             OwnDesire.WithAbstractIntention withAbstractIntention = new OwnDesire.WithAbstractIntention(key,
                     memory, getDecisionInDesire(key), getParametersForDecisionInDesire(key), getDecisionInIntention(key),
                     getParametersForDecisionInIntention(key), getIntentionParameters(key), desiresForOthersByKey.get(key),
-                    desiresWithAbstractIntentionByKey.get(key), desiresWithIntentionWithPlanByKey.get(key));
+                    desiresWithAbstractIntentionByKey.get(key), desiresWithIntentionToActByKey.get(key), desiresWithIntentionToReasonByKey.get(key));
             return Optional.of(withAbstractIntention);
         }
         return Optional.empty();
     }
 
     /**
-     * Add configuration for desire
-     *
-     * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param desiresForOthers
-     * @param desiresWithAbstractIntention
-     * @param desiresWithIntentionWithPlan
+     * Concrete implementation of own desire with abstract plan formulation and possibility to create instance based on parent
      */
-    public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                  Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                  RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                  Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                                  Set<DesireKey> desiresWithIntentionWithPlan) {
-        addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
-                decisionParametersForIntention, decisionInIntention, intentionParameters);
-        desiresForOthersByKey.put(key, desiresForOthers);
-        desiresWithAbstractIntentionByKey.put(key, desiresWithAbstractIntention);
-        desiresWithIntentionWithPlanByKey.put(key, desiresWithIntentionWithPlan);
+    public static class Stacked extends OwnDesireWithAbstractIntentionFormulation implements OwnInternalDesireFormulationStacked<OwnDesire.WithAbstractIntention> {
+        private final Map<DesireKey, OwnDesireWithAbstractIntentionFormulation> stack = new HashMap<>();
+
+        @Override
+        public Optional<OwnDesire.WithAbstractIntention> formDesire(DesireKey parentKey, DesireKey key, Memory memory) {
+            OwnDesireWithAbstractIntentionFormulation formulation = stack.get(parentKey);
+            if (formulation != null) {
+                if (formulation.supportsDesireType(key)) {
+                    OwnDesire.WithAbstractIntention withAbstractIntention = new OwnDesire.WithAbstractIntention(key,
+                            memory, formulation.getDecisionInDesire(key), formulation.getParametersForDecisionInDesire(key),
+                            formulation.getDecisionInIntention(key), formulation.getParametersForDecisionInIntention(key),
+                            formulation.getIntentionParameters(key), formulation.desiresForOthersByKey.get(key),
+                            formulation.desiresWithAbstractIntentionByKey.get(key), formulation.desiresWithIntentionToActByKey.get(key),
+                            formulation.desiresWithIntentionToReasonByKey.get(key));
+                    return Optional.of(withAbstractIntention);
+                }
+            }
+            return formDesire(key, memory);
+        }
+
+        /**
+         * Add configuration for desire
+         *
+         * @param key
+         * @param parent
+         * @param decisionParametersForDesire
+         * @param decisionInDesire
+         * @param decisionParametersForIntention
+         * @param intentionParameters
+         * @param decisionInIntention
+         * @param desiresForOthers
+         * @param desiresWithAbstractIntention
+         * @param desiresWithIntentionToAct
+         * @param desiresWithIntentionToReason
+         */
+        public void addDesireFormulationConfiguration(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
+                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
+                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
+                                                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
+                                                      Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
+            OwnDesireWithAbstractIntentionFormulation formulation = stack.putIfAbsent(parent, new OwnDesireWithAbstractIntentionFormulation());
+            formulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
+                    decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters,
+                    desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason);
+        }
+
     }
+
 }

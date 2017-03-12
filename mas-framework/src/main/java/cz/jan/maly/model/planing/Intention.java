@@ -33,7 +33,7 @@ public abstract class Intention<T extends InternalDesire> implements FactContain
         this.removeCommitment = removeCommitment;
         this.decisionParameters = decisionParameters;
 
-        //fill maps with actual parameters from internal_beliefs
+        //fill maps with actual parameters from beliefs
         intentionParameters.getParametersTypesForFacts().forEach(factKey -> {
             Optional<?> value = memory.returnFactValueForGivenKey(factKey);
             value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));

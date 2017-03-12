@@ -5,7 +5,7 @@ import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.ActCommandParameters;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.planing.Command;
-import cz.jan.maly.model.planing.IntentionWithPlan;
+import cz.jan.maly.model.planing.IntentionCommand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Set;
  * Template for command with action to execute
  * Created by Jan on 11-Mar-17.
  */
-public abstract class ActCommand<T extends IntentionWithPlan<?, ? extends ActCommand<T>, Memory<?>>> extends Command<T, Memory<?>> {
+public abstract class ActCommand<T extends IntentionCommand<?, ? extends ActCommand<T>, Memory<?>>> extends Command<T, Memory<?>> {
     private final ActCommandParameters commandParameters;
 
     private ActCommand(T intention, ActCommandParameters commandParameters) {
@@ -77,8 +77,8 @@ public abstract class ActCommand<T extends IntentionWithPlan<?, ? extends ActCom
     /**
      * Template for command initiated by another agent's desire
      */
-    public static abstract class DesiredByAnotherAgent extends ActCommand<IntentionWithPlan.FromAnotherAgent> {
-        protected DesiredByAnotherAgent(IntentionWithPlan.FromAnotherAgent intention, ActCommandParameters commandParameters) {
+    public static abstract class DesiredByAnotherAgent extends ActCommand<IntentionCommand.FromAnotherAgent> {
+        protected DesiredByAnotherAgent(IntentionCommand.FromAnotherAgent intention, ActCommandParameters commandParameters) {
             super(intention, commandParameters);
         }
     }
@@ -86,8 +86,8 @@ public abstract class ActCommand<T extends IntentionWithPlan<?, ? extends ActCom
     /**
      * Template for command initiated by own desire
      */
-    public static abstract class Own extends ActCommand<IntentionWithPlan.Own.Acting> {
-        protected Own(IntentionWithPlan.Own.Acting intention, ActCommandParameters commandParameters) {
+    public static abstract class Own extends ActCommand<IntentionCommand.OwnActing> {
+        protected Own(IntentionCommand.OwnActing intention, ActCommandParameters commandParameters) {
             super(intention, commandParameters);
         }
     }

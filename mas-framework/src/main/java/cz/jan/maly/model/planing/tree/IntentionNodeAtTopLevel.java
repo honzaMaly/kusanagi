@@ -41,7 +41,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
     /**
      * Class to extend template - to define intention node without child
      */
-    public abstract static class WithPlan<V extends IntentionWithPlan<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand {
+    public abstract static class WithPlan<V extends IntentionCommand<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand {
         private WithPlan(Tree tree, T desire) {
             super(tree, desire);
         }
@@ -69,7 +69,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         /**
          * Concrete implementation, intention's desire from another agent forms node
          */
-        static class FromAnotherAgent extends WithPlan<IntentionWithPlan<DesireFromAnotherAgent.WithIntentionWithPlan>, DesireFromAnotherAgent.WithIntentionWithPlan> {
+        static class FromAnotherAgent extends WithPlan<IntentionCommand<DesireFromAnotherAgent.WithIntentionWithPlan>, DesireFromAnotherAgent.WithIntentionWithPlan> {
             private final DesireFromAnotherAgent.WithIntentionWithPlan desire;
 
             FromAnotherAgent(Tree tree, DesireFromAnotherAgent.WithIntentionWithPlan desire) {
@@ -86,7 +86,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         /**
          * Concrete implementation, intention's desire is formed anew
          */
-        static class Own extends WithPlan<IntentionWithPlan<OwnDesire.WithIntentionWithPlan>, OwnDesire.WithIntentionWithPlan> {
+        static class Own extends WithPlan<IntentionCommand<OwnDesire.WithIntentionWithPlan>, OwnDesire.WithIntentionWithPlan> {
             Own(Tree tree, OwnDesire.WithIntentionWithPlan desire) {
                 super(tree, desire);
             }

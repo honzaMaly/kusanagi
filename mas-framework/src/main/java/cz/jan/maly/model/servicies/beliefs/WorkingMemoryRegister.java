@@ -1,4 +1,4 @@
-package cz.jan.maly.model.servicies.internal_beliefs;
+package cz.jan.maly.model.servicies.beliefs;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;

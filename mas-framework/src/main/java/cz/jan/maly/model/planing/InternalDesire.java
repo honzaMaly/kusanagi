@@ -14,9 +14,9 @@ import lombok.Getter;
  * of this are used in planning tree.
  * Created by Jan on 22-Feb-17.
  */
-public abstract class InternalDesire<T extends Intention<? extends InternalDesire>> extends Desire implements DecisionAboutCommitment {
+public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements DecisionAboutCommitment {
     final Commitment commitment;
-    final DecisionParameters decisionDesire;
+    private final DecisionParameters decisionDesire;
     final RemoveCommitment removeCommitment;
     final DecisionParameters decisionIntention;
     final IntentionParameters intentionParameters;
