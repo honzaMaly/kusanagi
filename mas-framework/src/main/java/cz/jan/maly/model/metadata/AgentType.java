@@ -7,7 +7,6 @@ import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 import lombok.Getter;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 

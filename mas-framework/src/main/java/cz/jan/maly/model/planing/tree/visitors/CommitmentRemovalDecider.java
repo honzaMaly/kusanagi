@@ -2,6 +2,8 @@ package cz.jan.maly.model.planing.tree.visitors;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.model.planing.tree.*;
 
 import java.util.Iterator;
@@ -16,9 +18,17 @@ import java.util.stream.Collectors;
  * Created by Jan on 22-Feb-17.
  */
 public class CommitmentRemovalDecider implements TreeVisitorInterface {
+    private final Tree tree;
+    private final Agent agent;
+
+    public CommitmentRemovalDecider(Tree tree, Agent agent) {
+        this.tree = tree;
+        this.agent = agent;
+    }
+
 
     @Override
-    public void visitTree(Tree tree, Agent agent) {
+    public void visitTree() {
         branch(tree, agent);
     }
 
@@ -60,32 +70,47 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node, Agent agent) {
+    public void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node) {
         branch(node, agent);
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithPlan<?, ?> node, Agent agent) {
-        //do nothing, already decided
-    }
-
-    @Override
-    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node, Agent agent) {
+    public void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node) {
         branch(node, agent);
     }
 
     @Override
-    public void visit(IntentionNodeNotTopLevel.WithPlan<?> node, Agent agent) {
+    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node) {
         //do nothing, already decided
     }
 
     @Override
-    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node, Agent agent) {
+    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node) {
         //do nothing, already decided
     }
 
     @Override
-    public void visit(IntentionNodeNotTopLevel.WithDesireForOthers<?> node, Agent agent) {
+    public void visit(IntentionNodeAtTopLevel.WithDesireForOthers node) {
+        //do nothing, already decided
+    }
+
+    @Override
+    public void visit(IntentionNodeNotTopLevel.WithDesireForOthers<?> node) {
+        //do nothing, already decided
+    }
+
+    @Override
+    public void visit(IntentionNodeAtTopLevel.WithCommand.OwnReasoning node) {
+        //do nothing, already decided
+    }
+
+    @Override
+    public void visit(IntentionNodeAtTopLevel.WithCommand.OwnActing node) {
+        //do nothing, already decided
+    }
+
+    @Override
+    public void visit(IntentionNodeAtTopLevel.WithCommand.FromAnotherAgent node) {
         //do nothing, already decided
     }
 }

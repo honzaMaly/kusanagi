@@ -13,8 +13,9 @@ public interface Commitment {
      * Returns if agent should commit to desire and make intention from it
      *
      * @param dataForDecision
+     * @param desire
      * @return
      */
-    boolean shouldCommit(DataForDecision dataForDecision);
+    boolean shouldCommit(DataForDecision dataForDecision, Desire desire);
 
 }

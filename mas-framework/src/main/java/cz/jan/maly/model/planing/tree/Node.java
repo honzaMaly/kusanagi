@@ -5,9 +5,6 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.DecisionAboutCommitment;
-import cz.jan.maly.model.planing.SharedDesireInRegister;
-
-import java.util.Set;
 
 /**
  * Template for node. It defines common data structure (methods) for various nodes which extend it.
@@ -28,14 +25,6 @@ public abstract class Node<K extends Parent> implements DesireKeyIdentificationI
     public Agent getAgent() {
         return parent.getAgent();
     }
-
-    /**
-     * Adds shared desires to given set if node contains shared desire. This method is introduce to collect desires which
-     * will be removed from register as agent is no longer committed to subtree
-     *
-     * @param sharedDesiresInSubtree
-     */
-    abstract void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireInRegister> sharedDesiresInSubtree);
 
     @Override
     public DesireKey getDesireKey() {

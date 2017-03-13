@@ -104,26 +104,6 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
         }
     }
 
-    public void addDesire(DesireFromAnotherAgent.WithAbstractIntention desire) {
-        desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.FromAnotherAgent.WithAbstractIntention(this, desire));
-    }
-
-    public void addDesire(DesireFromAnotherAgent.WithIntentionWithPlan desire) {
-        desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(this, desire));
-    }
-
-    public void addDesire(OwnDesire.WithAbstractIntention desire) {
-        desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.Own.WithAbstractIntention(this, desire));
-    }
-
-    public void addDesire(OwnDesire.WithIntentionWithPlan desire) {
-        desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.Own.WithIntentionWithPlan(this, desire));
-    }
-
-    public void addDesire(DesireForOthers desire) {
-        desiresInTopLevel.put(desire, new DesireNodeAtTopLevel.ForOthers(this, desire));
-    }
-
     public List<DesireNodeAtTopLevel<?>> getNodesWithDesire() {
         return desiresInTopLevel.values().stream()
                 .collect(Collectors.toList());

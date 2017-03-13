@@ -1,6 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 
 /**
  * Interface to be implemented by visitor of decision tree. Execution pay 3 different types of visit to tree. Using
@@ -12,18 +13,24 @@ public interface TreeVisitorInterface {
     /**
      * Visit tree
      */
-    void visitTree(Tree tree, Agent agent);
+    void visitTree();
 
-    void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node, Agent agent);
+    void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node);
 
-    void visit(IntentionNodeAtTopLevel.WithPlan<?, ?> node, Agent agent);
+    void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node);
 
-    void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node, Agent agent);
+    void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node);
 
-    void visit(IntentionNodeNotTopLevel.WithPlan<?> node, Agent agent);
+    void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node);
 
-    void visit(IntentionNodeAtTopLevel.WithDesireForOthers node, Agent agent);
+    void visit(IntentionNodeAtTopLevel.WithDesireForOthers node);
 
-    void visit(IntentionNodeNotTopLevel.WithDesireForOthers<?> node, Agent agent);
+    void visit(IntentionNodeNotTopLevel.WithDesireForOthers<?> node);
+
+    void visit(IntentionNodeAtTopLevel.WithCommand.OwnReasoning node);
+
+    void visit(IntentionNodeAtTopLevel.WithCommand.OwnActing node);
+
+    void visit(IntentionNodeAtTopLevel.WithCommand.FromAnotherAgent node);
 
 }

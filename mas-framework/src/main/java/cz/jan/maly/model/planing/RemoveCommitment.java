@@ -13,8 +13,9 @@ public interface RemoveCommitment {
      * Returns if agent should remove commitment to intention
      *
      * @param dataForDecision
+     * @param intention
      * @return
      */
-    boolean shouldRemoveCommitment(DataForDecision dataForDecision);
+    boolean shouldRemoveCommitment(DataForDecision dataForDecision, Intention<?> intention);
 
 }

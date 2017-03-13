@@ -56,7 +56,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
      * @return
      */
     public boolean shouldCommit(DataForDecision dataForDecision) {
-        return commitment.shouldCommit(dataForDecision);
+        return commitment.shouldCommit(dataForDecision, this);
     }
 
     /**

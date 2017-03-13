@@ -15,7 +15,7 @@ public class IntentionWithDesireForOtherAgents extends Intention<DesireForOthers
     @Getter
     private final SharedDesireForAgents sharedDesire;
 
-    public IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, IntentionParameters intentionParameters, Agent agent, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, int limitOnNumberOfAgentsToCommit, DesireKey sharedDesireKey) {
+    IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, IntentionParameters intentionParameters, Agent agent, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, int limitOnNumberOfAgentsToCommit, DesireKey sharedDesireKey) {
         super(originalDesire, intentionParameters, agent.getBeliefs(), removeCommitment, decisionParameters);
         this.sharedDesire = new SharedDesireForAgents(sharedDesireKey, agent, limitOnNumberOfAgentsToCommit);
     }

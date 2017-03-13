@@ -60,5 +60,4 @@ public class AbstractIntention<T extends InternalDesire<?>> extends Intention<T>
     public Set<DesireKey> returnPlanAsSetOfDesiresWithIntentionToReason() {
         return desiresWithIntentionToReason;
     }
-
 }

@@ -6,6 +6,8 @@ import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,7 +16,7 @@ import java.util.stream.Collectors;
  * Template for intention in top level
  * Created by Jan on 28-Feb-17.
  */
-public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDesire>, T extends InternalDesire<V>> extends Node.TopLevel implements IntentionNodeInterface, VisitorAcceptor {
+public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends InternalDesire<?>>, T extends InternalDesire<V>> extends Node.TopLevel implements IntentionNodeInterface, VisitorAcceptor {
     final V intention;
 
     private IntentionNodeAtTopLevel(Tree tree, T desire) {
@@ -41,8 +43,8 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
     /**
      * Class to extend template - to define intention node without child
      */
-    public abstract static class WithPlan<V extends IntentionCommand<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand {
-        private WithPlan(Tree tree, T desire) {
+    public abstract static class WithCommand<V extends IntentionCommand<? extends InternalDesire<? extends IntentionCommand<?, ?>>, ?>, K extends Command<? extends IntentionCommand<T, K>, ?>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand<K> {
+        private WithCommand(Tree tree, T desire) {
             super(tree, desire);
         }
 
@@ -56,20 +58,10 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             //skip
         }
 
-        @Override
-        public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this, getAgent());
-        }
-
-        @Override
-        public Command getCommand() {
-            return intention.getCommand();
-        }
-
         /**
          * Concrete implementation, intention's desire from another agent forms node
          */
-        static class FromAnotherAgent extends WithPlan<IntentionCommand<DesireFromAnotherAgent.WithIntentionWithPlan>, DesireFromAnotherAgent.WithIntentionWithPlan> {
+        public static class FromAnotherAgent extends WithCommand<IntentionCommand.FromAnotherAgent, ActCommand.DesiredByAnotherAgent, DesireFromAnotherAgent.WithIntentionWithPlan> {
             private final DesireFromAnotherAgent.WithIntentionWithPlan desire;
 
             FromAnotherAgent(Tree tree, DesireFromAnotherAgent.WithIntentionWithPlan desire) {
@@ -79,21 +71,80 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
             @Override
             DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
-                return new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(parent, desire);
+                return new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(parent, agent.formDesireFromOtherAgentWithIntentionWithPlan(desire.getDesireForAgents()).get());
+            }
+
+            @Override
+            public ActCommand.DesiredByAnotherAgent getCommand() {
+                return intention.getCommand();
+            }
+
+            @Override
+            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+                //skip
+            }
+
+            @Override
+            public void accept(TreeVisitorInterface treeVisitor) {
+                treeVisitor.visit(this);
             }
         }
 
         /**
-         * Concrete implementation, intention's desire is formed anew
+         * Concrete implementation, intention's desire is formed anew for intention with reasoning command
          */
-        static class Own extends WithPlan<IntentionCommand<OwnDesire.WithIntentionWithPlan>, OwnDesire.WithIntentionWithPlan> {
-            Own(Tree tree, OwnDesire.WithIntentionWithPlan desire) {
+        public static class OwnReasoning extends WithCommand<IntentionCommand.OwnReasoning, ReasoningCommand, OwnDesire.Reasoning> {
+            OwnReasoning(Tree tree, OwnDesire.Reasoning desire) {
                 super(tree, desire);
             }
 
             @Override
             DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
-                return new DesireNodeAtTopLevel.Own.WithIntentionWithPlan(parent, agent.formOwnDesireWithIntentionWithPlan(intention.getDesireKey()));
+                return new DesireNodeAtTopLevel.Own.WithReasoningCommand(parent, agent.formOwnDesireWithReasoningCommand(intention.getDesireKey()));
+            }
+
+            @Override
+            public ReasoningCommand getCommand() {
+                return intention.getCommand();
+            }
+
+            @Override
+            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+                //skip
+            }
+
+            @Override
+            public void accept(TreeVisitorInterface treeVisitor) {
+                treeVisitor.visit(this);
+            }
+        }
+
+        /**
+         * Concrete implementation, intention's desire is formed anew for intention with acting command
+         */
+        public static class OwnActing extends WithCommand<IntentionCommand.OwnActing, ActCommand.Own, OwnDesire.Acting> {
+            OwnActing(Tree tree, OwnDesire.Acting desire) {
+                super(tree, desire);
+            }
+
+            @Override
+            DesireNodeAtTopLevel<?> formDesireNode(Agent agent) {
+                return new DesireNodeAtTopLevel.Own.WithActingCommand(parent, agent.formOwnDesireWithActingCommand(intention.getDesireKey()));
+            }
+
+            @Override
+            public ActCommand.Own getCommand() {
+                return intention.getCommand();
+            }
+
+            @Override
+            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+                //skip
+            }
+
+            @Override
+            public void accept(TreeVisitorInterface treeVisitor) {
+                treeVisitor.visit(this);
             }
         }
     }
@@ -123,22 +174,41 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
         @Override
         public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this, getAgent());
+            treeVisitor.visit(this);
+        }
+
+        @Override
+        public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+            sharedDesiresInSubtree.add(intention.getSharedDesire());
         }
     }
 
     /**
      * Class to extend template - to define intention node with childes
      */
-    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes, Parent<DesireNodeNotTopLevel<?, ?>, IntentionNodeNotTopLevel<?, ?, ?>> {
+    public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire<?>>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes, Parent<DesireNodeNotTopLevel<?, ?>, IntentionNodeNotTopLevel<?, ?, ?>> {
         private final Map<Intention<?>, IntentionNodeNotTopLevel<?, ?, ?>> intentions = new HashMap<>();
         private final Map<InternalDesire<?>, DesireNodeNotTopLevel<?, ?>> desires = new HashMap<>();
 
         private WithAbstractPlan(Tree tree, T desire) {
             super(tree, desire);
-            intention.returnPlanAsSetOfDesiresForOthers().forEach(desireForOthers -> desires.put(desireForOthers, new DesireNodeNotTopLevel.ForOthers.TopLevelParent(this, desireForOthers)));
-            intention.returnPlanAsSetOfDesiresWithIntentionWithPlan().forEach(withIntentionWithPlan -> desires.put(withIntentionWithPlan, new DesireNodeNotTopLevel.WithPlan.AtTopLevelParent(this, withIntentionWithPlan)));
-            intention.returnPlanAsSetOfDesiresWithAbstractIntention().forEach(withAbstractIntention -> desires.put(withAbstractIntention, new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(this, withAbstractIntention)));
+            intention.returnPlanAsSetOfDesiresForOthers().stream()
+                    .map(key -> getAgent().formDesireForOthers(key, intention.getDesireKey()))
+                    .forEach(desireForOthers -> desires.put(desireForOthers, new DesireNodeNotTopLevel.ForOthers.TopLevelParent(this, desireForOthers)));
+            intention.returnPlanAsSetOfDesiresWithIntentionToAct().stream()
+                    .map(key -> getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey()))
+                    .forEach(acting -> desires.put(acting, new DesireNodeNotTopLevel.WithCommand.ActingAtTopLevelParent(this, acting)));
+            intention.returnPlanAsSetOfDesiresWithIntentionToReason().stream()
+                    .map(key -> getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey()))
+                    .forEach(reasoning -> desires.put(reasoning, new DesireNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent(this, reasoning)));
+            intention.returnPlanAsSetOfDesiresWithAbstractIntention().stream()
+                    .map(key -> getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey()))
+                    .forEach(withAbstractIntention -> desires.put(withAbstractIntention, new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(this, withAbstractIntention)));
+        }
+
+        @Override
+        public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+            intentions.values().forEach(node -> node.collectSharedDesiresForOtherAgentsInSubtree(sharedDesiresInSubtree));
         }
 
         @Override
@@ -181,7 +251,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
         @Override
         public void accept(TreeVisitorInterface treeVisitor) {
-            treeVisitor.visit(this, getAgent());
+            treeVisitor.visit(this);
         }
 
         @Override
@@ -202,6 +272,16 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             } else {
                 throw new RuntimeException("Could not replace intention by desire, intention node is missing.");
             }
+        }
+
+        @Override
+        public void addSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
+            parent.addSharedDesireForOtherAgents(sharedDesire);
+        }
+
+        @Override
+        public void removeSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
+            parent.removeSharedDesireForOtherAgents(sharedDesire);
         }
 
         /**

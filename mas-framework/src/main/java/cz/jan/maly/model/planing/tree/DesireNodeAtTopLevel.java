@@ -73,7 +73,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         @Override
         public void receiveResponse(Boolean response) {
 
-            //update desire if registered is nonempty and notify waiting method to decide commitment
+            //notify waiting method to decide commitment
             synchronized (lockMonitor) {
                 this.registered = response;
                 lockMonitor.notify();
@@ -156,7 +156,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
             @Override
             IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithPlan.FromAnotherAgent(parent, desire);
+                return new IntentionNodeAtTopLevel.WithCommand.FromAnotherAgent(parent, desire);
             }
         }
 
@@ -199,16 +199,30 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         }
 
         /**
-         * Concrete implementation, desire forms intention with concrete plan (command)
+         * Concrete implementation, desire forms intention with acting command
          */
-        static class WithIntentionWithPlan extends Own<OwnDesire.WithIntentionWithPlan> {
-            WithIntentionWithPlan(Tree tree, OwnDesire.WithIntentionWithPlan desire) {
+        static class WithActingCommand extends Own<OwnDesire.Acting> {
+            WithActingCommand(Tree tree, OwnDesire.Acting desire) {
                 super(tree, desire);
             }
 
             @Override
             IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithPlan.Own(parent, desire);
+                return new IntentionNodeAtTopLevel.WithCommand.OwnActing(parent, desire);
+            }
+        }
+
+        /**
+         * Concrete implementation, desire forms intention with reasoning command
+         */
+        static class WithReasoningCommand extends Own<OwnDesire.Reasoning> {
+            WithReasoningCommand(Tree tree, OwnDesire.Reasoning desire) {
+                super(tree, desire);
+            }
+
+            @Override
+            IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
+                return new IntentionNodeAtTopLevel.WithCommand.OwnReasoning(parent, desire);
             }
         }
 

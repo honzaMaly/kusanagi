@@ -10,7 +10,7 @@ import java.util.Set;
  * Template class for Command defines common data structure for some executable object by agent
  * Created by Jan on 15-Feb-17.
  */
-public abstract class Command<T extends IntentionCommand<?, ? extends Command<T, K>, K>, K extends Memory<?>> {
+public abstract class Command<T extends IntentionCommand<?, ? extends Command<T, K>>, K extends Memory<?>> {
     private final T intention;
 
     protected Command(T intention) {
