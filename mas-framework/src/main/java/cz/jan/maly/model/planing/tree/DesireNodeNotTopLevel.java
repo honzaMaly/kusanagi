@@ -46,8 +46,31 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
      * Implementation of top node with desire for other agents
      */
     static abstract class ForOthers<K extends Node & IntentionNodeWithChildes & Parent> extends DesireNodeNotTopLevel<DesireForOthers, K> {
+        private final SharingDesireRoutine sharingDesireRoutine = new SharingDesireRoutine();
+
         private ForOthers(K parent, DesireForOthers desire) {
             super(parent, desire);
+        }
+
+        protected abstract IntentionNodeNotTopLevel.WithDesireForOthers<?> instantiate();
+
+        @Override
+        IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
+            return instantiate();
+        }
+
+        @Override
+        public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
+            if (desire.shouldCommit(dataForDecision)) {
+                IntentionNodeNotTopLevel.WithDesireForOthers<?> node = instantiate();
+                SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
+                if (sharingDesireRoutine.sharedDesire(sharedDesire)) {
+                    tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                    parent.replaceDesireByIntention(this, node);
+                    return Optional.of(node);
+                }
+            }
+            return Optional.empty();
         }
 
         /**
@@ -59,7 +82,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
+            protected IntentionNodeNotTopLevel.WithDesireForOthers<?> instantiate() {
                 return new IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent(parent, desire);
             }
         }
@@ -73,7 +96,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
+            protected IntentionNodeNotTopLevel.WithDesireForOthers<?> instantiate() {
                 return new IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent(parent, desire);
             }
         }

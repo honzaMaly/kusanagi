@@ -63,7 +63,7 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
      * @param desireForOthers
      * @return
      */
-    public boolean removedDesire(SharedDesireInRegister desireForOthers) {
+    public boolean removedDesire(SharedDesire desireForOthers) {
         if (dataByOriginator.containsKey(desireForOthers.getOriginatedFromAgent())) {
             Map<SharedDesire, SharedDesireInRegister> desiresByAgent = dataByOriginator.get(desireForOthers.getOriginatedFromAgent());
             desiresByAgent.remove(desireForOthers);

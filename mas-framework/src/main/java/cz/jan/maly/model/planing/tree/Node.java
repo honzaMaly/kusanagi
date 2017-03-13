@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.DecisionAboutCommitment;
@@ -14,16 +13,14 @@ public abstract class Node<K extends Parent> implements DesireKeyIdentificationI
     final DesireParameters desireParameters;
     final int level;
     final K parent;
+    final Tree tree;
 
     //to only extend classes defined in this scope
-    private Node(DesireParameters desireParameters, int level, K parent) {
+    private Node(DesireParameters desireParameters, int level, K parent, Tree tree) {
         this.desireParameters = desireParameters;
         this.level = level;
         this.parent = parent;
-    }
-
-    public Agent getAgent() {
-        return parent.getAgent();
+        this.tree = tree;
     }
 
     @Override
@@ -53,9 +50,8 @@ public abstract class Node<K extends Parent> implements DesireKeyIdentificationI
      * Template for nodes in top level
      */
     static abstract class TopLevel extends Node<Tree> {
-
         TopLevel(Tree parent, DesireParameters desireParameters) {
-            super(desireParameters, 0, parent);
+            super(desireParameters, 0, parent, parent);
         }
     }
 
@@ -63,8 +59,9 @@ public abstract class Node<K extends Parent> implements DesireKeyIdentificationI
      * Template for nodes not in top level
      */
     static abstract class NotTopLevel<K extends Node & IntentionNodeWithChildes & Parent> extends Node<K> {
+
         NotTopLevel(K parent, DesireParameters desireParameters) {
-            super(desireParameters, parent.level + 1, parent);
+            super(desireParameters, parent.level + 1, parent, parent.tree);
         }
     }
 

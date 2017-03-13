@@ -1,5 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
+import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DecisionParameters;
@@ -8,6 +9,7 @@ import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,19 +23,10 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
     private IntentionNodeAtTopLevel(Tree tree, T desire) {
         super(tree, desire.getDesireParameters());
-        this.intention = desire.formIntention(getAgent());
+        this.intention = desire.formIntention(tree.getAgent());
     }
 
     abstract DesireNodeAtTopLevel<?> formDesireNode(Agent agent);
-
-    @Override
-    public boolean removeCommitment(DataForDecision dataForDecision, Agent agent) {
-        if (intention.shouldRemoveCommitment(dataForDecision)) {
-            parent.replaceIntentionByDesire(this, formDesireNode(agent));
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public DecisionParameters getParametersToLoad() {
@@ -58,15 +51,54 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             //skip
         }
 
+        @Override
+        public boolean removeCommitment(DataForDecision dataForDecision) {
+            if (intention.shouldRemoveCommitment(dataForDecision)) {
+                parent.replaceIntentionByDesire(this, formDesireNode(tree.getAgent()));
+                return true;
+            }
+            return false;
+        }
+
         /**
          * Concrete implementation, intention's desire from another agent forms node
          */
-        public static class FromAnotherAgent extends WithCommand<IntentionCommand.FromAnotherAgent, ActCommand.DesiredByAnotherAgent, DesireFromAnotherAgent.WithIntentionWithPlan> {
+        public static class FromAnotherAgent extends WithCommand<IntentionCommand.FromAnotherAgent, ActCommand.DesiredByAnotherAgent, DesireFromAnotherAgent.WithIntentionWithPlan> implements ResponseReceiverInterface<Boolean> {
             private final DesireFromAnotherAgent.WithIntentionWithPlan desire;
+            private final Object lockMonitor = new Object();
+            private Boolean registered = false;
 
             FromAnotherAgent(Tree tree, DesireFromAnotherAgent.WithIntentionWithPlan desire) {
                 super(tree, desire);
                 this.desire = desire;
+            }
+
+            @Override
+            public boolean removeCommitment(DataForDecision dataForDecision) {
+                if (intention.shouldRemoveCommitment(dataForDecision)) {
+
+                    //share desire and wait for response of registration
+                    SharedDesireForAgents sharedDesire = intention.getSharedDesireForAgents();
+                    if (Agent.DESIRE_MEDIATOR.removeCommitmentToDesire(tree.getAgent(), sharedDesire, this)) {
+                        synchronized (lockMonitor) {
+                            try {
+                                lockMonitor.wait();
+                            } catch (InterruptedException e) {
+                                MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                            }
+                        }
+
+                        //is desire register, if so, make intention out of it
+                        if (registered) {
+                            tree.removeSharedDesireFromAnotherAgents(sharedDesire);
+                            parent.replaceIntentionByDesire(this, formDesireNode(tree.getAgent()));
+                            return true;
+                        } else {
+                            MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                        }
+                    }
+                }
+                return false;
             }
 
             @Override
@@ -80,13 +112,23 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireForAgents> sharedDesiresInSubtree) {
                 //skip
             }
 
             @Override
             public void accept(TreeVisitorInterface treeVisitor) {
                 treeVisitor.visit(this);
+            }
+
+            @Override
+            public void receiveResponse(Boolean response) {
+
+                //notify waiting method to decide commitment
+                synchronized (lockMonitor) {
+                    this.registered = response;
+                    lockMonitor.notify();
+                }
             }
         }
 
@@ -109,7 +151,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireForAgents> sharedDesiresInSubtree) {
                 //skip
             }
 
@@ -138,7 +180,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+            public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireForAgents> sharedDesiresInSubtree) {
                 //skip
             }
 
@@ -153,8 +195,23 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
      * Concrete implementation, intention's desire for other agents is formed anew
      */
     public static class WithDesireForOthers extends IntentionNodeAtTopLevel<IntentionWithDesireForOtherAgents, DesireForOthers> {
+        private final SharingDesireRemovalRoutine sharingDesireRemovalRoutine = new SharingDesireRemovalRoutine();
+
         WithDesireForOthers(Tree tree, DesireForOthers desire) {
             super(tree, desire);
+        }
+
+        @Override
+        public boolean removeCommitment(DataForDecision dataForDecision) {
+            if (intention.shouldRemoveCommitment(dataForDecision)) {
+
+                //share desire and wait for response of registration
+                if (sharingDesireRemovalRoutine.unregisterSharedDesire(intention.getSharedDesire(), tree)) {
+                    parent.replaceIntentionByDesire(this, formDesireNode(tree.getAgent()));
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -178,7 +235,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+        public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireForAgents> sharedDesiresInSubtree) {
             sharedDesiresInSubtree.add(intention.getSharedDesire());
         }
     }
@@ -189,25 +246,45 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
     public abstract static class WithAbstractPlan<V extends AbstractIntention<? extends InternalDesire<?>>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements IntentionNodeWithChildes, Parent<DesireNodeNotTopLevel<?, ?>, IntentionNodeNotTopLevel<?, ?, ?>> {
         private final Map<Intention<?>, IntentionNodeNotTopLevel<?, ?, ?>> intentions = new HashMap<>();
         private final Map<InternalDesire<?>, DesireNodeNotTopLevel<?, ?>> desires = new HashMap<>();
+        private final SharingDesireRemovalInSubtreeRoutine sharingDesireRemovalInSubtreeRoutine = new SharingDesireRemovalInSubtreeRoutine();
 
         private WithAbstractPlan(Tree tree, T desire) {
             super(tree, desire);
             intention.returnPlanAsSetOfDesiresForOthers().stream()
-                    .map(key -> getAgent().formDesireForOthers(key, intention.getDesireKey()))
+                    .map(key -> tree.getAgent().formDesireForOthers(key, intention.getDesireKey()))
                     .forEach(desireForOthers -> desires.put(desireForOthers, new DesireNodeNotTopLevel.ForOthers.TopLevelParent(this, desireForOthers)));
             intention.returnPlanAsSetOfDesiresWithIntentionToAct().stream()
-                    .map(key -> getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey()))
+                    .map(key -> tree.getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey()))
                     .forEach(acting -> desires.put(acting, new DesireNodeNotTopLevel.WithCommand.ActingAtTopLevelParent(this, acting)));
             intention.returnPlanAsSetOfDesiresWithIntentionToReason().stream()
-                    .map(key -> getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey()))
+                    .map(key -> tree.getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey()))
                     .forEach(reasoning -> desires.put(reasoning, new DesireNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent(this, reasoning)));
             intention.returnPlanAsSetOfDesiresWithAbstractIntention().stream()
-                    .map(key -> getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey()))
+                    .map(key -> tree.getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey()))
                     .forEach(withAbstractIntention -> desires.put(withAbstractIntention, new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(this, withAbstractIntention)));
         }
 
         @Override
-        public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesire> sharedDesiresInSubtree) {
+        public boolean removeCommitment(DataForDecision dataForDecision) {
+            if (intention.shouldRemoveCommitment(dataForDecision)) {
+
+                //share desire and wait for response of registration
+                Set<SharedDesireForAgents> sharedDesires = new HashSet<>();
+                collectSharedDesiresForOtherAgentsInSubtree(sharedDesires);
+                if (!sharedDesires.isEmpty()){
+                    if (sharingDesireRemovalInSubtreeRoutine.unregisterSharedDesire(sharedDesires, tree)) {
+                        parent.replaceIntentionByDesire(this, formDesireNode(tree.getAgent()));
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireForAgents> sharedDesiresInSubtree) {
             intentions.values().forEach(node -> node.collectSharedDesiresForOtherAgentsInSubtree(sharedDesiresInSubtree));
         }
 
@@ -272,16 +349,6 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             } else {
                 throw new RuntimeException("Could not replace intention by desire, intention node is missing.");
             }
-        }
-
-        @Override
-        public void addSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
-            parent.addSharedDesireForOtherAgents(sharedDesire);
-        }
-
-        @Override
-        public void removeSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
-            parent.removeSharedDesireForOtherAgents(sharedDesire);
         }
 
         /**

@@ -59,8 +59,7 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
                                     .map(Node::getDesireKey)
                                     .collect(Collectors.toList()),
                             parent.getDesireKeyAssociatedWithParent()
-                    ),
-                    agent
+                    )
             );
             it.remove();
         }

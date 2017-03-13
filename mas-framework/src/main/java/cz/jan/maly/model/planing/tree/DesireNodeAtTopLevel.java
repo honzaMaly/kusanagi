@@ -35,9 +35,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     /**
      * Implementation of top node with desire for other agents
      */
-    static class ForOthers extends DesireNodeAtTopLevel<DesireForOthers> implements ResponseReceiverInterface<Boolean> {
-        private final Object lockMonitor = new Object();
-        private Boolean registered = false;
+    static class ForOthers extends DesireNodeAtTopLevel<DesireForOthers> {
+        private final SharingDesireRoutine sharingDesireRoutine = new SharingDesireRoutine();
 
         ForOthers(Tree tree, DesireForOthers desire) {
             super(tree, desire);
@@ -47,37 +46,14 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
             if (desire.shouldCommit(dataForDecision)) {
                 IntentionNodeAtTopLevel.WithDesireForOthers node = new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
-
-                //share desire and wait for response of registration
                 SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                if (Agent.DESIRE_MEDIATOR.registerDesire(sharedDesire, this)) {
-                    synchronized (lockMonitor) {
-                        try {
-                            lockMonitor.wait();
-                        } catch (InterruptedException e) {
-                            MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
-                        }
-                    }
-
-                    //is desire register, if so, make intention out of it
-                    if (registered) {
-                        parent.addSharedDesireForOtherAgents(sharedDesire);
-                        parent.replaceDesireByIntention(this, node);
-                        return Optional.of(node);
-                    }
+                if (sharingDesireRoutine.sharedDesire(sharedDesire)) {
+                    tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                    parent.replaceDesireByIntention(this, node);
+                    return Optional.of(node);
                 }
             }
             return Optional.empty();
-        }
-
-        @Override
-        public void receiveResponse(Boolean response) {
-
-            //notify waiting method to decide commitment
-            synchronized (lockMonitor) {
-                this.registered = response;
-                lockMonitor.notify();
-            }
         }
     }
 
@@ -99,7 +75,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
             if (desire.shouldCommit(dataForDecision)) {
 
-                if (Agent.DESIRE_MEDIATOR.addCommitmentToDesire(getAgent(), desire.getDesireForAgents(), this)) {
+                if (Agent.DESIRE_MEDIATOR.addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
 
                     //wait for registered
                     synchronized (lockMonitor) {
@@ -111,10 +87,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
                     }
 
                     //if agent is committed according to system...
-                    if (desire.getDesireForAgents().isAgentCommittedToDesire(getAgent())) {
+                    if (desire.getDesireForAgents().isAgentCommittedToDesire(parent.getAgent())) {
                         IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
                         parent.replaceDesireByIntention(this, node);
-                        parent.addCommittedSharedDesireByOtherAgents(desire.getDesireForAgents());
+                        tree.addSharedDesireFromAnotherAgents(desire.getDesireForAgents());
                         return Optional.of(node);
                     }
                 }

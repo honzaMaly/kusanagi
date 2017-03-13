@@ -5,7 +5,10 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.PlanningTreeOfAnotherAgent;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
-import cz.jan.maly.model.planing.*;
+import cz.jan.maly.model.planing.Desire;
+import cz.jan.maly.model.planing.Intention;
+import cz.jan.maly.model.planing.InternalDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
 
 import java.util.*;
 import java.util.function.Function;
@@ -24,7 +27,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
 
     //todo each turn reinit not committed own desires with current data. Do that on all levels
 
-    private final Set<SharedDesireInRegister> sharedDesiresForOtherAgents = new HashSet<>();
+    private final Set<SharedDesireForAgents> sharedDesiresForOtherAgents = new HashSet<>();
     private final Set<SharedDesireForAgents> committedSharedDesiresByOtherAgents = new HashSet<>();
 
     private final Agent agent;
@@ -33,18 +36,49 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
         this.agent = agent;
     }
 
-    @Override
-    public void addSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
+    /**
+     * Register desire to share with other agents
+     *
+     * @param sharedDesire
+     */
+    void addSharedDesireForOtherAgents(SharedDesireForAgents sharedDesire) {
         sharedDesiresForOtherAgents.add(sharedDesire);
     }
 
-    @Override
-    public void removeSharedDesireForOtherAgents(SharedDesireInRegister sharedDesire) {
+    /**
+     * Unregister desire to share with other agents
+     *
+     * @param sharedDesire
+     */
+    void removeSharedDesireForOtherAgents(SharedDesireForAgents sharedDesire) {
         sharedDesiresForOtherAgents.remove(sharedDesire);
     }
 
-    void addCommittedSharedDesireByOtherAgents(SharedDesireForAgents sharedDesire) {
+    /**
+     * Register desire from another agents
+     *
+     * @param sharedDesire
+     */
+    void addSharedDesireFromAnotherAgents(SharedDesireForAgents sharedDesire) {
         committedSharedDesiresByOtherAgents.add(sharedDesire);
+    }
+
+    /**
+     * Unregister desire from another agents
+     *
+     * @param sharedDesire
+     */
+    void removeSharedDesireFromAnotherAgents(SharedDesireForAgents sharedDesire) {
+        committedSharedDesiresByOtherAgents.remove(sharedDesire);
+    }
+
+    /**
+     * Unregister desires to share with other agents
+     *
+     * @param sharedDesires
+     */
+    void removeSharedDesiresForOtherAgents(Set<SharedDesireForAgents> sharedDesires) {
+        sharedDesires.forEach(sharedDesiresForOtherAgents::remove);
     }
 
     /**
@@ -119,7 +153,11 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
         return Optional.empty();
     }
 
-    @Override
+    /**
+     * Return agent of the tree
+     *
+     * @return
+     */
     public Agent getAgent() {
         return agent;
     }

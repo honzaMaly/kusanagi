@@ -3,6 +3,7 @@ package cz.jan.maly.service.implementation;
 import cz.jan.maly.model.QueuedItemInterfaceWithResponse;
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.planing.SharedDesire;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.model.planing.SharedDesireInRegister;
 import cz.jan.maly.model.servicies.desires.ReadOnlyDesireRegister;
@@ -11,6 +12,7 @@ import cz.jan.maly.service.MediatorTemplate;
 import cz.jan.maly.utils.FrameworkUtils;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * DesireMediator instance enables agents to propose desires for other agents to commit to. It keeps status what is available
@@ -78,12 +80,36 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @param responseReceiver
      * @return
      */
-    public boolean unregisterDesire(SharedDesireInRegister sharedDesire, ResponseReceiverInterface<Boolean> responseReceiver) {
+    public boolean unregisterDesire(SharedDesire sharedDesire, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
             return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.removedDesire(sharedDesire);
+                }
+
+                @Override
+                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                    return responseReceiver;
+                }
+            });
+        }
+    }
+
+    /**
+     * Method to add item to queue with code to unregister desires
+     *
+     * @param sharedDesires
+     * @param responseReceiver
+     * @return
+     */
+    public boolean unregisterDesires(Set<SharedDesire> sharedDesires, ResponseReceiverInterface<Boolean> responseReceiver) {
+        synchronized (queuedItems) {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
+                @Override
+                public Boolean executeCode() {
+                    sharedDesires.forEach(workingRegister::removedDesire);
+                    return true;
                 }
 
                 @Override
