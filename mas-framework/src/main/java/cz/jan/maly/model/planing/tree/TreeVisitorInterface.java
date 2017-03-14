@@ -1,7 +1,7 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.planing.command.ActCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 
 /**
  * Interface to be implemented by visitor of decision tree. Execution pay 3 different types of visit to tree. Using
@@ -19,9 +19,9 @@ public interface TreeVisitorInterface {
 
     void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node);
 
-    void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node);
+    void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommandForIntention.Own> node);
 
-    void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node);
+    void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommandForIntention> node);
 
     void visit(IntentionNodeAtTopLevel.WithDesireForOthers node);
 

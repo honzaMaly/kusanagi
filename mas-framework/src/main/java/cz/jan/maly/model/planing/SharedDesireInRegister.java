@@ -4,8 +4,6 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireParameters;
 
 import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Concrete implementation of SharedDesire to be used in register
@@ -29,15 +27,6 @@ public class SharedDesireInRegister extends SharedDesire {
 
         }
         return committedAgents.contains(agent);
-    }
-
-    /**
-     * Returns copy of set of committed agents
-     *
-     * @return
-     */
-    public Set<Agent> getCommittedAgents() {
-        return committedAgents.stream().collect(Collectors.toSet());
     }
 
     /**

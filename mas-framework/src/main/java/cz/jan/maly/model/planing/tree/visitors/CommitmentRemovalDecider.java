@@ -2,8 +2,8 @@ package cz.jan.maly.model.planing.tree.visitors;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.planing.command.ActCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import cz.jan.maly.model.planing.tree.*;
 
 import java.util.Iterator;
@@ -79,12 +79,12 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
     }
 
     @Override
-    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node) {
+    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommandForIntention.Own> node) {
         //do nothing, already decided
     }
 
     @Override
-    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node) {
+    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommandForIntention> node) {
         //do nothing, already decided
     }
 

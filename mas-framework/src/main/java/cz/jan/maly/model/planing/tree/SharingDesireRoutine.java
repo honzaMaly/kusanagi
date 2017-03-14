@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.planing.SharedDesireInRegister;
 import cz.jan.maly.utils.MyLogger;
 
@@ -13,8 +12,8 @@ class SharingDesireRoutine implements ResponseReceiverInterface<Boolean> {
     private final Object lockMonitor = new Object();
     private Boolean registered = false;
 
-    boolean sharedDesire(SharedDesireInRegister sharedDesire) {
-        if (Agent.DESIRE_MEDIATOR.registerDesire(sharedDesire, this)) {
+    boolean sharedDesire(SharedDesireInRegister sharedDesire, Tree tree) {
+        if (tree.getAgent().getDesireMediator().registerDesire(sharedDesire, this)) {
             synchronized (lockMonitor) {
                 try {
                     lockMonitor.wait();

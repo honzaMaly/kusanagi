@@ -6,8 +6,8 @@ import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
-import cz.jan.maly.model.planing.command.ActCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -112,7 +112,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
     /**
      * Class to extend template - to define intention node without child
      */
-    public abstract static class WithCommand<K extends Node & IntentionNodeWithChildes & Parent, V extends InternalDesire<? extends IntentionCommand<V, T>>, T extends Command<? extends IntentionCommand<V, T>, ?>> extends IntentionNodeNotTopLevel<IntentionCommand<V, T>, V, K> implements NodeWithCommand {
+    public abstract static class WithCommand<K extends Node & IntentionNodeWithChildes & Parent, V extends InternalDesire<? extends IntentionCommand<V, T>>, T extends CommandForIntention<? extends IntentionCommand<V, T>, ?>> extends IntentionNodeNotTopLevel<IntentionCommand<V, T>, V, K> implements NodeWithCommand {
         private WithCommand(K parent, V desire) {
             super(parent, desire);
         }
@@ -149,7 +149,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         /**
          * Concrete implementation, intention's desire is formed anew
          */
-        static class ReasoningAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan, OwnDesire.Reasoning, ReasoningCommand> {
+        static class ReasoningAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan, OwnDesire.Reasoning, ReasoningCommandForIntention> {
             ReasoningAtTopLevelParent(IntentionNodeAtTopLevel.WithAbstractPlan parent, OwnDesire.Reasoning desire) {
                 super(parent, desire);
             }
@@ -168,7 +168,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         /**
          * Concrete implementation, intention's desire is formed anew
          */
-        static class ActingAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan, OwnDesire.Acting, ActCommand.Own> {
+        static class ActingAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan, OwnDesire.Acting, ActCommandForIntention.Own> {
             ActingAtTopLevelParent(IntentionNodeAtTopLevel.WithAbstractPlan parent, OwnDesire.Acting desire) {
                 super(parent, desire);
             }
@@ -187,7 +187,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         /**
          * Concrete implementation, intention's desire is formed anew
          */
-        static class ReasoningNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan, OwnDesire.Reasoning, ReasoningCommand> {
+        static class ReasoningNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan, OwnDesire.Reasoning, ReasoningCommandForIntention> {
             ReasoningNotTopLevelParent(WithAbstractPlan parent, OwnDesire.Reasoning desire) {
                 super(parent, desire);
             }
@@ -206,7 +206,7 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         /**
          * Concrete implementation, intention's desire is formed anew
          */
-        static class ActingNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan, OwnDesire.Acting, ActCommand.Own> {
+        static class ActingNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan, OwnDesire.Acting, ActCommandForIntention.Own> {
             ActingNotTopLevelParent(WithAbstractPlan parent, OwnDesire.Acting desire) {
                 super(parent, desire);
             }

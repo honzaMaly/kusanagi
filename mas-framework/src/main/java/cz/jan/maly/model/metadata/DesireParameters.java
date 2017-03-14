@@ -3,14 +3,13 @@ package cz.jan.maly.model.metadata;
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.service.MASFacade;
 import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Class to define container with parameters (facts) for desire classes to be accessed by it. As this class is read only
@@ -31,12 +30,12 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
         desireKey.getParametersTypesForFacts()
                 .forEach(factKey -> {
                     Optional<?> value = memory.returnFactValueForGivenKey(factKey);
-                    value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
+                    value.ifPresent(o -> factParameterMap.put(factKey, MASFacade.CLONER.deepClone(o)));
                 });
         desireKey.getParametersTypesForFactSets()
                 .forEach(factKey -> {
                     Optional<Set<?>> value = memory.returnFactSetValueForGivenKey(factKey);
-                    value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
+                    value.ifPresent(set -> factSetParameterMap.put(factKey, MASFacade.CLONER.deepClone(set)));
                 });
     }
 

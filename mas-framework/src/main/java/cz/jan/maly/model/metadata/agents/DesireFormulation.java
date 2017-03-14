@@ -4,7 +4,7 @@ import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.Command;
+import cz.jan.maly.model.planing.CommandForIntention;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.RemoveCommitment;
 
@@ -163,7 +163,7 @@ abstract class DesireFormulation {
     /**
      * Defines common structure to add configuration for intention with command
      */
-    static abstract class WithCommand<V extends Command<?, ?>> extends DesireFormulation {
+    static abstract class WithCommand<V extends CommandForIntention<?, ?>> extends DesireFormulation {
         final Map<DesireKey, V> commandsByKey = new HashMap<>();
 
         /**

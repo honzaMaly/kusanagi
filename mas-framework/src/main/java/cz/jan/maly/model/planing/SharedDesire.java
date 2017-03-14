@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Template class for tracking commitment to desire which issues some agent to be achieved by other agents
@@ -29,10 +30,19 @@ public abstract class SharedDesire extends Desire {
     }
 
     SharedDesire(DesireParameters desireParameters, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit, Set<Agent> committedAgents) {
-        super(desireParameters);
+        super(desireParameters, originatedFromAgent.getId());
         this.originatedFromAgent = originatedFromAgent;
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;
         this.committedAgents.addAll(committedAgents);
+    }
+
+    /**
+     * Returns copy of set of committed agents
+     *
+     * @return
+     */
+    public Set<Agent> getCommittedAgents() {
+        return committedAgents.stream().collect(Collectors.toSet());
     }
 
     /**

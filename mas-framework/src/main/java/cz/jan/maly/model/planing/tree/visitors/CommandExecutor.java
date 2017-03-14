@@ -2,8 +2,8 @@ package cz.jan.maly.model.planing.tree.visitors;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.planing.command.ActCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import cz.jan.maly.model.planing.tree.*;
 import cz.jan.maly.utils.MyLogger;
 
@@ -49,11 +49,11 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
     }
 
     @Override
-    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node) {
+    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommandForIntention.Own> node) {
         sendActingCommandForExecution(node.getCommand());
     }
 
-    private void sendActingCommandForExecution(ActCommand<?> command) {
+    private void sendActingCommandForExecution(ActCommandForIntention<?> command) {
         if (agent.sendCommandToExecute(command, this)) {
             synchronized (lockMonitor) {
                 try {
@@ -66,7 +66,7 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
     }
 
     @Override
-    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node) {
+    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommandForIntention> node) {
         agent.executeCommand(node.getCommand());
     }
 
@@ -97,7 +97,8 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
 
     @Override
     public void receiveResponse(Boolean response) {
-        //notify waiting method to decide commitment
+
+        //notify waiting method
         synchronized (lockMonitor) {
             if (!response) {
                 MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute acting command");

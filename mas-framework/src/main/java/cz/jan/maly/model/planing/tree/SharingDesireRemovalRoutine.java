@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.utils.MyLogger;
 
@@ -16,7 +15,7 @@ class SharingDesireRemovalRoutine implements ResponseReceiverInterface<Boolean> 
     boolean unregisterSharedDesire(SharedDesireForAgents sharedDesire, Tree tree) {
 
         //share desire and wait for response of registration
-        if (Agent.DESIRE_MEDIATOR.unregisterDesire(sharedDesire, this)) {
+        if (tree.getAgent().getDesireMediator().unregisterDesire(sharedDesire, this)) {
             synchronized (lockMonitor) {
                 try {
                     lockMonitor.wait();

@@ -5,12 +5,11 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.service.MASFacade;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Container with data to be used to make commitment on (additional to data defined by intention/desire)
@@ -57,11 +56,11 @@ public class DataForDecision implements FactContainerInterface {
         //fill maps with actual parameters from beliefs
         parameters.getParametersTypesForFacts().forEach(factKey -> {
             Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
-            value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
+            value.ifPresent(o -> factParameterMap.put(factKey, MASFacade.CLONER.deepClone(o)));
         });
         parameters.getParametersTypesForFactSets().forEach(factKey -> {
             Optional<Set> value = agent.getBeliefs().returnFactSetValueForGivenKey(factKey);
-            value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
+            value.ifPresent(set -> factSetParameterMap.put(factKey, MASFacade.CLONER.deepClone(set)));
         });
     }
 

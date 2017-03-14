@@ -1,9 +1,8 @@
 package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.service.MASFacade;
 import lombok.Getter;
-
-import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Generic type of knowledge content
@@ -67,7 +66,7 @@ public class Fact<V> {
      * @return
      */
     public Fact<V> copyFact() {
-        return new Fact<>(CLONER.deepClone(content), type);
+        return new Fact<>(MASFacade.CLONER.deepClone(content), type);
     }
 
     @Override

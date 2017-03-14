@@ -7,7 +7,7 @@ import cz.jan.maly.model.metadata.IntentionParameters;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.OwnDesire;
 import cz.jan.maly.model.planing.RemoveCommitment;
-import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.Optional;
  * Concrete implementation of own desire with acting command formulation
  * Created by Jan on 12-Mar-17.
  */
-public class OwnDesireWithIntentionWithActingCommandFormulation extends DesireFormulation.WithCommand<ActCommand.Own> implements OwnInternalDesireFormulation<OwnDesire.Acting> {
+public class OwnDesireWithIntentionWithActingCommandFormulation extends DesireFormulation.WithCommand<ActCommandForIntention.Own> implements OwnInternalDesireFormulation<OwnDesire.Acting> {
     @Override
     public Optional<OwnDesire.Acting> formDesire(DesireKey key, Memory memory) {
         if (supportsDesireType(key)) {
@@ -64,7 +64,7 @@ public class OwnDesireWithIntentionWithActingCommandFormulation extends DesireFo
          */
         public void addDesireFormulationConfiguration(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
                                                       Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, ActCommand.Own command) {
+                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, ActCommandForIntention.Own command) {
             OwnDesireWithIntentionWithActingCommandFormulation formulation = stack.putIfAbsent(parent, new OwnDesireWithIntentionWithActingCommandFormulation());
             formulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
                     decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);

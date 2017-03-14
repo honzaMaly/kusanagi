@@ -22,12 +22,16 @@ public abstract class Desire implements FactContainerInterface, DesireKeyIdentif
     @Getter
     final DesireParameters desireParameters;
 
+    final int originatorId;
+
     Desire(DesireKey desireKey, Memory memory) {
         this.desireParameters = new DesireParameters(memory, desireKey);
+        this.originatorId = memory.getAgentId();
     }
 
-    Desire(DesireParameters desireParameters) {
+    Desire(DesireParameters desireParameters, int originatorId) {
         this.desireParameters = desireParameters;
+        this.originatorId = originatorId;
     }
 
     public DesireKey getDesireKey() {
@@ -49,11 +53,14 @@ public abstract class Desire implements FactContainerInterface, DesireKeyIdentif
 
         Desire desire = (Desire) o;
 
+        if (originatorId != desire.originatorId) return false;
         return desireParameters.equals(desire.desireParameters);
     }
 
     @Override
     public int hashCode() {
-        return desireParameters.hashCode();
+        int result = desireParameters.hashCode();
+        result = 31 * result + originatorId;
+        return result;
     }
 }

@@ -4,7 +4,7 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
 import lombok.Getter;
 
 import java.util.Set;
@@ -19,7 +19,7 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     private final SharedDesireForAgents desireForAgents;
 
     DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
-        super(desireOriginatedFrom.desireParameters, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, isAbstract);
+        super(desireOriginatedFrom.desireParameters, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, isAbstract, desireOriginatedFrom.originatorId);
         this.desireForAgents = desireOriginatedFrom;
     }
 
@@ -50,9 +50,9 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
      * Desire to initialize intention with plan
      */
     public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionCommand.FromAnotherAgent> {
-        private final ActCommand.DesiredByAnotherAgent command;
+        private final ActCommandForIntention.DesiredByAnotherAgent command;
 
-        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommand.DesiredByAnotherAgent command) {
+        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommandForIntention.DesiredByAnotherAgent command) {
             super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
             this.command = command;
         }

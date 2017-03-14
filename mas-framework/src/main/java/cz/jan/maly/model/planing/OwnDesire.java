@@ -5,8 +5,8 @@ import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.command.ActCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 
 import java.util.Set;
 
@@ -46,9 +46,9 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<T>>> ext
      * Desire to initialize intention with reasoning command
      */
     public static class Reasoning extends OwnDesire<IntentionCommand.OwnReasoning> {
-        private final ReasoningCommand command;
+        private final ReasoningCommandForIntention command;
 
-        public Reasoning(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ReasoningCommand command) {
+        public Reasoning(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ReasoningCommandForIntention command) {
             super(desireKey, memory, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
             this.command = command;
         }
@@ -63,9 +63,9 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<T>>> ext
      * Desire to initialize intention with acting command
      */
     public static class Acting extends OwnDesire<IntentionCommand.OwnActing> {
-        private final ActCommand.Own command;
+        private final ActCommandForIntention.Own command;
 
-        public Acting(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommand.Own command) {
+        public Acting(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommandForIntention.Own command) {
             super(desireKey, memory, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
             this.command = command;
         }

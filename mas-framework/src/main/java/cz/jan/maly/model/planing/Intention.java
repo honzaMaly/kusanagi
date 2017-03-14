@@ -8,13 +8,12 @@ import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
+import cz.jan.maly.service.MASFacade;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Class describing template for intention. Intention instance represents metadata and high level abstraction of
@@ -36,11 +35,11 @@ public abstract class Intention<T extends InternalDesire> implements FactContain
         //fill maps with actual parameters from beliefs
         intentionParameters.getParametersTypesForFacts().forEach(factKey -> {
             Optional<?> value = memory.returnFactValueForGivenKey(factKey);
-            value.ifPresent(o -> factParameterMap.put(factKey, CLONER.deepClone(o)));
+            value.ifPresent(o -> factParameterMap.put(factKey, MASFacade.CLONER.deepClone(o)));
         });
         intentionParameters.getParametersTypesForFactSets().forEach(factKey -> {
             Optional<Set<?>> value = memory.returnFactSetValueForGivenKey(factKey);
-            value.ifPresent(set -> factSetParameterMap.put(factKey, CLONER.deepClone(set)));
+            value.ifPresent(set -> factSetParameterMap.put(factKey, MASFacade.CLONER.deepClone(set)));
         });
     }
 

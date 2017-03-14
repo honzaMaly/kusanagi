@@ -18,10 +18,6 @@
             <artifactId>bwmirror</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.com.robust-it</groupId>
-            <artifactId>cloning</artifactId>
-        </dependency>
-        <dependency>
             <groupId>cz.jan.maly</groupId>
             <artifactId>mas-framework</artifactId>
             <version>1.0-SNAPSHOT</version>

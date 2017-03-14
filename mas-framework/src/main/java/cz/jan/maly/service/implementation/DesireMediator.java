@@ -8,8 +8,8 @@ import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.model.planing.SharedDesireInRegister;
 import cz.jan.maly.model.servicies.desires.ReadOnlyDesireRegister;
 import cz.jan.maly.model.servicies.desires.WorkingDesireRegister;
+import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.service.MediatorTemplate;
-import cz.jan.maly.utils.FrameworkUtils;
 
 import java.util.Optional;
 import java.util.Set;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, WorkingDesireRegister> {
 
     public DesireMediator() {
-        super(new WorkingDesireRegister(), FrameworkUtils::getLengthOfIntervalBeforeUpdatingRegisterWithDesires);
+        super(new WorkingDesireRegister(), MASFacade::getLengthOfIntervalBeforeUpdatingRegisterWithDesires);
     }
 
     /**
@@ -158,6 +158,31 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
                 @Override
                 public Boolean executeCode() {
                     return workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo);
+                }
+
+                @Override
+                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                    return responseReceiver;
+                }
+            });
+        }
+    }
+
+    /**
+     * Method to add item to queue with code to remove commitment to desire
+     *
+     * @param agentWhoWantsToRemoveCommitment
+     * @param desiresHeWantsToRemoveCommitmentTo
+     * @param responseReceiver
+     * @return
+     */
+    public boolean removeCommitmentToDesires(Agent agentWhoWantsToRemoveCommitment, Set<SharedDesireForAgents> desiresHeWantsToRemoveCommitmentTo, ResponseReceiverInterface<Boolean> responseReceiver) {
+        synchronized (queuedItems) {
+            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
+                @Override
+                public Boolean executeCode() {
+                    desiresHeWantsToRemoveCommitmentTo.forEach(desireHeWantsToRemoveCommitmentTo -> workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo));
+                    return true;
                 }
 
                 @Override

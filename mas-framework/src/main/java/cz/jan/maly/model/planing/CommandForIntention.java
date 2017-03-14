@@ -7,23 +7,15 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Template class for Command defines common data structure for some executable object by agent
+ * Template class for CommandForIntention defines common data structure for some executable object by agent
  * Created by Jan on 15-Feb-17.
  */
-public abstract class Command<T extends IntentionCommand<?, ? extends Command<T, K>>, K extends Memory<?>> {
+public abstract class CommandForIntention<T extends IntentionCommand<?, ? extends CommandForIntention<T, K>>, K extends Memory<?>> implements CommandInterface<K> {
     private final T intention;
 
-    protected Command(T intention) {
+    protected CommandForIntention(T intention) {
         this.intention = intention;
     }
-
-    /**
-     * Method to be called by Command Executor to execute command
-     *
-     * @param memory
-     * @return
-     */
-    public abstract boolean act(K memory);
 
     /**
      * Get content of fact for given key from intention

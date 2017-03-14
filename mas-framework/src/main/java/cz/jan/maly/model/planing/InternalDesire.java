@@ -34,8 +34,8 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
         this.isAbstract = isAbstract;
     }
 
-    InternalDesire(DesireParameters desireParameters, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
-        super(desireParameters);
+    InternalDesire(DesireParameters desireParameters, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract, int originatorId) {
+        super(desireParameters, originatorId);
         this.commitment = commitment;
         this.decisionDesire = decisionDesire;
         this.removeCommitment = removeCommitment;

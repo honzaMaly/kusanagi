@@ -118,7 +118,7 @@ public interface UnitActions {
     }
 
     /**
-     * Orders the unit to return u().its cargo to a nearby resource depot such as a Command Center. Only workers
+     * Orders the unit to return u().its cargo to a nearby resource depot such as a CommandForIntention Center. Only workers
      * that are carrying minerals or gas can be ordered to return u().cargo. Parameters shiftQueueCommand
      * (optional) If this value is true, then the order will be queued instead of immediately executed. If
      * this value is omitted, then the order will be executed immediately by default. Returns true if the

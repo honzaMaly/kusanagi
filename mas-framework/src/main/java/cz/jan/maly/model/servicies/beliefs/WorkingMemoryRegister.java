@@ -3,11 +3,10 @@ package cz.jan.maly.model.servicies.beliefs;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
 import cz.jan.maly.model.servicies.WorkingRegister;
+import cz.jan.maly.service.MASFacade;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static cz.jan.maly.utils.FrameworkUtils.howManyCyclesStayAgentsMemoryInRegisterWithoutUpdate;
 
 /**
  * Concrete implementation of MemoryRegister. This class is intended as working register -
@@ -35,7 +34,7 @@ public class WorkingMemoryRegister extends MemoryRegister implements WorkingRegi
      */
     private void forget() {
         decayMap.forEach((v, integer) -> decayMap.put(v, integer + 1));
-        decayMap.keySet().removeIf(v -> decayMap.get(v) >= howManyCyclesStayAgentsMemoryInRegisterWithoutUpdate);
+        decayMap.keySet().removeIf(v -> decayMap.get(v) >= MASFacade.howManyCyclesStayAgentsMemoryInRegisterWithoutUpdate);
     }
 
     /**

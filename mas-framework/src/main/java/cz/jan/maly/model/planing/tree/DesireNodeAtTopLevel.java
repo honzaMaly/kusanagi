@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
@@ -47,7 +46,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             if (desire.shouldCommit(dataForDecision)) {
                 IntentionNodeAtTopLevel.WithDesireForOthers node = new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
                 SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                if (sharingDesireRoutine.sharedDesire(sharedDesire)) {
+                if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
                     tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
                     parent.replaceDesireByIntention(this, node);
                     return Optional.of(node);
@@ -69,13 +68,13 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             super(tree, desire);
         }
 
-        abstract IntentionNodeAtTopLevel<?, ?> formIntentionNode();
+        abstract IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent();
 
         @Override
         public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
-            if (desire.shouldCommit(dataForDecision)) {
+            if (desire.getDesireForAgents().mayTryToCommit() && desire.shouldCommit(dataForDecision)) {
 
-                if (Agent.DESIRE_MEDIATOR.addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
+                if (tree.getAgent().getDesireMediator().addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
 
                     //wait for registered
                     synchronized (lockMonitor) {
@@ -88,10 +87,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
 
                     //if agent is committed according to system...
                     if (desire.getDesireForAgents().isAgentCommittedToDesire(parent.getAgent())) {
-                        IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
-                        parent.replaceDesireByIntention(this, node);
-                        tree.addSharedDesireFromAnotherAgents(desire.getDesireForAgents());
-                        return Optional.of(node);
+                        return Optional.of(formIntentionNodeAndReplaceSelfInParent());
                     }
                 }
             }
@@ -117,8 +113,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             }
 
             @Override
-            IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithAbstractPlan.FromAnotherAgent(parent, desire);
+            IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent() {
+                IntentionNodeAtTopLevel.WithAbstractPlan.FromAnotherAgent node = new IntentionNodeAtTopLevel.WithAbstractPlan.FromAnotherAgent(parent, desire);
+                parent.replaceDesireByIntention(this, node);
+                return node;
             }
         }
 
@@ -131,8 +129,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             }
 
             @Override
-            IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithCommand.FromAnotherAgent(parent, desire);
+            IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent() {
+                IntentionNodeAtTopLevel.WithCommand.FromAnotherAgent node = new IntentionNodeAtTopLevel.WithCommand.FromAnotherAgent(parent, desire);
+                parent.replaceDesireByIntention(this, node);
+                return node;
             }
         }
 
@@ -151,14 +151,12 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         @Override
         public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
             if (desire.shouldCommit(dataForDecision)) {
-                IntentionNodeAtTopLevel<?, ?> node = formIntentionNode();
-                parent.replaceDesireByIntention(this, node);
-                return Optional.of(node);
+                return Optional.of(formIntentionNodeAndReplaceSelfInParent());
             }
             return Optional.empty();
         }
 
-        abstract IntentionNodeAtTopLevel<?, ?> formIntentionNode();
+        abstract IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent();
 
         /**
          * Concrete implementation, desire forms intention with abstract plan
@@ -169,8 +167,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             }
 
             @Override
-            IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithAbstractPlan.Own(parent, desire);
+            IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent() {
+                IntentionNodeAtTopLevel.WithAbstractPlan.Own node = new IntentionNodeAtTopLevel.WithAbstractPlan.Own(parent, desire);
+                parent.replaceDesireByIntention(this, node);
+                return node;
             }
         }
 
@@ -183,8 +183,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             }
 
             @Override
-            IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithCommand.OwnActing(parent, desire);
+            IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent() {
+                IntentionNodeAtTopLevel.WithCommand.OwnActing node = new IntentionNodeAtTopLevel.WithCommand.OwnActing(parent, desire);
+                parent.replaceDesireByIntention(this, node);
+                return node;
             }
         }
 
@@ -197,8 +199,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             }
 
             @Override
-            IntentionNodeAtTopLevel<?, ?> formIntentionNode() {
-                return new IntentionNodeAtTopLevel.WithCommand.OwnReasoning(parent, desire);
+            IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent() {
+                IntentionNodeAtTopLevel.WithCommand.OwnReasoning node = new IntentionNodeAtTopLevel.WithCommand.OwnReasoning(parent, desire);
+                parent.replaceDesireByIntention(this, node);
+                return node;
             }
         }
 

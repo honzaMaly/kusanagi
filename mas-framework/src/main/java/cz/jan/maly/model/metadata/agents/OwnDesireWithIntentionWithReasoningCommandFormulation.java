@@ -7,7 +7,7 @@ import cz.jan.maly.model.metadata.IntentionParameters;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.OwnDesire;
 import cz.jan.maly.model.planing.RemoveCommitment;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.Optional;
  * Concrete implementation of own desire with reasoning command formulation
  * Created by Jan on 12-Mar-17.
  */
-public class OwnDesireWithIntentionWithReasoningCommandFormulation extends DesireFormulation.WithCommand<ReasoningCommand> implements OwnInternalDesireFormulation<OwnDesire.Reasoning> {
+public class OwnDesireWithIntentionWithReasoningCommandFormulation extends DesireFormulation.WithCommand<ReasoningCommandForIntention> implements OwnInternalDesireFormulation<OwnDesire.Reasoning> {
     @Override
     public Optional<OwnDesire.Reasoning> formDesire(DesireKey key, Memory memory) {
         if (supportsDesireType(key)) {
@@ -64,7 +64,7 @@ public class OwnDesireWithIntentionWithReasoningCommandFormulation extends Desir
          */
         public void addDesireFormulationConfiguration(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
                                                       Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, ReasoningCommand command) {
+                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, ReasoningCommandForIntention command) {
             OwnDesireWithIntentionWithReasoningCommandFormulation formulation = stack.putIfAbsent(parent, new OwnDesireWithIntentionWithReasoningCommandFormulation());
             formulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
                     decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);

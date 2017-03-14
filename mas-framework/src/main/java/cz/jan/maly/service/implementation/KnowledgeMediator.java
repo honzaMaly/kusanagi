@@ -6,8 +6,8 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
 import cz.jan.maly.model.servicies.beliefs.ReadOnlyMemoryRegister;
 import cz.jan.maly.model.servicies.beliefs.WorkingMemoryRegister;
+import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.service.MediatorTemplate;
-import cz.jan.maly.utils.FrameworkUtils;
 
 /**
  * KnowledgeMediator instance enables agents to share knowledge of agents by keeping each agent's internal knowledge.
@@ -17,7 +17,7 @@ import cz.jan.maly.utils.FrameworkUtils;
 public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, WorkingMemoryRegister> {
 
     public KnowledgeMediator() {
-        super(new WorkingMemoryRegister(), FrameworkUtils::getLengthOfIntervalBeforeUpdatingRegisterWithMemory);
+        super(new WorkingMemoryRegister(), MASFacade::getLengthOfIntervalBeforeUpdatingRegisterWithMemory);
     }
 
     /**

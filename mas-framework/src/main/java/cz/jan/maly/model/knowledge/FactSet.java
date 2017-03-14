@@ -1,13 +1,12 @@
 package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.service.MASFacade;
 import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static cz.jan.maly.utils.FrameworkUtils.CLONER;
 
 /**
  * Generic type to store simple facts. Similarly to memory old content is removed from it - this emulates decay/forgetting.
@@ -52,7 +51,7 @@ public class FactSet<V> {
      * @return
      */
     public FactSet<V> copyFact() {
-        return new FactSet<>(CLONER.deepClone(decayMap), type);
+        return new FactSet<>(MASFacade.CLONER.deepClone(decayMap), type);
     }
 
     /**

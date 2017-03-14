@@ -1,11 +1,7 @@
 package cz.jan.maly.service;
 
-import cz.jan.maly.model.agent.AbstractAgentInitializationStrategy;
-
-import java.util.List;
-
 /**
- * Interface to be implemented by user to define method which creat all abstract agents used in game at its start
+ * Interface to be implemented by user to define method which create all abstract agents used in game at its start
  * Created by Jan on 28-Dec-16.
  */
 public interface AbstractAgentInitializerInterface {
@@ -17,6 +13,6 @@ public interface AbstractAgentInitializerInterface {
      *
      * @return
      */
-    List<AbstractAgentInitializationStrategy> initializeAbstractAgentOnStartOfTheGame();
+    void initializeAbstractAgentOnStartOfTheGame();
 
 }

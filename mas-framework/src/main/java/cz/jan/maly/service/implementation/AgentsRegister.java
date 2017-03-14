@@ -17,5 +17,4 @@ public class AgentsRegister {
         idCounter++;
         return idCounter;
     }
-
 }

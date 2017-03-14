@@ -5,20 +5,17 @@ import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.planing.DesireForOthers;
-import cz.jan.maly.model.planing.DesireFromAnotherAgent;
-import cz.jan.maly.model.planing.OwnDesire;
-import cz.jan.maly.model.planing.SharedDesireForAgents;
-import cz.jan.maly.model.planing.command.ActCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.model.planing.*;
+import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ObservingCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import cz.jan.maly.model.planing.tree.Tree;
 import cz.jan.maly.model.planing.tree.visitors.CommandExecutor;
 import cz.jan.maly.model.planing.tree.visitors.CommitmentDecider;
 import cz.jan.maly.model.planing.tree.visitors.CommitmentRemovalDecider;
-import cz.jan.maly.service.implementation.AgentsRegister;
+import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.service.implementation.DesireMediator;
 import cz.jan.maly.service.implementation.KnowledgeMediator;
-import cz.jan.maly.service.implementation.ReasoningExecutor;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
@@ -27,19 +24,7 @@ import java.util.Optional;
 /**
  * Created by Jan on 09-Feb-17.
  */
-public abstract class Agent implements AgentTypeBehaviourFactory {
-
-    //instance of reasoning manager, it can be shared by agents as it is stateless
-    private static final ReasoningExecutor REASONING_EXECUTOR = new ReasoningExecutor();
-
-    //register of agents - to assign ids to them
-    private static final AgentsRegister AGENTS_REGISTER = new AgentsRegister();
-
-    //shared desire mediator
-    public static final DesireMediator DESIRE_MEDIATOR = new DesireMediator();
-
-    //shared knowledge mediator
-    private static final KnowledgeMediator KNOWLEDGE_MEDIATOR = new KnowledgeMediator();
+public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseReceiverInterface<Boolean> {
 
     @Getter
     private final int id;
@@ -47,20 +32,105 @@ public abstract class Agent implements AgentTypeBehaviourFactory {
     @Getter
     private final AgentType agentType;
 
-    private final Tree tree = new Tree(this);
+    @Getter
+    private final DesireMediator desireMediator;
+    @Getter
+    private final KnowledgeMediator knowledgeMediator;
+
     private final WorkingMemory beliefs;
+    private final Tree tree = new Tree(this);
     private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
     private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree, this);
     private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(tree, this);
+    private final ObservingCommand<E> observingCommand;
 
-    protected Agent(AgentType agentType) {
-        this.id = AGENTS_REGISTER.getFreeId();
+    //to handle main routine of agent
+    private boolean isAlive = true;
+    private final Object isAliveLockMonitor = new Object();
+
+    protected Agent(AgentType agentType, ObservingCommand<E> observingCommand, MASFacade masFacade) {
+        this.observingCommand = observingCommand;
+        this.id = masFacade.getAgentsRegister().getFreeId();
+        this.desireMediator = masFacade.getDesireMediator();
+        this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
 
-//        //init desires from types provided by user
-//        getInitialOwnDesireWithAbstractIntentionTypes().forEach(desireKey -> tree.addDesire(formOwnDesireWithAbstractIntention(desireKey)));
-//        getInitialOwnDesireWithIntentionWithPlanTypes().forEach(desireKey -> tree.addDesire(formOwnDesireWithIntentionWithPlan(desireKey)));
-//        getDesireForOthersTypes().forEach(desireKey -> tree.addDesire(formDesireForOthers(desireKey)));
+        //todo init beliefs
+
+        //run main routine in its own thread
+        Worker worker = new Worker(this);
+        worker.start();
+    }
+
+    @Override
+    public void receiveResponse(Boolean response) {
+        //agent is removed from desire register
+    }
+
+    /**
+     * Worker execute workflow of this agent.
+     */
+    private class Worker extends Thread implements ResponseReceiverInterface<Boolean> {
+        private final Agent agent;
+        private final Object lockMonitor = new Object();
+
+        private Worker(Agent agent) {
+            this.agent = agent;
+        }
+
+        @Override
+        public void run() {
+
+            //init agent
+            doRoutine();
+            tree.initTopLevelDesires(desireMediator.getSnapshotOfRegister());
+
+            while (true) {
+
+                //check if agent is still alive
+                synchronized (isAliveLockMonitor) {
+                    if (!isAlive) {
+                        break;
+                    }
+                }
+
+                //execute routine
+                commitmentDecider.visitTree();
+                commandExecutor.visitTree();
+                commitmentRemovalDecider.visitTree();
+                doRoutine();
+                tree.updateTopLevelDesires(desireMediator.getSnapshotOfRegister());
+            }
+
+            //remove agent
+            desireMediator.removeAgentFromRegister(agent, agent);
+            tree.removeCommitmentToSharedDesires();
+        }
+
+        private void doRoutine() {
+            if (requestObservation(observingCommand, this)) {
+                synchronized (lockMonitor) {
+                    try {
+                        lockMonitor.wait();
+                    } catch (InterruptedException e) {
+                        MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                    }
+                }
+            }
+            //todo add shared knowledge
+        }
+
+        @Override
+        public void receiveResponse(Boolean response) {
+
+            //notify waiting method
+            synchronized (lockMonitor) {
+                if (!response) {
+                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute observing command");
+                }
+                lockMonitor.notify();
+            }
+        }
     }
 
     /**
@@ -68,8 +138,8 @@ public abstract class Agent implements AgentTypeBehaviourFactory {
      *
      * @param command
      */
-    public void executeCommand(ReasoningCommand command) {
-        if (!REASONING_EXECUTOR.executeCommand(command, beliefs)) {
+    public void executeCommand(ReasoningCommandForIntention command) {
+        if (!MASFacade.REASONING_EXECUTOR.executeCommand(command, beliefs)) {
             MyLogger.getLogger().warning(this.getClass().getSimpleName() + ", " + agentType.getName() + " could not execute reasoning command");
         }
     }
@@ -80,7 +150,15 @@ public abstract class Agent implements AgentTypeBehaviourFactory {
      * @param command
      * @param responseReceiver
      */
-    public abstract boolean sendCommandToExecute(ActCommand<?> command, ResponseReceiverInterface<Boolean> responseReceiver);
+    public abstract boolean sendCommandToExecute(ActCommandForIntention<?> command, ResponseReceiverInterface<Boolean> responseReceiver);
+
+    /**
+     * Execute observing command
+     *
+     * @param observingCommand
+     * @param responseReceiver
+     */
+    protected abstract boolean requestObservation(ObservingCommand<E> observingCommand, ResponseReceiverInterface<Boolean> responseReceiver);
 
     /**
      * Get memory of agent
@@ -154,5 +232,14 @@ public abstract class Agent implements AgentTypeBehaviourFactory {
     @Override
     public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesireFromOtherAgentWithIntentionWithPlan(SharedDesireForAgents desireForAgents) {
         return agentType.formAnotherAgentsDesireWithCommand(desireForAgents);
+    }
+
+    /**
+     * Method to be called when one want to terminate agent
+     */
+    public void terminateAgent() {
+        synchronized (isAliveLockMonitor) {
+            this.isAlive = false;
+        }
     }
 }

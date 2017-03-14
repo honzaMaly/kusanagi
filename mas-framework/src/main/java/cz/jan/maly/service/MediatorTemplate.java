@@ -15,7 +15,7 @@ import java.util.List;
  * updated however data contained may not be actual when snapshot is downloaded by agent.
  * Created by Jan on 17-Feb-17.
  */
-public abstract class MediatorTemplate<V extends Register<?>, T extends Register<?> & WorkingRegister<V>> {
+public abstract class MediatorTemplate<V extends Register<?>, T extends Register<?> & WorkingRegister<V>> implements TerminableService {
     protected final T workingRegister;
     private V readOnlyRegister;
     private final Object registerLockMonitor = new Object();
@@ -52,12 +52,10 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
         }
     }
 
-    /**
-     * Tell mediator to terminate
-     */
     public void terminate() {
         synchronized (isAliveLockMonitor) {
             this.shouldConsume = false;
+            MyLogger.getLogger().info(this.getClass().getSimpleName() + " is being terminated.");
         }
     }
 
