@@ -1,6 +1,10 @@
 package cz.jan.maly.service;
 
 import bwapi.Unit;
+import cz.jan.maly.model.agent.BWAgentInGame;
+import cz.jan.maly.service.implementation.BotFacade;
+
+import java.util.Optional;
 
 /**
  * Interface to be implemented by user to provide factory for creating agents for own units on their creation
@@ -10,8 +14,11 @@ public interface AgentUnitFactoryInterface {
 
     /**
      * Method to create agent from unit
+     *
      * @param unit
+     * @param botFacade
+     * @return
      */
-    void createAgentForUnit(Unit unit);
+    Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade);
 
 }

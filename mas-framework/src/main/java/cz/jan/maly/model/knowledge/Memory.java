@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * access to this data
  * Created by Jan on 16-Feb-17.
  */
-public abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface, PlanningTreeInterface {
+public abstract class Memory<V extends PlanningTreeInterface, E> implements FactContainerInterface, PlanningTreeInterface {
     final Map<FactKey, Fact> factParameterMap = new HashMap<>();
     final Map<FactKey, FactSet> factSetParameterMap = new HashMap<>();
     Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes = new HashMap<>();
@@ -24,12 +24,12 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     final V tree;
 
     @Getter
-    final AgentType agentType;
+    final AgentType<E> agentType;
 
     @Getter
     final int agentId;
 
-    Memory(V tree, AgentType agentType, int agentId) {
+    Memory(V tree, AgentType<E> agentType, int agentId) {
         this.tree = tree;
         this.agentType = agentType;
         this.agentId = agentId;
@@ -56,7 +56,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         sharedKnowledgeByOtherAgents.forEach((integer, readOnlyMemory) -> this.sharedKnowledgeByOtherAgents.put(integer, readOnlyMemory));
     }
 
-    public Optional<ReadOnlyMemory> getReadOnlyMemoryForAgent(int agentId){
+    public Optional<ReadOnlyMemory> getReadOnlyMemoryForAgent(int agentId) {
         return Optional.ofNullable(sharedKnowledgeByOtherAgents.get(agentId));
     }
 
@@ -73,7 +73,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
         Fact<V> fact = factParameterMap.get(factKey);
         if (fact != null) {
-            return Optional.of(fact.getContent());
+            return Optional.ofNullable(fact.getContent());
         }
         return Optional.empty();
     }
@@ -82,7 +82,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
         FactSet<V> factSet = factSetParameterMap.get(factKey);
         if (factSet != null) {
-            return Optional.of((S) factSet.getContent());
+            return Optional.ofNullable((S) factSet.getContent());
         }
         return Optional.empty();
     }
@@ -132,7 +132,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         if (this == o) return true;
         if (!(o instanceof Memory)) return false;
 
-        Memory<?> memory = (Memory<?>) o;
+        Memory<?, ?> memory = (Memory<?, ?>) o;
 
         if (agentId != memory.agentId) return false;
         return agentType.equals(memory.agentType);

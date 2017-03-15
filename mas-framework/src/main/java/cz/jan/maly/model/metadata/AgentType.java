@@ -4,6 +4,7 @@ import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.agents.*;
 import cz.jan.maly.model.planing.*;
 import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ObservingCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import lombok.Getter;
 
@@ -17,7 +18,10 @@ import java.util.Set;
  * creation using desire key
  * Created by Jan on 15-Feb-17.
  */
-public abstract class AgentType extends Key {
+public abstract class AgentType<E> extends Key {
+
+    @Getter
+    private final ObservingCommand<E> observingCommand;
 
     //initial desires for this agent type
     private final Set<DesireKey> desiresForOthers;
@@ -51,8 +55,9 @@ public abstract class AgentType extends Key {
     private final OwnDesireWithSharedDesireFormulation.Stacked
             ownDesireWithSharedDesireFormulation = new OwnDesireWithSharedDesireFormulation.Stacked();
 
-    protected AgentType(String name, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
+    protected AgentType(String name, ObservingCommand<E> observingCommand, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
         super(name, AgentType.class);
+        this.observingCommand = observingCommand;
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;

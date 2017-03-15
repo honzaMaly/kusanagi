@@ -8,10 +8,10 @@ import cz.jan.maly.service.CommandManager;
  * Manager to execute reasoning command on agent's behalf
  * Created by jean on 06/03/2017.
  */
-public class ReasoningExecutor implements CommandManager<ReasoningCommandForIntention, WorkingMemory> {
+public class ReasoningExecutor implements CommandManager<ReasoningCommandForIntention, WorkingMemory<?>> {
 
     @Override
-    public boolean executeCommand(ReasoningCommandForIntention commandToExecute, WorkingMemory memory) {
+    public boolean executeCommand(ReasoningCommandForIntention commandToExecute, WorkingMemory<?> memory) {
         return commandToExecute.act(memory);
     }
 }

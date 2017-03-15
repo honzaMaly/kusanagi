@@ -24,4 +24,6 @@ public class DecisionParameters {
         this.parametersTypesForFactSets = parametersTypesForFactSets;
         this.typesOfDesiresToConsider = typesOfDesiresToConsider;
     }
+
+
 }

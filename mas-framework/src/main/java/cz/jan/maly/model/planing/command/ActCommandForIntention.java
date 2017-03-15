@@ -16,7 +16,7 @@ import java.util.Set;
  * Template for command with action to execute
  * Created by Jan on 11-Mar-17.
  */
-public abstract class ActCommandForIntention<T extends IntentionCommand<?, ? extends ActCommandForIntention<T>>> extends CommandForIntention<T, Memory<?>> {
+public abstract class ActCommandForIntention<T extends IntentionCommand<?, ? extends ActCommandForIntention<T>>> extends CommandForIntention<T, Memory<?, ?>> {
     private final ActCommandParameters commandParameters;
 
     private ActCommandForIntention(T intention, ActCommandParameters commandParameters) {
@@ -25,7 +25,7 @@ public abstract class ActCommandForIntention<T extends IntentionCommand<?, ? ext
     }
 
     @Override
-    public boolean act(Memory<?> memory) {
+    public boolean act(Memory<?, ?> memory) {
         return act(new ActCommandParametersInitialized(commandParameters, memory));
     }
 

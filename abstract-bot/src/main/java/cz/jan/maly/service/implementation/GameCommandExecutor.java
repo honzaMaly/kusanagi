@@ -22,7 +22,7 @@ import java.util.Map;
  * time - it make maximum to make sure that limit is not overstep.
  * Created by Jan on 28-Dec-16.
  */
-public class GameCommandExecutor implements CommandManager<ActCommandForIntention<?>, Memory<?>>, ObservingCommandManager<Game, ObservingCommand<Game>> {
+public class GameCommandExecutor implements CommandManager<ActCommandForIntention<?>, Memory<?, ?>>, ObservingCommandManager<Game, ObservingCommand<Game>> {
 
     //FIFO
     private final List<QueuedItemInterfaceWithResponseWithCommandClassGetter> queuedItems = new ArrayList<>();
@@ -45,7 +45,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
     }
 
     //structures to keep durations of command execution
-    private final Map<AgentType, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
+    private final Map<AgentType<Game>, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
 
     /**
      * Method to add item to queue with code to execute action in game
@@ -54,7 +54,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      * @param responseReceiver
      * @return
      */
-    public boolean addCommandToAct(ObservingCommand<Game> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
+    public boolean addCommandToObserve(ObservingCommand<Game> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType<Game> agentType) {
         synchronized (queuedItems) {
             return queuedItems.add(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
                 @Override
@@ -87,7 +87,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      * @param responseReceiver
      * @return
      */
-    public boolean addCommandToObserve(ActCommandForIntention<?> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
+    public boolean addCommandToAct(ActCommandForIntention<?> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType<Game> agentType) {
         synchronized (queuedItems) {
             return queuedItems.add(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
                 @Override
@@ -170,7 +170,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
     }
 
     @Override
-    public boolean executeCommand(ActCommandForIntention<?> commandToExecute, Memory<?> memory) {
+    public boolean executeCommand(ActCommandForIntention<?> commandToExecute, Memory<?, ?> memory) {
         return commandToExecute.act(memory);
     }
 

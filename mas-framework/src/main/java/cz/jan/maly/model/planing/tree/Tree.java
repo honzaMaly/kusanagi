@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
  * Facade for planning tree. Tree manages nodes at top level.
  * Created by Jan on 28-Feb-17.
  */
-public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>>,ResponseReceiverInterface<Boolean> {
+public class Tree<E> implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>>, ResponseReceiverInterface<Boolean> {
     private final Map<SharedDesire, SharedDesireForAgents> sharedDesiresForOtherAgents = new HashMap<>();
     private final Map<SharedDesire, SharedDesireForAgents> sharedDesiresByOtherAgents = new HashMap<>();
 
-    private final Agent agent;
+    private final Agent<E> agent;
 
     private final SharingDesireRemovalInSubtreeRoutine sharingDesireRemovalInSubtreeRoutine = new SharingDesireRemovalInSubtreeRoutine();
 
@@ -50,7 +50,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
         registers.add(manipulatorWithOwnAbstractPlan);
     }
 
-    public void removeCommitmentToSharedDesires(){
+    public void removeCommitmentToSharedDesires() {
         agent.getDesireMediator().removeCommitmentToDesires(agent, sharedDesiresByOtherAgents.values().stream().collect(Collectors.toSet()), this);
     }
 

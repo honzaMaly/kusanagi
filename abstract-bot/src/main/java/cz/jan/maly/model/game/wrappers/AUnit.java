@@ -18,11 +18,6 @@ public class AUnit extends APositionedObject implements Comparable<AUnit>, UnitA
 
     private static final Map<Unit, AUnit> instances = new HashMap<>();
 
-    public static void restartMemory() {
-        instances.clear();
-        firstFreeID = 1;
-    }
-
     private Unit u;
     private AUnitType _lastCachedType;
 

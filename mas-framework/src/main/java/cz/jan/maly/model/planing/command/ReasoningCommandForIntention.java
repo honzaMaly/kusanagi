@@ -8,7 +8,7 @@ import cz.jan.maly.model.planing.IntentionCommand;
  * Template for command with reasoning to make
  * Created by jean on 06/03/2017.
  */
-public abstract class ReasoningCommandForIntention extends CommandForIntention<IntentionCommand.OwnReasoning, WorkingMemory> {
+public abstract class ReasoningCommandForIntention extends CommandForIntention<IntentionCommand.OwnReasoning, WorkingMemory<?>> {
     protected ReasoningCommandForIntention(IntentionCommand.OwnReasoning intention) {
         super(intention);
     }

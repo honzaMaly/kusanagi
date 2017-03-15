@@ -31,31 +31,29 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
     private final int id;
 
     @Getter
-    private final AgentType agentType;
+    protected final AgentType<E> agentType;
 
     @Getter
     private final DesireMediator desireMediator;
     @Getter
     private final KnowledgeMediator knowledgeMediator;
 
-    private final WorkingMemory beliefs;
-    private final Tree tree = new Tree(this);
+    protected final WorkingMemory<E> beliefs;
+    private final Tree<E> tree = new Tree<>(this);
     private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
     private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree, this);
     private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(tree, this);
-    private final ObservingCommand<E> observingCommand;
 
     //to handle main routine of agent
     private boolean isAlive = true;
     private final Object isAliveLockMonitor = new Object();
 
-    protected Agent(AgentType agentType, ObservingCommand<E> observingCommand, MASFacade masFacade) {
-        this.observingCommand = observingCommand;
+    protected Agent(AgentType<E> agentType, MASFacade masFacade) {
         this.id = masFacade.getAgentsRegister().getFreeId();
         this.desireMediator = masFacade.getDesireMediator();
         this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
-        this.beliefs = new WorkingMemory(tree, this.agentType, this.id);
+        this.beliefs = new WorkingMemory<>(tree, this.agentType, this.id);
 
         //run main routine in its own thread
         Worker worker = new Worker(this);
@@ -71,10 +69,10 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
      * Worker execute workflow of this agent.
      */
     private class Worker extends Thread implements ResponseReceiverInterface<Boolean> {
-        private final Agent agent;
+        private final Agent<E> agent;
         private final Object lockMonitor = new Object();
 
-        private Worker(Agent agent) {
+        private Worker(Agent<E> agent) {
             this.agent = agent;
         }
 
@@ -110,7 +108,7 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
         private void doRoutine() {
 
             //make observation
-            if (requestObservation(observingCommand, this)) {
+            if (requestObservation(agentType.getObservingCommand(), this)) {
                 synchronized (lockMonitor) {
                     try {
                         lockMonitor.wait();

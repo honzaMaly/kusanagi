@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
  * Represents agent's own memory
  * Created by Jan on 24-Feb-17.
  */
-public class WorkingMemory extends Memory<Tree> {
+public class WorkingMemory<E> extends Memory<Tree, E> {
 
-    public WorkingMemory(Tree tree, AgentType agentType, int agentId) {
+    public WorkingMemory(Tree tree, AgentType<E> agentType, int agentId) {
         super(tree, agentType, agentId);
     }
 
@@ -40,9 +40,9 @@ public class WorkingMemory extends Memory<Tree> {
      *
      * @return
      */
-    public ReadOnlyMemory cloneMemory() {
+    public ReadOnlyMemory<E> cloneMemory() {
         forget();
-        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentType, agentId, sharedKnowledgeByOtherAgentsTypes, sharedKnowledgeByOtherAgents);
+        return new ReadOnlyMemory<>(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentType, agentId, sharedKnowledgeByOtherAgentsTypes, sharedKnowledgeByOtherAgents);
     }
 
     /**

@@ -2,7 +2,7 @@ package cz.jan.maly.service.implementation;
 
 import bwapi.*;
 import bwta.BWTA;
-import cz.jan.maly.service.AbstractAgentInitializerInterface;
+import cz.jan.maly.model.agent.BWAgentInGame;
 import cz.jan.maly.service.AgentUnitFactoryInterface;
 import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.utils.MyLogger;
@@ -10,6 +10,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Facade for bot.
@@ -17,6 +20,9 @@ import java.io.IOException;
  */
 @Getter
 public class BotFacade extends DefaultBWListener {
+
+    //keep track of agent units
+    private final Map<Unit, BWAgentInGame> agentsWithGameRepresentation = new HashMap<>();
 
     //facade for MAS
     private MASFacade<Game> masFacade;
@@ -34,7 +40,7 @@ public class BotFacade extends DefaultBWListener {
 
     //fields provided by user
     private final AgentUnitFactoryInterface agentUnitFactory;
-    private final AbstractAgentInitializerInterface abstractAgentInitializer;
+//    private final AbstractAgentInitializerInterface abstractAgentInitializer;
 
     //game related fields
     private Mirror mirror = new Mirror();
@@ -42,9 +48,9 @@ public class BotFacade extends DefaultBWListener {
 
     private Player self;
 
-    public BotFacade(AgentUnitFactoryInterface agentUnitFactory, AbstractAgentInitializerInterface abstractAgentInitializer) {
+    public BotFacade(AgentUnitFactoryInterface agentUnitFactory) {
         this.agentUnitFactory = agentUnitFactory;
-        this.abstractAgentInitializer = abstractAgentInitializer;
+//        this.abstractAgentInitializer = abstractAgentInitializer;
     }
 
     @Override
@@ -68,7 +74,7 @@ public class BotFacade extends DefaultBWListener {
         MyLogger.getLogger().info("Map data ready");
 
         //create all abstract agents
-        abstractAgentInitializer.initializeAbstractAgentOnStartOfTheGame();
+//        abstractAgentInitializer.initializeAbstractAgentOnStartOfTheGame();
 
         //speed up game to setup value
         game.setLocalSpeed(getGameDefaultSpeed());
@@ -78,34 +84,28 @@ public class BotFacade extends DefaultBWListener {
     @Override
     public void onUnitCreate(Unit unit) {
         if (unit.getPlayer().equals(self)) {
-            agentUnitFactory.createAgentForUnit(unit);
-            MyLogger.getLogger().info("New unit created " + unit.getType());
+            Optional<BWAgentInGame> agent = agentUnitFactory.createAgentForUnit(unit, this);
+            agent.ifPresent(bwAgentInGame -> {
+                agentsWithGameRepresentation.put(unit, bwAgentInGame);
+                masFacade.addAgentToSystem(bwAgentInGame);
+            });
         }
     }
 
     @Override
     public void onUnitDestroy(Unit unit) {
-//        if (unit.getPlayer().equals(self)) {
-//            Optional<AgentWithGameRepresentation> agent = agentsManager.getRelevantAgentWithGameRepresentation(agentsToFilterFrom -> agentsToFilterFrom
-//                    .filter(agentWithGameRepresentation -> agentWithGameRepresentation.getUnit().u().equals(unit))
-//                    .findFirst(), AgentWithGameRepresentation.class);
-//            agent.ifPresent(Agent::terminateAgent);
-//            MyLogger.getLogger().info("Unit destroyed " + unit.getType());
-//        }
+        if (unit.getPlayer().equals(self)) {
+            Optional<BWAgentInGame> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit));
+            agent.ifPresent(bwAgentInGame1 -> masFacade.removeAgentFromSystem(bwAgentInGame1));
+        }
     }
 
     @Override
     public void onUnitMorph(Unit unit) {
-//        if (unit.getPlayer().equals(self)) {
-//            Optional<AgentWithGameRepresentation> agent = agentsManager.getRelevantAgentWithGameRepresentation(agentsToFilterFrom -> agentsToFilterFrom
-//                    .filter(agentWithGameRepresentation -> agentWithGameRepresentation.getUnit().u().equals(unit))
-//                    .findFirst(), AgentWithGameRepresentation.class);
-//            agent.ifPresent(Agent::terminateAgent);
-//
-//            //create new agent
-//            agentUnitFactory.createAgentForUnit(unit);
-//            MyLogger.getLogger().info("New unit morphed " + unit.getType());
-//        }
+        if (unit.getPlayer().equals(self)) {
+            onUnitDestroy(unit);
+            onUnitCreate(unit);
+        }
     }
 
     public void run() throws IOException, InterruptedException {
@@ -115,6 +115,7 @@ public class BotFacade extends DefaultBWListener {
 
     @Override
     public void onEnd(boolean b) {
+        agentsWithGameRepresentation.clear();
         masFacade.terminate();
     }
 

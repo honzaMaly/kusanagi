@@ -10,7 +10,7 @@ import java.util.Set;
  * Template class for CommandForIntention defines common data structure for some executable object by agent
  * Created by Jan on 15-Feb-17.
  */
-public abstract class CommandForIntention<T extends IntentionCommand<?, ? extends CommandForIntention<T, K>>, K extends Memory<?>> implements CommandInterface<K> {
+public abstract class CommandForIntention<T extends IntentionCommand<?, ? extends CommandForIntention<T, K>>, K extends Memory<?, ?>> implements CommandInterface<K> {
     private final T intention;
 
     protected CommandForIntention(T intention) {
