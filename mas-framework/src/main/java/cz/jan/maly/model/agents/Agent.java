@@ -22,6 +22,7 @@ import lombok.Getter;
 import java.util.Optional;
 
 /**
+ * Template for agent. Main routine of agent runs in its own thread.
  * Created by Jan on 09-Feb-17.
  */
 public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseReceiverInterface<Boolean> {
@@ -54,8 +55,7 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
         this.desireMediator = masFacade.getDesireMediator();
         this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
-
-        //todo init beliefs
+        this.beliefs = new WorkingMemory(tree, this.agentType, this.id);
 
         //run main routine in its own thread
         Worker worker = new Worker(this);
@@ -108,6 +108,8 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
         }
 
         private void doRoutine() {
+
+            //make observation
             if (requestObservation(observingCommand, this)) {
                 synchronized (lockMonitor) {
                     try {
@@ -117,7 +119,18 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
                     }
                 }
             }
-            //todo add shared knowledge
+
+            //share knowledge
+            if (knowledgeMediator.registerKnowledge(beliefs.cloneMemory(), agent, this)) {
+                synchronized (lockMonitor) {
+                    try {
+                        lockMonitor.wait();
+                    } catch (InterruptedException e) {
+                        MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                    }
+                }
+            }
+            beliefs.addKnowledge(knowledgeMediator.getSnapshotOfRegister());
         }
 
         @Override
@@ -126,7 +139,7 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
             //notify waiting method
             synchronized (lockMonitor) {
                 if (!response) {
-                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute observing command");
+                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute command");
                 }
                 lockMonitor.notify();
             }

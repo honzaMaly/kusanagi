@@ -3,8 +3,10 @@ package cz.jan.maly.model.knowledge;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.planing.tree.Tree;
+import cz.jan.maly.model.servicies.beliefs.ReadOnlyMemoryRegister;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents agent's own memory
@@ -12,9 +14,26 @@ import java.util.Set;
  */
 public class WorkingMemory extends Memory<Tree> {
 
-    public WorkingMemory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, Tree tree, AgentType agentType, int agentId) {
-        super(parametersTypesForFact, parametersTypesForFactSets, tree, agentType, agentId);
+    public WorkingMemory(Tree tree, AgentType agentType, int agentId) {
+        super(tree, agentType, agentId);
     }
+
+    /**
+     * Adds knowledge
+     *
+     * @param readOnlyMemoryRegister
+     */
+    public void addKnowledge(ReadOnlyMemoryRegister readOnlyMemoryRegister) {
+        Map<AgentType, Map<Integer, ReadOnlyMemory>> sharedKnowledgeByOtherAgents = readOnlyMemoryRegister.formKnowledge();
+        this.sharedKnowledgeByOtherAgents = sharedKnowledgeByOtherAgents.values().stream()
+                .flatMap(integerReadOnlyMemoryMap -> integerReadOnlyMemoryMap.entrySet().stream())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        this.sharedKnowledgeByOtherAgentsTypes = sharedKnowledgeByOtherAgents.values().stream()
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .collect(Collectors.groupingBy(ReadOnlyMemory::getAgentType, Collectors.toSet()));
+    }
+
 
     /**
      * Return read only copy of working memory to be shared
@@ -23,7 +42,7 @@ public class WorkingMemory extends Memory<Tree> {
      */
     public ReadOnlyMemory cloneMemory() {
         forget();
-        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentType, agentId);
+        return new ReadOnlyMemory(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentType, agentId, sharedKnowledgeByOtherAgentsTypes, sharedKnowledgeByOtherAgents);
     }
 
     /**

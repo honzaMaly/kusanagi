@@ -21,13 +21,13 @@ public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, 
     }
 
     /**
-     * Method to add item to queue with code to register desire
+     * Method to add item to queue with code to register knowledge
      *
      * @param readOnlyMemory
      * @param responseReceiver
      * @return
      */
-    public boolean registerDesire(ReadOnlyMemory readOnlyMemory, Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
+    public boolean registerKnowledge(ReadOnlyMemory readOnlyMemory, Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
         synchronized (queuedItems) {
             return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
                 @Override

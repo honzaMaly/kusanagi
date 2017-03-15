@@ -102,7 +102,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
             @Override
             void formDesireNodeAndReplaceIntentionNode(Agent agent) {
-                parent.replaceIntentionByDesire(this, new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(parent, agent.formDesireFromOtherAgentWithIntentionWithPlan(desire.getDesireForAgents()).get()));
+                parent.replaceIntentionByDesire(this, new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(parent, (DesireFromAnotherAgent.WithIntentionWithPlan) agent.formDesireFromOtherAgentWithIntentionWithPlan(desire.getDesireForAgents()).get()));
             }
 
             @Override

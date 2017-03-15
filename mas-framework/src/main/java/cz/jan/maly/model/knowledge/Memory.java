@@ -8,10 +8,8 @@ import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Template class for memory - it stores facts, sets of facts, agent type and commitment process in form of tree, and provide
@@ -21,6 +19,8 @@ import java.util.Set;
 public abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface, PlanningTreeInterface {
     final Map<FactKey, Fact> factParameterMap = new HashMap<>();
     final Map<FactKey, FactSet> factSetParameterMap = new HashMap<>();
+    Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes = new HashMap<>();
+    Map<Integer, ReadOnlyMemory> sharedKnowledgeByOtherAgents = new HashMap<>();
     final V tree;
 
     @Getter
@@ -29,28 +29,44 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     @Getter
     final int agentId;
 
-    Memory(Set<FactKey<?>> parametersTypesForFact, Set<FactKey<?>> parametersTypesForFactSets, V tree, AgentType agentType, int agentId) {
+    Memory(V tree, AgentType agentType, int agentId) {
         this.tree = tree;
         this.agentType = agentType;
         this.agentId = agentId;
-        parametersTypesForFact.forEach(factKey -> this.factParameterMap.put(factKey, factKey.returnEmptyFact()));
-        parametersTypesForFactSets.forEach(factKey -> this.factSetParameterMap.put(factKey, factKey.returnEmptyFactSet()));
+        agentType.getUsingTypesForFacts().forEach(factKey -> this.factParameterMap.put(factKey, factKey.returnEmptyFact()));
+        agentType.getUsingTypesForFactSets().forEach(factKey -> this.factSetParameterMap.put(factKey, factKey.returnEmptyFactSet()));
     }
 
     /**
      * To make read only copy...
-     *  @param factParameterMap
+     *
+     * @param factParameterMap
      * @param factSetParameterMap
      * @param tree
      * @param agentType
      * @param agentId
      */
-    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentType agentType, int agentId) {
+    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentType agentType, int agentId, Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes, Map<Integer, ReadOnlyMemory> sharedKnowledgeByOtherAgents) {
         this.tree = tree;
         this.agentType = agentType;
         this.agentId = agentId;
         factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, o.copyFact()));
         factSetParameterMap.forEach((factKey, set) -> this.factSetParameterMap.put(factKey, set.copyFact()));
+        sharedKnowledgeByOtherAgentsTypes.forEach((agentT, readOnlyMemories) -> this.sharedKnowledgeByOtherAgentsTypes.put(agentT, readOnlyMemories.stream().collect(Collectors.toSet())));
+        sharedKnowledgeByOtherAgents.forEach((integer, readOnlyMemory) -> this.sharedKnowledgeByOtherAgents.put(integer, readOnlyMemory));
+    }
+
+    public Optional<ReadOnlyMemory> getReadOnlyMemoryForAgent(int agentId){
+        return Optional.ofNullable(sharedKnowledgeByOtherAgents.get(agentId));
+    }
+
+    public Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+        return sharedKnowledgeByOtherAgentsTypes.getOrDefault(agentType, new HashSet<>());
+    }
+
+    public Set<ReadOnlyMemory> getReadOnlyMemories() {
+        return sharedKnowledgeByOtherAgents.values().stream()
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -109,6 +125,24 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     @Override
     public Set<DesireParameters> getParametersOfDesiresOnTopLevel() {
         return tree.getParametersOfDesiresOnTopLevel();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Memory)) return false;
+
+        Memory<?> memory = (Memory<?>) o;
+
+        if (agentId != memory.agentId) return false;
+        return agentType.equals(memory.agentType);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = agentType.hashCode();
+        result = 31 * result + agentId;
+        return result;
     }
 }
 

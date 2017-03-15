@@ -7,6 +7,7 @@ import cz.jan.maly.model.planing.command.ActCommandForIntention;
 import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import lombok.Getter;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,14 +25,13 @@ public abstract class AgentType extends Key {
     private final Set<DesireKey> desiresWithIntentionToAct;
     private final Set<DesireKey> desiresWithIntentionToReason;
 
-    @Getter
-    private final Set<DesireKey> supportedDesiresOfOtherAgents;
+    private final Set<DesireKey> supportedDesiresOfOtherAgents = new HashSet<>();
 
     @Getter
-    private final Set<FactKey<?>> usingTypesForFacts;
+    private final Set<FactKey<?>> usingTypesForFacts = new HashSet<>();
 
     @Getter
-    private final Set<FactKey<?>> usingTypesForFactSets;
+    private final Set<FactKey<?>> usingTypesForFactSets = new HashSet<>();
 
     private final OwnDesireWithAbstractIntentionFormulation.Stacked
             ownDesireWithAbstractIntentionFormulation = new OwnDesireWithAbstractIntentionFormulation.Stacked();
@@ -51,13 +51,67 @@ public abstract class AgentType extends Key {
     private final OwnDesireWithSharedDesireFormulation.Stacked
             ownDesireWithSharedDesireFormulation = new OwnDesireWithSharedDesireFormulation.Stacked();
 
-    protected AgentType(String name) {
+    protected AgentType(String name, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
         super(name, AgentType.class);
+        this.desiresForOthers = desiresForOthers;
+        this.desiresWithAbstractIntention = desiresWithAbstractIntention;
+        this.desiresWithIntentionToAct = desiresWithIntentionToAct;
+        this.desiresWithIntentionToReason = desiresWithIntentionToReason;
 
         //initialize configuration first, then get all facts required for correct behaviour to be present in agent
         initializeConfiguration();
-        //todo collect facts, abstract method to int. type
 
+        //desires for other agents
+        supportedDesiresOfOtherAgents.addAll(anotherAgentsDesireWithAbstractIntentionFormulation.supportedDesireTypes());
+        supportedDesiresOfOtherAgents.addAll(anotherAgentsDesireWithIntentionWithActingCommandFormulation.supportedDesireTypes());
+
+        //what facts need to be in memory
+        usingTypesForFacts.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsToSupportFormulation());
+        usingTypesForFacts.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsToSupportFormulationInStack());
+        usingTypesForFacts.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsToSupportFormulation());
+        usingTypesForFacts.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsToSupportFormulationInStack());
+        usingTypesForFacts.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsToSupportFormulation());
+        usingTypesForFacts.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsToSupportFormulationInStack());
+        usingTypesForFacts.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsToSupportFormulation());
+        usingTypesForFacts.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsToSupportFormulationInStack());
+        usingTypesForFacts.addAll(anotherAgentsDesireWithAbstractIntentionFormulation.getRequiredFactsToSupportFormulation());
+        usingTypesForFacts.addAll(anotherAgentsDesireWithIntentionWithActingCommandFormulation.getRequiredFactsToSupportFormulation());
+
+        usingTypesForFactSets.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsSetsToSupportFormulation());
+        usingTypesForFactSets.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsSetsToSupportFormulationInStack());
+        usingTypesForFactSets.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsSetsToSupportFormulation());
+        usingTypesForFactSets.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsSetsToSupportFormulationInStack());
+        usingTypesForFactSets.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsSetsToSupportFormulation());
+        usingTypesForFactSets.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsSetsToSupportFormulationInStack());
+        usingTypesForFactSets.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsSetsToSupportFormulation());
+        usingTypesForFactSets.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsSetsToSupportFormulationInStack());
+        usingTypesForFactSets.addAll(anotherAgentsDesireWithAbstractIntentionFormulation.getRequiredFactsSetsToSupportFormulation());
+        usingTypesForFactSets.addAll(anotherAgentsDesireWithIntentionWithActingCommandFormulation.getRequiredFactsSetsToSupportFormulation());
+
+        //when having abstract plan, can agent make desires
+        checkSupport(ownDesireWithAbstractIntentionFormulation.desiresWithIntentionToReason(), ownDesireWithIntentionWithReasoningCommandFormulation);
+        checkSupport(anotherAgentsDesireWithAbstractIntentionFormulation.desiresWithIntentionToReason(), ownDesireWithIntentionWithReasoningCommandFormulation);
+        checkSupport(ownDesireWithAbstractIntentionFormulation.desiresForOthers(), ownDesireWithSharedDesireFormulation);
+        checkSupport(anotherAgentsDesireWithAbstractIntentionFormulation.desiresForOthers(), ownDesireWithSharedDesireFormulation);
+        checkSupport(ownDesireWithAbstractIntentionFormulation.desiresWithAbstractIntention(), ownDesireWithAbstractIntentionFormulation);
+        checkSupport(anotherAgentsDesireWithAbstractIntentionFormulation.desiresWithAbstractIntention(), ownDesireWithAbstractIntentionFormulation);
+        checkSupport(ownDesireWithAbstractIntentionFormulation.desiresWithIntentionToAct(), ownDesireWithIntentionWithActingCommandFormulation);
+        checkSupport(anotherAgentsDesireWithAbstractIntentionFormulation.desiresWithIntentionToAct(), ownDesireWithIntentionWithActingCommandFormulation);
+
+        //check if starting desires are present
+        checkSupport(desiresWithIntentionToReason, ownDesireWithIntentionWithReasoningCommandFormulation);
+        checkSupport(desiresForOthers, ownDesireWithSharedDesireFormulation);
+        checkSupport(desiresWithAbstractIntention, ownDesireWithAbstractIntentionFormulation);
+        checkSupport(desiresWithIntentionToAct, ownDesireWithIntentionWithActingCommandFormulation);
+    }
+
+    private void checkSupport(Set<DesireKey> keysToSupport, DesireFormulation desireFormulation) {
+        Optional<DesireKey> first = keysToSupport.stream()
+                .filter(key -> !desireFormulation.supportsDesireType(key))
+                .findAny();
+        if (first.isPresent()) {
+            throw new IllegalArgumentException(first.get().getName() + " can be instantiated in abstract plan for " + getName());
+        }
     }
 
     public Optional<DesireFromAnotherAgent.WithAbstractIntention> formAnotherAgentsDesireWithAbstractIntention(SharedDesireForAgents desireForAgents) {
@@ -387,4 +441,7 @@ public abstract class AgentType extends Key {
         return desiresWithIntentionToReason;
     }
 
+    public Set<DesireKey> getSupportedDesiresOfOtherAgents() {
+        return supportedDesiresOfOtherAgents;
+    }
 }

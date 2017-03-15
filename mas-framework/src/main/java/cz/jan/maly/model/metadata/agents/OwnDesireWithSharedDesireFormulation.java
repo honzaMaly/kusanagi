@@ -3,6 +3,7 @@ package cz.jan.maly.model.metadata.agents;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.DesireForOthers;
@@ -11,6 +12,7 @@ import cz.jan.maly.model.planing.RemoveCommitment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Concrete implementation of own desire with desire to share with others
@@ -57,7 +59,7 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
     /**
      * Concrete implementation of own desire with desire to share with others and possibility to create instance based on parent
      */
-    public static class Stacked extends OwnDesireWithSharedDesireFormulation implements OwnInternalDesireFormulationStacked<DesireForOthers> {
+    public static class Stacked extends OwnDesireWithSharedDesireFormulation implements OwnInternalDesireFormulationStacked<DesireForOthers>, StackCommonGetters<OwnDesireWithSharedDesireFormulation> {
         private final Map<DesireKey, OwnDesireWithSharedDesireFormulation> stack = new HashMap<>();
 
         @Override
@@ -96,6 +98,16 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
             OwnDesireWithSharedDesireFormulation formulation = stack.putIfAbsent(parent, new OwnDesireWithSharedDesireFormulation());
             formulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
                     decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, sharedDesireKey, counts);
+        }
+
+        @Override
+        public Set<FactKey<?>> getRequiredFactsToSupportFormulationInStack() {
+            return getRequiredFactsToSupportFormulation(stack.values());
+        }
+
+        @Override
+        public Set<FactKey<?>> getRequiredFactsSetsToSupportFormulationInStack() {
+            return getRequiredFactsSetsToSupportFormulation(stack.values());
         }
 
     }

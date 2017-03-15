@@ -8,6 +8,7 @@ import cz.jan.maly.model.planing.CommandForIntention;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.RemoveCommitment;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  * Template for desire formulations of specific type (child dependant), this contains only common structures and methods
  * Created by Jan on 11-Mar-17.
  */
-abstract class DesireFormulation {
+public abstract class DesireFormulation {
 
     //configurations to form desire
     private final Map<DesireKey, DecisionParameters> parametersForDecisionByDesire = new HashMap<>();
@@ -91,7 +92,7 @@ abstract class DesireFormulation {
         return parametersForDecisionByIntention.get(key);
     }
 
-    boolean supportsDesireType(DesireKey key) {
+    public boolean supportsDesireType(DesireKey key) {
         return parametersForDecisionByDesire.containsKey(key);
     }
 
@@ -131,6 +132,30 @@ abstract class DesireFormulation {
         final Map<DesireKey, Set<DesireKey>> desiresWithAbstractIntentionByKey = new HashMap<>();
         final Map<DesireKey, Set<DesireKey>> desiresWithIntentionToActByKey = new HashMap<>();
         final Map<DesireKey, Set<DesireKey>> desiresWithIntentionToReasonByKey = new HashMap<>();
+
+        public Set<DesireKey> desiresForOthers() {
+            return desiresForOthersByKey.values().stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        }
+
+        public Set<DesireKey> desiresWithAbstractIntention() {
+            return desiresWithAbstractIntentionByKey.values().stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        }
+
+        public Set<DesireKey> desiresWithIntentionToAct() {
+            return desiresWithIntentionToActByKey.values().stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        }
+
+        public Set<DesireKey> desiresWithIntentionToReason() {
+            return desiresWithIntentionToReasonByKey.values().stream()
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        }
 
         /**
          * Add configuration for desire

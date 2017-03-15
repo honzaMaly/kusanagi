@@ -3,6 +3,7 @@ package cz.jan.maly.model.metadata.agents;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.OwnDesire;
@@ -12,6 +13,7 @@ import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Concrete implementation of own desire with reasoning command formulation
@@ -32,7 +34,7 @@ public class OwnDesireWithIntentionWithReasoningCommandFormulation extends Desir
     /**
      * Concrete implementation of own desire with intention with command formulation and possibility to create instance based on parent
      */
-    public static class Stacked extends OwnDesireWithIntentionWithReasoningCommandFormulation implements OwnInternalDesireFormulationStacked<OwnDesire.Reasoning> {
+    public static class Stacked extends OwnDesireWithIntentionWithReasoningCommandFormulation implements OwnInternalDesireFormulationStacked<OwnDesire.Reasoning>, StackCommonGetters<OwnDesireWithIntentionWithReasoningCommandFormulation> {
         private final Map<DesireKey, OwnDesireWithIntentionWithReasoningCommandFormulation> stack = new HashMap<>();
 
         @Override
@@ -68,6 +70,16 @@ public class OwnDesireWithIntentionWithReasoningCommandFormulation extends Desir
             OwnDesireWithIntentionWithReasoningCommandFormulation formulation = stack.putIfAbsent(parent, new OwnDesireWithIntentionWithReasoningCommandFormulation());
             formulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
                     decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);
+        }
+
+        @Override
+        public Set<FactKey<?>> getRequiredFactsToSupportFormulationInStack() {
+            return getRequiredFactsToSupportFormulation(stack.values());
+        }
+
+        @Override
+        public Set<FactKey<?>> getRequiredFactsSetsToSupportFormulationInStack() {
+            return getRequiredFactsSetsToSupportFormulation(stack.values());
         }
 
     }

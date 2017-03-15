@@ -2,8 +2,11 @@ package cz.jan.maly.model.servicies.beliefs;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
+import cz.jan.maly.model.metadata.AgentType;
 
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Concrete implementation of MemoryRegister. Instance of class is intended as read only as it is shared among agents.
@@ -14,5 +17,13 @@ public class ReadOnlyMemoryRegister extends MemoryRegister {
         super(dataByOriginator);
     }
 
-    //todo filters to get knowledge / tree
+    /**
+     * Transform map to remove agent from result
+     *
+     * @return
+     */
+    public Map<AgentType, Map<Integer, ReadOnlyMemory>> formKnowledge() {
+        return dataByOriginator.values().stream()
+                .collect(Collectors.groupingBy(ReadOnlyMemory::getAgentType, Collectors.toMap(ReadOnlyMemory::getAgentId, Function.identity())));
+    }
 }

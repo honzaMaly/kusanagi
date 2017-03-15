@@ -3,6 +3,7 @@ package cz.jan.maly.model.metadata.agents;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.OwnDesire;
@@ -34,7 +35,7 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
     /**
      * Concrete implementation of own desire with abstract plan formulation and possibility to create instance based on parent
      */
-    public static class Stacked extends OwnDesireWithAbstractIntentionFormulation implements OwnInternalDesireFormulationStacked<OwnDesire.WithAbstractIntention> {
+    public static class Stacked extends OwnDesireWithAbstractIntentionFormulation implements OwnInternalDesireFormulationStacked<OwnDesire.WithAbstractIntention>, StackCommonGetters<OwnDesireWithAbstractIntentionFormulation> {
         private final Map<DesireKey, OwnDesireWithAbstractIntentionFormulation> stack = new HashMap<>();
 
         @Override
@@ -80,6 +81,15 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
                     desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason);
         }
 
+        @Override
+        public Set<FactKey<?>> getRequiredFactsToSupportFormulationInStack() {
+            return getRequiredFactsToSupportFormulation(stack.values());
+        }
+
+        @Override
+        public Set<FactKey<?>> getRequiredFactsSetsToSupportFormulationInStack() {
+            return getRequiredFactsSetsToSupportFormulation(stack.values());
+        }
     }
 
 }
