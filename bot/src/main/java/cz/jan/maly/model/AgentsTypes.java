@@ -1,7 +1,7 @@
 package cz.jan.maly.model;
 
 import bwapi.Game;
-import cz.jan.maly.model.game.wrappers.AUnit;
+import cz.jan.maly.model.game.wrappers.AUnitWrapper;
 import cz.jan.maly.model.metadata.*;
 
 import java.util.Arrays;
@@ -18,8 +18,8 @@ public class AgentsTypes {
 
     public static final AgentType<Game> WORKER = new AgentType<Game>("WORKER",
             (memory, environment) -> {
-                AUnit me = (AUnit) memory.returnFactValueForGivenKey(IS_UNIT).get();
-                System.out.println("Cam I attack air units: " + me.canAttackAirUnits());
+                AUnitWrapper me = (AUnitWrapper) memory.returnFactValueForGivenKey(IS_UNIT).get();
+//                System.out.println("Cam I attack air units: " + me.canAttackAirUnits());
                 return true;
             }, new HashSet<>(), new HashSet<>(), Arrays.stream(new DesireKey[]{MINE_MINERALS}).collect(Collectors.toSet()), new HashSet<>()) {
         @Override

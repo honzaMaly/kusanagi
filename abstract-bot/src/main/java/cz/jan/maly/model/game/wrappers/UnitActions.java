@@ -1,61 +1,57 @@
 package cz.jan.maly.model.game.wrappers;
 
-import bwapi.*;
-
 /**
- * Class using default methods which are extracted from AUnit class to separate this functionality.
+ * Class using default methods which are extracted from AUnitWrapper class to separate this functionality.
  *
  * @author Rafal Poniatowski <ravaelles@gmail.com>
  */
 public interface UnitActions {
-    
-    Unit u();
+
     AUnit unit();
-    
-    // =========================================================
-    
-    default boolean attack(AUnit target) {
-        
+
+    /**
+     * Attack unit
+     *
+     * @param target
+     * @return
+     */
+    default boolean attack(AUnitWrapper target) {
+
         // Do NOT issue double orders
-        if (u().isAttacking() && u().getTarget() != null && unit().getTarget().equals(target)) {
+        if (unit().unit.isAttacking() && unit().unit.getTarget() != null && unit().unit.getTarget().equals(target.unit)) {
             return false;
+        } else {
+            return unit().unit.attack(target.unit);
         }
-        else {
-            return u().attack(target.u());
-        }
+
     }
-    
+
     default boolean attack(APosition target) {
-        
+
         // Do NOT issue double orders
-        if (u().isAttacking() && u().getTargetPosition() != null && unit().getTargetPosition().equals(target)) {
+        if (unit().unit.isAttacking() && unit().unit.getTargetPosition() != null && unit().unit.getTargetPosition().equals(target)) {
             return false;
+        } else {
+            return unit().unit.attack(target.p);
         }
-        else {
-            return u().attack(target);
-        }
     }
-    
-    default boolean train(AUnitType unitToTrain) {
-        return u().train(unitToTrain.ut());
+
+    default boolean train(AUnitTypeWrapper unitToTrain) {
+        return unit().unit.train(unitToTrain.type);
     }
-    
-    default boolean morph(AUnitType into) {
-        return u().morph(into.ut());
+
+    default boolean morph(AUnitTypeWrapper into) {
+        return unit().unit.morph(into.type);
     }
-    
-    default boolean build(AUnitType buildingType, TilePosition buildTilePosition) {
-        return u().build(buildingType.ut(), buildTilePosition);
+
+    default boolean build(AUnitTypeWrapper buildingType, ATilePosition buildTilePosition) {
+        return unit().unit.build(buildingType.type, buildTilePosition.tilePosition);
     }
-    
-    default void upgrade(UpgradeType upgrade) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
+    default boolean move(APosition target) {
+        return unit().unit.move(target.p);
     }
-    
-    default public boolean move(Position target) {
-        return u().move(target);
-    }
-    
+
     /**
      * Orders the unit to patrol between its current position and the specified position. While patrolling,
      * units will attack and chase enemy units that they encounter, and then return u().to its patrol route.
@@ -67,7 +63,7 @@ public interface UnitActions {
      * been passed to Broodwar. See also isPatrolling, canPatrol
      */
     default boolean patrol(APosition target) {
-        return u().patrol(target);
+        return unit().unit.patrol(target.p);
     }
 
     /**
@@ -78,7 +74,7 @@ public interface UnitActions {
      * after it has been passed to Broodwar. See also canHoldPosition, isHoldingPosition
      */
     default boolean holdPosition() {
-        return u().holdPosition();
+        return unit().unit.holdPosition();
     }
 
     /**
@@ -89,7 +85,7 @@ public interface UnitActions {
      * been passed to Broodwar. See also canStop, isIdle
      */
     default boolean stop() {
-        return u().stop();
+        return unit().unit.stop();
     }
 
     /**
@@ -101,8 +97,8 @@ public interface UnitActions {
      * would fail. Note There is a small chance for a command to fail after it has been passed to Broodwar.
      * See also isFollowing, canFollow, getOrderTarget
      */
-    default boolean follow(AUnit target) {
-        return u().follow(target.u());
+    default boolean follow(AUnitWrapper target) {
+        return unit().unit.follow(target.unit);
     }
 
     /**
@@ -113,8 +109,8 @@ public interface UnitActions {
      * determined that the command would fail. Note There is a small chance for a command to fail after it has
      * been passed to Broodwar. See also isGatheringGas, isGatheringMinerals, canGather
      */
-    default boolean gather(AUnit target) {
-        return u().gather(target.u());
+    default boolean gather(AUnitWrapper target) {
+        return unit().unit.gather(target.unit);
     }
 
     /**
@@ -127,7 +123,7 @@ public interface UnitActions {
      * isCarryingMinerals, canReturnCargo
      */
     default boolean returnCargo() {
-        return u().returnCargo();
+        return unit().unit.returnCargo();
     }
 
     /**
@@ -139,8 +135,8 @@ public interface UnitActions {
      * is a small chance for a command to fail after it has been passed to Broodwar. See also isRepairing,
      * canRepair
      */
-    default boolean repair(AUnit target) {
-        return u().repair(target.u());
+    default boolean repair(AUnitWrapper target) {
+        return unit().unit.repair(target.unit);
     }
 
     /**
@@ -151,7 +147,7 @@ public interface UnitActions {
      * canBurrow
      */
     default boolean burrow() {
-        return u().burrow();
+        return unit().unit.burrow();
     }
 
     /**
@@ -160,7 +156,7 @@ public interface UnitActions {
      * it has been passed to Broodwar. See also burrow, isBurrowed, canUnburrow
      */
     default boolean unburrow() {
-        return u().unburrow();
+        return unit().unit.unburrow();
     }
 
     /**
@@ -169,7 +165,7 @@ public interface UnitActions {
      * been passed to Broodwar. See also decloak, isCloaked, canCloak
      */
     default boolean cloak() {
-        return u().cloak();
+        return unit().unit.cloak();
     }
 
     /**
@@ -178,7 +174,7 @@ public interface UnitActions {
      * it has been passed to Broodwar. See also cloak, isCloaked, canDecloak
      */
     default boolean decloak() {
-        return u().decloak();
+        return unit().unit.decloak();
     }
 
     /**
@@ -187,7 +183,7 @@ public interface UnitActions {
      * command to fail after it has been passed to Broodwar. See also unsiege, isSieged, canSiege
      */
     default boolean siege() {
-        return u().siege();
+        return unit().unit.siege();
     }
 
     /**
@@ -196,7 +192,7 @@ public interface UnitActions {
      * for a command to fail after it has been passed to Broodwar. See also siege, isSieged, canUnsiege
      */
     default boolean unsiege() {
-        return u().unsiege();
+        return unit().unit.unsiege();
     }
 
     /**
@@ -205,7 +201,7 @@ public interface UnitActions {
      * chance for a command to fail after it has been passed to Broodwar. See also land, isLifted, canLift
      */
     default boolean lift() {
-        return u().lift();
+        return unit().unit.lift();
     }
 
     /**
@@ -214,8 +210,8 @@ public interface UnitActions {
      * false if BWAPI determined that the command would fail. Note There is a small chance for a command to
      * fail after it has been passed to Broodwar. See also lift, isLifted, canLand
      */
-    default boolean land(TilePosition target) {
-        return u().land(target);
+    default boolean land(ATilePosition target) {
+        return unit().unit.land(target.tilePosition);
     }
 
     /**
@@ -227,8 +223,8 @@ public interface UnitActions {
      * determined that the command would fail. Note There is a small chance for a command to fail after it has
      * been passed to Broodwar. See also unload, unloadAll, getLoadedUnits, isLoaded
      */
-    default boolean load(AUnit target) {
-        return u().load(target.u());
+    default boolean load(AUnitWrapper target) {
+        return unit().unit.load(target.unit);
     }
 
     /**
@@ -238,8 +234,8 @@ public interface UnitActions {
      * command would fail. Note There is a small chance for a command to fail after it has been passed to
      * Broodwar. See also load, unloadAll, getLoadedUnits, isLoaded, canUnload, canUnloadAtPosition
      */
-    default boolean unload(AUnit target) {
-        return u().unload(target.u());
+    default boolean unload(AUnitWrapper target) {
+        return unit().unit.unload(target.unit);
     }
 
     /**
@@ -252,7 +248,7 @@ public interface UnitActions {
      * isLoaded, canUnloadAll, canUnloadAtPosition
      */
     default boolean unloadAll() {
-        return u().unloadAll();
+        return unit().unit.unloadAll();
     }
 
     /**
@@ -265,36 +261,8 @@ public interface UnitActions {
      * isLoaded, canUnloadAll, canUnloadAtPosition
      */
     default boolean unloadAll(APosition target) {
-        return u().unloadAll(target);
+        return unit().unit.unloadAll(target.p);
     }
-
-    /**
-     * Works like the right click in the GUI. Parameters target The target position or target unit to right
-     * click. shiftQueueCommand (optional) If this value is true, then the order will be queued instead of
-     * immediately executed. If this value is omitted, then the order will be executed immediately by default.
-     * Returns true if the command was passed to Broodwar, and false if BWAPI determined that the command
-     * would fail. Note There is a small chance for a command to fail after it has been passed to Broodwar.
-     * See also canRightClick, canRightClickPosition, canRightClickUnit
-     */
-//    default boolean rightClick(APosition target) {
-//        return u().rightClick(target);
-//    }
-
-    default boolean rightClick(AUnit target) {
-        if (target != null) {
-            if (!target.u().equals(u().getTarget())) {
-                boolean result = u().rightClick(target.u());
-            }
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-//    default boolean rightClick(PositionOrUnit target) {
-//        return u().rightClick(target);
-//    }
 
     /**
      * Orders a SCV to stop constructing a structure. This leaves the structure in an incomplete state until
@@ -303,7 +271,7 @@ public interface UnitActions {
      * command to fail after it has been passed to Broodwar. See also isConstructing, canHaltConstruction
      */
     default boolean haltConstruction() {
-        return u().haltConstruction();
+        return unit().unit.haltConstruction();
     }
 
     /**
@@ -313,7 +281,7 @@ public interface UnitActions {
      * canCancelConstruction
      */
     default boolean cancelConstruction() {
-        return u().cancelConstruction();
+        return unit().unit.cancelConstruction();
     }
 
     /**
@@ -323,7 +291,7 @@ public interface UnitActions {
      * buildAddon
      */
     default boolean cancelAddon() {
-        return u().cancelAddon();
+        return unit().unit.cancelAddon();
     }
 
     /**
@@ -335,11 +303,11 @@ public interface UnitActions {
      * canCancelTrain, canCancelTrainSlot
      */
     default boolean cancelTrain() {
-        return u().cancelTrain();
+        return unit().unit.cancelTrain();
     }
 
     default boolean cancelTrain(int slot) {
-        return u().cancelTrain(slot);
+        return unit().unit.cancelTrain(slot);
     }
 
     /**
@@ -348,7 +316,7 @@ public interface UnitActions {
      * for a command to fail after it has been passed to Broodwar. See also morph, isMorphing, canCancelMorph
      */
     default boolean cancelMorph() {
-        return u().cancelMorph();
+        return unit().unit.cancelMorph();
     }
 
     /**
@@ -358,7 +326,27 @@ public interface UnitActions {
      * getTech, canCancelResearch
      */
     default boolean cancelResearch() {
-        return u().cancelResearch();
+        return unit().unit.cancelResearch();
+    }
+
+    /**
+     * Orders this unit to research tech. Returns true if the command was
+     * passed to Broodwar, and false if BWAPI determined that the command would fail. Note There is a small
+     * chance for a command to fail after it has been passed to Broodwar. See also research, isResearching,
+     * getTech, canCancelResearch
+     */
+    default boolean research(ATechTypeWrapper techType) {
+        return unit().unit.research(techType.type);
+    }
+
+
+    /**
+     * Orders this unit to build addon of this type. Returns true if the command was
+     * passed to Broodwar, and false if BWAPI determined that the command would fail. Note There is a small
+     * chance for a command to fail after it has been passed to Broodwar.
+     */
+    default boolean buildAddon(AUnitTypeWrapper unitType) {
+        return unit().unit.buildAddon(unitType.type);
     }
 
     /**
@@ -368,7 +356,7 @@ public interface UnitActions {
      * getUpgrade, canCancelUpgrade
      */
     default boolean cancelUpgrade() {
-        return u().cancelUpgrade();
+        return unit().unit.cancelUpgrade();
     }
 
     /**
@@ -378,20 +366,16 @@ public interface UnitActions {
      * false if BWAPI determined that the command would fail. See also canUseTechWithOrWithoutTarget,
      * canUseTech, canUseTechWithoutTarget, canUseTechUnit, canUseTechPosition, TechTypes
      */
-    default boolean useTech(TechType tech) {
-        return u().useTech(tech);
+    default boolean useTech(ATechTypeWrapper tech) {
+        return unit().unit.useTech(tech.type);
     }
 
-    default boolean useTech(TechType tech, APosition target) {
-        return u().useTech(tech, target);
+    default boolean useTech(ATechTypeWrapper tech, APosition target) {
+        return unit().unit.useTech(tech.type, target.p);
     }
 
-    default boolean useTech(TechType tech, AUnit target) {
-        return u().useTech(tech, target.u());
+    default boolean useTech(ATechTypeWrapper tech, AUnitWrapper target) {
+        return unit().unit.useTech(tech.type, target.unit);
     }
 
-    default boolean useTech(TechType tech, PositionOrUnit target) {
-        return u().useTech(tech, target);
-    }    
-    
 }

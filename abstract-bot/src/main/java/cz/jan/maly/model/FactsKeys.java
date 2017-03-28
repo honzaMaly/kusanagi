@@ -1,6 +1,7 @@
 package cz.jan.maly.model;
 
 import cz.jan.maly.model.game.wrappers.AUnit;
+import cz.jan.maly.model.game.wrappers.AUnitWrapper;
 import cz.jan.maly.model.metadata.FactKey;
 
 /**
@@ -8,9 +9,9 @@ import cz.jan.maly.model.metadata.FactKey;
  */
 public class FactsKeys {
 
-    public static final FactKey<AUnit> IS_MINING_MINERAL = new FactKey<AUnit>("IS_MINING_MINERAL") {
+    public static final FactKey<AUnitWrapper> IS_MINING_MINERAL = new FactKey<AUnitWrapper>("IS_MINING_MINERAL") {
         @Override
-        public AUnit getInitValue() {
+        public AUnitWrapper getInitValue() {
             return null;
         }
     };
@@ -22,16 +23,16 @@ public class FactsKeys {
         }
     };
 
-    public static final FactKey<AUnit> BUILDING = new FactKey<AUnit>("BUILDING") {
+    public static final FactKey<AUnitWrapper> BUILDING = new FactKey<AUnitWrapper>("BUILDING") {
         @Override
-        public AUnit getInitValue() {
+        public AUnitWrapper getInitValue() {
             return null;
         }
     };
 
-    public static final FactKey<AUnit> MINERAL = new FactKey<AUnit>("MINERAL") {
+    public static final FactKey<AUnitWrapper> MINERAL = new FactKey<AUnitWrapper>("MINERAL") {
         @Override
-        public AUnit getInitValue() {
+        public AUnitWrapper getInitValue() {
             return null;
         }
     };
