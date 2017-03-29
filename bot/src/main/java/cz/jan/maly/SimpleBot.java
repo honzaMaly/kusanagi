@@ -1,6 +1,6 @@
 package cz.jan.maly;
 
-import bwapi.Unit;
+import bwta.Region;
 import cz.jan.maly.service.AgentUnitFactory;
 import cz.jan.maly.service.implementation.BotFacade;
 
@@ -24,8 +24,7 @@ public class SimpleBot extends BotFacade {
 //            }
 //        }
 
-        printFields(Unit.class);
-
+//        printFields(Region.class);
         new SimpleBot().run();
     }
 

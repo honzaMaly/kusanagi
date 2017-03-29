@@ -1,32 +1,44 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Unit;
-import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Wrapper for Unit in game
  * Created by Jan on 28-Mar-17.
  */
 public class AUnit implements UnitActions {
-
     private static final Map<Unit, AUnit> instances = new HashMap<>();
-
     final Unit unit;
+    private AUnitWrapper unitWrapped;
 
-    @Getter
-    private AUnitWrapper aUnitWrapper;
-
-    public AUnit(Unit unit) {
+    private AUnit(Unit unit) {
         this.unit = unit;
-        this.aUnitWrapper = new AUnitWrapper(unit);
+        this.unitWrapped = new AUnitWrapper(unit);
     }
 
-    public AUnitWrapper makeObservationOfEnvironment() {
-        this.aUnitWrapper = new AUnitWrapper(unit);
-        return this.aUnitWrapper;
+    /**
+     * Get wrapped unit for given unit
+     *
+     * @param unit
+     * @return
+     */
+    public static Optional<AUnitWrapper> getUnitWrapped(Unit unit) {
+        Optional<AUnit> unitWrapped = wrapUnit(unit);
+        if (unitWrapped.isPresent()) {
+            return Optional.of(unitWrapped.get().unitWrapped);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Method to refresh fields in wrapper for unit
+     */
+    public void makeObservationOfEnvironment() {
+        this.unitWrapped = new AUnitWrapper(unit);
     }
 
     /**
@@ -35,14 +47,14 @@ public class AUnit implements UnitActions {
      * @param unitToWrap
      * @return
      */
-    public static AUnit wrapUnit(Unit unitToWrap) {
+    public static Optional<AUnit> wrapUnit(Unit unitToWrap) {
         if (unitToWrap == null) {
-            return null;
+            return Optional.empty();
         }
         if (instances.containsKey(unitToWrap)) {
-            return instances.get(unitToWrap);
+            return Optional.of(instances.get(unitToWrap));
         } else {
-            return instances.put(unitToWrap, new AUnit(unitToWrap));
+            return Optional.of(instances.put(unitToWrap, new AUnit(unitToWrap)));
         }
     }
 

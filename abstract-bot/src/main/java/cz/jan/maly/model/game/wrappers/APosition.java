@@ -1,8 +1,11 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Position;
+import bwapi.TilePosition;
 import cz.jan.maly.model.game.util.PositionUtil;
 import lombok.Getter;
+
+import java.util.Optional;
 
 /**
  * Wrapper for BWMirror Position
@@ -76,11 +79,11 @@ public class APosition {
         return new APosition(getX() + pixelDX, getY() + pixelDY);
     }
 
-    // =========================================================
-
-    @Override
-    public String toString() {
-        return "(" + getTileX() + ", " + getTileY() + ")";
+    static Optional<APosition> creteOrEmpty(Position position) {
+        if (position == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new APosition(position));
     }
 
 }

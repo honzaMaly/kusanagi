@@ -1,5 +1,6 @@
 package cz.jan.maly.model.game.wrappers;
 
+import bwapi.Race;
 import bwapi.UpgradeType;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
 public class AUpgradeTypeWrapper extends AbstractWrapper<UpgradeType> {
 
     @Getter
-    private final ARace race;
+    private final Race race;
 
     @Getter
     private final List<Integer> gasPriceList;
@@ -62,7 +63,7 @@ public class AUpgradeTypeWrapper extends AbstractWrapper<UpgradeType> {
 
         //fields
         Stream<Integer> repeats = IntStream.rangeClosed(0, type.maxRepeats()).boxed();
-        this.race = WrapperTypeFactory.createFrom(type.getRace());
+        this.race = type.getRace();
         this.gasPrice = type.gasPrice();
         this.gasPriceList = repeats.map(type::gasPrice).collect(Collectors.toList());
         this.maxRepeats = type.maxRepeats();

@@ -18,7 +18,11 @@ public class AgentUnitFactory implements AgentUnitFactoryInterface {
     @Override
     public Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade) {
         if (unit.getType().equals(UnitType.Zerg_Drone)) {
-            return Optional.of(new BWAgentInGame(AgentsTypes.WORKER, botFacade, AUnit.wrapUnit(unit)));
+            Optional<AUnit> aUnit = AUnit.wrapUnit(unit);
+            if (!aUnit.isPresent()) {
+                throw new RuntimeException("Could not initiate unit " + UnitType.Zerg_Drone);
+            }
+            return Optional.of(new BWAgentInGame(AgentsTypes.WORKER, botFacade, aUnit.get()));
         }
         return Optional.empty();
     }

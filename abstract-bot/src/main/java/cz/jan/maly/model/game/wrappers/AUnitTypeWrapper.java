@@ -1,7 +1,6 @@
 package cz.jan.maly.model.game.wrappers;
 
-import bwapi.Pair;
-import bwapi.UnitType;
+import bwapi.*;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
 
     @Getter
-    private final AUnitSizeTypeWrapper size;
+    private final UnitSizeType size;
 
     @Getter
     private final boolean isMechanical;
@@ -64,7 +63,7 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
     private final boolean isFlyer;
 
     @Getter
-    private final ARace race;
+    private final Race race;
 
     @Getter
     private final boolean isBeacon;
@@ -268,104 +267,23 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
     private final boolean isSupplyUnit;
 
     @Getter
-    private final boolean isAirUnit;
-
-    @Getter
-    private final boolean isGroundUnit;
-
-    @Getter
-    private final boolean isLarva;
-
-    @Getter
-    private final boolean isMedic;
-
-    @Getter
     private final boolean isGasBuilding;
 
     @Getter
     private final boolean isBase;
 
-    //canBeHealed, isHealable, isBunker,
+    @Getter
+    private final boolean repairableMechanically;
 
-    //    /**
-//     * Returns max shoot range (in build tiles) of this unit against land targets.
-//     */
-//    public double getShootRangeGround() {
-//        return getType().getGroundWeapon().maxRange() / 32;
-//    }
-//
-//    /**
-//     * Returns max shoot range (in build tiles) of this unit against land targets.
-//     */
-//    public double getShootRangeAir() {
-//        return getType().getAirWeapon().maxRange() / 32;
-//    }
-
-    //    /**
-//     * Returns max shoot range (in build tiles) of this unit against given <b>opponentUnit</b>.
-//     */
-//    public double getShootRangeAgainst(AUnitWrapper opponentUnit) {
-//        if (opponentUnit.isAirUnit()) {
-//            return getType().getAirWeapon().maxRange() / 32;
-//        } else {
-//            return getType().getGroundWeapon().maxRange() / 32;
-//        }
-//    }
-
-//    public boolean isSpiderMine() {
-//        return getType().equals(AUnitTypeWrapper.Terran_Vulture_Spider_Mine);
-//    }
-//
-//    public boolean isLarvaOrEgg() {
-//        return getType().equals(AUnitTypeWrapper.Zerg_Larva) || getType().equals(AUnitTypeWrapper.Zerg_Egg);
-//    }
-
-//    public boolean isLarva() {
-//        return getType().equals(AUnitTypeWrapper.Zerg_Larva);
-//    }
-//
-//    public boolean isEgg() {
-//        return getType().equals(AUnitTypeWrapper.Zerg_Egg);
-//    }
-//
-//    /**
-//     * Not that we're racists, but spider mines and larvas aren't really units...
-//     */
-//    public boolean isNotActuallyUnit() {
-//        return isSpiderMine() || isLarvaOrEgg();
-//    }
-
-    /**
-     * //     * Returns true if unit has anti-ground weapon.
-     * //
-     */
-//    public boolean canAttackGroundUnits() {
-//        return getType().getGroundWeapon() != WeaponType.None;
-//    }
-
-//    /**
-//     * Returns true if unit has anti-air weapon.
-//     */
-//    public boolean canAttackAirUnits() {
-//        return getType().getAirWeapon() != WeaponType.None;
-//    }
-//
-//    public WeaponType getAirWeapon() {
-//        return getType().getAirWeapon();
-//    }
-//
-//    public WeaponType getGroundWeapon() {
-//        return getType().getGroundWeapon();
-//    }
-
+    @Getter
+    private final boolean healable;
 
     AUnitTypeWrapper(UnitType type) {
         super(type, type.toString());
         WrapperTypeFactory.add(this);
 
         //original fields
-        this.size = WrapperTypeFactory.createFrom(type.size());
-
+        this.size = type.size();
         this.isMechanical = type.isMechanical();
         this.isRobotic = type.isRobotic();
         this.canMove = type.canMove();
@@ -383,7 +301,7 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         this.isWorker = type.isWorker();
         this.topSpeed = type.topSpeed();
         this.isFlyer = type.isFlyer();
-        this.race = WrapperTypeFactory.createFrom(type.getRace());
+        this.race = type.getRace();
         this.isBeacon = type.isBeacon();
         this.whatBuilds.first = WrapperTypeFactory.createFrom(type.whatBuilds().first);
         this.whatBuilds.second = type.whatBuilds().second;
@@ -452,18 +370,16 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         this.upgradesWhat = type.upgradesWhat().stream()
                 .map(WrapperTypeFactory::createFrom)
                 .collect(Collectors.toList());
+        if (isType(type, new UnitType[]{UnitType.Zerg_Zergling})) {
+            this.mineralPrice = type.mineralPrice() / 2;
+        } else {
+            this.mineralPrice = type.mineralPrice();
+        }
 
         //additional fields
-
-        //todo, see unit and original project on git
-
         this.isBase = type.isBuilding() && isType(type, new UnitType[]{UnitType.Terran_Command_Center, UnitType.Protoss_Nexus, UnitType.Zerg_Hatchery,
                 UnitType.Zerg_Lair, UnitType.Zerg_Hive});
         this.isGasBuilding = type.isBuilding() && isType(type, new UnitType[]{UnitType.Terran_Refinery, UnitType.Protoss_Assimilator, UnitType.Zerg_Extractor});
-        this.isMedic = type.equals(UnitType.Terran_Medic);
-        this.isLarva = type.equals(UnitType.Zerg_Larva);
-        this.isAirUnit = type.isFlyer();
-        this.isGroundUnit = !isAirUnit;
         this.isSupplyUnit = isType(type, new UnitType[]{UnitType.Protoss_Pylon, UnitType.Terran_Supply_Depot, UnitType.Zerg_Overlord});
         this.isMilitaryBuilding = type.isBuilding() && isType(type, new UnitType[]{UnitType.Terran_Bunker, UnitType.Terran_Missile_Turret, UnitType.Protoss_Photon_Cannon,
                 UnitType.Zerg_Sunken_Colony, UnitType.Zerg_Spore_Colony}
@@ -474,23 +390,92 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         this.isMilitaryBuildingAntiGround = isMilitaryBuilding && isType(type, new UnitType[]{UnitType.Terran_Bunker, UnitType.Protoss_Photon_Cannon,
                 UnitType.Zerg_Sunken_Colony}
         );
-        if (isType(type, new UnitType[]{UnitType.Zerg_Zergling})) {
-            this.mineralPrice = type.mineralPrice() / 2;
-        } else {
-            this.mineralPrice = type.mineralPrice();
-        }
+
         this.isMelee = isType(type, new UnitType[]{UnitType.Terran_SCV, UnitType.Terran_SCV, UnitType.Terran_Firebat, UnitType.Protoss_Probe,
                 UnitType.Protoss_Zealot, UnitType.Protoss_Dark_Templar, UnitType.Zerg_Drone, UnitType.Zerg_Zergling,
                 UnitType.Zerg_Broodling}
         );
+
+        // Repair & Heal
+        this.repairableMechanically = isBuilding() || isMechanical();
+        this.healable = isOrganic() || isWorker();
     }
 
     /**
-     * Returns true if given unit is considered to be "ranged" unit (not melee).
+     * Returns max shoot range (in build tiles) of this unit against land targets.
      */
+    public double getShootRangeGround() {
+        return getGroundWeapon().getMaxRange() / 32;
+    }
 
-    public boolean isRangedUnit() {
-        return !isMelee;
+    /**
+     * Returns max shoot range (in build tiles) of this unit against air targets.
+     */
+    public double getShootRangeAir() {
+        return getAirWeapon().getMaxRange() / 32;
+    }
+
+    /**
+     * Returns max shoot range (in build tiles) of this unit against given <b>opponentUnit</b>.
+     */
+    public double getShootRangeAgainst(AUnitTypeWrapper type) {
+        if (type.isFlyer()) {
+            return getShootRangeAir();
+        } else {
+            return getShootRangeGround();
+        }
+    }
+
+    public boolean isBunker() {
+        return this.isForType(UnitType.Terran_Bunker);
+    }
+
+    public boolean isSpiderMine() {
+        return this.isForType(UnitType.Terran_Vulture_Spider_Mine);
+    }
+
+    public boolean isLarvaOrEgg() {
+        return isEgg() || isLarva();
+    }
+
+    public boolean isLarva() {
+        return this.isForType(UnitType.Zerg_Larva);
+    }
+
+    public boolean isEgg() {
+        return this.isForType(UnitType.Zerg_Egg);
+    }
+
+    /**
+     * Not that we're racists, but spider mines and larvas aren't really units...
+     */
+    public boolean isNotActuallyUnit() {
+        return isSpiderMine() || isLarvaOrEgg();
+    }
+
+    /**
+     * Returns true if unit has anti-ground weapon.
+     */
+    public boolean canAttackGroundUnits() {
+        return !getGroundWeapon().isForType(WeaponType.None);
+    }
+
+    /**
+     * Returns true if unit has anti-air weapon.
+     */
+    public boolean canAttackAirUnits() {
+        return !getAirWeapon().isForType(WeaponType.None);
+    }
+
+    /**
+     * Returns true if unit has anti-air weapon.
+     */
+    public boolean isMedic() {
+        return this.isForType(UnitType.Terran_Medic);
+    }
+
+    public boolean canBeHealed() {
+        return repairableMechanically || healable;
     }
 
 }

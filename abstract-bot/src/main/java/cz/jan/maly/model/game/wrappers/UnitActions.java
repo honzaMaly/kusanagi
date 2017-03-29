@@ -10,6 +10,20 @@ public interface UnitActions {
     AUnit unit();
 
     /**
+     * Unit will move by given distance (in build tiles) from given position.
+     */
+    default boolean moveAwayBy(int x, int y, double moveDistance) {
+        int dx = x - unit().unit.getX();
+        int dy = y - unit().unit.getY();
+        double vectorLength = Math.sqrt(dx * dx + dy * dy);
+        double modifier = (moveDistance * 32) / vectorLength;
+        dx = (int) (dx * modifier);
+        dy = (int) (dy * modifier);
+        APosition newPosition = new APosition(unit().unit.getX() - dx, unit().unit.getY() - dy);
+        return move(newPosition);
+    }
+
+    /**
      * Attack unit
      *
      * @param target

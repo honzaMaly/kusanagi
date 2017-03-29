@@ -1,5 +1,7 @@
 package cz.jan.maly.model.game.wrappers;
 
+import bwapi.Order;
+import bwapi.Race;
 import bwapi.TechType;
 import lombok.Getter;
 
@@ -10,13 +12,13 @@ import lombok.Getter;
 public class ATechTypeWrapper extends AbstractWrapper<TechType> {
 
     @Getter
-    private final ARace race;
+    private final Race race;
 
     @Getter
     private final int gasPrice;
 
     @Getter
-    private final AOrderTypeWrapper order;
+    private final Order order;
 
     @Getter
     private final int energyCost;
@@ -47,9 +49,9 @@ public class ATechTypeWrapper extends AbstractWrapper<TechType> {
         WrapperTypeFactory.add(this);
 
         //original fields
-        this.race = WrapperTypeFactory.createFrom(type.getRace());
+        this.race = type.getRace();
         this.gasPrice = type.gasPrice();
-        this.order = WrapperTypeFactory.createFrom(type.getOrder());
+        this.order = type.getOrder();
         this.energyCost = type.energyCost();
         this.researchTime = type.researchTime();
         this.weapon = WrapperTypeFactory.createFrom(type.getWeapon());

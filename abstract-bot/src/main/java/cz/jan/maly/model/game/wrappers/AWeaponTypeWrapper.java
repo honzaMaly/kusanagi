@@ -1,5 +1,7 @@
 package cz.jan.maly.model.game.wrappers;
 
+import bwapi.DamageType;
+import bwapi.ExplosionType;
 import bwapi.WeaponType;
 import lombok.Getter;
 
@@ -43,13 +45,13 @@ public class AWeaponTypeWrapper extends AbstractWrapper<WeaponType> {
     private final int damageFactor;
 
     @Getter
-    private final AExplosionTypeWrapper explosionType;
+    private final ExplosionType explosionType;
 
     @Getter
     private final boolean targetsAir;
 
     @Getter
-    private final ADamageTypeWrapper damageType;
+    private final DamageType damageType;
 
     @Getter
     private final boolean targetsTerrain;
@@ -94,9 +96,9 @@ public class AWeaponTypeWrapper extends AbstractWrapper<WeaponType> {
         this.targetsMechanical = type.targetsMechanical();
         this.targetsNonBuilding = type.targetsNonBuilding();
         this.damageFactor = type.damageFactor();
-        this.explosionType = WrapperTypeFactory.createFrom(type.explosionType());
+        this.explosionType = type.explosionType();
         this.targetsAir = type.targetsAir();
-        this.damageType = WrapperTypeFactory.createFrom(type.damageType());
+        this.damageType = type.damageType();
         this.targetsTerrain = type.targetsTerrain();
         this.targetsOwn = type.targetsOwn();
         this.damageCooldown = type.damageCooldown();
@@ -108,11 +110,11 @@ public class AWeaponTypeWrapper extends AbstractWrapper<WeaponType> {
         this.damageBonus = type.damageBonus();
     }
 
-//    public static double getDamageNormalized(WeaponType weapon) {
-//        if (weapon.equals(WeaponType.Psi_Blades)) {
-//            return 16;
-//        } else {
-//            return weapon.damageAmount() * weapon.damageFactor();
-//        }
-//    }
+    public double getDamageNormalized() {
+        if (isForType(WeaponType.Psi_Blades)) {
+            return 16;
+        } else {
+            return getDamageAmount() * getDamageFactor();
+        }
+    }
 }
