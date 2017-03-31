@@ -1,14 +1,14 @@
 package cz.jan.maly.model.game.wrappers;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Register to keep registered types
  * Created by Jan on 27-Mar-17.
  */
 class WrapperTypeRegister<T, V extends AbstractWrapper<T>> {
-    private final Map<T, V> types = new HashMap<>();
+    private final Map<T, V> types = new ConcurrentHashMap<>();
     private final StrategyToWrapType<T, V> strategyToWrapType;
 
     WrapperTypeRegister(StrategyToWrapType<T, V> strategyToWrapType) {
@@ -26,10 +26,10 @@ class WrapperTypeRegister<T, V extends AbstractWrapper<T>> {
      * @return
      */
     V createFrom(T type) {
-        if (type == null) {
+        if (type == null || !types.containsKey(type)) {
             throw new RuntimeException("Type is null.");
         }
-        return types.getOrDefault(type, strategyToWrapType.createNewWrapper(type));
+        return types.get(type);
     }
 
 }

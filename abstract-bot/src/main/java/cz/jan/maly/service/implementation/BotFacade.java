@@ -3,6 +3,10 @@ package cz.jan.maly.service.implementation;
 import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.agent.BWAgentInGame;
+import cz.jan.maly.model.game.wrappers.ATechTypeWrapper;
+import cz.jan.maly.model.game.wrappers.AUnitTypeWrapper;
+import cz.jan.maly.model.game.wrappers.AUpgradeTypeWrapper;
+import cz.jan.maly.model.game.wrappers.AWeaponTypeWrapper;
 import cz.jan.maly.service.AgentUnitFactoryInterface;
 import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.utils.MyLogger;
@@ -33,7 +37,7 @@ public class BotFacade extends DefaultBWListener {
 
     @Setter
     @Getter
-    private static long maxFrameExecutionTime = 30;
+    private static long maxFrameExecutionTime = 40;
 
     //executor of game commands
     private GameCommandExecutor gameCommandExecutor;
@@ -51,6 +55,7 @@ public class BotFacade extends DefaultBWListener {
     public BotFacade(AgentUnitFactoryInterface agentUnitFactory) {
         this.agentUnitFactory = agentUnitFactory;
 //        this.abstractAgentInitializer = abstractAgentInitializer;
+//        MyLogger.setLoggingLevel(Level.WARNING);
     }
 
     @Override
@@ -75,6 +80,12 @@ public class BotFacade extends DefaultBWListener {
 
         //create all abstract agents
 //        abstractAgentInitializer.initializeAbstractAgentOnStartOfTheGame();
+
+        //init types
+        AUpgradeTypeWrapper.initTypes();
+        AUnitTypeWrapper.initTypes();
+        ATechTypeWrapper.initTypes();
+        AWeaponTypeWrapper.initTypes();
 
         //speed up game to setup value
         game.setLocalSpeed(getGameDefaultSpeed());

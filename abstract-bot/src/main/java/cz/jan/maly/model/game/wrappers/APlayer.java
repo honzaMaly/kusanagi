@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Wrapper for Player in game
+ * Wrapper for Player in GAME
  * Created by Jan on 27-Mar-17.
  */
 public class APlayer {

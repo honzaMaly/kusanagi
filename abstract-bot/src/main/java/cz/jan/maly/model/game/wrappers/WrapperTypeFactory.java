@@ -1,10 +1,12 @@
 package cz.jan.maly.model.game.wrappers;
 
-import bwapi.TechType;
-import bwapi.UnitType;
-import bwapi.UpgradeType;
-import bwapi.WeaponType;
+import bwapi.*;
 import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class with static registers to wrap types
@@ -16,6 +18,9 @@ class WrapperTypeFactory {
     private static final WrapperTypeRegister<UpgradeType, AUpgradeTypeWrapper> UPGRADE_TYPE_REGISTER = new WrapperTypeRegister<>(AUpgradeTypeWrapper::new);
     private static final WrapperTypeRegister<WeaponType, AWeaponTypeWrapper> WEAPON_TYPE_REGISTER = new WrapperTypeRegister<>(AWeaponTypeWrapper::new);
     private static final WrapperTypeRegister<UnitType, AUnitTypeWrapper> UNIT_TYPE_REGISTER = new WrapperTypeRegister<>(AUnitTypeWrapper::new);
+
+    //reference on buildings by race
+    private static final Map<Race, Set<AUnitTypeWrapper>> buildingsByRace = new HashMap<>();
 
     /**
      * Returns corresponding wrapper for type instance
@@ -29,6 +34,13 @@ class WrapperTypeFactory {
 
     static void add(AUnitTypeWrapper type) {
         UNIT_TYPE_REGISTER.addWrappedType(type.type, type);
+        if (type.isBuilding()) {
+            buildingsByRace.putIfAbsent(type.getRace(), new HashSet<>()).add(type);
+        }
+    }
+
+    static Set<AUnitTypeWrapper> buildingsForRace(Race race) {
+        return buildingsByRace.getOrDefault(race, new HashSet<>());
     }
 
     /**

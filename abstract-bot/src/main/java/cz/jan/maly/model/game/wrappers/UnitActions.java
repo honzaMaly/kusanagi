@@ -1,13 +1,18 @@
 package cz.jan.maly.model.game.wrappers;
 
 /**
- * Class using default methods which are extracted from AUnitWrapper class to separate this functionality.
+ * Class using default methods which are extracted from AUnitWithCommands class to separate this functionality.
  *
  * @author Rafal Poniatowski <ravaelles@gmail.com>
  */
 public interface UnitActions {
 
-    AUnit unit();
+    /**
+     * Get reference on unit implementing this interface - to command it to execute action
+     *
+     * @return
+     */
+    AUnitWithCommands unit();
 
     /**
      * Unit will move by given distance (in build tiles) from given position.
@@ -29,7 +34,7 @@ public interface UnitActions {
      * @param target
      * @return
      */
-    default boolean attack(AUnitWrapper target) {
+    default boolean attack(AUnit target) {
 
         // Do NOT issue double orders
         if (unit().unit.isAttacking() && unit().unit.getTarget() != null && unit().unit.getTarget().equals(target.unit)) {
@@ -111,7 +116,7 @@ public interface UnitActions {
      * would fail. Note There is a small chance for a command to fail after it has been passed to Broodwar.
      * See also isFollowing, canFollow, getOrderTarget
      */
-    default boolean follow(AUnitWrapper target) {
+    default boolean follow(AUnit target) {
         return unit().unit.follow(target.unit);
     }
 
@@ -123,7 +128,7 @@ public interface UnitActions {
      * determined that the command would fail. Note There is a small chance for a command to fail after it has
      * been passed to Broodwar. See also isGatheringGas, isGatheringMinerals, canGather
      */
-    default boolean gather(AUnitWrapper target) {
+    default boolean gather(AUnit target) {
         return unit().unit.gather(target.unit);
     }
 
@@ -149,7 +154,7 @@ public interface UnitActions {
      * is a small chance for a command to fail after it has been passed to Broodwar. See also isRepairing,
      * canRepair
      */
-    default boolean repair(AUnitWrapper target) {
+    default boolean repair(AUnit target) {
         return unit().unit.repair(target.unit);
     }
 
@@ -237,7 +242,7 @@ public interface UnitActions {
      * determined that the command would fail. Note There is a small chance for a command to fail after it has
      * been passed to Broodwar. See also unload, unloadAll, getLoadedUnits, isLoaded
      */
-    default boolean load(AUnitWrapper target) {
+    default boolean load(AUnit target) {
         return unit().unit.load(target.unit);
     }
 
@@ -248,7 +253,7 @@ public interface UnitActions {
      * command would fail. Note There is a small chance for a command to fail after it has been passed to
      * Broodwar. See also load, unloadAll, getLoadedUnits, isLoaded, canUnload, canUnloadAtPosition
      */
-    default boolean unload(AUnitWrapper target) {
+    default boolean unload(AUnit target) {
         return unit().unit.unload(target.unit);
     }
 
@@ -388,7 +393,7 @@ public interface UnitActions {
         return unit().unit.useTech(tech.type, target.p);
     }
 
-    default boolean useTech(ATechTypeWrapper tech, AUnitWrapper target) {
+    default boolean useTech(ATechTypeWrapper tech, AUnitOfPlayer target) {
         return unit().unit.useTech(tech.type, target.unit);
     }
 

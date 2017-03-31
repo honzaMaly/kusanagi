@@ -17,14 +17,19 @@ public abstract class FactKey<V> extends Key {
     @Getter
     private final boolean isFading;
 
-    public FactKey(String name, int howLongStayInMemoryWithoutUpdate) {
+    @Getter
+    private final boolean isPrivate;
+
+    public FactKey(String name, int howLongStayInMemoryWithoutUpdate, boolean isPrivate) {
         super(name, FactKey.class);
         this.howLongStayInMemoryWithoutUpdate = howLongStayInMemoryWithoutUpdate;
+        this.isPrivate = isPrivate;
         this.isFading = true;
     }
 
-    public FactKey(String name) {
+    public FactKey(String name, boolean isPrivate) {
         super(name, FactKey.class);
+        this.isPrivate = isPrivate;
         this.howLongStayInMemoryWithoutUpdate = Integer.MAX_VALUE;
         this.isFading = false;
     }

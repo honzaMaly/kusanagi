@@ -2,7 +2,7 @@ package cz.jan.maly.model.game.util;
 
 import cz.jan.maly.model.game.wrappers.APosition;
 import cz.jan.maly.model.game.wrappers.ATilePosition;
-import cz.jan.maly.model.game.wrappers.AUnitWrapper;
+import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
 
 /**
  * Util class defining methods to work with position
@@ -25,7 +25,7 @@ public class PositionUtil {
      * of build tiles instead of pixels is preferable, because it's easier to imagine distances if one knows
      * building dimensions.
      */
-    public static double distanceTo(AUnitWrapper one, AUnitWrapper other) {
+    public static double distanceTo(AUnitOfPlayer one, AUnitOfPlayer other) {
         return distanceTo(one.getPosition(), other.getPosition());
     }
 

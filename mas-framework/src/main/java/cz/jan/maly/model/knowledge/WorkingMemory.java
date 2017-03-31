@@ -42,7 +42,13 @@ public class WorkingMemory<E> extends Memory<Tree, E> {
      */
     public ReadOnlyMemory<E> cloneMemory() {
         forget();
-        return new ReadOnlyMemory<>(factParameterMap, factSetParameterMap, tree.getReadOnlyCopy(), agentType, agentId, sharedKnowledgeByOtherAgentsTypes, sharedKnowledgeByOtherAgents);
+        return new ReadOnlyMemory<>(factParameterMap.entrySet().stream()
+                .filter(factKeyFactEntry -> !factKeyFactEntry.getKey().isPrivate())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                factSetParameterMap.entrySet().stream()
+                        .filter(factKeyFactEntry -> !factKeyFactEntry.getKey().isPrivate())
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
+                tree.getReadOnlyCopy(), agentType, agentId, sharedKnowledgeByOtherAgentsTypes, sharedKnowledgeByOtherAgents);
     }
 
     /**

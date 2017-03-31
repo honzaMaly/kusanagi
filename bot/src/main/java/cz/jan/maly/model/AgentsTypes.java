@@ -1,7 +1,7 @@
 package cz.jan.maly.model;
 
 import bwapi.Game;
-import cz.jan.maly.model.game.wrappers.AUnitWrapper;
+import cz.jan.maly.model.agent.BWAgentInGame;
 import cz.jan.maly.model.metadata.*;
 
 import java.util.Arrays;
@@ -16,12 +16,8 @@ import static cz.jan.maly.model.FactsKeys.*;
  */
 public class AgentsTypes {
 
-    public static final AgentType<Game> WORKER = new AgentType<Game>("WORKER",
-            (memory, environment) -> {
-                AUnitWrapper me = (AUnitWrapper) memory.returnFactValueForGivenKey(IS_UNIT).get();
-//                System.out.println("Cam I attack air units: " + me.canAttackAirUnits());
-                return true;
-            }, new HashSet<>(), new HashSet<>(), Arrays.stream(new DesireKey[]{MINE_MINERALS}).collect(Collectors.toSet()), new HashSet<>()) {
+    public static final AgentType<Game> WORKER = new AgentType<Game>("WORKER", BWAgentInGame.observingCommand(),
+            new HashSet<>(), new HashSet<>(), Arrays.stream(new DesireKey[]{MINE_MINERALS}).collect(Collectors.toSet()), new HashSet<>()) {
         @Override
         protected void initializeConfiguration() {
             addDesireFormulationConfigurationForOwnDesireWithActingCommand(MINE_MINERALS,
@@ -31,7 +27,7 @@ public class AgentsTypes {
                     (dataForDecision, desire) -> dataForDecision.returnFactValueForGivenKey(IS_MINING_MINERAL).isPresent() && dataForDecision.returnFactValueForGivenKey(IS_MINING_MINERAL).get() != null && !dataForDecision.returnFactSetValueForGivenKey(MINERAL).get().isEmpty(),
                     new DecisionParameters(new HashSet<>(), new HashSet<>(), new HashSet<>()),
                     (dataForDecision, intention) -> false,
-                    new IntentionParameters(Arrays.stream(new FactKey<?>[]{IS_UNIT}).collect(Collectors.toSet()), new HashSet<>()),
+                    new IntentionParameters(Arrays.stream(new FactKey<?>[]{IS}).collect(Collectors.toSet()), new HashSet<>()),
                     null);
         }
     };

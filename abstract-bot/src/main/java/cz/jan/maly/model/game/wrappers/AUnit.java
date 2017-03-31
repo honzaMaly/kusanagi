@@ -1,69 +1,307 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Unit;
+import bwapi.UnitType;
+import bwapi.WeaponType;
+import bwta.BWTA;
+import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Wrapper for Unit in game
+ * Wrapper for Unit with fields visible by all players
  * Created by Jan on 28-Mar-17.
  */
-public class AUnit implements UnitActions {
-    private static final Map<Unit, AUnit> instances = new HashMap<>();
+public class AUnit {
     final Unit unit;
-    private AUnitWrapper unitWrapped;
 
-    private AUnit(Unit unit) {
+    private final UnitType type;
+
+    public AUnitTypeWrapper getType() {
+        return WrapperTypeFactory.createFrom(type);
+    }
+
+    @Getter
+    private final boolean exists;
+
+    @Getter
+    private final APosition position;
+
+    @Getter
+    private final boolean isFlying;
+
+    @Getter
+    private final boolean isSieged;
+
+    @Getter
+    private final boolean isStuck;
+
+    @Getter
+    private final boolean isLifted;
+
+    @Getter
+    private final boolean isMoving;
+
+    @Getter
+    private final int shields;
+
+    @Getter
+    private final double velocityY;
+
+    @Getter
+    private final int hitPoints;
+
+    @Getter
+    private final boolean isAccelerating;
+
+    @Getter
+    private final double velocityX;
+
+    @Getter
+    private final boolean isIdle;
+
+    @Getter
+    private final boolean isBeingGathered;
+
+    @Getter
+    private final boolean isBraking;
+
+    @Getter
+    private final boolean isEnsnared;
+
+    @Getter
+    private final boolean isLockedDown;
+
+    @Getter
+    private final boolean isParasited;
+
+    @Getter
+    private final boolean isIrradiated;
+
+    @Getter
+    private final boolean isBurrowed;
+
+    @Getter
+    private final boolean isAttacking;
+
+    @Getter
+    private final boolean isCloaked;
+
+    @Getter
+    private final boolean isConstructing;
+
+    @Getter
+    private final boolean isCarryingGas;
+
+    @Getter
+    private final boolean isInvincible;
+
+    @Getter
+    private final boolean isDetected;
+
+    @Getter
+    private final boolean isAttackFrame;
+
+    @Getter
+    private final boolean isGatheringGas;
+
+    @Getter
+    private final boolean isMaelstrommed;
+
+    @Getter
+    private final boolean isBeingHealed;
+
+    @Getter
+    private final boolean isMorphing;
+
+    @Getter
+    private final boolean isUnderDarkSwarm;
+
+    @Getter
+    private final boolean isTargetable;
+
+    @Getter
+    private final boolean isStasised;
+
+    @Getter
+    private final boolean isRepairing;
+
+    @Getter
+    private final boolean isPlagued;
+
+    @Getter
+    private final boolean isStimmed;
+
+    @Getter
+    private final boolean isUnderStorm;
+
+    @Getter
+    private final boolean isVisible;
+
+    @Getter
+    private final boolean isPowered;
+
+    @Getter
+    private final boolean isStartingAttack;
+
+    @Getter
+    private final boolean isUnderAttack;
+
+    @Getter
+    private final boolean isBeingConstructed;
+
+    @Getter
+    private final boolean isGatheringMinerals;
+
+    @Getter
+    private final boolean isCarryingMinerals;
+
+    @Getter
+    private final APlayer player;
+
+    @Getter
+    private final Optional<bwta.Region> unitRegion;
+
+    private final List<Unit> unitsInWeaponRange;
+
+    public List<AUnitOfPlayer> getUnitsInWeaponRange() {
+        return unitsInWeaponRange.stream()
+                .map(AUnit::getUnitWrapped)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    private final List<Unit> unitsInRadiusOfSight;
+
+    public List<AUnitOfPlayer> getUnitsInRadiusOfSight() {
+        return unitsInRadiusOfSight.stream()
+                .map(AUnit::getUnitWrapped)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    AUnit(Unit unit) {
         this.unit = unit;
-        this.unitWrapped = new AUnitWrapper(unit);
+        this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
+
+        //units in weapon range
+        this.unitsInWeaponRange = unit.getUnitsInWeaponRange(unit.getType().airWeapon());
+        this.unitsInWeaponRange.addAll(unit.getUnitsInWeaponRange(unit.getType().groundWeapon()));
+
+        //units in radius of sight
+        this.unitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange());
+
+        this.position = new APosition(unit.getPosition());
+        this.type = unit.getType();
+        this.exists = unit.exists();
+        this.velocityX = unit.getVelocityX();
+        this.isIdle = unit.isIdle();
+        this.isFlying = unit.isFlying();
+        this.isSieged = unit.isSieged();
+        this.isStuck = unit.isStuck();
+        this.isLifted = unit.isLifted();
+        this.isMoving = unit.isMoving();
+        this.shields = unit.getShields();
+        this.velocityY = unit.getVelocityY();
+        this.hitPoints = unit.getHitPoints();
+        this.isAccelerating = unit.isAccelerating();
+        this.isBeingGathered = unit.isBeingGathered();
+        this.isBraking = unit.isBraking();
+        this.isEnsnared = unit.isEnsnared();
+        this.isLockedDown = unit.isLockedDown();
+        this.isParasited = unit.isParasited();
+        this.isIrradiated = unit.isIrradiated();
+        this.isBurrowed = unit.isBurrowed();
+        this.isAttacking = unit.isAttacking();
+        this.isCloaked = unit.isCloaked();
+        this.isConstructing = unit.isConstructing();
+        this.isCarryingGas = unit.isCarryingGas();
+        this.isInvincible = unit.isInvincible();
+        this.isDetected = unit.isDetected();
+        this.isAttackFrame = unit.isAttackFrame();
+        this.isGatheringGas = unit.isGatheringGas();
+        this.isMaelstrommed = unit.isMaelstrommed();
+        this.isBeingHealed = unit.isBeingHealed();
+        this.isMorphing = unit.isMorphing();
+        this.isUnderDarkSwarm = unit.isUnderDarkSwarm();
+        this.isTargetable = unit.isTargetable();
+        this.isStasised = unit.isStasised();
+        this.isRepairing = unit.isRepairing();
+        this.isPlagued = unit.isPlagued();
+        this.isStimmed = unit.isStimmed();
+        this.isUnderStorm = unit.isUnderStorm();
+        this.isVisible = unit.isVisible();
+        this.isPowered = unit.isPowered();
+        this.isStartingAttack = unit.isStartingAttack();
+        this.isUnderAttack = unit.isUnderAttack();
+        this.isBeingConstructed = unit.isBeingConstructed();
+        this.isGatheringMinerals = unit.isGatheringMinerals();
+        this.isCarryingMinerals = unit.isCarryingMinerals();
+        this.player = APlayer.wrapPlayer(unit.getPlayer()).get();
+    }
+
+    public boolean isFullyHealthy() {
+        return getHitPoints() >= getType().getMaxHitPoints();
+    }
+
+    public int getHPPercent() {
+        return 100 * getHitPoints() / getType().getMaxHitPoints();
+    }
+
+    public boolean isWounded() {
+        return getHitPoints() < getType().getMaxHitPoints();
     }
 
     /**
-     * Get wrapped unit for given unit
-     *
-     * @param unit
-     * @return
+     * Returns true if this unit is capable of attacking <b>otherUnit</b>. For example Zerglings can't attack
+     * flying targets and Corsairs can't attack ground targets.
      */
-    public static Optional<AUnitWrapper> getUnitWrapped(Unit unit) {
-        Optional<AUnit> unitWrapped = wrapUnit(unit);
-        if (unitWrapped.isPresent()) {
-            return Optional.of(unitWrapped.get().unitWrapped);
+    public boolean canAttackThisKindOfUnit(AUnitOfPlayer otherUnit) {
+
+        // Enemy is GROUND unit
+        if (!otherUnit.getType().isFlyer()) {
+            return getType().canAttackGroundUnits();
+        } // Enemy is AIR unit
+        else {
+            return getType().canAttackAirUnits();
         }
-        return Optional.empty();
     }
 
     /**
-     * Method to refresh fields in wrapper for unit
-     */
-    public void makeObservationOfEnvironment() {
-        this.unitWrapped = new AUnitWrapper(unit);
-    }
-
-    /**
-     * Wrapped unit to command is returned
+     * Returns <b>true</b> if this unit can attack <b>targetUnit</b> in terms of both min and max range
+     * conditions fulfilled.
      *
-     * @param unitToWrap
-     * @return
+     * @param safetyMargin allowed error (in tiles) applied to the max distance condition
      */
-    public static Optional<AUnit> wrapUnit(Unit unitToWrap) {
-        if (unitToWrap == null) {
-            return Optional.empty();
-        }
-        if (instances.containsKey(unitToWrap)) {
-            return Optional.of(instances.get(unitToWrap));
+    public boolean hasRangeToAttack(AUnit targetUnit, double safetyMargin) {
+        AWeaponTypeWrapper weaponAgainstThisUnit = getWeaponAgainst(targetUnit);
+        double dist = getPosition().distanceTo(targetUnit);
+        return !weaponAgainstThisUnit.isForType(WeaponType.None)
+                && weaponAgainstThisUnit.getMaxRange() <= (dist + safetyMargin)
+                && weaponAgainstThisUnit.getMinRange() >= dist;
+    }
+
+    /**
+     * Returns weapon that would be used to attack given target.
+     * If no such weapon, then WeaponTypes.None will be returned.
+     */
+    public AWeaponTypeWrapper getWeaponAgainst(AUnit target) {
+        if (!target.getType().isFlyer()) {
+            return getType().getGroundWeapon();
         } else {
-            return Optional.of(instances.put(unitToWrap, new AUnit(unitToWrap)));
+            return getType().getAirWeapon();
         }
     }
 
     /**
-     * This method exists only to allow reference in UnitActions class.
+     * Returns true if unit is starting an attack or already in the attack frame animation.
      */
-    @Override
-    public AUnit unit() {
-        return this;
+    public boolean isJustShooting() {
+        return isAttackFrame() || isStartingAttack();
     }
 
 }

@@ -10,6 +10,7 @@ import cz.jan.maly.model.planing.command.ActCommandForIntention;
 import cz.jan.maly.model.planing.command.ObservingCommand;
 import cz.jan.maly.service.CommandManager;
 import cz.jan.maly.service.ObservingCommandManager;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
     private final Map<AgentType<Game>, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
 
     /**
-     * Method to add item to queue with code to execute action in game
+     * Method to add item to queue with code to execute action in GAME
      *
      * @param command
      * @param responseReceiver
@@ -81,7 +82,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
     }
 
     /**
-     * Method to add item to queue with code to execute action in game
+     * Method to add item to queue with code to execute action in GAME
      *
      * @param command
      * @param responseReceiver
@@ -118,7 +119,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      * First command in queue is executed always - to make sure that commands do not stuck in queue
      */
     void actOnFrame() {
-        long currentTime = System.currentTimeMillis(), end = currentTime + BotFacade.getMaxFrameExecutionTime();
+        long currentTime = System.currentTimeMillis(), end = currentTime + BotFacade.getMaxFrameExecutionTime(), start = currentTime;
         executeCommand();
         currentTime = System.currentTimeMillis();
         while (end > currentTime) {
@@ -126,6 +127,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
             currentTime = System.currentTimeMillis();
         }
         incrementCountOfPassedFrames();
+        MyLogger.getLogger().info("Frame commands executed in " + (System.currentTimeMillis() - start) + " ms");
     }
 
     /**
@@ -141,11 +143,11 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
         }
     }
 
-    //todo maybe have another thread as consumer processing execution times???
     private void executeCommand(QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem) {
         long start = System.currentTimeMillis();
         queuedItem.executeItem();
         lastDurationOfCommandTypeExecutionForAgentType.putIfAbsent(queuedItem.getAgentType(), new HashMap<>()).put(queuedItem.getClassOfCommand(), System.currentTimeMillis() - start);
+        MyLogger.getLogger().info("Command executed in " + (System.currentTimeMillis() - start) + " ms");
     }
 
     /**
@@ -176,7 +178,8 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
 
     @Override
     public boolean executeCommand(ObservingCommand<Game> commandToExecute, WorkingMemory memory, Game environment) {
-        return commandToExecute.observe(memory, environment);
+        commandToExecute.observe((WorkingMemory<Game>) memory, environment);
+        return true;
     }
 
     /**

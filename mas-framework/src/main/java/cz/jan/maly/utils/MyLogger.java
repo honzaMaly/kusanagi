@@ -1,5 +1,6 @@
 package cz.jan.maly.utils;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -11,5 +12,14 @@ public class MyLogger {
 
     public static Logger getLogger() {
         return LOGGER;
+    }
+
+    /**
+     * Set logging level
+     *
+     * @param loggingLevel
+     */
+    public static void setLoggingLevel(Level loggingLevel) {
+        LOGGER.setLevel(loggingLevel);
     }
 }

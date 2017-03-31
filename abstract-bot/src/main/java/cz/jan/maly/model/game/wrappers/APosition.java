@@ -1,7 +1,6 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Position;
-import bwapi.TilePosition;
 import cz.jan.maly.model.game.util.PositionUtil;
 import lombok.Getter;
 
@@ -54,7 +53,7 @@ public class APosition {
      * of build tiles instead of pixels is preferable, because it's easier to imagine distances if one knows
      * building dimensions.
      */
-    public double distanceTo(AUnitWrapper unit) {
+    public double distanceTo(AUnit unit) {
         return PositionUtil.distanceTo(this, unit.getPosition());
     }
 
