@@ -23,7 +23,7 @@ public class BWAgentInGame extends BWAgent {
         }
 
         //update fields by creating new instance
-        AUnitWithCommands unitWithCommands = memory.returnFactValueForGivenKey(IS).get().makeObservationOfEnvironment();
+        AUnitWithCommands unitWithCommands = memory.returnFactValueForGivenKey(IS).get().makeObservationOfEnvironment(environment.getFrameCount());
 
         //add updated version of itself to knowledge
         memory.updateFact(new Fact<>(unitWithCommands, IS));

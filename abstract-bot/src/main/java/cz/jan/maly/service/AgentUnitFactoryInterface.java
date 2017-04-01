@@ -17,8 +17,9 @@ public interface AgentUnitFactoryInterface {
      *
      * @param unit
      * @param botFacade
+     * @param frameCount
      * @return
      */
-    Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade);
+    Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade, int frameCount);
 
 }

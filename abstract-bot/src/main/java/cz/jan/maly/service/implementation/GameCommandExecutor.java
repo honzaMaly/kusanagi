@@ -41,10 +41,6 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
         return countOfPassedFrames;
     }
 
-    private synchronized void incrementCountOfPassedFrames() {
-        countOfPassedFrames++;
-    }
-
     //structures to keep durations of command execution
     private final Map<AgentType<Game>, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
 
@@ -123,10 +119,10 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
         executeCommand();
         currentTime = System.currentTimeMillis();
         while (end > currentTime) {
-            executeCommand(end - currentTime);
+            executeCommand(end - currentTime, 0);
             currentTime = System.currentTimeMillis();
         }
-        incrementCountOfPassedFrames();
+        this.countOfPassedFrames = game.getFrameCount();
         MyLogger.getLogger().info("Frame commands executed in " + (System.currentTimeMillis() - start) + " ms");
     }
 
@@ -155,20 +151,22 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      *
      * @param remainingTime
      */
-    private void executeCommand(long remainingTime) {
+    private int executeCommand(long remainingTime, int startIndex) {
         long end = System.currentTimeMillis() + remainingTime;
-        for (int i = 0; i < queuedItems.size(); i++) {
-            synchronized (queuedItems) {
-                QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem = queuedItems.get(i);
-                long executionTime = lastDurationOfCommandTypeExecutionForAgentType.getOrDefault(queuedItem.getAgentType(), new HashMap<>()).getOrDefault(queuedItem.getClassOfCommand(), BotFacade.getMaxFrameExecutionTime());
-                if (executionTime < remainingTime) {
-                    executeCommand(queuedItems.remove(i));
-                }
-            }
+        for (int i = startIndex; i < queuedItems.size(); i++) {
             if (System.currentTimeMillis() >= end) {
                 break;
             }
+            synchronized (queuedItems) {
+                QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem = queuedItems.get(i);
+                long executionTime = lastDurationOfCommandTypeExecutionForAgentType.getOrDefault(queuedItem.getAgentType(), new HashMap<>()).getOrDefault(queuedItem.getClassOfCommand(), BotFacade.getMaxFrameExecutionTime());
+                if (executionTime < end - System.currentTimeMillis()) {
+                    executeCommand(queuedItems.remove(i));
+                    return i;
+                }
+            }
         }
+        return 0;
     }
 
     @Override

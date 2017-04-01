@@ -3,10 +3,7 @@ package cz.jan.maly.service.implementation;
 import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.agent.BWAgentInGame;
-import cz.jan.maly.model.game.wrappers.ATechTypeWrapper;
-import cz.jan.maly.model.game.wrappers.AUnitTypeWrapper;
-import cz.jan.maly.model.game.wrappers.AUpgradeTypeWrapper;
-import cz.jan.maly.model.game.wrappers.AWeaponTypeWrapper;
+import cz.jan.maly.model.game.wrappers.*;
 import cz.jan.maly.service.AgentUnitFactoryInterface;
 import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.utils.MyLogger;
@@ -26,7 +23,7 @@ import java.util.Optional;
 public class BotFacade extends DefaultBWListener {
 
     //keep track of agent units
-    private final Map<Unit, BWAgentInGame> agentsWithGameRepresentation = new HashMap<>();
+    private final Map<Integer, BWAgentInGame> agentsWithGameRepresentation = new HashMap<>();
 
     //facade for MAS
     private MASFacade<Game> masFacade;
@@ -38,6 +35,18 @@ public class BotFacade extends DefaultBWListener {
     @Setter
     @Getter
     private static long maxFrameExecutionTime = 40;
+
+    @Setter
+    @Getter
+    private static long refreshInfoAboutOwnUnitAfterFrames = 1;
+
+    @Setter
+    @Getter
+    private static long refreshInfoAboutEnemyUnitAfterFrames = 1;
+
+    @Setter
+    @Getter
+    private static long refreshInfoAboutResourceUnitAfterFrames = 10;
 
     //executor of game commands
     private GameCommandExecutor gameCommandExecutor;
@@ -60,7 +69,7 @@ public class BotFacade extends DefaultBWListener {
 
     @Override
     public void onStart() {
-
+        UnitWrapperFactory.clearCache();
         masFacade = new MASFacade<>();
 
         //initialize game related data
@@ -95,9 +104,9 @@ public class BotFacade extends DefaultBWListener {
     @Override
     public void onUnitCreate(Unit unit) {
         if (unit.getPlayer().equals(self)) {
-            Optional<BWAgentInGame> agent = agentUnitFactory.createAgentForUnit(unit, this);
+            Optional<BWAgentInGame> agent = agentUnitFactory.createAgentForUnit(unit, this, game.getFrameCount());
             agent.ifPresent(bwAgentInGame -> {
-                agentsWithGameRepresentation.put(unit, bwAgentInGame);
+                agentsWithGameRepresentation.put(unit.getID(), bwAgentInGame);
                 masFacade.addAgentToSystem(bwAgentInGame);
             });
         }
@@ -106,9 +115,10 @@ public class BotFacade extends DefaultBWListener {
     @Override
     public void onUnitDestroy(Unit unit) {
         if (unit.getPlayer().equals(self)) {
-            Optional<BWAgentInGame> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit));
-            agent.ifPresent(bwAgentInGame1 -> masFacade.removeAgentFromSystem(bwAgentInGame1));
+            Optional<BWAgentInGame> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit.getID()));
+            agent.ifPresent(bwAgentInGame -> masFacade.removeAgentFromSystem(bwAgentInGame));
         }
+        UnitWrapperFactory.unitDied(unit);
     }
 
     @Override

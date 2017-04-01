@@ -1,10 +1,10 @@
 package cz.jan.maly.model.planing;
 
+import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
 import lombok.Getter;
 
 import java.util.Set;
@@ -50,18 +50,18 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
      * Desire to initialize intention with plan
      */
     public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionCommand.FromAnotherAgent> {
-        private final ActCommandForIntention.DesiredByAnotherAgent command;
+        private final CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandCreationStrategy;
 
-        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommandForIntention.DesiredByAnotherAgent command) {
+        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandCreationStrategy) {
             super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
-            this.command = command;
+            this.commandCreationStrategy = commandCreationStrategy;
         }
 
 
         @Override
         public IntentionCommand.FromAnotherAgent formIntention(Agent agent) {
             return new IntentionCommand.FromAnotherAgent(this, intentionParameters, agent.getBeliefs(),
-                    removeCommitment, decisionIntention, command);
+                    removeCommitment, decisionIntention, commandCreationStrategy);
         }
     }
 

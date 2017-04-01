@@ -4,7 +4,8 @@ import bwapi.Unit;
 import bwapi.UnitType;
 import cz.jan.maly.model.AgentsTypes;
 import cz.jan.maly.model.agent.BWAgentInGame;
-import cz.jan.maly.model.game.wrappers.AUnit;
+import cz.jan.maly.model.game.wrappers.AUnitWithCommands;
+import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.service.implementation.BotFacade;
 
 import java.util.Optional;
@@ -16,13 +17,13 @@ import java.util.Optional;
 public class AgentUnitFactory implements AgentUnitFactoryInterface {
 
     @Override
-    public Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade) {
+    public Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade, int frameCount) {
         if (unit.getType().equals(UnitType.Zerg_Drone)) {
-            Optional<AUnit> aUnit = AUnit.wrapUnit(unit);
-            if (!aUnit.isPresent()) {
+            Optional<AUnitWithCommands> wrappedUnit = Optional.ofNullable(UnitWrapperFactory.getCurrentWrappedUnitToCommand(unit, frameCount));
+            if (!wrappedUnit.isPresent()) {
                 throw new RuntimeException("Could not initiate unit " + UnitType.Zerg_Drone);
             }
-            return Optional.of(new BWAgentInGame(AgentsTypes.WORKER, botFacade, aUnit.get()));
+            return Optional.of(new BWAgentInGame(AgentsTypes.WORKER, botFacade, wrappedUnit.get()));
         }
         return Optional.empty();
     }

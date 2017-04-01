@@ -1,8 +1,8 @@
 package cz.jan.maly.model.metadata.agents;
 
+import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
 
 import java.util.Optional;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
  * Concrete implementation of another agent's desire with intention with plan formulation
  * Created by Jan on 12-Mar-17.
  */
-public class AnotherAgentsDesireWithIntentionWithActingCommandFormulation extends DesireFormulation.WithCommand<ActCommandForIntention.DesiredByAnotherAgent> implements AnotherAgentsInternalDesireFormulation<DesireFromAnotherAgent.WithIntentionWithPlan> {
+public class AnotherAgentsDesireWithIntentionWithActingCommandFormulation extends DesireFormulation.WithCommand<CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing> implements AnotherAgentsInternalDesireFormulation<DesireFromAnotherAgent.WithIntentionWithPlan> {
     @Override
     public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesire(SharedDesireForAgents desireForAgents) {
         if (supportsDesireType(desireForAgents.getDesireKey())) {

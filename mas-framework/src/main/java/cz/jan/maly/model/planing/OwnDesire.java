@@ -1,12 +1,11 @@
 package cz.jan.maly.model.planing;
 
+import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 
 import java.util.Set;
 
@@ -46,16 +45,16 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<T>>> ext
      * Desire to initialize intention with reasoning command
      */
     public static class Reasoning extends OwnDesire<IntentionCommand.OwnReasoning> {
-        private final ReasoningCommandForIntention command;
+        private final CommandForIntentionFormulationStrategy.OwnReasoning commandCreationStrategy;
 
-        public Reasoning(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ReasoningCommandForIntention command) {
+        public Reasoning(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, CommandForIntentionFormulationStrategy.OwnReasoning commandCreationStrategy) {
             super(desireKey, memory, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
-            this.command = command;
+            this.commandCreationStrategy = commandCreationStrategy;
         }
 
         @Override
         public IntentionCommand.OwnReasoning formIntention(Agent agent) {
-            return new IntentionCommand.OwnReasoning(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, command);
+            return new IntentionCommand.OwnReasoning(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, commandCreationStrategy);
         }
     }
 
@@ -63,16 +62,16 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<T>>> ext
      * Desire to initialize intention with acting command
      */
     public static class Acting extends OwnDesire<IntentionCommand.OwnActing> {
-        private final ActCommandForIntention.Own command;
+        private final CommandForIntentionFormulationStrategy.OwnActing commandCreationStrategy;
 
-        public Acting(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, ActCommandForIntention.Own command) {
+        public Acting(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, CommandForIntentionFormulationStrategy.OwnActing commandCreationStrategy) {
             super(desireKey, memory, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
-            this.command = command;
+            this.commandCreationStrategy = commandCreationStrategy;
         }
 
         @Override
         public IntentionCommand.OwnActing formIntention(Agent agent) {
-            return new IntentionCommand.OwnActing(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, command);
+            return new IntentionCommand.OwnActing(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, commandCreationStrategy);
         }
     }
 

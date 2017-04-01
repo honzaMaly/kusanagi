@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Extension of unit wrapper with fields visible to player only
  */
-public class AUnitOfPlayer extends AUnit {
+public class AUnitOfPlayer extends AUnit.Players {
 
     @Getter
     private final boolean isLoaded;
@@ -20,8 +20,13 @@ public class AUnitOfPlayer extends AUnit {
     @Getter
     private final boolean isBlind;
 
-    @Getter
     private final List<UnitType> trainingQueue;
+
+    public List<AUnitTypeWrapper> getUpgrades() {
+        return trainingQueue.stream()
+                .map(WrapperTypeFactory::createFrom)
+                .collect(Collectors.toList());
+    }
 
     @Getter
     private final int removeTimer;
@@ -53,17 +58,21 @@ public class AUnitOfPlayer extends AUnit {
     @Getter
     private final int stimTimer;
 
-    private final Optional<Unit> transport;
+    final Optional<Unit> transport;
+
+    private final Optional<Integer> transportId;
 
     public Optional<AUnitOfPlayer> getTransport() {
-        return transport.flatMap(AUnit::getUnitWrapped);
+        return transportId.flatMap(UnitWrapperFactory::getWrappedPlayersUnit);
     }
 
-    private final List<Unit> loadedUnits;
+    final List<Unit> loadedUnits;
+
+    private final List<Integer> loadedUnitsIds;
 
     public List<AUnitOfPlayer> getLoadedUnits() {
-        return loadedUnits.stream()
-                .map(AUnit::getUnitWrapped)
+        return loadedUnitsIds.stream()
+                .map(UnitWrapperFactory::getWrappedPlayersUnit)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -138,7 +147,7 @@ public class AUnitOfPlayer extends AUnit {
         this.isLoaded = unit.isLoaded();
         this.hasNuke = unit.hasNuke();
         this.isBlind = unit.isBlind();
-        this.trainingQueue = unit.getTrainingQueue();
+        this.trainingQueue = new ArrayList<>(unit.getTrainingQueue());
         this.removeTimer = unit.getRemoveTimer();
         this.spellCooldown = unit.getSpellCooldown();
         this.energy = unit.getEnergy();
@@ -149,8 +158,16 @@ public class AUnitOfPlayer extends AUnit {
         this.ensnareTimer = unit.getEnsnareTimer();
         this.lockdownTimer = unit.getLockdownTimer();
         this.stimTimer = unit.getStimTimer();
+        if (unit.getTransport() != null) {
+            this.transportId = Optional.of(unit.getTransport().getID());
+        } else {
+            this.transportId = Optional.empty();
+        }
         this.transport = Optional.ofNullable(unit.getTransport());
-        this.loadedUnits = unit.getLoadedUnits();
+        this.loadedUnits = new ArrayList<>(unit.getLoadedUnits());
+        this.loadedUnitsIds = this.loadedUnits.stream()
+                .map(Unit::getID)
+                .collect(Collectors.toList());
         this.isUpgrading = unit.isUpgrading();
         this.isTraining = unit.isTraining();
         this.isResearching = unit.isResearching();

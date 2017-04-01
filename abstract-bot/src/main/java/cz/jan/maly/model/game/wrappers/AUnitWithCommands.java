@@ -11,20 +11,14 @@ import java.util.*;
  */
 public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
 
+    @Getter
     private final Optional<Unit> target;
-
-    public Optional<AUnitOfPlayer> getTarget() {
-        return target.flatMap(AUnit::getUnitWrapped);
-    }
 
     @Getter
     private final Optional<Order> order;
 
+    @Getter
     private final Optional<Unit> orderTarget;
-
-    public Optional<AUnitOfPlayer> getOrderTarget() {
-        return orderTarget.flatMap(AUnit::getUnitWrapped);
-    }
 
     @Getter
     private final Optional<APosition> targetPosition;
@@ -60,26 +54,11 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
         this.orderTargetPosition = APosition.creteOrEmpty(unit.getOrderTargetPosition());
     }
 
-    /**
-     * Make observation
-     */
-    public AUnitWithCommands makeObservationOfEnvironment() {
-        return null;
-    }
-
     @Override
     public AUnitWithCommands unit() {
         return this;
     }
 
-    /**
-     * Return read only object
-     *
-     * @return
-     */
-    public AUnitOfPlayer getRepresentationForOtherAgents() {
-        return this;
-    }
 
     /**
      * Get all possible tiles to build building
@@ -116,5 +95,9 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
 
     public boolean isReallyIdle() {
         return isIdle() || !getLastCommand().isPresent() || getLastCommand().get().getUnitCommandType().equals(UnitCommandType.None);
+    }
+
+    public AUnitWithCommands makeObservationOfEnvironment(int frameCount) {
+        return UnitWrapperFactory.getCurrentWrappedUnitToCommand(unit, frameCount);
     }
 }

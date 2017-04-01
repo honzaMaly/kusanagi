@@ -1,11 +1,13 @@
 package cz.jan.maly.model.metadata.agents;
 
+import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
 import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.IntentionParameters;
 import cz.jan.maly.model.planing.CommandForIntention;
 import cz.jan.maly.model.planing.Commitment;
+import cz.jan.maly.model.planing.IntentionCommand;
 import cz.jan.maly.model.planing.RemoveCommitment;
 
 import java.util.Collection;
@@ -188,8 +190,8 @@ public abstract class DesireFormulation {
     /**
      * Defines common structure to add configuration for intention with command
      */
-    static abstract class WithCommand<V extends CommandForIntention<?, ?>> extends DesireFormulation {
-        final Map<DesireKey, V> commandsByKey = new HashMap<>();
+    static abstract class WithCommand<K extends CommandForIntentionFormulationStrategy<? extends CommandForIntention<?, ?>, ? extends IntentionCommand<?, ?>>> extends DesireFormulation {
+        final Map<DesireKey, K> commandsByKey = new HashMap<>();
 
         /**
          * Add configuration for desire
@@ -200,15 +202,15 @@ public abstract class DesireFormulation {
          * @param decisionParametersForIntention
          * @param intentionParameters
          * @param decisionInIntention
-         * @param command
+         * @param commandCreationStrategy
          */
         public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
                                                       Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
                                                       RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                      V command) {
+                                                      K commandCreationStrategy) {
             addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
                     decisionParametersForIntention, decisionInIntention, intentionParameters);
-            commandsByKey.put(key, command);
+            commandsByKey.put(key, commandCreationStrategy);
         }
     }
 

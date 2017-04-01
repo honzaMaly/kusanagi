@@ -1,11 +1,10 @@
 package cz.jan.maly.model.metadata;
 
+import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.agents.*;
 import cz.jan.maly.model.planing.*;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
 import cz.jan.maly.model.planing.command.ObservingCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
 import lombok.Getter;
 
 import java.util.HashSet;
@@ -283,14 +282,14 @@ public abstract class AgentType<E> extends Key {
      * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
-     * @param command
+     * @param commandFormulation
      */
     protected void addDesireFormulationConfigurationForOwnDesireWithActingCommand(DesireKey key, DecisionParameters decisionParametersForDesire,
                                                                                   Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
                                                                                   RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                  ActCommandForIntention.Own command) {
+                                                                                  CommandForIntentionFormulationStrategy.OwnActing commandFormulation) {
         ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);
+                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
     }
 
     /**
@@ -303,13 +302,13 @@ public abstract class AgentType<E> extends Key {
      * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
-     * @param command
+     * @param commandFormulation
      */
     protected void addDesireFormulationConfigurationForOwnDesireWithActingCommandStacked(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
                                                                                          Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                         RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, ActCommandForIntention.Own command) {
+                                                                                         RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, CommandForIntentionFormulationStrategy.OwnActing commandFormulation) {
         ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(parent, key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);
+                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
     }
 
     /**
@@ -321,14 +320,14 @@ public abstract class AgentType<E> extends Key {
      * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
-     * @param command
+     * @param commandFormulation
      */
     protected void addDesireFormulationConfigurationForOwnDesireWithReasoningCommand(DesireKey key, DecisionParameters decisionParametersForDesire,
                                                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
                                                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                     ReasoningCommandForIntention command) {
+                                                                                     CommandForIntentionFormulationStrategy.OwnReasoning commandFormulation) {
         ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);
+                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
     }
 
     /**
@@ -341,13 +340,14 @@ public abstract class AgentType<E> extends Key {
      * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
-     * @param command
+     * @param commandFormulation
      */
     protected void addDesireFormulationConfigurationForOwnDesireWithReasoningCommandStacked(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
                                                                                             Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                            RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, ReasoningCommandForIntention command) {
+                                                                                            RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
+                                                                                            CommandForIntentionFormulationStrategy.OwnReasoning commandFormulation) {
         ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(parent, key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);
+                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
     }
 
     /**
@@ -359,14 +359,14 @@ public abstract class AgentType<E> extends Key {
      * @param decisionParametersForIntention
      * @param intentionParameters
      * @param decisionInIntention
-     * @param command
+     * @param commandFormulation
      */
     protected void addDesireFormulationConfigurationForAnotherAgentsDesireWithActingCommand(DesireKey key, DecisionParameters decisionParametersForDesire,
                                                                                             Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
                                                                                             RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                            ActCommandForIntention.DesiredByAnotherAgent command) {
+                                                                                            CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandFormulation) {
         anotherAgentsDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, command);
+                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
     }
 
     /**

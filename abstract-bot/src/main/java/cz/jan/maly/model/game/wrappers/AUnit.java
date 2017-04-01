@@ -6,8 +6,10 @@ import bwapi.WeaponType;
 import bwta.BWTA;
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -15,7 +17,13 @@ import java.util.stream.Collectors;
  * Created by Jan on 28-Mar-17.
  */
 public class AUnit {
+    private static final Set<UnitType> resourcesTypes = Arrays.stream(new UnitType[]{UnitType.Resource_Mineral_Field,
+            UnitType.Resource_Mineral_Field_Type_2, UnitType.Resource_Mineral_Field_Type_3, UnitType.Resource_Vespene_Geyser})
+            .collect(Collectors.toSet());
+
     final Unit unit;
+
+    private final int unitId;
 
     private final UnitType type;
 
@@ -164,36 +172,60 @@ public class AUnit {
     @Getter
     private final Optional<bwta.Region> unitRegion;
 
-    private final List<Unit> unitsInWeaponRange;
+    final List<Unit> enemyUnitsInWeaponRange;
 
-    public List<AUnitOfPlayer> getUnitsInWeaponRange() {
-        return unitsInWeaponRange.stream()
-                .map(AUnit::getUnitWrapped)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-    }
+    final List<Integer> enemyUnitsInWeaponRangeIds;
 
-    private final List<Unit> unitsInRadiusOfSight;
+    final List<Unit> friendlyUnitsInRadiusOfSight;
 
-    public List<AUnitOfPlayer> getUnitsInRadiusOfSight() {
-        return unitsInRadiusOfSight.stream()
-                .map(AUnit::getUnitWrapped)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-    }
+    final List<Integer> friendlyUnitsInRadiusOfSightIds;
+
+    final List<Unit> resourceUnitsInRadiusOfSight;
+
+    final List<Integer> resourceUnitsInRadiusOfSightIds;
+
+    final List<Unit> enemyUnitsInRadiusOfSight;
+
+    final List<Integer> enemyUnitsInRadiusOfSightIds;
 
     AUnit(Unit unit) {
         this.unit = unit;
         this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
 
         //units in weapon range
-        this.unitsInWeaponRange = unit.getUnitsInWeaponRange(unit.getType().airWeapon());
-        this.unitsInWeaponRange.addAll(unit.getUnitsInWeaponRange(unit.getType().groundWeapon()));
+        this.enemyUnitsInWeaponRange = unit.getUnitsInWeaponRange(unit.getType().airWeapon()).stream()
+                .filter(u -> !u.getPlayer().equals(unit.getPlayer()) && !u.getPlayer().isNeutral())
+                .filter(u -> !resourcesTypes.contains(u.getType()))
+                .collect(Collectors.toList());
+        this.enemyUnitsInWeaponRange.addAll(unit.getUnitsInWeaponRange(unit.getType().groundWeapon()).stream()
+                .filter(u -> !u.getPlayer().equals(unit.getPlayer()) && !u.getPlayer().isNeutral())
+                .filter(u -> !resourcesTypes.contains(u.getType()))
+                .collect(Collectors.toList()));
+        this.enemyUnitsInWeaponRangeIds = this.enemyUnitsInWeaponRange.stream()
+                .map(Unit::getID)
+                .collect(Collectors.toList());
 
         //units in radius of sight
-        this.unitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange());
+        this.friendlyUnitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange()).stream()
+                .filter(u -> u.getPlayer().equals(unit.getPlayer()))
+                .collect(Collectors.toList());
+        this.resourceUnitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange()).stream()
+                .filter(u -> resourcesTypes.contains(u.getType()) && u.getPlayer().isNeutral())
+                .collect(Collectors.toList());
+        this.enemyUnitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange()).stream()
+                .filter(u -> !u.getPlayer().equals(unit.getPlayer()) && !u.getPlayer().isNeutral())
+                .collect(Collectors.toList());
+
+        //ids
+        this.friendlyUnitsInRadiusOfSightIds = this.friendlyUnitsInRadiusOfSight.stream()
+                .map(Unit::getID)
+                .collect(Collectors.toList());
+        this.resourceUnitsInRadiusOfSightIds = this.resourceUnitsInRadiusOfSight.stream()
+                .map(Unit::getID)
+                .collect(Collectors.toList());
+        this.enemyUnitsInRadiusOfSightIds = this.enemyUnitsInRadiusOfSight.stream()
+                .map(Unit::getID)
+                .collect(Collectors.toList());
 
         this.position = new APosition(unit.getPosition());
         this.type = unit.getType();
@@ -242,6 +274,7 @@ public class AUnit {
         this.isGatheringMinerals = unit.isGatheringMinerals();
         this.isCarryingMinerals = unit.isCarryingMinerals();
         this.player = APlayer.wrapPlayer(unit.getPlayer()).get();
+        unitId = unit.getID();
     }
 
     public boolean isFullyHealthy() {
@@ -297,11 +330,110 @@ public class AUnit {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AUnit aUnit = (AUnit) o;
+
+        return unitId == aUnit.unitId;
+    }
+
+    @Override
+    public int hashCode() {
+        return unitId;
+    }
+
     /**
      * Returns true if unit is starting an attack or already in the attack frame animation.
      */
     public boolean isJustShooting() {
         return isAttackFrame() || isStartingAttack();
+    }
+
+    /**
+     * Enemy
+     */
+    public static class Enemy extends AUnit {
+        Enemy(Unit unit) {
+            super(unit);
+        }
+
+        public List<AUnitOfPlayer> getEnemyUnitsInWeaponRange() {
+            return enemyUnitsInWeaponRangeIds.stream()
+                    .map(UnitWrapperFactory::getWrappedPlayersUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        public List<AUnit.Enemy> getFriendlyUnitsInRadiusOfSight() {
+            return friendlyUnitsInRadiusOfSightIds.stream()
+                    .map(UnitWrapperFactory::getWrappedEnemyUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        public List<AUnit> getResourceUnitsInRadiusOfSight() {
+            return resourceUnitsInRadiusOfSightIds.stream()
+                    .map(UnitWrapperFactory::getWrappedResourceUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        public List<AUnitOfPlayer> getEnemyUnitsInRadiusOfSight() {
+            return enemyUnitsInRadiusOfSightIds.stream()
+                    .map(UnitWrapperFactory::getWrappedPlayersUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+    }
+
+    /**
+     * Player's unit
+     */
+    public static class Players extends AUnit {
+        Players(Unit unit) {
+            super(unit);
+        }
+
+        public List<AUnit.Enemy> getEnemyUnitsInWeaponRange() {
+            return enemyUnitsInWeaponRangeIds.stream()
+                    .map(UnitWrapperFactory::getWrappedEnemyUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        public List<AUnitOfPlayer> getFriendlyUnitsInRadiusOfSight() {
+            return friendlyUnitsInRadiusOfSightIds.stream()
+                    .map(UnitWrapperFactory::getWrappedPlayersUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        public List<AUnit> getResourceUnitsInRadiusOfSight() {
+            return resourceUnitsInRadiusOfSightIds.stream()
+                    .map(UnitWrapperFactory::getWrappedResourceUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
+        public List<AUnit.Enemy> getEnemyUnitsInRadiusOfSight() {
+            return enemyUnitsInRadiusOfSightIds.stream()
+                    .map(UnitWrapperFactory::getWrappedEnemyUnit)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        }
+
     }
 
 }
