@@ -1,19 +1,20 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.CommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Template for desire not in top level
  * Created by Jan on 28-Feb-17.
  */
-public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes & Parent> extends Node.NotTopLevel<K> implements DesireNodeInterface<IntentionNodeNotTopLevel<?, ?, ?>> {
+public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes & Parent<?, ?>> extends Node.NotTopLevel<K> implements DesireNodeInterface<IntentionNodeNotTopLevel<?, ?, ?>> {
     final T desire;
 
     private DesireNodeNotTopLevel(K parent, T desire) {
@@ -38,14 +39,14 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     }
 
     @Override
-    public DecisionParameters getParametersToLoad() {
+    public Set<DesireKey> getParametersToLoad() {
         return desire.getParametersToLoad();
     }
 
     /**
      * Implementation of top node with desire for other agents
      */
-    static abstract class ForOthers<K extends Node & IntentionNodeWithChildes & Parent> extends DesireNodeNotTopLevel<DesireForOthers, K> {
+    static abstract class ForOthers<K extends Node & IntentionNodeWithChildes & Parent<?, ?>> extends DesireNodeNotTopLevel<DesireForOthers, K> {
         private final SharingDesireRoutine sharingDesireRoutine = new SharingDesireRoutine();
 
         private ForOthers(K parent, DesireForOthers desire) {
@@ -76,7 +77,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Parent is in top level
          */
-        static class TopLevelParent extends ForOthers<IntentionNodeAtTopLevel.WithAbstractPlan> {
+        static class TopLevelParent extends ForOthers<IntentionNodeAtTopLevel.WithAbstractPlan<?, ?>> {
             TopLevelParent(IntentionNodeAtTopLevel.WithAbstractPlan parent, DesireForOthers desire) {
                 super(parent, desire);
             }
@@ -90,7 +91,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Parent is not in top level
          */
-        static class NotTopLevelParent extends ForOthers<IntentionNodeNotTopLevel.WithAbstractPlan> {
+        static class NotTopLevelParent extends ForOthers<IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?>> {
             NotTopLevelParent(IntentionNodeNotTopLevel.WithAbstractPlan parent, DesireForOthers desire) {
                 super(parent, desire);
             }
@@ -106,7 +107,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     /**
      * Implementation of top node with desire for other agents
      */
-    static abstract class WithAbstractPlan<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes & Parent> extends DesireNodeNotTopLevel<T, K> {
+    static abstract class WithAbstractPlan<T extends InternalDesire<? extends Intention>, K extends Node & IntentionNodeWithChildes & Parent<?, ?>> extends DesireNodeNotTopLevel<T, K> {
         private WithAbstractPlan(K parent, T desire) {
             super(parent, desire);
         }
@@ -114,7 +115,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Parent is in top level
          */
-        static class TopLevelParent extends WithAbstractPlan<OwnDesire.WithAbstractIntention, IntentionNodeAtTopLevel.WithAbstractPlan> {
+        static class TopLevelParent extends WithAbstractPlan<OwnDesire.WithAbstractIntention, IntentionNodeAtTopLevel.WithAbstractPlan<?, ?>> {
             TopLevelParent(IntentionNodeAtTopLevel.WithAbstractPlan parent, OwnDesire.WithAbstractIntention desire) {
                 super(parent, desire);
             }
@@ -128,7 +129,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Parent is in top level
          */
-        static class NotTopLevelParent extends WithAbstractPlan<OwnDesire.WithAbstractIntention, IntentionNodeNotTopLevel.WithAbstractPlan> {
+        static class NotTopLevelParent extends WithAbstractPlan<OwnDesire.WithAbstractIntention, IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?>> {
             NotTopLevelParent(IntentionNodeNotTopLevel.WithAbstractPlan parent, OwnDesire.WithAbstractIntention desire) {
                 super(parent, desire);
             }
@@ -144,7 +145,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     /**
      * Class to extend template - to define desire node without child
      */
-    abstract static class WithCommand<K extends Node & IntentionNodeWithChildes & Parent, V extends InternalDesire<? extends IntentionCommand<V, T>>, T extends CommandForIntention<? extends IntentionCommand<V, T>, ?>> extends WithAbstractPlan<V, K> {
+    abstract static class WithCommand<K extends Node & IntentionNodeWithChildes & Parent<?, ?>, V extends InternalDesire<? extends IntentionCommand<V, T>>, T extends CommandForIntention<? extends IntentionCommand<V, T>>> extends WithAbstractPlan<V, K> {
         private WithCommand(K parent, V desire) {
             super(parent, desire);
         }
@@ -152,7 +153,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Concrete implementation, intention's desire is formed anew with acting command
          */
-        static class ActingAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan, OwnDesire.Acting, ActCommandForIntention.Own> {
+        static class ActingAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan<?, ?>, OwnDesire.Acting, ActCommand.Own> {
             ActingAtTopLevelParent(IntentionNodeAtTopLevel.WithAbstractPlan parent, OwnDesire.Acting desire) {
                 super(parent, desire);
             }
@@ -166,7 +167,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Concrete implementation, intention's desire is formed anew with acting command
          */
-        static class ReasoningAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan, OwnDesire.Reasoning, ReasoningCommandForIntention> {
+        static class ReasoningAtTopLevelParent extends WithCommand<IntentionNodeAtTopLevel.WithAbstractPlan<?, ?>, OwnDesire.Reasoning, ReasoningCommand> {
             ReasoningAtTopLevelParent(IntentionNodeAtTopLevel.WithAbstractPlan parent, OwnDesire.Reasoning desire) {
                 super(parent, desire);
             }
@@ -180,7 +181,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Concrete implementation, intention's desire is formed anew with acting command
          */
-        static class ActingNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan, OwnDesire.Acting, ActCommandForIntention.Own> {
+        static class ActingNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?>, OwnDesire.Acting, ActCommand.Own> {
             ActingNotTopLevelParent(IntentionNodeNotTopLevel.WithAbstractPlan parent, OwnDesire.Acting desire) {
                 super(parent, desire);
             }
@@ -194,7 +195,7 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         /**
          * Concrete implementation, intention's desire is formed anew with reasoning command
          */
-        static class ReasoningNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan, OwnDesire.Reasoning, ReasoningCommandForIntention> {
+        static class ReasoningNotTopLevelParent extends WithCommand<IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?>, OwnDesire.Reasoning, ReasoningCommand> {
             ReasoningNotTopLevelParent(IntentionNodeNotTopLevel.WithAbstractPlan parent, OwnDesire.Reasoning desire) {
                 super(parent, desire);
             }

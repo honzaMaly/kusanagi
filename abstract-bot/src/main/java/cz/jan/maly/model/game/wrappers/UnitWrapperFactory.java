@@ -57,7 +57,7 @@ public class UnitWrapperFactory {
      * @param frameCount
      * @return
      */
-    public static AUnitWithCommands getCurrentWrappedUnitToCommand(Unit unit, int frameCount) {
+    public static AUnitWithCommands getCurrentWrappedUnitToCommand(Unit unit, int frameCount, boolean isCreatingUnit) {
         UnitValue<AUnitWithCommands> unitValue = playersUnits.get(unit.getID());
 
         //unit is present
@@ -65,17 +65,17 @@ public class UnitWrapperFactory {
 
             //update unit only if it is not current
             if (unitValue.lastUpdate + BotFacade.getRefreshInfoAboutOwnUnitAfterFrames() < frameCount) {
-                unitValue.unit = new AUnitWithCommands(unit);
+                unitValue.unit = new AUnitWithCommands(unit, isCreatingUnit);
                 unitValue.lastUpdate = frameCount;
-                wrapReferencedUnitsForUnit(unitValue.unit, frameCount);
+                wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
             }
             return unitValue.unit;
         }
 
         //register new unit
-        unitValue = new UnitValue<>(new AUnitWithCommands(unit), frameCount);
+        unitValue = new UnitValue<>(new AUnitWithCommands(unit, isCreatingUnit), frameCount);
         playersUnits.put(unit.getID(), unitValue);
-        wrapReferencedUnitsForUnit(unitValue.unit, frameCount);
+        wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
         return unitValue.unit;
     }
 
@@ -85,7 +85,7 @@ public class UnitWrapperFactory {
      * @param unit
      * @param frameCount
      */
-    private static void wrapEnemyUnits(Unit unit, int frameCount) {
+    private static void wrapEnemyUnits(Unit unit, int frameCount, boolean isCreatingUnit) {
         UnitValue<AUnit.Enemy> unitValue = enemyUnits.get(unit.getID());
 
         //unit is present
@@ -93,16 +93,16 @@ public class UnitWrapperFactory {
 
             //update unit only if it is not current
             if (unitValue.lastUpdate + BotFacade.getRefreshInfoAboutEnemyUnitAfterFrames() < frameCount) {
-                unitValue.unit = new AUnit.Enemy(unit);
+                unitValue.unit = new AUnit.Enemy(unit, isCreatingUnit);
                 unitValue.lastUpdate = frameCount;
-                wrapReferencedUnitsForUnit(unitValue.unit, frameCount);
+                wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
             }
         } else {
 
             //register new unit
-            unitValue = new UnitValue<>(new AUnit.Enemy(unit), frameCount);
+            unitValue = new UnitValue<>(new AUnit.Enemy(unit, isCreatingUnit), frameCount);
             enemyUnits.put(unit.getID(), unitValue);
-            wrapReferencedUnitsForUnit(unitValue.unit, frameCount);
+            wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
         }
     }
 
@@ -112,7 +112,7 @@ public class UnitWrapperFactory {
      * @param unit
      * @param frameCount
      */
-    private static void wrapResourceUnits(Unit unit, int frameCount) {
+    private static void wrapResourceUnits(Unit unit, int frameCount, boolean isCreatingUnit) {
         UnitValue<AUnit> unitValue = resourceUnits.get(unit.getID());
 
         //unit is present
@@ -120,13 +120,13 @@ public class UnitWrapperFactory {
 
             //update unit only if it is not current
             if (unitValue.lastUpdate + BotFacade.getRefreshInfoAboutResourceUnitAfterFrames() < frameCount) {
-                unitValue.unit = new AUnit(unit);
+                unitValue.unit = new AUnit(unit, isCreatingUnit);
                 unitValue.lastUpdate = frameCount;
             }
         } else {
 
             //register new unit
-            unitValue = new UnitValue<>(new AUnit(unit), frameCount);
+            unitValue = new UnitValue<>(new AUnit(unit, isCreatingUnit), frameCount);
             resourceUnits.put(unit.getID(), unitValue);
         }
     }
@@ -137,19 +137,19 @@ public class UnitWrapperFactory {
      * @param unit
      * @param frameCount
      */
-    private static void wrapReferencedUnitsForUnit(AUnit.Enemy unit, int frameCount) {
+    private static void wrapReferencedUnitsForUnit(AUnit.Enemy unit, int frameCount, boolean isCreatingUnit) {
 
         //each enemy unit of enemy is player's in 1v1 game
         Set<Unit> playersUnits = new HashSet<>();
         playersUnits.addAll(unit.enemyUnitsInRadiusOfSight);
         playersUnits.addAll(unit.enemyUnitsInWeaponRange);
-        playersUnits.forEach(u -> getCurrentWrappedUnitToCommand(u, frameCount));
+        playersUnits.forEach(u -> getCurrentWrappedUnitToCommand(u, frameCount, isCreatingUnit));
 
         //wrap enemies units
-        unit.friendlyUnitsInRadiusOfSight.forEach(u -> wrapEnemyUnits(u, frameCount));
+        unit.friendlyUnitsInRadiusOfSight.forEach(u -> wrapEnemyUnits(u, frameCount, isCreatingUnit));
 
         //wrap resources
-        unit.resourceUnitsInRadiusOfSight.forEach(u -> wrapResourceUnits(u, frameCount));
+        unit.resourceUnitsInRadiusOfSight.forEach(u -> wrapResourceUnits(u, frameCount, isCreatingUnit));
     }
 
     /**
@@ -158,23 +158,23 @@ public class UnitWrapperFactory {
      * @param unit
      * @param frameCount
      */
-    private static void wrapReferencedUnitsForUnit(AUnitWithCommands unit, int frameCount) {
+    private static void wrapReferencedUnitsForUnit(AUnitWithCommands unit, int frameCount, boolean isCreatingUnit) {
 
         //wrap enemy units
         Set<Unit> enemyUnits = new HashSet<>();
         enemyUnits.addAll(unit.enemyUnitsInRadiusOfSight);
         enemyUnits.addAll(unit.enemyUnitsInWeaponRange);
-        enemyUnits.forEach(u -> wrapEnemyUnits(u, frameCount));
+        enemyUnits.forEach(u -> wrapEnemyUnits(u, frameCount, isCreatingUnit));
 
         //wrap friendly units
         Set<Unit> playerUnits = new HashSet<>();
         playerUnits.addAll(unit.friendlyUnitsInRadiusOfSight);
         playerUnits.addAll(unit.loadedUnits);
         unit.transport.ifPresent(playerUnits::add);
-        playerUnits.forEach(u -> getCurrentWrappedUnitToCommand(u, frameCount));
+        playerUnits.forEach(u -> getCurrentWrappedUnitToCommand(u, frameCount, isCreatingUnit));
 
         //wrap resources
-        unit.resourceUnitsInRadiusOfSight.forEach(u -> wrapResourceUnits(u, frameCount));
+        unit.resourceUnitsInRadiusOfSight.forEach(u -> wrapResourceUnits(u, frameCount, isCreatingUnit));
     }
 
     /**

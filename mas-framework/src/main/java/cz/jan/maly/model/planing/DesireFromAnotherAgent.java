@@ -1,10 +1,10 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.DecisionParameters;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.IntentionParameters;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
 import lombok.Getter;
 
 import java.util.Set;
@@ -18,8 +18,11 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     @Getter
     private final SharedDesireForAgents desireForAgents;
 
-    DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
-        super(desireOriginatedFrom.desireParameters, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, isAbstract, desireOriginatedFrom.originatorId);
+    DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, Commitment commitment,
+                           RemoveCommitment removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                           Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, boolean isAbstract) {
+        super(desireOriginatedFrom.desireParameters, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+                typesOfDesiresToConsiderWhenRemovingCommitment, isAbstract, desireOriginatedFrom.originatorId);
         this.desireForAgents = desireOriginatedFrom;
     }
 
@@ -32,8 +35,13 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
         private final Set<DesireKey> desiresWithIntentionToAct;
         private final Set<DesireKey> desiresWithIntentionToReason;
 
-        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-            super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, true);
+        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, Commitment commitment,
+                                     RemoveCommitment removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                                     Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, Set<DesireKey> desiresForOthers,
+                                     Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
+                                     Set<DesireKey> desiresWithIntentionToReason) {
+            super(desireOriginatedFrom, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+                    typesOfDesiresToConsiderWhenRemovingCommitment, true);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
             this.desiresWithIntentionToAct = desiresWithIntentionToAct;
@@ -42,7 +50,8 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
 
         @Override
         public AbstractIntention<DesireFromAnotherAgent.WithAbstractIntention> formIntention(Agent agent) {
-            return new AbstractIntention<>(this, intentionParameters, agent.getBeliefs(), removeCommitment, decisionIntention, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason);
+            return new AbstractIntention<>(this, removeCommitment, desiresForOthers, desiresWithAbstractIntention,
+                    desiresWithIntentionToAct, desiresWithIntentionToReason);
         }
     }
 
@@ -50,18 +59,21 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
      * Desire to initialize intention with plan
      */
     public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionCommand.FromAnotherAgent> {
-        private final CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandCreationStrategy;
+        private final CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy;
 
-        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandCreationStrategy) {
-            super(desireOriginatedFrom, commitment, decisionDesire, removeCommitment, decisionIntention, intentionParameters, false);
+        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, Commitment commitment,
+                                     RemoveCommitment removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                                     Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                                     CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy) {
+            super(desireOriginatedFrom, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+                    typesOfDesiresToConsiderWhenRemovingCommitment, false);
             this.commandCreationStrategy = commandCreationStrategy;
         }
 
 
         @Override
         public IntentionCommand.FromAnotherAgent formIntention(Agent agent) {
-            return new IntentionCommand.FromAnotherAgent(this, intentionParameters, agent.getBeliefs(),
-                    removeCommitment, decisionIntention, commandCreationStrategy);
+            return new IntentionCommand.FromAnotherAgent(this, removeCommitment, commandCreationStrategy);
         }
     }
 

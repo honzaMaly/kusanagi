@@ -4,11 +4,15 @@ import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
+import cz.jan.maly.model.metadata.AgentTypeMakingObservations;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.planing.*;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.DesireForOthers;
+import cz.jan.maly.model.planing.DesireFromAnotherAgent;
+import cz.jan.maly.model.planing.OwnDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
+import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ObservingCommand;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.model.planing.tree.Tree;
 import cz.jan.maly.model.planing.tree.visitors.CommandExecutor;
 import cz.jan.maly.model.planing.tree.visitors.CommitmentDecider;
@@ -25,39 +29,47 @@ import java.util.Optional;
  * Template for agent. Main routine of agent runs in its own thread.
  * Created by Jan on 09-Feb-17.
  */
-public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseReceiverInterface<Boolean> {
+public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFactory, ResponseReceiverInterface<Boolean>, Runnable {
+
+    //lock
+    final Object lockMonitor = new Object();
 
     @Getter
     private final int id;
 
     @Getter
-    protected final AgentType<E> agentType;
+    protected final E agentType;
 
     @Getter
     private final DesireMediator desireMediator;
     @Getter
     private final KnowledgeMediator knowledgeMediator;
 
-    protected final WorkingMemory<E> beliefs;
-    private final Tree<E> tree = new Tree<>(this);
+    protected final WorkingMemory beliefs;
+    private final Tree tree = new Tree(this);
     private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
-    private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree, this);
-    private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(tree, this);
+    private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree);
+    private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(tree);
 
     //to handle main routine of agent
     private boolean isAlive = true;
     private final Object isAliveLockMonitor = new Object();
 
-    protected Agent(AgentType<E> agentType, MASFacade masFacade) {
+    protected Agent(E agentType, MASFacade masFacade) {
         this.id = masFacade.getAgentsRegister().getFreeId();
         this.desireMediator = masFacade.getDesireMediator();
         this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
-        this.beliefs = new WorkingMemory<>(tree, this.agentType, this.id);
+        this.beliefs = new WorkingMemory(tree, this.agentType, this.id);
+    }
+
+    @Override
+    public void run() {
 
         //run main routine in its own thread
-        Worker worker = new Worker(this);
+        Worker worker = new Worker();
         worker.start();
+        MyLogger.getLogger().info("Agent has started.");
     }
 
     @Override
@@ -65,22 +77,38 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
         //agent is removed from desire register
     }
 
+    void doRoutine(Worker worker) {
+        shareKnowledge(worker);
+    }
+
+    void shareKnowledge(Worker worker) {
+        if (knowledgeMediator.registerKnowledge(beliefs.cloneMemory(), this, worker)) {
+            synchronized (lockMonitor) {
+                try {
+                    lockMonitor.wait();
+                } catch (InterruptedException e) {
+                    MyLogger.getLogger().warning(worker.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                }
+            }
+        }
+        beliefs.addKnowledge(knowledgeMediator.getSnapshotOfRegister());
+    }
+
+    private void removeAgent() {
+        desireMediator.removeAgentFromRegister(this, this);
+        tree.removeCommitmentToSharedDesires();
+    }
+
     /**
      * Worker execute workflow of this agent.
      */
-    private class Worker extends Thread implements ResponseReceiverInterface<Boolean> {
-        private final Agent<E> agent;
-        private final Object lockMonitor = new Object();
-
-        private Worker(Agent<E> agent) {
-            this.agent = agent;
-        }
+    class Worker extends Thread implements ResponseReceiverInterface<Boolean> {
 
         @Override
         public void run() {
 
             //init agent
-            doRoutine();
+            doRoutine(this);
             tree.initTopLevelDesires(desireMediator.getSnapshotOfRegister());
 
             while (true) {
@@ -96,39 +124,11 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
                 commitmentDecider.visitTree();
                 commandExecutor.visitTree();
                 commitmentRemovalDecider.visitTree();
-                doRoutine();
+                doRoutine(this);
                 tree.updateTopLevelDesires(desireMediator.getSnapshotOfRegister());
             }
 
-            //remove agent
-            desireMediator.removeAgentFromRegister(agent, agent);
-            tree.removeCommitmentToSharedDesires();
-        }
-
-        private void doRoutine() {
-
-            //make observation
-            if (requestObservation(agentType.getObservingCommand(), this)) {
-                synchronized (lockMonitor) {
-                    try {
-                        lockMonitor.wait();
-                    } catch (InterruptedException e) {
-                        MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
-                    }
-                }
-            }
-
-            //share knowledge
-            if (knowledgeMediator.registerKnowledge(beliefs.cloneMemory(), agent, this)) {
-                synchronized (lockMonitor) {
-                    try {
-                        lockMonitor.wait();
-                    } catch (InterruptedException e) {
-                        MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
-                    }
-                }
-            }
-            beliefs.addKnowledge(knowledgeMediator.getSnapshotOfRegister());
+            removeAgent();
         }
 
         @Override
@@ -149,7 +149,7 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
      *
      * @param command
      */
-    public void executeCommand(ReasoningCommandForIntention command) {
+    public void executeCommand(ReasoningCommand command) {
         if (!MASFacade.REASONING_EXECUTOR.executeCommand(command, beliefs)) {
             MyLogger.getLogger().warning(this.getClass().getSimpleName() + ", " + agentType.getName() + " could not execute reasoning command");
         }
@@ -161,15 +161,7 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
      * @param command
      * @param responseReceiver
      */
-    public abstract boolean sendCommandToExecute(ActCommandForIntention<?> command, ResponseReceiverInterface<Boolean> responseReceiver);
-
-    /**
-     * Execute observing command
-     *
-     * @param observingCommand
-     * @param responseReceiver
-     */
-    protected abstract boolean requestObservation(ObservingCommand<E> observingCommand, ResponseReceiverInterface<Boolean> responseReceiver);
+    public abstract boolean sendCommandToExecute(ActCommand<?> command, ResponseReceiverInterface<Boolean> responseReceiver);
 
     /**
      * Get memory of agent
@@ -237,12 +229,12 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
 
     @Override
     public Optional<DesireFromAnotherAgent.WithAbstractIntention> formDesireFromOtherAgentWithAbstractIntention(SharedDesireForAgents desireForAgents) {
-        return agentType.formAnotherAgentsDesireWithAbstractIntention(desireForAgents);
+        return agentType.formAnotherAgentsDesireWithAbstractIntention(desireForAgents, beliefs);
     }
 
     @Override
     public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesireFromOtherAgentWithIntentionWithPlan(SharedDesireForAgents desireForAgents) {
-        return agentType.formAnotherAgentsDesireWithCommand(desireForAgents);
+        return agentType.formAnotherAgentsDesireWithCommand(desireForAgents, beliefs);
     }
 
     /**
@@ -253,4 +245,43 @@ public abstract class Agent<E> implements AgentTypeBehaviourFactory, ResponseRec
             this.isAlive = false;
         }
     }
+
+    /**
+     * Extension of agent which also makes observations
+     *
+     * @param <E>
+     */
+    public static abstract class MakingObservation<E> extends Agent<AgentTypeMakingObservations<E>> {
+        protected MakingObservation(AgentTypeMakingObservations<E> agentType, MASFacade masFacade) {
+            super(agentType, masFacade);
+        }
+
+        /**
+         * Execute observing command
+         *
+         * @param observingCommand
+         * @param responseReceiver
+         */
+        protected abstract boolean requestObservation(ObservingCommand<E> observingCommand, ResponseReceiverInterface<Boolean> responseReceiver);
+
+        private void makeObservation(Worker worker) {
+            if (requestObservation(agentType.getObservingCommand(), worker)) {
+                synchronized (lockMonitor) {
+                    try {
+                        lockMonitor.wait();
+                    } catch (InterruptedException e) {
+                        MyLogger.getLogger().warning(worker.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+
+        @Override
+        void doRoutine(Worker worker) {
+            makeObservation(worker);
+            shareKnowledge(worker);
+        }
+
+    }
+
 }

@@ -14,5 +14,5 @@ public interface ObservingCommand<E> {
      * @param memory
      * @return
      */
-    void observe(WorkingMemory<E> memory, E environment);
+    boolean observe(WorkingMemory memory, E environment);
 }

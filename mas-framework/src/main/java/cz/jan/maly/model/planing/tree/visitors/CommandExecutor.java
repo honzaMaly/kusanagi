@@ -2,8 +2,8 @@ package cz.jan.maly.model.planing.tree.visitors;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.model.planing.tree.*;
 import cz.jan.maly.utils.MyLogger;
 
@@ -15,9 +15,9 @@ import cz.jan.maly.utils.MyLogger;
 public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverInterface<Boolean> {
     private final Object lockMonitor = new Object();
     private final Tree tree;
-    private final Agent agent;
+    private final Agent<?> agent;
 
-    public CommandExecutor(Tree tree, Agent agent) {
+    public CommandExecutor(Tree tree, Agent<?> agent) {
         this.tree = tree;
         this.agent = agent;
     }
@@ -49,11 +49,11 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
     }
 
     @Override
-    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommandForIntention.Own> node) {
+    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node) {
         sendActingCommandForExecution(node.getCommand());
     }
 
-    private void sendActingCommandForExecution(ActCommandForIntention<?> command) {
+    private void sendActingCommandForExecution(ActCommand<?> command) {
         if (agent.sendCommandToExecute(command, this)) {
             synchronized (lockMonitor) {
                 try {
@@ -66,7 +66,7 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
     }
 
     @Override
-    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommandForIntention> node) {
+    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node) {
         agent.executeCommand(node.getCommand());
     }
 
@@ -101,7 +101,7 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
         //notify waiting method
         synchronized (lockMonitor) {
             if (!response) {
-                MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute acting command");
+                MyLogger.getLogger().info(this.getClass().getSimpleName() + " could not execute acting command");
             }
             lockMonitor.notify();
         }

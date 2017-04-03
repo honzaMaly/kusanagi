@@ -16,6 +16,8 @@ public interface ObservingCommandManager<E, T extends ObservingCommand<E>> {
      * @param commandToExecute
      * @return
      */
-    boolean executeCommand(T commandToExecute, WorkingMemory memory, E environment);
+    default boolean executeCommand(T commandToExecute, WorkingMemory memory, E environment){
+        return commandToExecute.observe(memory, environment);
+    }
 
 }

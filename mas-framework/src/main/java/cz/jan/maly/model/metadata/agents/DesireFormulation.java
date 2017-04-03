@@ -1,14 +1,14 @@
 package cz.jan.maly.model.metadata.agents;
 
-import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.CommandForIntention;
+import cz.jan.maly.model.metadata.agents.configuration.CommonConfiguration;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstractPlan;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
 import cz.jan.maly.model.planing.Commitment;
 import cz.jan.maly.model.planing.IntentionCommand;
 import cz.jan.maly.model.planing.RemoveCommitment;
+import cz.jan.maly.model.planing.command.CommandForIntention;
+import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,109 +21,52 @@ import java.util.stream.Collectors;
  * Created by Jan on 11-Mar-17.
  */
 public abstract class DesireFormulation {
-
-    //configurations to form desire
-    private final Map<DesireKey, DecisionParameters> parametersForDecisionByDesire = new HashMap<>();
     private final Map<DesireKey, Commitment> decisionsByDesire = new HashMap<>();
-
-    //configurations to form intention
-    private final Map<DesireKey, DecisionParameters> parametersForDecisionByIntention = new HashMap<>();
     private final Map<DesireKey, RemoveCommitment> decisionsByIntention = new HashMap<>();
-    private final Map<DesireKey, IntentionParameters> parametersOfIntentions = new HashMap<>();
-
-    /**
-     * Get facts types which needs to be in memory to support desires formulation
-     *
-     * @return
-     */
-    public Set<FactKey<?>> getRequiredFactsToSupportFormulation() {
-        Set<FactKey<?>> facts = parametersForDecisionByDesire.keySet().stream()
-                .flatMap(key -> key.getParametersTypesForFacts().stream())
-                .collect(Collectors.toSet());
-        facts.addAll(parametersForDecisionByDesire.values().stream()
-                .flatMap(decisionContainerParameters -> decisionContainerParameters.getParametersTypesForFacts().stream())
-                .collect(Collectors.toSet()));
-        facts.addAll(parametersForDecisionByIntention.values().stream()
-                .flatMap(decisionContainerParameters -> decisionContainerParameters.getParametersTypesForFacts().stream())
-                .collect(Collectors.toSet()));
-        facts.addAll(parametersOfIntentions.values().stream()
-                .flatMap(intentionParameters -> intentionParameters.getParametersTypesForFacts().stream())
-                .collect(Collectors.toSet()));
-        return facts;
-    }
-
-    /**
-     * Get facts sets types which needs to be in memory to support desires formulation
-     *
-     * @return
-     */
-    public Set<FactKey<?>> getRequiredFactsSetsToSupportFormulation() {
-        Set<FactKey<?>> facts = parametersForDecisionByDesire.keySet().stream()
-                .flatMap(key -> key.getParametersTypesForFactSets().stream())
-                .collect(Collectors.toSet());
-        facts.addAll(parametersForDecisionByDesire.values().stream()
-                .flatMap(decisionContainerParameters -> decisionContainerParameters.getParametersTypesForFactSets().stream())
-                .collect(Collectors.toSet()));
-        facts.addAll(parametersForDecisionByIntention.values().stream()
-                .flatMap(decisionContainerParameters -> decisionContainerParameters.getParametersTypesForFactSets().stream())
-                .collect(Collectors.toSet()));
-        facts.addAll(parametersOfIntentions.values().stream()
-                .flatMap(intentionParameters -> intentionParameters.getParametersTypesForFactSets().stream())
-                .collect(Collectors.toSet()));
-        return facts;
-    }
-
-    /**
-     * Returns set of supported desires types
-     *
-     * @return
-     */
-    public Set<DesireKey> supportedDesireTypes() {
-        return parametersForDecisionByDesire.keySet();
-    }
-
-    IntentionParameters getIntentionParameters(DesireKey key) {
-        return parametersOfIntentions.get(key);
-    }
+    private final Map<DesireKey, Set<DesireKey>> typesOfDesiresToConsiderWhenCommitting = new HashMap<>();
+    private final Map<DesireKey, Set<DesireKey>> typesOfDesiresToConsiderWhenRemovingCommitment = new HashMap<>();
 
     RemoveCommitment getDecisionInIntention(DesireKey key) {
         return decisionsByIntention.get(key);
-    }
-
-    DecisionParameters getParametersForDecisionInIntention(DesireKey key) {
-        return parametersForDecisionByIntention.get(key);
-    }
-
-    public boolean supportsDesireType(DesireKey key) {
-        return parametersForDecisionByDesire.containsKey(key);
-    }
-
-    DecisionParameters getParametersForDecisionInDesire(DesireKey key) {
-        return parametersForDecisionByDesire.get(key);
     }
 
     Commitment getDecisionInDesire(DesireKey key) {
         return decisionsByDesire.get(key);
     }
 
+    Set<DesireKey> getTypesOfDesiresToConsiderWhenCommitting(DesireKey key) {
+        return typesOfDesiresToConsiderWhenCommitting.get(key);
+    }
+
+    Set<DesireKey> getTypesOfDesiresToConsiderWhenRemovingCommitment(DesireKey key) {
+        return typesOfDesiresToConsiderWhenRemovingCommitment.get(key);
+    }
+
     /**
      * Add configuration for desire
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
+     * @param configuration
      */
-    protected void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                     Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                     RemoveCommitment decisionInIntention, IntentionParameters intentionParameters) {
-        parametersForDecisionByDesire.put(key, decisionParametersForDesire);
-        decisionsByDesire.put(key, decisionInDesire);
-        parametersForDecisionByIntention.put(key, decisionParametersForIntention);
-        decisionsByIntention.put(key, decisionInIntention);
-        parametersOfIntentions.put(key, intentionParameters);
+    void addDesireFormulationConfiguration(DesireKey key, CommonConfiguration configuration) {
+        this.decisionsByDesire.put(key, configuration.getDecisionInDesire());
+        this.decisionsByIntention.put(key, configuration.getDecisionInIntention());
+        this.typesOfDesiresToConsiderWhenCommitting.put(key, configuration.getTypesOfDesiresToConsiderWhenCommitting());
+        this.typesOfDesiresToConsiderWhenRemovingCommitment.put(key, configuration.getTypesOfDesiresToConsiderWhenRemovingCommitment());
+    }
+
+    /**
+     * Returns true if desire key is supported
+     *
+     * @param desireKey
+     * @return
+     */
+    public boolean supportsDesireType(DesireKey desireKey) {
+        return decisionsByDesire.containsKey(desireKey);
+    }
+
+    public Set<DesireKey> supportedDesireTypes() {
+        return decisionsByDesire.keySet();
     }
 
     /**
@@ -163,54 +106,32 @@ public abstract class DesireFormulation {
          * Add configuration for desire
          *
          * @param key
-         * @param decisionParametersForDesire
-         * @param decisionInDesire
-         * @param decisionParametersForIntention
-         * @param intentionParameters
-         * @param decisionInIntention
-         * @param desiresForOthers
-         * @param desiresWithAbstractIntention
-         * @param desiresWithIntentionToAct
-         * @param desiresWithIntentionToReason
+         * @param configuration
          */
-        public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                                      Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-            addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
-                    decisionParametersForIntention, decisionInIntention, intentionParameters);
-            desiresForOthersByKey.put(key, desiresForOthers);
-            desiresWithAbstractIntentionByKey.put(key, desiresWithAbstractIntention);
-            desiresWithIntentionToActByKey.put(key, desiresWithIntentionToAct);
-            desiresWithIntentionToReasonByKey.put(key, desiresWithIntentionToReason);
+        public void addDesireFormulationConfiguration(DesireKey key, ConfigurationWithAbstractPlan configuration) {
+            addDesireFormulationConfiguration(key, (CommonConfiguration) configuration);
+            desiresForOthersByKey.put(key, configuration.getDesiresForOthers());
+            desiresWithAbstractIntentionByKey.put(key, configuration.getDesiresWithAbstractIntention());
+            desiresWithIntentionToActByKey.put(key, configuration.getDesiresWithIntentionToAct());
+            desiresWithIntentionToReasonByKey.put(key, configuration.getDesiresWithIntentionToReason());
         }
     }
 
     /**
      * Defines common structure to add configuration for intention with command
      */
-    static abstract class WithCommand<K extends CommandForIntentionFormulationStrategy<? extends CommandForIntention<?, ?>, ? extends IntentionCommand<?, ?>>> extends DesireFormulation {
+    static abstract class WithCommand<K extends CommandFormulationStrategy<? extends CommandForIntention<?>, ? extends IntentionCommand<?, ?>>> extends DesireFormulation {
         final Map<DesireKey, K> commandsByKey = new HashMap<>();
 
         /**
          * Add configuration for desire
          *
          * @param key
-         * @param decisionParametersForDesire
-         * @param decisionInDesire
-         * @param decisionParametersForIntention
-         * @param intentionParameters
-         * @param decisionInIntention
-         * @param commandCreationStrategy
+         * @param configuration
          */
-        public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                      K commandCreationStrategy) {
-            addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
-                    decisionParametersForIntention, decisionInIntention, intentionParameters);
-            commandsByKey.put(key, commandCreationStrategy);
+        public void addDesireFormulationConfiguration(DesireKey key, ConfigurationWithCommand<K> configuration) {
+            addDesireFormulationConfiguration(key, (CommonConfiguration) configuration);
+            commandsByKey.put(key, configuration.getCommandCreationStrategy());
         }
     }
 

@@ -1,9 +1,8 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.model.planing.tree.*;
 
 import java.util.Iterator;
@@ -19,17 +18,15 @@ import java.util.stream.Collectors;
  */
 public class CommitmentRemovalDecider implements TreeVisitorInterface {
     private final Tree tree;
-    private final Agent agent;
 
-    public CommitmentRemovalDecider(Tree tree, Agent agent) {
+    public CommitmentRemovalDecider(Tree tree) {
         this.tree = tree;
-        this.agent = agent;
     }
 
 
     @Override
     public void visitTree() {
-        branch(tree, agent);
+        branch(tree);
     }
 
     /**
@@ -39,7 +36,7 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
      * @param <V>
      * @param <K>
      */
-    private <K extends Node<?> & IntentionNodeInterface & VisitorAcceptor, V extends Node<?> & DesireNodeInterface<K>> void branch(Parent<V, K> parent, Agent agent) {
+    private <K extends Node<?> & IntentionNodeInterface & VisitorAcceptor, V extends Node<?> & DesireNodeInterface<K>> void branch(Parent<V, K> parent) {
         List<K> intentionNodes = parent.getNodesWithIntention();
 
         //decide removal of commitment to intentions
@@ -48,7 +45,6 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
             K node = it.next();
             node.removeCommitment(
                     new DataForDecision(node.getParametersToLoad(),
-                            agent,
                             parent.getNodesWithIntention().stream()
                                     .map(Node::getDesireKey)
                                     .collect(Collectors.toList()),
@@ -70,21 +66,21 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
 
     @Override
     public void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node) {
-        branch(node, agent);
+        branch(node);
     }
 
     @Override
     public void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node) {
-        branch(node, agent);
+        branch(node);
     }
 
     @Override
-    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommandForIntention.Own> node) {
+    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node) {
         //do nothing, already decided
     }
 
     @Override
-    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommandForIntention> node) {
+    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node) {
         //do nothing, already decided
     }
 

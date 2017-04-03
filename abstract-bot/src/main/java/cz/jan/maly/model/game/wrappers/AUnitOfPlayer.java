@@ -141,8 +141,8 @@ public class AUnitOfPlayer extends AUnit.Players {
     @Getter
     private final boolean isUnderDisruptionWeb;
 
-    AUnitOfPlayer(Unit unit) {
-        super(unit);
+    AUnitOfPlayer(Unit unit, boolean isCreatingUnit) {
+        super(unit, isCreatingUnit);
 
         this.isLoaded = unit.isLoaded();
         this.hasNuke = unit.hasNuke();
@@ -158,13 +158,21 @@ public class AUnitOfPlayer extends AUnit.Players {
         this.ensnareTimer = unit.getEnsnareTimer();
         this.lockdownTimer = unit.getLockdownTimer();
         this.stimTimer = unit.getStimTimer();
-        if (unit.getTransport() != null) {
-            this.transportId = Optional.of(unit.getTransport().getID());
+
+        if (!isCreatingUnit) {
+            this.transport = Optional.ofNullable(unit.getTransport());
+            if (unit.getTransport() != null) {
+                this.transportId = Optional.of(unit.getTransport().getID());
+            } else {
+                this.transportId = Optional.empty();
+            }
+            this.loadedUnits = new ArrayList<>(unit.getLoadedUnits());
         } else {
+            this.transport = Optional.empty();
             this.transportId = Optional.empty();
+            this.loadedUnits = new ArrayList<>();
         }
-        this.transport = Optional.ofNullable(unit.getTransport());
-        this.loadedUnits = new ArrayList<>(unit.getLoadedUnits());
+
         this.loadedUnitsIds = this.loadedUnits.stream()
                 .map(Unit::getID)
                 .collect(Collectors.toList());

@@ -3,12 +3,12 @@ package cz.jan.maly.model.planing.tree;
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.CommandForIntention;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.*;
@@ -29,14 +29,14 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
     abstract void formDesireNodeAndReplaceIntentionNode(Agent agent);
 
     @Override
-    public DecisionParameters getParametersToLoad() {
+    public Set<DesireKey> getParametersToLoad() {
         return intention.getParametersToLoad();
     }
 
     /**
      * Class to extend template - to define intention node without child
      */
-    public abstract static class WithCommand<V extends IntentionCommand<? extends InternalDesire<? extends IntentionCommand<?, ?>>, ?>, K extends CommandForIntention<? extends IntentionCommand<T, K>, ?>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand<K> {
+    public abstract static class WithCommand<V extends IntentionCommand<? extends InternalDesire<? extends IntentionCommand<?, ?>>, ?>, K extends CommandForIntention<? extends IntentionCommand<T, K>>, T extends InternalDesire<V>> extends IntentionNodeAtTopLevel<V, T> implements NodeWithCommand<K> {
         private WithCommand(Tree tree, T desire) {
             super(tree, desire);
         }
@@ -63,7 +63,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         /**
          * Concrete implementation, intention's desire from another agent forms node
          */
-        public static class FromAnotherAgent extends WithCommand<IntentionCommand.FromAnotherAgent, ActCommandForIntention.DesiredByAnotherAgent, DesireFromAnotherAgent.WithIntentionWithPlan> implements ResponseReceiverInterface<Boolean> {
+        public static class FromAnotherAgent extends WithCommand<IntentionCommand.FromAnotherAgent, ActCommand.DesiredByAnotherAgent, DesireFromAnotherAgent.WithIntentionWithPlan> implements ResponseReceiverInterface<Boolean> {
             private final DesireFromAnotherAgent.WithIntentionWithPlan desire;
             private final Object lockMonitor = new Object();
             private Boolean registered = false;
@@ -106,7 +106,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public ActCommandForIntention.DesiredByAnotherAgent getCommand() {
+            public ActCommand.DesiredByAnotherAgent getCommand() {
                 return intention.getCommand();
             }
 
@@ -134,7 +134,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         /**
          * Concrete implementation, intention's desire is formed anew for intention with reasoning command
          */
-        public static class OwnReasoning extends WithCommand<IntentionCommand.OwnReasoning, ReasoningCommandForIntention, OwnDesire.Reasoning> {
+        public static class OwnReasoning extends WithCommand<IntentionCommand.OwnReasoning, ReasoningCommand, OwnDesire.Reasoning> {
             OwnReasoning(Tree tree, OwnDesire.Reasoning desire) {
                 super(tree, desire);
             }
@@ -145,7 +145,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public ReasoningCommandForIntention getCommand() {
+            public ReasoningCommand getCommand() {
                 return intention.getCommand();
             }
 
@@ -163,7 +163,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         /**
          * Concrete implementation, intention's desire is formed anew for intention with acting command
          */
-        public static class OwnActing extends WithCommand<IntentionCommand.OwnActing, ActCommandForIntention.Own, OwnDesire.Acting> {
+        public static class OwnActing extends WithCommand<IntentionCommand.OwnActing, ActCommand.Own, OwnDesire.Acting> {
             OwnActing(Tree tree, OwnDesire.Acting desire) {
                 super(tree, desire);
             }
@@ -174,7 +174,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public ActCommandForIntention.Own getCommand() {
+            public ActCommand.Own getCommand() {
                 return intention.getCommand();
             }
 
@@ -289,14 +289,12 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
         @Override
         public List<DesireNodeNotTopLevel<?, ?>> getNodesWithDesire() {
-            return desires.values().stream()
-                    .collect(Collectors.toList());
+            return new ArrayList<>(desires.values());
         }
 
         @Override
         public List<IntentionNodeNotTopLevel<?, ?, ?>> getNodesWithIntention() {
-            return intentions.values().stream()
-                    .collect(Collectors.toList());
+            return new ArrayList<>(intentions.values());
         }
 
         @Override
@@ -336,6 +334,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
                 desires.remove(desireNode.desire);
                 intentions.put(intentionNode.intention, intentionNode);
             } else {
+                MyLogger.getLogger().warning("Could not replace desire by intention, desire node is missing.");
                 throw new RuntimeException("Could not replace desire by intention, desire node is missing.");
             }
         }
@@ -346,6 +345,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
                 intentions.remove(intentionNode.intention);
                 desires.put(desireNode.desire, desireNode);
             } else {
+                MyLogger.getLogger().warning("Could not replace intention by desire, intention node is missing.");
                 throw new RuntimeException("Could not replace intention by desire, intention node is missing.");
             }
         }

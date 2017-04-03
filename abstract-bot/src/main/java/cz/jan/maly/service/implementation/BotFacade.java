@@ -4,7 +4,7 @@ import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.agent.BWAgentInGame;
 import cz.jan.maly.model.game.wrappers.*;
-import cz.jan.maly.service.AgentUnitFactoryInterface;
+import cz.jan.maly.service.AgentUnitHandler;
 import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Facade for bot.
@@ -26,7 +27,7 @@ public class BotFacade extends DefaultBWListener {
     private final Map<Integer, BWAgentInGame> agentsWithGameRepresentation = new HashMap<>();
 
     //facade for MAS
-    private MASFacade<Game> masFacade;
+    private MASFacade masFacade;
 
     @Setter
     @Getter
@@ -38,39 +39,42 @@ public class BotFacade extends DefaultBWListener {
 
     @Setter
     @Getter
-    private static long refreshInfoAboutOwnUnitAfterFrames = 1;
+    private static long refreshInfoAboutOwnUnitAfterFrames = 2;
 
     @Setter
     @Getter
-    private static long refreshInfoAboutEnemyUnitAfterFrames = 1;
+    private static long refreshInfoAboutEnemyUnitAfterFrames = 4;
 
     @Setter
     @Getter
-    private static long refreshInfoAboutResourceUnitAfterFrames = 10;
+    private static long refreshInfoAboutResourceUnitAfterFrames = 20;
 
     //executor of game commands
     private GameCommandExecutor gameCommandExecutor;
 
     //fields provided by user
-    private final AgentUnitFactoryInterface agentUnitFactory;
+    private final AgentUnitHandler agentUnitFactory;
 //    private final AbstractAgentInitializerInterface abstractAgentInitializer;
 
     //game related fields
     private Mirror mirror = new Mirror();
+
+    @Getter
     private Game game;
 
+    @Getter
     private Player self;
 
-    public BotFacade(AgentUnitFactoryInterface agentUnitFactory) {
+    public BotFacade(AgentUnitHandler agentUnitFactory) {
         this.agentUnitFactory = agentUnitFactory;
 //        this.abstractAgentInitializer = abstractAgentInitializer;
-//        MyLogger.setLoggingLevel(Level.WARNING);
+        MyLogger.setLoggingLevel(Level.WARNING);
     }
 
     @Override
     public void onStart() {
         UnitWrapperFactory.clearCache();
-        masFacade = new MASFacade<>();
+        masFacade = new MASFacade();
 
         //initialize game related data
         game = mirror.getGame();
@@ -102,19 +106,22 @@ public class BotFacade extends DefaultBWListener {
     }
 
     @Override
-    public void onUnitCreate(Unit unit) {
-        if (unit.getPlayer().equals(self)) {
+    public synchronized void onUnitCreate(Unit unit) {
+        if (self.getID() == unit.getPlayer().getID()) {
             Optional<BWAgentInGame> agent = agentUnitFactory.createAgentForUnit(unit, this, game.getFrameCount());
             agent.ifPresent(bwAgentInGame -> {
                 agentsWithGameRepresentation.put(unit.getID(), bwAgentInGame);
                 masFacade.addAgentToSystem(bwAgentInGame);
+
+                //start agent
+                bwAgentInGame.run();
             });
         }
     }
 
     @Override
     public void onUnitDestroy(Unit unit) {
-        if (unit.getPlayer().equals(self)) {
+        if (self.getID() == unit.getPlayer().getID()) {
             Optional<BWAgentInGame> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit.getID()));
             agent.ifPresent(bwAgentInGame -> masFacade.removeAgentFromSystem(bwAgentInGame));
         }
@@ -123,7 +130,7 @@ public class BotFacade extends DefaultBWListener {
 
     @Override
     public void onUnitMorph(Unit unit) {
-        if (unit.getPlayer().equals(self)) {
+        if (self.getID() == unit.getPlayer().getID()) {
             onUnitDestroy(unit);
             onUnitCreate(unit);
         }
@@ -142,6 +149,14 @@ public class BotFacade extends DefaultBWListener {
 
     @Override
     public void onFrame() {
-        gameCommandExecutor.actOnFrame();
+        try {
+            gameCommandExecutor.actOnFrame();
+        }
+        // === Catch any exception that occur not to "kill" the bot with one trivial error ===================
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    //TODO handle more events - unit renegade, visibility
 }

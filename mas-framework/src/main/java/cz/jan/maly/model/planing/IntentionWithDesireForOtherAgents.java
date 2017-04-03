@@ -1,9 +1,7 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.IntentionParameters;
 import lombok.Getter;
 
 /**
@@ -15,8 +13,8 @@ public class IntentionWithDesireForOtherAgents extends Intention<DesireForOthers
     @Getter
     private final SharedDesireForAgents sharedDesire;
 
-    IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, IntentionParameters intentionParameters, Agent agent, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, int limitOnNumberOfAgentsToCommit, DesireKey sharedDesireKey) {
-        super(originalDesire, intentionParameters, agent.getBeliefs(), removeCommitment, decisionParameters);
+    IntentionWithDesireForOtherAgents(DesireForOthers originalDesire, Agent agent, RemoveCommitment removeCommitment, int limitOnNumberOfAgentsToCommit, DesireKey sharedDesireKey) {
+        super(originalDesire, removeCommitment);
         this.sharedDesire = new SharedDesireForAgents(sharedDesireKey, agent, limitOnNumberOfAgentsToCommit);
     }
 

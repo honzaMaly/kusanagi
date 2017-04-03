@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
-import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
@@ -17,7 +16,7 @@ import java.util.Set;
  * <p>
  * Created by Jan on 09-Feb-17.
  */
-public abstract class Desire implements FactContainerInterface, DesireKeyIdentificationInterface {
+public abstract class Desire implements DesireKeyIdentificationInterface {
 
     @Getter
     final DesireParameters desireParameters;
@@ -38,11 +37,11 @@ public abstract class Desire implements FactContainerInterface, DesireKeyIdentif
         return desireParameters.getDesireKey();
     }
 
-    public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
+    public <V> Optional<V> returnFactValueForGivenKeyInParameters(FactKey<V> factKey) {
         return desireParameters.returnFactValueForGivenKey(factKey);
     }
 
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKeyInParameters(FactKey<V> factKey) {
         return desireParameters.returnFactSetValueForGivenKey(factKey);
     }
 

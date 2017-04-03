@@ -11,6 +11,8 @@ import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.SharedDesire;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.model.servicies.desires.ReadOnlyDesireRegister;
+import cz.jan.maly.utils.MyLogger;
+import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Function;
@@ -20,11 +22,12 @@ import java.util.stream.Collectors;
  * Facade for planning tree. Tree manages nodes at top level.
  * Created by Jan on 28-Feb-17.
  */
-public class Tree<E> implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>>, ResponseReceiverInterface<Boolean> {
+public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>>, ResponseReceiverInterface<Boolean> {
     private final Map<SharedDesire, SharedDesireForAgents> sharedDesiresForOtherAgents = new HashMap<>();
     private final Map<SharedDesire, SharedDesireForAgents> sharedDesiresByOtherAgents = new HashMap<>();
 
-    private final Agent<E> agent;
+    @Getter
+    private final Agent<?> agent;
 
     private final SharingDesireRemovalInSubtreeRoutine sharingDesireRemovalInSubtreeRoutine = new SharingDesireRemovalInSubtreeRoutine();
 
@@ -40,7 +43,7 @@ public class Tree<E> implements PlanningTreeInterface, Parent<DesireNodeAtTopLev
 
     private final List<ChildNodeManipulation<? extends IntentionNodeAtTopLevel<?, ?>, ? extends DesireNodeAtTopLevel<?>>> registers = new ArrayList<>();
 
-    public Tree(Agent agent) {
+    public Tree(Agent<?> agent) {
         this.agent = agent;
         registers.add(manipulationWithAbstractDesiresFromOthers);
         registers.add(manipulationWithDesiresFromOthers);
@@ -51,7 +54,7 @@ public class Tree<E> implements PlanningTreeInterface, Parent<DesireNodeAtTopLev
     }
 
     public void removeCommitmentToSharedDesires() {
-        agent.getDesireMediator().removeCommitmentToDesires(agent, sharedDesiresByOtherAgents.values().stream().collect(Collectors.toSet()), this);
+        agent.getDesireMediator().removeCommitmentToDesires(agent, new HashSet<>(sharedDesiresByOtherAgents.values()), this);
     }
 
     /**
@@ -148,6 +151,7 @@ public class Tree<E> implements PlanningTreeInterface, Parent<DesireNodeAtTopLev
                         if (intentionWithPlan.isPresent()) {
                             manipulationWithDesiresFromOthers.addDesireNode(new DesireNodeAtTopLevel.FromAnotherAgent.WithIntentionWithPlan(this, intentionWithPlan.get()));
                         } else {
+                            MyLogger.getLogger().warning(agent.getAgentType().getName() + " is trying to add desire from other which is not supported.");
                             throw new IllegalArgumentException(agent.getAgentType().getName() + " is trying to add desire from other which is not supported.");
                         }
                     }
@@ -209,15 +213,6 @@ public class Tree<E> implements PlanningTreeInterface, Parent<DesireNodeAtTopLev
     @Override
     public Optional<DesireKey> getDesireKeyAssociatedWithParent() {
         return Optional.empty();
-    }
-
-    /**
-     * Return agent of the tree
-     *
-     * @return
-     */
-    public Agent getAgent() {
-        return agent;
     }
 
     @Override

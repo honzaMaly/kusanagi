@@ -6,10 +6,7 @@ import bwapi.WeaponType;
 import bwta.BWTA;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -167,54 +164,60 @@ public class AUnit {
     private final boolean isCarryingMinerals;
 
     @Getter
-    private final APlayer player;
+    private final Optional<APlayer> player;
 
     @Getter
     private final Optional<bwta.Region> unitRegion;
 
-    final List<Unit> enemyUnitsInWeaponRange;
+    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
 
     final List<Integer> enemyUnitsInWeaponRangeIds;
 
-    final List<Unit> friendlyUnitsInRadiusOfSight;
+    final List<Unit> friendlyUnitsInRadiusOfSight = new ArrayList<>();
 
     final List<Integer> friendlyUnitsInRadiusOfSightIds;
 
-    final List<Unit> resourceUnitsInRadiusOfSight;
+    final List<Unit> resourceUnitsInRadiusOfSight = new ArrayList<>();
 
     final List<Integer> resourceUnitsInRadiusOfSightIds;
 
-    final List<Unit> enemyUnitsInRadiusOfSight;
+    final List<Unit> enemyUnitsInRadiusOfSight = new ArrayList<>();
 
     final List<Integer> enemyUnitsInRadiusOfSightIds;
 
-    AUnit(Unit unit) {
+    AUnit(Unit unit, boolean isCreatingUnit) {
         this.unit = unit;
         this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
 
         //units in weapon range
-        this.enemyUnitsInWeaponRange = unit.getUnitsInWeaponRange(unit.getType().airWeapon()).stream()
-                .filter(u -> !u.getPlayer().equals(unit.getPlayer()) && !u.getPlayer().isNeutral())
-                .filter(u -> !resourcesTypes.contains(u.getType()))
-                .collect(Collectors.toList());
-        this.enemyUnitsInWeaponRange.addAll(unit.getUnitsInWeaponRange(unit.getType().groundWeapon()).stream()
-                .filter(u -> !u.getPlayer().equals(unit.getPlayer()) && !u.getPlayer().isNeutral())
-                .filter(u -> !resourcesTypes.contains(u.getType()))
-                .collect(Collectors.toList()));
+        if (!isCreatingUnit && !unit.getPlayer().isNeutral()
+                && !resourcesTypes.contains(unit.getType())) {
+            addEnemyUnitsInWeaponRange(unit.getUnitsInWeaponRange(unit.getType().airWeapon()));
+            addEnemyUnitsInWeaponRange(unit.getUnitsInWeaponRange(unit.getType().groundWeapon()));
+        }
+
+        //ids
         this.enemyUnitsInWeaponRangeIds = this.enemyUnitsInWeaponRange.stream()
                 .map(Unit::getID)
                 .collect(Collectors.toList());
 
         //units in radius of sight
-        this.friendlyUnitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange()).stream()
-                .filter(u -> u.getPlayer().equals(unit.getPlayer()))
-                .collect(Collectors.toList());
-        this.resourceUnitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange()).stream()
-                .filter(u -> resourcesTypes.contains(u.getType()) && u.getPlayer().isNeutral())
-                .collect(Collectors.toList());
-        this.enemyUnitsInRadiusOfSight = unit.getUnitsInRadius(unit.getType().sightRange()).stream()
-                .filter(u -> !u.getPlayer().equals(unit.getPlayer()) && !u.getPlayer().isNeutral())
-                .collect(Collectors.toList());
+        if (!isCreatingUnit && !unit.getPlayer().isNeutral()
+                && !resourcesTypes.contains(unit.getType())) {
+            for (Unit unitInRange : unit.getUnitsInRadius(unit.getType().sightRange())) {
+                if (unitInRange.getPlayer().getID() == unit.getPlayer().getID()) {
+                    this.friendlyUnitsInRadiusOfSight.add(unitInRange);
+                } else {
+                    if (resourcesTypes.contains(unitInRange.getType()) && unitInRange.getPlayer().isNeutral()) {
+                        this.resourceUnitsInRadiusOfSight.add(unitInRange);
+                    } else {
+                        if (unitInRange.getPlayer().getID() != unit.getPlayer().getID() && !unitInRange.getPlayer().isNeutral()) {
+                            this.enemyUnitsInRadiusOfSight.add(unitInRange);
+                        }
+                    }
+                }
+            }
+        }
 
         //ids
         this.friendlyUnitsInRadiusOfSightIds = this.friendlyUnitsInRadiusOfSight.stream()
@@ -273,8 +276,18 @@ public class AUnit {
         this.isBeingConstructed = unit.isBeingConstructed();
         this.isGatheringMinerals = unit.isGatheringMinerals();
         this.isCarryingMinerals = unit.isCarryingMinerals();
-        this.player = APlayer.wrapPlayer(unit.getPlayer()).get();
+        this.player = APlayer.wrapPlayer(unit.getPlayer());
         unitId = unit.getID();
+    }
+
+    private void addEnemyUnitsInWeaponRange(List<Unit> unitsInWeaponRange) {
+        for (Unit unitInWeaponRange : unitsInWeaponRange) {
+            if (unitInWeaponRange.getPlayer().getID() != unit.getPlayer().getID()
+                    && !unitInWeaponRange.getPlayer().isNeutral()
+                    && !resourcesTypes.contains(unitInWeaponRange.getType())) {
+                this.enemyUnitsInWeaponRange.add(unitInWeaponRange);
+            }
+        }
     }
 
     public boolean isFullyHealthy() {
@@ -287,6 +300,10 @@ public class AUnit {
 
     public boolean isWounded() {
         return getHitPoints() < getType().getMaxHitPoints();
+    }
+
+    public boolean isDead() {
+        return UnitWrapperFactory.isDead(unitId);
     }
 
     /**
@@ -356,8 +373,8 @@ public class AUnit {
      * Enemy
      */
     public static class Enemy extends AUnit {
-        Enemy(Unit unit) {
-            super(unit);
+        Enemy(Unit unit, boolean isCreatingUnit) {
+            super(unit, isCreatingUnit);
         }
 
         public List<AUnitOfPlayer> getEnemyUnitsInWeaponRange() {
@@ -398,8 +415,8 @@ public class AUnit {
      * Player's unit
      */
     public static class Players extends AUnit {
-        Players(Unit unit) {
-            super(unit);
+        Players(Unit unit, boolean isCreatingUnit) {
+            super(unit, isCreatingUnit);
         }
 
         public List<AUnit.Enemy> getEnemyUnitsInWeaponRange() {

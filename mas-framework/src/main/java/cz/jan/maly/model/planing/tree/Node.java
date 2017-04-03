@@ -9,7 +9,7 @@ import cz.jan.maly.model.planing.DecisionAboutCommitment;
  * Template for node. It defines common data structure (methods) for various nodes which extend it.
  * Created by Jan on 28-Feb-17.
  */
-public abstract class Node<K extends Parent> implements DesireKeyIdentificationInterface, DecisionAboutCommitment {
+public abstract class Node<K extends Parent<?, ?>> implements DesireKeyIdentificationInterface, DecisionAboutCommitment {
     final DesireParameters desireParameters;
     final int level;
     final K parent;
@@ -58,7 +58,7 @@ public abstract class Node<K extends Parent> implements DesireKeyIdentificationI
     /**
      * Template for nodes not in top level
      */
-    static abstract class NotTopLevel<K extends Node & IntentionNodeWithChildes & Parent> extends Node<K> {
+    static abstract class NotTopLevel<K extends Node & IntentionNodeWithChildes & Parent<?, ?>> extends Node<K> {
 
         NotTopLevel(K parent, DesireParameters desireParameters) {
             super(desireParameters, parent.level + 1, parent, parent.tree);

@@ -1,25 +1,18 @@
 package cz.jan.maly.model.knowledge;
 
-import cz.jan.maly.model.FactContainerInterface;
-import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.service.MASFacade;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Container with data to be used to make commitment on (additional to data defined by intention/desire)
  * Created by Jan on 02-Mar-17.
  */
-public class DataForDecision implements FactContainerInterface {
-
-    //additional facts retrieved from memory to make decision on
-    private final Map<FactKey, Object> factParameterMap = new HashMap<>();
-    private final Map<FactKey, Set> factSetParameterMap = new HashMap<>();
+public class DataForDecision {
 
     //what was already decided on same level - types of desires
     @Getter
@@ -37,47 +30,20 @@ public class DataForDecision implements FactContainerInterface {
     @Getter
     private final boolean isAtTopLevel;
 
-    public DataForDecision(DecisionParameters parameters, Agent agent, List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision, Optional<DesireKey> parentsType) {
+    public DataForDecision(Set<DesireKey> desiresToConsider, List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision, Optional<DesireKey> parentsType) {
         this.isAtTopLevel = !parentsType.isPresent();
 
         //filter keys
         this.madeCommitmentToTypes = madeCommitmentToTypes.stream()
-                .filter(desireKey -> parameters.getTypesOfDesiresToConsider().contains(desireKey))
+                .filter(desiresToConsider::contains)
                 .collect(Collectors.toList());
         this.didNotMakeCommitmentToTypes = didNotMakeCommitmentToTypes.stream()
-                .filter(desireKey -> parameters.getTypesOfDesiresToConsider().contains(desireKey))
+                .filter(desiresToConsider::contains)
                 .collect(Collectors.toList());
         this.typesAboutToMakeDecision = typesAboutToMakeDecision.stream()
-                .filter(desireKey -> parameters.getTypesOfDesiresToConsider().contains(desireKey))
+                .filter(desiresToConsider::contains)
                 .collect(Collectors.toList());
-
         this.parentsType = parentsType;
-
-        //fill maps with actual parameters from beliefs
-        parameters.getParametersTypesForFacts().forEach(factKey -> {
-            Optional<?> value = agent.getBeliefs().returnFactValueForGivenKey(factKey);
-            value.ifPresent(o -> factParameterMap.put(factKey, MASFacade.CLONER.deepClone(o)));
-        });
-        parameters.getParametersTypesForFactSets().forEach(factKey -> {
-            Optional<Set> value = agent.getBeliefs().returnFactSetValueForGivenKey(factKey);
-            value.ifPresent(set -> factSetParameterMap.put(factKey, MASFacade.CLONER.deepClone(set)));
-        });
-    }
-
-    public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
-        Object value = factParameterMap.get(factKey);
-        if (value != null) {
-            return Optional.of((V) value);
-        }
-        return Optional.empty();
-    }
-
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
-        Set values = factSetParameterMap.get(factKey);
-        if (values != null) {
-            return Optional.of((S) values);
-        }
-        return Optional.empty();
     }
 
 }

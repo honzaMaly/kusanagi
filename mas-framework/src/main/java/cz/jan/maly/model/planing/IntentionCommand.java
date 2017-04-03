@@ -1,20 +1,18 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
-import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionParameters;
-import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.CommandForIntention;
+import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import lombok.Getter;
 
 /**
  * Template for intention which returns instance of CommandForIntention
  * Created by Jan on 16-Feb-17.
  */
-public abstract class IntentionCommand<V extends InternalDesire<? extends IntentionCommand<?, ?>>, T extends CommandForIntention<? extends IntentionCommand<V, T>, ?>> extends Intention<V> {
-    IntentionCommand(V originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters) {
-        super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
+public abstract class IntentionCommand<V extends InternalDesire<? extends IntentionCommand<?, ?>>, T extends CommandForIntention<? extends IntentionCommand<V, T>>> extends Intention<V> {
+    IntentionCommand(V originalDesire, RemoveCommitment removeCommitment) {
+        super(originalDesire, removeCommitment);
     }
 
     /**
@@ -27,19 +25,20 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
     /**
      * From another agent's desire
      */
-    public static class FromAnotherAgent extends IntentionCommand<DesireFromAnotherAgent.WithIntentionWithPlan, ActCommandForIntention.DesiredByAnotherAgent> {
+    public static class FromAnotherAgent extends IntentionCommand<DesireFromAnotherAgent.WithIntentionWithPlan, ActCommand.DesiredByAnotherAgent> {
         @Getter
         private final SharedDesireForAgents sharedDesireForAgents;
-        private final ActCommandForIntention.DesiredByAnotherAgent command;
+        private final ActCommand.DesiredByAnotherAgent command;
 
-        FromAnotherAgent(DesireFromAnotherAgent.WithIntentionWithPlan originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandCreationStrategy) {
-            super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
+        FromAnotherAgent(DesireFromAnotherAgent.WithIntentionWithPlan originalDesire, RemoveCommitment removeCommitment,
+                         CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, FromAnotherAgent> commandCreationStrategy) {
+            super(originalDesire, removeCommitment);
             this.sharedDesireForAgents = originalDesire.getDesireForAgents();
             this.command = commandCreationStrategy.formCommand(this);
         }
 
         @Override
-        public ActCommandForIntention.DesiredByAnotherAgent getCommand() {
+        public ActCommand.DesiredByAnotherAgent getCommand() {
             return command;
         }
     }
@@ -48,16 +47,17 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
     /**
      * Own command for reasoning
      */
-    public static class OwnReasoning extends IntentionCommand<OwnDesire.Reasoning, ReasoningCommandForIntention> {
-        private final ReasoningCommandForIntention command;
+    public static class OwnReasoning extends IntentionCommand<OwnDesire.Reasoning, ReasoningCommand> {
+        private final ReasoningCommand command;
 
-        OwnReasoning(OwnDesire.Reasoning originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, CommandForIntentionFormulationStrategy.OwnReasoning commandCreationStrategy) {
-            super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
+        OwnReasoning(OwnDesire.Reasoning originalDesire, RemoveCommitment removeCommitment,
+                     CommandFormulationStrategy<ReasoningCommand, OwnReasoning> commandCreationStrategy) {
+            super(originalDesire, removeCommitment);
             this.command = commandCreationStrategy.formCommand(this);
         }
 
         @Override
-        public ReasoningCommandForIntention getCommand() {
+        public ReasoningCommand getCommand() {
             return command;
         }
     }
@@ -65,17 +65,18 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
     /**
      * Own command for acting
      */
-    public static class OwnActing extends IntentionCommand<OwnDesire.Acting, ActCommandForIntention.Own> {
-        private final ActCommandForIntention.Own command;
+    public static class OwnActing extends IntentionCommand<OwnDesire.Acting, ActCommand.Own> {
+        private final ActCommand.Own command;
 
-        OwnActing(OwnDesire.Acting originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, CommandForIntentionFormulationStrategy.OwnActing commandCreationStrategy) {
-            super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
+        OwnActing(OwnDesire.Acting originalDesire, RemoveCommitment removeCommitment,
+                  CommandFormulationStrategy<ActCommand.Own, OwnActing> commandCreationStrategy) {
+            super(originalDesire, removeCommitment);
             this.command = commandCreationStrategy.formCommand(this);
         }
 
 
         @Override
-        public ActCommandForIntention.Own getCommand() {
+        public ActCommand.Own getCommand() {
             return command;
         }
     }

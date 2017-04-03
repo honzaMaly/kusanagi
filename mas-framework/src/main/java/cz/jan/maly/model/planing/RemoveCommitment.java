@@ -16,6 +16,6 @@ public interface RemoveCommitment {
      * @param intention
      * @return
      */
-    boolean shouldRemoveCommitment(DataForDecision dataForDecision, Intention<?> intention);
+    boolean shouldRemoveCommitment(Intention<?> intention, DataForDecision dataForDecision);
 
 }

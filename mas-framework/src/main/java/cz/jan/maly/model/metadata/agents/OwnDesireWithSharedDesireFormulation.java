@@ -1,18 +1,14 @@
 package cz.jan.maly.model.metadata.agents;
 
-import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionParameters;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.metadata.IntentionParameters;
-import cz.jan.maly.model.planing.Commitment;
+import cz.jan.maly.model.metadata.agents.configuration.CommonConfiguration;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
 import cz.jan.maly.model.planing.DesireForOthers;
-import cz.jan.maly.model.planing.RemoveCommitment;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Concrete implementation of own desire with desire to share with others
@@ -23,12 +19,12 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
     final Map<DesireKey, Integer> countOfAgentsToCommitByKey = new HashMap<>();
 
     @Override
-    public Optional<DesireForOthers> formDesire(DesireKey key, Memory memory) {
+    public Optional<DesireForOthers> formDesire(DesireKey key, WorkingMemory memory) {
         if (supportsDesireType(key)) {
             DesireForOthers forOthers = new DesireForOthers(key,
-                    memory, getDecisionInDesire(key), getParametersForDecisionInDesire(key), getDecisionInIntention(key),
-                    getParametersForDecisionInIntention(key), getIntentionParameters(key), sharedDesireKeyByKey.get(key),
-                    countOfAgentsToCommitByKey.get(key));
+                    memory, getDecisionInDesire(key), getDecisionInIntention(key),
+                    getTypesOfDesiresToConsiderWhenCommitting(key), getTypesOfDesiresToConsiderWhenRemovingCommitment(key),
+                    sharedDesireKeyByKey.get(key), countOfAgentsToCommitByKey.get(key));
             return Optional.of(forOthers);
         }
         return Optional.empty();
@@ -38,39 +34,29 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
      * Add configuration for desire
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param sharedDesireKey
-     * @param counts
+     * @param configuration
      */
-    public void addDesireFormulationConfiguration(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                  Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                  RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                  DesireKey sharedDesireKey, int counts) {
-        addDesireFormulationConfiguration(key, decisionParametersForDesire, decisionInDesire,
-                decisionParametersForIntention, decisionInIntention, intentionParameters);
-        sharedDesireKeyByKey.put(key, sharedDesireKey);
-        countOfAgentsToCommitByKey.put(key, counts);
+    public void addDesireFormulationConfiguration(DesireKey key, ConfigurationWithSharedDesire configuration) {
+        addDesireFormulationConfiguration(key, (CommonConfiguration) configuration);
+        sharedDesireKeyByKey.put(key, configuration.getSharedDesireKey());
+        countOfAgentsToCommitByKey.put(key, configuration.getCounts());
     }
 
     /**
      * Concrete implementation of own desire with desire to share with others and possibility to create instance based on parent
      */
-    public static class Stacked extends OwnDesireWithSharedDesireFormulation implements OwnInternalDesireFormulationStacked<DesireForOthers>, StackCommonGetters<OwnDesireWithSharedDesireFormulation> {
+    public static class Stacked extends OwnDesireWithSharedDesireFormulation implements OwnInternalDesireFormulationStacked<DesireForOthers> {
         private final Map<DesireKey, OwnDesireWithSharedDesireFormulation> stack = new HashMap<>();
 
         @Override
-        public Optional<DesireForOthers> formDesire(DesireKey parentKey, DesireKey key, Memory memory) {
+        public Optional<DesireForOthers> formDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
             OwnDesireWithSharedDesireFormulation formulation = stack.get(parentKey);
             if (formulation != null) {
                 if (formulation.supportsDesireType(key)) {
                     DesireForOthers forOthers = new DesireForOthers(key,
-                            memory, formulation.getDecisionInDesire(key), formulation.getParametersForDecisionInDesire(key),
-                            formulation.getDecisionInIntention(key), formulation.getParametersForDecisionInIntention(key),
-                            formulation.getIntentionParameters(key), formulation.sharedDesireKeyByKey.get(key),
+                            memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
+                            formulation.getTypesOfDesiresToConsiderWhenCommitting(key),
+                            formulation.getTypesOfDesiresToConsiderWhenRemovingCommitment(key), formulation.sharedDesireKeyByKey.get(key),
                             formulation.countOfAgentsToCommitByKey.get(key));
                     return Optional.of(forOthers);
                 }
@@ -81,35 +67,14 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
         /**
          * Add configuration for desire
          *
-         * @param key
          * @param parent
-         * @param decisionParametersForDesire
-         * @param decisionInDesire
-         * @param decisionParametersForIntention
-         * @param intentionParameters
-         * @param decisionInIntention
-         * @param sharedDesireKey
-         * @param counts
+         * @param key
+         * @param configuration
          */
-        public void addDesireFormulationConfiguration(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                      DesireKey sharedDesireKey, int counts) {
-            OwnDesireWithSharedDesireFormulation formulation = stack.putIfAbsent(parent, new OwnDesireWithSharedDesireFormulation());
-            formulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                    decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, sharedDesireKey, counts);
+        public void addDesireFormulationConfiguration(DesireKey parent, DesireKey key, ConfigurationWithSharedDesire configuration) {
+            OwnDesireWithSharedDesireFormulation formulation = stack.computeIfAbsent(parent, desireKey -> new OwnDesireWithSharedDesireFormulation());
+            formulation.addDesireFormulationConfiguration(key, configuration);
         }
-
-        @Override
-        public Set<FactKey<?>> getRequiredFactsToSupportFormulationInStack() {
-            return getRequiredFactsToSupportFormulation(stack.values());
-        }
-
-        @Override
-        public Set<FactKey<?>> getRequiredFactsSetsToSupportFormulationInStack() {
-            return getRequiredFactsSetsToSupportFormulation(stack.values());
-        }
-
     }
 
 }

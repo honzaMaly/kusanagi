@@ -1,20 +1,21 @@
 package cz.jan.maly.service;
 
-import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.planing.CommandInterface;
+import cz.jan.maly.model.knowledge.WorkingMemory;
+import cz.jan.maly.model.planing.command.CommandInterface;
 
 /**
  * Contract for CommandManager
  * Created by Jan on 26-Feb-17.
  */
-public interface CommandManager<T extends CommandInterface<K>, K extends Memory<?, ?>> {
+public interface CommandManager<T extends CommandInterface> {
 
     /**
      * Execute command and returns result of operation
      *
-     * @param memory
      * @param commandToExecute
      * @return
      */
-    boolean executeCommand(T commandToExecute, K memory);
+    default boolean executeCommand(T commandToExecute, WorkingMemory memory) {
+        return commandToExecute.act(memory);
+    }
 }

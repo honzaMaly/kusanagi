@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Template class for tracking commitment to desire which issues some agent to be achieved by other agents
@@ -42,7 +41,7 @@ public abstract class SharedDesire extends Desire {
      * @return
      */
     public Set<Agent> getCommittedAgents() {
-        return committedAgents.stream().collect(Collectors.toSet());
+        return new HashSet<>(committedAgents);
     }
 
     /**

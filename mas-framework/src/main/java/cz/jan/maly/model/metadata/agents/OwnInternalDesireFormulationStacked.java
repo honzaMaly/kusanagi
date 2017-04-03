@@ -1,6 +1,6 @@
 package cz.jan.maly.model.metadata.agents;
 
-import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.Intention;
 import cz.jan.maly.model.planing.InternalDesire;
@@ -22,6 +22,6 @@ interface OwnInternalDesireFormulationStacked<T extends InternalDesire<? extends
      * @param memory
      * @return
      */
-    Optional<T> formDesire(DesireKey parentKey, DesireKey key, Memory memory);
+    Optional<T> formDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory);
 
 }

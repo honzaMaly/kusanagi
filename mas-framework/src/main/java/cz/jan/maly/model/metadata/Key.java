@@ -1,5 +1,6 @@
 package cz.jan.maly.model.metadata;
 
+import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -26,6 +27,7 @@ abstract class Key {
         synchronized (keysNameByClass) {
             Set<String> identificationsForClass = keysNameByClass.computeIfAbsent(classOfKey, aClass -> new HashSet<>());
             if (identificationsForClass.contains(name)) {
+                MyLogger.getLogger().warning("Key with name " + name + " was already defined for " + classOfKey.getSimpleName());
                 throw new IllegalArgumentException("Key with name " + name + " was already defined for " + classOfKey.getSimpleName());
             }
             this.name = name;

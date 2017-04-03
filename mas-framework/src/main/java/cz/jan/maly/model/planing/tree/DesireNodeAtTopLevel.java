@@ -2,12 +2,12 @@ package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Template for desire in top level
@@ -27,7 +27,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     }
 
     @Override
-    public DecisionParameters getParametersToLoad() {
+    public Set<DesireKey> getParametersToLoad() {
         return desire.getParametersToLoad();
     }
 

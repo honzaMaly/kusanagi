@@ -1,8 +1,11 @@
 package cz.jan.maly.model.metadata.agents;
 
-import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
+import cz.jan.maly.model.planing.IntentionCommand;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
 
 import java.util.Optional;
 
@@ -10,14 +13,15 @@ import java.util.Optional;
  * Concrete implementation of another agent's desire with intention with plan formulation
  * Created by Jan on 12-Mar-17.
  */
-public class AnotherAgentsDesireWithIntentionWithActingCommandFormulation extends DesireFormulation.WithCommand<CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing> implements AnotherAgentsInternalDesireFormulation<DesireFromAnotherAgent.WithIntentionWithPlan> {
+public class AnotherAgentsDesireWithIntentionWithActingCommandFormulation extends DesireFormulation.WithCommand<CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent>> implements AnotherAgentsInternalDesireFormulation<DesireFromAnotherAgent.WithIntentionWithPlan> {
     @Override
-    public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesire(SharedDesireForAgents desireForAgents) {
+    public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formDesire(SharedDesireForAgents desireForAgents, WorkingMemory memory) {
         if (supportsDesireType(desireForAgents.getDesireKey())) {
             DesireFromAnotherAgent.WithIntentionWithPlan withPlan = new DesireFromAnotherAgent.WithIntentionWithPlan(desireForAgents,
-                    getDecisionInDesire(desireForAgents.getDesireKey()), getParametersForDecisionInDesire(desireForAgents.getDesireKey()),
-                    getDecisionInIntention(desireForAgents.getDesireKey()), getParametersForDecisionInIntention(desireForAgents.getDesireKey()),
-                    getIntentionParameters(desireForAgents.getDesireKey()), commandsByKey.get(desireForAgents.getDesireKey()));
+                    memory, getDecisionInDesire(desireForAgents.getDesireKey()), getDecisionInIntention(desireForAgents.getDesireKey()),
+                    getTypesOfDesiresToConsiderWhenCommitting(desireForAgents.getDesireKey()),
+                    getTypesOfDesiresToConsiderWhenRemovingCommitment(desireForAgents.getDesireKey()),
+                    commandsByKey.get(desireForAgents.getDesireKey()));
             return Optional.of(withPlan);
         }
         return Optional.empty();

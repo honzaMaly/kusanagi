@@ -16,6 +16,6 @@ public interface Commitment {
      * @param desire
      * @return
      */
-    boolean shouldCommit(DataForDecision dataForDecision, Desire desire);
+    boolean shouldCommit(InternalDesire<?> desire, DataForDecision dataForDecision);
 
 }

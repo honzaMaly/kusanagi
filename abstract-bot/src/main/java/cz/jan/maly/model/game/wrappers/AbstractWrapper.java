@@ -1,5 +1,6 @@
 package cz.jan.maly.model.game.wrappers;
 
+import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
 /**
@@ -12,9 +13,10 @@ abstract class AbstractWrapper<T> {
     @Getter
     private final String name;
 
-    protected AbstractWrapper(T type, String name) {
+    AbstractWrapper(T type, String name) {
         this.name = name;
         if (type == null) {
+            MyLogger.getLogger().warning("Constructor: type is null.");
             throw new RuntimeException("Constructor: type is null.");
         }
         this.type = type;

@@ -2,6 +2,7 @@ package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +48,7 @@ class ChildNodeManipulation<V extends Node<?> & VisitorAcceptor & IntentionNodeI
             desiresNodesByKey.remove(desireNode.desireParameters);
             intentionNodesByKey.put(intentionNode.desireParameters, intentionNode);
         } else {
+            MyLogger.getLogger().warning("Could not replace desire by intention, desire node is missing.");
             throw new RuntimeException("Could not replace desire by intention, desire node is missing.");
         }
     }
@@ -62,6 +64,7 @@ class ChildNodeManipulation<V extends Node<?> & VisitorAcceptor & IntentionNodeI
             intentionNodesByKey.remove(intentionNode.desireParameters);
             desiresNodesByKey.put(desireNode.desireParameters, desireNode);
         } else {
+            MyLogger.getLogger().warning("Could not replace intention by desire, intention node is missing.");
             throw new RuntimeException("Could not replace intention by desire, intention node is missing.");
         }
     }

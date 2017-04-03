@@ -2,8 +2,11 @@ package cz.jan.maly.model.metadata;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
+import cz.jan.maly.model.knowledge.Fact;
+import cz.jan.maly.model.knowledge.FactSet;
 import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.service.MASFacade;
+import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -40,18 +43,20 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
     }
 
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
-        Object value = factParameterMap.get(factKey);
-        if (value != null) {
-            return Optional.of((V) value);
+        Fact<V> fact = (Fact<V>) factParameterMap.get(factKey);
+        if (fact != null) {
+            return Optional.ofNullable(fact.getContent());
         }
+        MyLogger.getLogger().warning("Given key is not present!");
         return Optional.empty();
     }
 
     public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
-        Set values = factSetParameterMap.get(factKey);
-        if (values != null) {
-            return Optional.of((S) values);
+        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factKey);
+        if (factSet != null) {
+            return Optional.ofNullable((S) factSet.getContent());
         }
+        MyLogger.getLogger().warning("Given key is not present!");
         return Optional.empty();
     }
 

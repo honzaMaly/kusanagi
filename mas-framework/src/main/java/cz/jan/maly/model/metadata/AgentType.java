@@ -1,10 +1,16 @@
 package cz.jan.maly.model.metadata;
 
-import cz.jan.maly.model.CommandForIntentionFormulationStrategy;
-import cz.jan.maly.model.knowledge.Memory;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.agents.*;
-import cz.jan.maly.model.planing.*;
-import cz.jan.maly.model.planing.command.ObservingCommand;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstractPlan;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
+import cz.jan.maly.model.planing.DesireForOthers;
+import cz.jan.maly.model.planing.DesireFromAnotherAgent;
+import cz.jan.maly.model.planing.OwnDesire;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
+import cz.jan.maly.utils.MyLogger;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.HashSet;
@@ -17,24 +23,19 @@ import java.util.Set;
  * creation using desire key
  * Created by Jan on 15-Feb-17.
  */
-public abstract class AgentType<E> extends Key {
-
-    @Getter
-    private final ObservingCommand<E> observingCommand;
-
+public class AgentType extends Key {
     //initial desires for this agent type
-    private final Set<DesireKey> desiresForOthers;
-    private final Set<DesireKey> desiresWithAbstractIntention;
-    private final Set<DesireKey> desiresWithIntentionToAct;
-    private final Set<DesireKey> desiresWithIntentionToReason;
+    private Set<DesireKey> desiresForOthers;
+    private Set<DesireKey> desiresWithAbstractIntention;
+    private Set<DesireKey> desiresWithIntentionToAct;
+    private Set<DesireKey> desiresWithIntentionToReason;
 
-    private final Set<DesireKey> supportedDesiresOfOtherAgents = new HashSet<>();
-
-    @Getter
-    private final Set<FactKey<?>> usingTypesForFacts = new HashSet<>();
+    private Set<DesireKey> supportedDesiresOfOtherAgents = new HashSet<>();
 
     @Getter
-    private final Set<FactKey<?>> usingTypesForFactSets = new HashSet<>();
+    private Set<FactKey<?>> usingTypesForFacts;
+    @Getter
+    private Set<FactKey<?>> usingTypesForFactSets;
 
     private final OwnDesireWithAbstractIntentionFormulation.Stacked
             ownDesireWithAbstractIntentionFormulation = new OwnDesireWithAbstractIntentionFormulation.Stacked();
@@ -54,43 +55,40 @@ public abstract class AgentType<E> extends Key {
     private final OwnDesireWithSharedDesireFormulation.Stacked
             ownDesireWithSharedDesireFormulation = new OwnDesireWithSharedDesireFormulation.Stacked();
 
-    protected AgentType(String name, ObservingCommand<E> observingCommand, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
+    private boolean isConfigurationInitialized = false;
+
+    /**
+     * Define agent type. Together with initial desires
+     *
+     * @param name
+     * @param desiresForOthers
+     * @param desiresWithAbstractIntention
+     * @param desiresWithIntentionToAct
+     * @param desiresWithIntentionToReason
+     * @param usingTypesForFacts
+     * @param usingTypesForFactSets
+     * @param initializationStrategy
+     */
+    @Builder
+    protected AgentType(String name, Set<DesireKey> desiresForOthers,
+                        Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
+                        Set<DesireKey> desiresWithIntentionToReason, Set<FactKey<?>> usingTypesForFacts,
+                        Set<FactKey<?>> usingTypesForFactSets, ConfigurationInitializationStrategy initializationStrategy) {
         super(name, AgentType.class);
-        this.observingCommand = observingCommand;
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;
         this.desiresWithIntentionToReason = desiresWithIntentionToReason;
+        this.usingTypesForFacts = usingTypesForFacts;
+        this.usingTypesForFactSets = usingTypesForFactSets;
 
         //initialize configuration first, then get all facts required for correct behaviour to be present in agent
-        initializeConfiguration();
+        initializationStrategy.initializeConfiguration(this);
+        this.isConfigurationInitialized = true;
 
-        //desires for other agents
+        //infer desires for other agents
         supportedDesiresOfOtherAgents.addAll(anotherAgentsDesireWithAbstractIntentionFormulation.supportedDesireTypes());
         supportedDesiresOfOtherAgents.addAll(anotherAgentsDesireWithIntentionWithActingCommandFormulation.supportedDesireTypes());
-
-        //what facts need to be in memory
-        usingTypesForFacts.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsToSupportFormulation());
-        usingTypesForFacts.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsToSupportFormulationInStack());
-        usingTypesForFacts.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsToSupportFormulation());
-        usingTypesForFacts.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsToSupportFormulationInStack());
-        usingTypesForFacts.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsToSupportFormulation());
-        usingTypesForFacts.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsToSupportFormulationInStack());
-        usingTypesForFacts.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsToSupportFormulation());
-        usingTypesForFacts.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsToSupportFormulationInStack());
-        usingTypesForFacts.addAll(anotherAgentsDesireWithAbstractIntentionFormulation.getRequiredFactsToSupportFormulation());
-        usingTypesForFacts.addAll(anotherAgentsDesireWithIntentionWithActingCommandFormulation.getRequiredFactsToSupportFormulation());
-
-        usingTypesForFactSets.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsSetsToSupportFormulation());
-        usingTypesForFactSets.addAll(ownDesireWithAbstractIntentionFormulation.getRequiredFactsSetsToSupportFormulationInStack());
-        usingTypesForFactSets.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsSetsToSupportFormulation());
-        usingTypesForFactSets.addAll(ownDesireWithIntentionWithActingCommandFormulation.getRequiredFactsSetsToSupportFormulationInStack());
-        usingTypesForFactSets.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsSetsToSupportFormulation());
-        usingTypesForFactSets.addAll(ownDesireWithIntentionWithReasoningCommandFormulation.getRequiredFactsSetsToSupportFormulationInStack());
-        usingTypesForFactSets.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsSetsToSupportFormulation());
-        usingTypesForFactSets.addAll(ownDesireWithSharedDesireFormulation.getRequiredFactsSetsToSupportFormulationInStack());
-        usingTypesForFactSets.addAll(anotherAgentsDesireWithAbstractIntentionFormulation.getRequiredFactsSetsToSupportFormulation());
-        usingTypesForFactSets.addAll(anotherAgentsDesireWithIntentionWithActingCommandFormulation.getRequiredFactsSetsToSupportFormulation());
 
         //when having abstract plan, can agent make desires
         checkSupport(ownDesireWithAbstractIntentionFormulation.desiresWithIntentionToReason(), ownDesireWithIntentionWithReasoningCommandFormulation);
@@ -109,305 +107,334 @@ public abstract class AgentType<E> extends Key {
         checkSupport(desiresWithIntentionToAct, ownDesireWithIntentionWithActingCommandFormulation);
     }
 
+    //builder with default fields
+    public static class AgentTypeBuilder {
+        private Set<DesireKey> desiresForOthers = new HashSet<>();
+        private Set<DesireKey> desiresWithAbstractIntention = new HashSet<>();
+        private Set<DesireKey> desiresWithIntentionToAct = new HashSet<>();
+        private Set<DesireKey> desiresWithIntentionToReason = new HashSet<>();
+        private Set<FactKey<?>> usingTypesForFacts = new HashSet<>();
+        private Set<FactKey<?>> usingTypesForFactSets = new HashSet<>();
+    }
+
+    /**
+     * Check if instance of DesireFormulation supports given keys
+     *
+     * @param keysToSupport
+     * @param desireFormulation
+     */
     private void checkSupport(Set<DesireKey> keysToSupport, DesireFormulation desireFormulation) {
         Optional<DesireKey> first = keysToSupport.stream()
                 .filter(key -> !desireFormulation.supportsDesireType(key))
                 .findAny();
         if (first.isPresent()) {
-            throw new IllegalArgumentException(first.get().getName() + " can be instantiated in abstract plan for " + getName());
+            MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
+            throw new IllegalArgumentException(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
         }
     }
 
-    public Optional<DesireFromAnotherAgent.WithAbstractIntention> formAnotherAgentsDesireWithAbstractIntention(SharedDesireForAgents desireForAgents) {
-        return anotherAgentsDesireWithAbstractIntentionFormulation.formDesire(desireForAgents);
+    /**
+     * Create instance of desire
+     *
+     * @param desireForAgents
+     * @param memory
+     * @return
+     */
+    public Optional<DesireFromAnotherAgent.WithAbstractIntention> formAnotherAgentsDesireWithAbstractIntention(SharedDesireForAgents desireForAgents, WorkingMemory memory) {
+        return anotherAgentsDesireWithAbstractIntentionFormulation.formDesire(desireForAgents, memory);
     }
 
-    public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formAnotherAgentsDesireWithCommand(SharedDesireForAgents desireForAgents) {
-        return anotherAgentsDesireWithIntentionWithActingCommandFormulation.formDesire(desireForAgents);
+    /**
+     * Create instance of desire
+     *
+     * @param desireForAgents
+     * @param memory
+     * @return
+     */
+    public Optional<DesireFromAnotherAgent.WithIntentionWithPlan> formAnotherAgentsDesireWithCommand(SharedDesireForAgents desireForAgents, WorkingMemory memory) {
+        return anotherAgentsDesireWithIntentionWithActingCommandFormulation.formDesire(desireForAgents, memory);
     }
 
-    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey parentKey, DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param parentKey
+     * @param key
+     * @param memory
+     * @return
+     */
+    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
         Optional<OwnDesire.WithAbstractIntention> withAbstractIntention = ownDesireWithAbstractIntentionFormulation.formDesire(parentKey, key, memory);
         if (!withAbstractIntention.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.WithAbstractIntention instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.WithAbstractIntention instance for desire key: " + key.getName());
         }
         return withAbstractIntention.get();
     }
 
-    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param key
+     * @param memory
+     * @return
+     */
+    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey key, WorkingMemory memory) {
         Optional<OwnDesire.WithAbstractIntention> withAbstractIntention = ownDesireWithAbstractIntentionFormulation.formDesire(key, memory);
         if (!withAbstractIntention.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.WithAbstractIntention instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.WithAbstractIntention instance for desire key: " + key.getName());
         }
         return withAbstractIntention.get();
     }
 
-    public OwnDesire.Acting formOwnActingDesire(DesireKey parentKey, DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param parentKey
+     * @param key
+     * @param memory
+     * @return
+     */
+    public OwnDesire.Acting formOwnActingDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
         Optional<OwnDesire.Acting> acting = ownDesireWithIntentionWithActingCommandFormulation.formDesire(parentKey, key, memory);
         if (!acting.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.Acting instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.Acting instance for desire key: " + key.getName());
         }
         return acting.get();
     }
 
-    public OwnDesire.Acting formOwnActingDesire(DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param key
+     * @param memory
+     * @return
+     */
+    public OwnDesire.Acting formOwnActingDesire(DesireKey key, WorkingMemory memory) {
         Optional<OwnDesire.Acting> acting = ownDesireWithIntentionWithActingCommandFormulation.formDesire(key, memory);
         if (!acting.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.Acting instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.Acting instance for desire key: " + key.getName());
         }
         return acting.get();
     }
 
-    public OwnDesire.Reasoning formOwnReasoningDesire(DesireKey parentKey, DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param parentKey
+     * @param key
+     * @param memory
+     * @return
+     */
+    public OwnDesire.Reasoning formOwnReasoningDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
         Optional<OwnDesire.Reasoning> reasoning = ownDesireWithIntentionWithReasoningCommandFormulation.formDesire(parentKey, key, memory);
         if (!reasoning.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.Reasoning instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.Reasoning instance for desire key: " + key.getName());
         }
         return reasoning.get();
     }
 
-    public OwnDesire.Reasoning formOwnReasoningDesire(DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param key
+     * @param memory
+     * @return
+     */
+    public OwnDesire.Reasoning formOwnReasoningDesire(DesireKey key, WorkingMemory memory) {
         Optional<OwnDesire.Reasoning> reasoning = ownDesireWithIntentionWithReasoningCommandFormulation.formDesire(key, memory);
         if (!reasoning.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.Reasoning instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.Reasoning instance for desire key: " + key.getName());
         }
         return reasoning.get();
     }
 
-    public DesireForOthers formDesireForOthers(DesireKey parentKey, DesireKey key, Memory memory) {
+    /**
+     * Create instance of desire
+     *
+     * @param parentKey
+     * @param key
+     * @param memory
+     * @return
+     */
+    public DesireForOthers formDesireForOthers(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
         Optional<DesireForOthers> desireForOthers = ownDesireWithSharedDesireFormulation.formDesire(parentKey, key, memory);
         if (!desireForOthers.isPresent()) {
-            throw new IllegalArgumentException(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
-        }
-        return desireForOthers.get();
-    }
-
-    public DesireForOthers formDesireForOthers(DesireKey key, Memory memory) {
-        Optional<DesireForOthers> desireForOthers = ownDesireWithSharedDesireFormulation.formDesire(key, memory);
-        if (!desireForOthers.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
         }
         return desireForOthers.get();
     }
 
     /**
-     * This method is used to fill data structures with configuration using protected methods "addConfiguration". Method
+     * Create instance of desire
+     *
+     * @param key
+     * @param memory
+     * @return
+     */
+    public DesireForOthers formDesireForOthers(DesireKey key, WorkingMemory memory) {
+        Optional<DesireForOthers> desireForOthers = ownDesireWithSharedDesireFormulation.formDesire(key, memory);
+        if (!desireForOthers.isPresent()) {
+            MyLogger.getLogger().warning(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
+            throw new IllegalArgumentException(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
+        }
+        return desireForOthers.get();
+    }
+
+    /**
+     * This contract is used to fill data structures with configuration using protected methods "addConfiguration". Method
      * is called only one time in constructor. One should avoid adding additional configuration outside of this method
      * as other structures to initialize agent memory are initialize only once after calling this method.
      */
-    protected abstract void initializeConfiguration();
+    public interface ConfigurationInitializationStrategy {
 
-    /**
-     * Add configuration for desire creation for another agent desire
-     *
-     * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param desiresForOthers
-     * @param desiresWithAbstractIntention
-     * @param desiresWithIntentionToAct
-     * @param desiresWithIntentionToReason
-     */
-    protected void addConfigurationForAnotherAgentsDesireWithAbstractIntentionFormulation(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                          Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                          RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                          Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                                                                          Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-        anotherAgentsDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(key,
-                decisionParametersForDesire, decisionInDesire, decisionParametersForIntention,
-                decisionInIntention, intentionParameters, desiresForOthers, desiresWithAbstractIntention,
-                desiresWithIntentionToAct, desiresWithIntentionToReason);
+        /**
+         * Add configuration to type
+         *
+         * @param type
+         */
+        void initializeConfiguration(AgentType type);
     }
 
     /**
-     * Add configuration for own desire creation
+     * Add configuration for desire with abstract plan
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param desiresForOthers
-     * @param desiresWithAbstractIntention
-     * @param desiresWithIntentionToAct
-     * @param desiresWithIntentionToReason
+     * @param configuration
+     * @param isForSelf
      */
-    protected void addConfigurationForOwnDesireDesireWithAbstractIntentionFormulation(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                      Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                      RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                                                                      Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-        ownDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(key,
-                decisionParametersForDesire, decisionInDesire, decisionParametersForIntention,
-                decisionInIntention, intentionParameters, desiresForOthers, desiresWithAbstractIntention,
-                desiresWithIntentionToAct, desiresWithIntentionToReason);
+    public void addConfiguration(DesireKey key, ConfigurationWithAbstractPlan configuration, boolean isForSelf) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        if (isForSelf) {
+            ownDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(key, configuration);
+        } else {
+            anotherAgentsDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(key, configuration);
+        }
     }
 
     /**
-     * Add configuration for own desire creation considering parent
+     * Add configuration for desire with abstract plan with parent
      *
      * @param key
      * @param parent
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param desiresForOthers
-     * @param desiresWithAbstractIntention
-     * @param desiresWithIntentionToAct
-     * @param desiresWithIntentionToReason
+     * @param configuration
      */
-    protected void addDesireFormulationConfiguration(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                     Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                     RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                     Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                                     Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-        ownDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(parent, key,
-                decisionParametersForDesire, decisionInDesire, decisionParametersForIntention,
-                decisionInIntention, intentionParameters, desiresForOthers, desiresWithAbstractIntention,
-                desiresWithIntentionToAct, desiresWithIntentionToReason);
+    public void addConfiguration(DesireKey key, DesireKey parent, ConfigurationWithAbstractPlan configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(key, parent, configuration);
     }
 
     /**
-     * Add configuration for own desire with acting command
+     * Add configuration for desire to act
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param commandFormulation
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationForOwnDesireWithActingCommand(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                  Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                  RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                  CommandForIntentionFormulationStrategy.OwnActing commandFormulation) {
-        ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
+    public void addConfiguration(DesireKey key, ConfigurationWithCommand.WithActingCommandDesiredBySelf configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, configuration);
     }
 
     /**
-     * Add configuration for own desire with acting command. When creating consider parent
+     * Add configuration for desire to act with parent
      *
      * @param key
      * @param parent
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param commandFormulation
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationForOwnDesireWithActingCommandStacked(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                         Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                         RemoveCommitment decisionInIntention, IntentionParameters intentionParameters, CommandForIntentionFormulationStrategy.OwnActing commandFormulation) {
-        ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(parent, key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
+    public void addConfiguration(DesireKey key, DesireKey parent, ConfigurationWithCommand.WithActingCommandDesiredBySelf configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, parent, configuration);
     }
 
     /**
-     * Add configuration for own desire with reasoning command
+     * Add configuration for desire to reason
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param commandFormulation
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationForOwnDesireWithReasoningCommand(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                     Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                     RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                     CommandForIntentionFormulationStrategy.OwnReasoning commandFormulation) {
-        ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
+    public void addConfiguration(DesireKey key, ConfigurationWithCommand.WithReasoningCommandDesiredBySelf configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(key, configuration);
     }
 
     /**
-     * Add configuration for own desire with reasoning command. When creating consider parent
+     * Add configuration for desire to reason with parent
      *
      * @param key
      * @param parent
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param commandFormulation
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationForOwnDesireWithReasoningCommandStacked(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                            Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                            RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                            CommandForIntentionFormulationStrategy.OwnReasoning commandFormulation) {
-        ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(parent, key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
+    public void addConfiguration(DesireKey key, DesireKey parent, ConfigurationWithCommand.WithReasoningCommandDesiredBySelf configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(key, parent, configuration);
     }
 
     /**
-     * Add configuration for another agent's desire with acting command
+     * Add configuration for desire to act from another agent
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param commandFormulation
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationForAnotherAgentsDesireWithActingCommand(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                                            Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                                            RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                                            CommandForIntentionFormulationStrategy.AnotherAgentsDesireActing commandFormulation) {
-        anotherAgentsDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, commandFormulation);
+    public void addConfiguration(DesireKey key, ConfigurationWithCommand.WithActingCommandDesiredByOtherAgent configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        anotherAgentsDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, configuration);
     }
 
     /**
-     * Add configuration for desire with shared desire
+     * Add configuration for desire to share desire
      *
      * @param key
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param sharedDesireKey
-     * @param counts
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationWithSharedDesire(DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                     Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                     RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                     DesireKey sharedDesireKey, int counts) {
-        ownDesireWithSharedDesireFormulation.addDesireFormulationConfiguration(key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, sharedDesireKey, counts);
+    public void addConfiguration(DesireKey key, ConfigurationWithSharedDesire configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithSharedDesireFormulation.addDesireFormulationConfiguration(key, configuration);
     }
 
     /**
-     * Add configuration for desire
+     * Add configuration for desire to share desire with parent
      *
      * @param key
      * @param parent
-     * @param decisionParametersForDesire
-     * @param decisionInDesire
-     * @param decisionParametersForIntention
-     * @param intentionParameters
-     * @param decisionInIntention
-     * @param sharedDesireKey
-     * @param counts
+     * @param configuration
      */
-    protected void addDesireFormulationConfigurationWithSharedDesireStacked(DesireKey parent, DesireKey key, DecisionParameters decisionParametersForDesire,
-                                                                            Commitment decisionInDesire, DecisionParameters decisionParametersForIntention,
-                                                                            RemoveCommitment decisionInIntention, IntentionParameters intentionParameters,
-                                                                            DesireKey sharedDesireKey, int counts) {
-        ownDesireWithSharedDesireFormulation.addDesireFormulationConfiguration(parent, key, decisionParametersForDesire,
-                decisionInDesire, decisionParametersForIntention, decisionInIntention, intentionParameters, sharedDesireKey, counts);
+    public void addConfiguration(DesireKey key, DesireKey parent, ConfigurationWithSharedDesire configuration) {
+        if (isConfigurationInitialized) {
+            MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
+            throw new RuntimeException("Cannot add new configuration to initialized type.");
+        }
+        ownDesireWithSharedDesireFormulation.addDesireFormulationConfiguration(key, parent, configuration);
     }
 
     /**
@@ -449,4 +476,5 @@ public abstract class AgentType<E> extends Key {
     public Set<DesireKey> getSupportedDesiresOfOtherAgents() {
         return supportedDesiresOfOtherAgents;
     }
+
 }

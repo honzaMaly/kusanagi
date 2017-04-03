@@ -1,9 +1,6 @@
 package cz.jan.maly.model.planing;
 
-import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionParameters;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.IntentionParameters;
 
 import java.util.Set;
 
@@ -17,8 +14,10 @@ public class AbstractIntention<T extends InternalDesire<?>> extends Intention<T>
     private final Set<DesireKey> desiresWithIntentionToAct;
     private final Set<DesireKey> desiresWithIntentionToReason;
 
-    protected AbstractIntention(T originalDesire, IntentionParameters intentionParameters, Memory memory, RemoveCommitment removeCommitment, DecisionParameters decisionParameters, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-        super(originalDesire, intentionParameters, memory, removeCommitment, decisionParameters);
+    AbstractIntention(T originalDesire, RemoveCommitment removeCommitment,
+                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
+                      Set<DesireKey> desiresWithIntentionToReason) {
+        super(originalDesire, removeCommitment);
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;

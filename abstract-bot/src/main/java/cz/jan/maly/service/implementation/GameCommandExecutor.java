@@ -3,10 +3,9 @@ package cz.jan.maly.service.implementation;
 import bwapi.Game;
 import cz.jan.maly.model.QueuedItemInterfaceWithResponse;
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.knowledge.Memory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ObservingCommand;
 import cz.jan.maly.service.CommandManager;
 import cz.jan.maly.service.ObservingCommandManager;
@@ -23,7 +22,7 @@ import java.util.Map;
  * time - it make maximum to make sure that limit is not overstep.
  * Created by Jan on 28-Dec-16.
  */
-public class GameCommandExecutor implements CommandManager<ActCommandForIntention<?>, Memory<?, ?>>, ObservingCommandManager<Game, ObservingCommand<Game>> {
+public class GameCommandExecutor implements CommandManager<ActCommand<?>>, ObservingCommandManager<Game, ObservingCommand<Game>> {
 
     //FIFO
     private final List<QueuedItemInterfaceWithResponseWithCommandClassGetter> queuedItems = new ArrayList<>();
@@ -33,7 +32,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
 
     private final Game game;
 
-    public GameCommandExecutor(Game game) {
+    GameCommandExecutor(Game game) {
         this.game = game;
     }
 
@@ -42,7 +41,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
     }
 
     //structures to keep durations of command execution
-    private final Map<AgentType<Game>, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
+    private final Map<AgentType, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
 
     /**
      * Method to add item to queue with code to execute action in GAME
@@ -51,7 +50,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      * @param responseReceiver
      * @return
      */
-    public boolean addCommandToObserve(ObservingCommand<Game> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType<Game> agentType) {
+    public boolean addCommandToObserve(ObservingCommand<Game> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
         synchronized (queuedItems) {
             return queuedItems.add(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
                 @Override
@@ -84,7 +83,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      * @param responseReceiver
      * @return
      */
-    public boolean addCommandToAct(ActCommandForIntention<?> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType<Game> agentType) {
+    public boolean addCommandToAct(ActCommand<?> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
         synchronized (queuedItems) {
             return queuedItems.add(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
                 @Override
@@ -116,13 +115,17 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      */
     void actOnFrame() {
         long currentTime = System.currentTimeMillis(), end = currentTime + BotFacade.getMaxFrameExecutionTime(), start = currentTime;
+        int startIndex = 0;
         executeCommand();
         currentTime = System.currentTimeMillis();
         while (end > currentTime) {
-            executeCommand(end - currentTime, 0);
+            startIndex = executeCommand(end - currentTime, startIndex);
             currentTime = System.currentTimeMillis();
         }
+
+        //this is not vital to have it synchronized. primary concern is speed
         this.countOfPassedFrames = game.getFrameCount();
+
         MyLogger.getLogger().info("Frame commands executed in " + (System.currentTimeMillis() - start) + " ms");
     }
 
@@ -142,7 +145,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
     private void executeCommand(QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem) {
         long start = System.currentTimeMillis();
         queuedItem.executeItem();
-        lastDurationOfCommandTypeExecutionForAgentType.putIfAbsent(queuedItem.getAgentType(), new HashMap<>()).put(queuedItem.getClassOfCommand(), System.currentTimeMillis() - start);
+        lastDurationOfCommandTypeExecutionForAgentType.computeIfAbsent(queuedItem.getAgentType(), at -> new HashMap<>()).put(queuedItem.getClassOfCommand(), System.currentTimeMillis() - start);
         MyLogger.getLogger().info("Command executed in " + (System.currentTimeMillis() - start) + " ms");
     }
 
@@ -150,6 +153,7 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
      * Find first queued command which was executed last time in less time than is remaining time
      *
      * @param remainingTime
+     * @param startIndex
      */
     private int executeCommand(long remainingTime, int startIndex) {
         long end = System.currentTimeMillis() + remainingTime;
@@ -167,17 +171,6 @@ public class GameCommandExecutor implements CommandManager<ActCommandForIntentio
             }
         }
         return 0;
-    }
-
-    @Override
-    public boolean executeCommand(ActCommandForIntention<?> commandToExecute, Memory<?, ?> memory) {
-        return commandToExecute.act(memory);
-    }
-
-    @Override
-    public boolean executeCommand(ObservingCommand<Game> commandToExecute, WorkingMemory memory, Game environment) {
-        commandToExecute.observe((WorkingMemory<Game>) memory, environment);
-        return true;
     }
 
     /**

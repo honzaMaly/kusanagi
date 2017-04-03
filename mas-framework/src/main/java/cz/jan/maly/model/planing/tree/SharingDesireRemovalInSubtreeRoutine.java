@@ -4,8 +4,8 @@ import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.utils.MyLogger;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Routine for shared desires removal from mediator
@@ -18,7 +18,7 @@ public class SharingDesireRemovalInSubtreeRoutine implements ResponseReceiverInt
     boolean unregisterSharedDesire(Set<SharedDesireForAgents> sharedDesires, Tree tree) {
 
         //share desire and wait for response of registration
-        if (tree.getAgent().getDesireMediator().unregisterDesires(sharedDesires.stream().collect(Collectors.toSet()), this)) {
+        if (tree.getAgent().getDesireMediator().unregisterDesires(new HashSet<>(sharedDesires), this)) {
             synchronized (lockMonitor) {
                 try {
                     lockMonitor.wait();

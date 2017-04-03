@@ -5,16 +5,16 @@ import bwapi.PlayerType;
 import bwapi.Race;
 import lombok.Getter;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Wrapper for Player in GAME
  * Created by Jan on 27-Mar-17.
  */
 public class APlayer {
-    private static final Map<Player, APlayer> instances = new HashMap<>();
+    private static final Map<Integer, APlayer> instances = new ConcurrentHashMap<>();
 
     private final Player player;
 
@@ -102,8 +102,12 @@ public class APlayer {
     @Getter
     private final boolean isObserver;
 
+    @Getter
+    private final int playerId;
+
     private APlayer(Player player) {
         this.player = player;
+        this.playerId = player.getID();
         this.name = player.getName();
         this.type = player.getType();
         this.gas = player.gas();
@@ -138,7 +142,7 @@ public class APlayer {
      * Method to refresh fields in wrapper for unit
      */
     public APlayer makeObservationOfEnvironment() {
-        return instances.put(player, new APlayer(player));
+        return instances.put(player.getID(), new APlayer(player));
     }
 
     /**
@@ -151,10 +155,10 @@ public class APlayer {
         if (player == null) {
             return Optional.empty();
         }
-        if (instances.containsKey(player)) {
-            return Optional.of(instances.get(player));
+        if (instances.containsKey(player.getID())) {
+            return Optional.ofNullable(instances.get(player.getID()));
         } else {
-            return Optional.of(instances.put(player, new APlayer(player)));
+            return Optional.ofNullable(instances.put(player.getID(), new APlayer(player)));
         }
     }
 

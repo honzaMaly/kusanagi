@@ -1,10 +1,9 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.planing.command.ActCommandForIntention;
-import cz.jan.maly.model.planing.command.ReasoningCommandForIntention;
+import cz.jan.maly.model.planing.command.ActCommand;
+import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.model.planing.tree.*;
 
 import java.util.ArrayList;
@@ -21,16 +20,14 @@ import java.util.stream.Collectors;
  */
 public class CommitmentDecider implements TreeVisitorInterface {
     private final Tree tree;
-    private final Agent agent;
 
-    public CommitmentDecider(Tree tree, Agent agent) {
+    public CommitmentDecider(Tree tree) {
         this.tree = tree;
-        this.agent = agent;
     }
 
     @Override
     public void visitTree() {
-        branch(tree, agent);
+        branch(tree);
     }
 
     /**
@@ -40,7 +37,7 @@ public class CommitmentDecider implements TreeVisitorInterface {
      * @param <V>
      * @param <K>
      */
-    private <K extends Node<?> & IntentionNodeInterface & VisitorAcceptor, V extends Node<?> & DesireNodeInterface<K>> void branch(Parent<V, K> parent, Agent agent) {
+    private <K extends Node<?> & IntentionNodeInterface & VisitorAcceptor, V extends Node<?> & DesireNodeInterface<K>> void branch(Parent<V, K> parent) {
         List<V> desiresNodes = parent.getNodesWithDesire();
         List<DesireKey> didNotMakeCommitmentToTypes = new ArrayList<>();
 
@@ -50,7 +47,6 @@ public class CommitmentDecider implements TreeVisitorInterface {
             V node = it.next();
             Optional<K> committedDesire = node.makeCommitment(
                     new DataForDecision(node.getParametersToLoad(),
-                            agent,
                             parent.getNodesWithIntention().stream()
                                     .map(Node::getDesireKey)
                                     .collect(Collectors.toList()),
@@ -72,21 +68,21 @@ public class CommitmentDecider implements TreeVisitorInterface {
 
     @Override
     public void visit(IntentionNodeAtTopLevel.WithAbstractPlan<?, ?> node) {
-        branch(node, agent);
+        branch(node);
     }
 
     @Override
     public void visit(IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?> node) {
-        branch(node, agent);
+        branch(node);
     }
 
     @Override
-    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommandForIntention.Own> node) {
+    public void visitNodeWithActingCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ActCommand.Own> node) {
         //do nothing, already committed
     }
 
     @Override
-    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommandForIntention> node) {
+    public void visitNodeWithReasoningCommand(IntentionNodeNotTopLevel.WithCommand<?, ?, ReasoningCommand> node) {
         //do nothing, already committed
     }
 

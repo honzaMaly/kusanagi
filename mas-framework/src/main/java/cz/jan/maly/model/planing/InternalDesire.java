@@ -1,52 +1,67 @@
 package cz.jan.maly.model.planing;
 
+import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.DataForDecision;
-import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.model.metadata.DecisionParameters;
+import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
-import cz.jan.maly.model.metadata.IntentionParameters;
+import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
+
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class extending Desire describes template for internal desires agents may want to commit to. Concrete implementation
  * of this are used in planning tree.
  * Created by Jan on 22-Feb-17.
  */
-public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements DecisionAboutCommitment {
+public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements DecisionAboutCommitment, FactContainerInterface {
     final Commitment commitment;
-    private final DecisionParameters decisionDesire;
+    private final WorkingMemory memory;
     final RemoveCommitment removeCommitment;
-    final DecisionParameters decisionIntention;
-    final IntentionParameters intentionParameters;
+    private final Set<DesireKey> typesOfDesiresToConsiderWhenCommitting;
+    final Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment;
 
     @Getter
     final boolean isAbstract;
 
-    InternalDesire(DesireKey desireKey, Memory memory, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract) {
+    InternalDesire(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+                   Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                   boolean isAbstract) {
         super(desireKey, memory);
         this.commitment = commitment;
-        this.decisionDesire = decisionDesire;
+        this.memory = memory;
         this.removeCommitment = removeCommitment;
-        this.decisionIntention = decisionIntention;
-        this.intentionParameters = intentionParameters;
         this.isAbstract = isAbstract;
+        this.typesOfDesiresToConsiderWhenCommitting = typesOfDesiresToConsiderWhenCommitting;
+        this.typesOfDesiresToConsiderWhenRemovingCommitment = typesOfDesiresToConsiderWhenRemovingCommitment;
     }
 
-    InternalDesire(DesireParameters desireParameters, Commitment commitment, DecisionParameters decisionDesire, RemoveCommitment removeCommitment, DecisionParameters decisionIntention, IntentionParameters intentionParameters, boolean isAbstract, int originatorId) {
+    InternalDesire(DesireParameters desireParameters, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+                   Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                   boolean isAbstract, int originatorId) {
         super(desireParameters, originatorId);
+        this.memory = memory;
         this.commitment = commitment;
-        this.decisionDesire = decisionDesire;
         this.removeCommitment = removeCommitment;
-        this.decisionIntention = decisionIntention;
-        this.intentionParameters = intentionParameters;
         this.isAbstract = isAbstract;
+        this.typesOfDesiresToConsiderWhenCommitting = typesOfDesiresToConsiderWhenCommitting;
+        this.typesOfDesiresToConsiderWhenRemovingCommitment = typesOfDesiresToConsiderWhenRemovingCommitment;
     }
 
     @Override
-    public DecisionParameters getParametersToLoad() {
-        return decisionDesire;
+    public Set<DesireKey> getParametersToLoad() {
+        return typesOfDesiresToConsiderWhenCommitting;
+    }
+
+    public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
+        return memory.returnFactValueForGivenKey(factKey);
+    }
+
+    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+        return memory.returnFactSetValueForGivenKey(factKey);
     }
 
     /**
@@ -56,7 +71,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
      * @return
      */
     public boolean shouldCommit(DataForDecision dataForDecision) {
-        return commitment.shouldCommit(dataForDecision, this);
+        return commitment.shouldCommit(this, dataForDecision);
     }
 
     /**

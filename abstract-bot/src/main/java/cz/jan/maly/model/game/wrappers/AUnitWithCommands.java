@@ -35,8 +35,8 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
     @Getter
     private final Map<AUnitTypeWrapper, List<ATilePosition>> buildingPlaces = new HashMap<>();
 
-    AUnitWithCommands(Unit unit) {
-        super(unit);
+    AUnitWithCommands(Unit unit, boolean isCreatingUnit) {
+        super(unit, isCreatingUnit);
 
         //buildings to build, only for workers, by race
         if (unit.getType().isWorker()) {
@@ -45,9 +45,15 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
                     .forEach(bt -> buildingPlaces.put(bt, getPossibleBuildTiles(unit, bt.type)));
         }
 
-        this.target = Optional.ofNullable(unit.getTarget());
+        if (!isCreatingUnit) {
+            this.target = Optional.ofNullable(unit.getTarget());
+            this.orderTarget = Optional.ofNullable(unit.getOrderTarget());
+        } else {
+            this.target = Optional.empty();
+            this.orderTarget = Optional.empty();
+        }
+
         this.order = Optional.ofNullable(unit.getOrder());
-        this.orderTarget = Optional.ofNullable(unit.getOrderTarget());
         this.lastCommand = AUnitCommand.creteOrEmpty(unit.getLastCommand());
         this.targetPosition = APosition.creteOrEmpty(unit.getTargetPosition());
         this.secondaryOrder = Optional.ofNullable(unit.getSecondaryOrder());
@@ -98,6 +104,6 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
     }
 
     public AUnitWithCommands makeObservationOfEnvironment(int frameCount) {
-        return UnitWrapperFactory.getCurrentWrappedUnitToCommand(unit, frameCount);
+        return UnitWrapperFactory.getCurrentWrappedUnitToCommand(unit, frameCount, false);
     }
 }
