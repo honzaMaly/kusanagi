@@ -187,14 +187,16 @@ public class AUnit {
 
     AUnit(Unit unit, boolean isCreatingUnit) {
         this.unit = unit;
+        this.type = unit.getType();
         this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
 
+        //todo strange behaviour leading to crash
         //units in weapon range
-        if (!isCreatingUnit && !unit.getPlayer().isNeutral()
-                && !resourcesTypes.contains(unit.getType())) {
-            addEnemyUnitsInWeaponRange(unit.getUnitsInWeaponRange(unit.getType().airWeapon()));
-            addEnemyUnitsInWeaponRange(unit.getUnitsInWeaponRange(unit.getType().groundWeapon()));
-        }
+//        if (!isCreatingUnit && !unit.getPlayer().isNeutral()
+//                && !resourcesTypes.contains(unit.getType())) {
+//            addEnemyUnitsInWeaponRange(unit.getUnitsInWeaponRange(getType().getAirWeapon().type));
+//            addEnemyUnitsInWeaponRange(unit.getUnitsInWeaponRange(getType().getGroundWeapon().type));
+//        }
 
         //ids
         this.enemyUnitsInWeaponRangeIds = this.enemyUnitsInWeaponRange.stream()
@@ -231,7 +233,6 @@ public class AUnit {
                 .collect(Collectors.toList());
 
         this.position = new APosition(unit.getPosition());
-        this.type = unit.getType();
         this.exists = unit.exists();
         this.velocityX = unit.getVelocityX();
         this.isIdle = unit.isIdle();

@@ -4,7 +4,9 @@ import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+
+import static cz.jan.maly.model.FactsKeys.MINERAL_TO_MINE;
 
 /**
  * Created by Jan on 15-Mar-17.
@@ -12,10 +14,9 @@ import java.util.stream.Collectors;
 public class DesiresKeys {
 
     public static final DesireKey MINE_MINERALS = new DesireKey("MINE_MINERAL",
-            //only one thing to choose from
-            Arrays.stream(new FactKey<?>[]{}).collect(Collectors.toSet()),
-            //set of thing to choose from
-            Arrays.stream(new FactKey<?>[]{}).collect(Collectors.toSet())
-    );
+            new HashSet<>(Arrays.asList(new FactKey<?>[]{MINERAL_TO_MINE})),
+            new HashSet<>());
+
+    public static final DesireKey SELECT_MINERAL = new DesireKey("SELECT_MINERAL", new HashSet<>(), new HashSet<>());
 
 }

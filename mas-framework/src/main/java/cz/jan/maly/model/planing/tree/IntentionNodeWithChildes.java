@@ -8,23 +8,54 @@ import java.util.Set;
  * Contract for intention nodes with childes
  * Created by Jan on 28-Feb-17.
  */
-interface IntentionNodeWithChildes {
+interface IntentionNodeWithChildes<A extends IntentionNodeNotTopLevel.WithCommand<?, ?, ?>, B extends IntentionNodeNotTopLevel.WithCommand<?, ?, ?>,
+        C extends IntentionNodeNotTopLevel.WithDesireForOthers<?>, D extends IntentionNodeNotTopLevel.WithAbstractPlan<?, ?, ?>,
+        E extends DesireNodeNotTopLevel.WithCommand<?, ?, ?>, F extends DesireNodeNotTopLevel.WithCommand<?, ?, ?>,
+        G extends DesireNodeNotTopLevel.ForOthers<?>, H extends DesireNodeNotTopLevel.WithAbstractPlan<?, ?>> {
 
     /**
-     * Replace desire by intention
-     *
-     * @param desireNode
-     * @param intentionNode
+     * Call to update childes representing desires
      */
-    void replaceDesireByIntention(DesireNodeNotTopLevel<?, ?> desireNode, IntentionNodeNotTopLevel<?, ?, ?> intentionNode);
+    void updateDesires();
 
     /**
-     * Replace intention by desire
+     * To get reference
      *
-     * @param desireNode
-     * @param intentionNode
+     * @return
      */
-    void replaceIntentionByDesire(IntentionNodeNotTopLevel<?, ?, ?> intentionNode, DesireNodeNotTopLevel<?, ?> desireNode);
+    DesireUpdater<A, B, C, D, E, F, G, H, ?> getDesireUpdater();
+
+    default void replaceDesireByIntentionReasoning(E desireNode, A intentionNode) {
+        getDesireUpdater().replaceDesireByIntentionReasoning(desireNode, intentionNode);
+    }
+
+    default void replaceIntentionByDesireReasoning(A intentionNode, E desireNode) {
+        getDesireUpdater().replaceIntentionByDesireReasoning(intentionNode, desireNode);
+    }
+
+    default void replaceDesireByIntentionActing(F desireNode, B intentionNode) {
+        getDesireUpdater().replaceDesireByIntentionActing(desireNode, intentionNode);
+    }
+
+    default void replaceIntentionByDesireActing(B intentionNode, F desireNode) {
+        getDesireUpdater().replaceIntentionByDesireActing(intentionNode, desireNode);
+    }
+
+    default void replaceDesireByIntentionWithDesireForOthers(G desireNode, C intentionNode) {
+        getDesireUpdater().replaceDesireByIntentionWithDesireForOthers(desireNode, intentionNode);
+    }
+
+    default void replaceIntentionByDesireWithDesireForOthers(C intentionNode, G desireNode) {
+        getDesireUpdater().replaceIntentionByDesireWithDesireForOthers(intentionNode, desireNode);
+    }
+
+    default void replaceDesireByIntentionWithAbstractPlan(H desireNode, D intentionNode) {
+        getDesireUpdater().replaceDesireByIntentionWithAbstractPlan(desireNode, intentionNode);
+    }
+
+    default void replaceIntentionByDesireWithAbstractPlan(D intentionNode, H desireNode) {
+        getDesireUpdater().replaceIntentionByDesireWithAbstractPlan(intentionNode, desireNode);
+    }
 
     /**
      * Get parameters of desires agent is committed to

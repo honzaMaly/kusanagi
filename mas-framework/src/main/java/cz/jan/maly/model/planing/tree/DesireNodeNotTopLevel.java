@@ -6,6 +6,7 @@ import cz.jan.maly.model.planing.*;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.CommandForIntention;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.Optional;
 import java.util.Set;
@@ -22,13 +23,11 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
         this.desire = desire;
     }
 
-    abstract IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode();
+    abstract IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode();
 
     public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
         if (desire.shouldCommit(dataForDecision)) {
-            IntentionNodeNotTopLevel<?, ?, ?> node = formIntentionNode();
-            parent.replaceDesireByIntention(this, node);
-            return Optional.of(node);
+            return Optional.of(formDesireNodeAndReplaceIntentionNode());
         }
         return Optional.empty();
     }
@@ -47,31 +46,16 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
      * Implementation of top node with desire for other agents
      */
     static abstract class ForOthers<K extends Node & IntentionNodeWithChildes & Parent<?, ?>> extends DesireNodeNotTopLevel<DesireForOthers, K> {
-        private final SharingDesireRoutine sharingDesireRoutine = new SharingDesireRoutine();
+        final SharingDesireRoutine sharingDesireRoutine = new SharingDesireRoutine();
 
         private ForOthers(K parent, DesireForOthers desire) {
             super(parent, desire);
         }
 
-        protected abstract IntentionNodeNotTopLevel.WithDesireForOthers<?> instantiate();
-
         @Override
-        IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-            return instantiate();
-        }
-
-        @Override
-        public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
-            if (desire.shouldCommit(dataForDecision)) {
-                IntentionNodeNotTopLevel.WithDesireForOthers<?> node = instantiate();
-                SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
-                    tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
-                    parent.replaceDesireByIntention(this, node);
-                    return Optional.of(node);
-                }
-            }
-            return Optional.empty();
+        IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+            MyLogger.getLogger().warning("Accessing method which should be never used.");
+            throw new RuntimeException("Accessing method which should be never used.");
         }
 
         /**
@@ -83,8 +67,17 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            protected IntentionNodeNotTopLevel.WithDesireForOthers<?> instantiate() {
-                return new IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent(parent, desire);
+            public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
+                if (desire.shouldCommit(dataForDecision)) {
+                    IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent node = new IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent(parent, desire);
+                    SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
+                    if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
+                        tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                        parent.replaceDesireByIntentionWithDesireForOthers(this, node);
+                        return Optional.of(node);
+                    }
+                }
+                return Optional.empty();
             }
         }
 
@@ -97,9 +90,19 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            protected IntentionNodeNotTopLevel.WithDesireForOthers<?> instantiate() {
-                return new IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent(parent, desire);
+            public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
+                if (desire.shouldCommit(dataForDecision)) {
+                    IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent node = new IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent(parent, desire);
+                    SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
+                    if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
+                        tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                        parent.replaceDesireByIntentionWithDesireForOthers(this, node);
+                        return Optional.of(node);
+                    }
+                }
+                return Optional.empty();
             }
+
         }
 
     }
@@ -121,8 +124,10 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.WithAbstractPlan.TopLevelParent(parent, desire);
+            IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+                IntentionNodeNotTopLevel.WithAbstractPlan.TopLevelParent node = new IntentionNodeNotTopLevel.WithAbstractPlan.TopLevelParent(parent, desire);
+                parent.replaceDesireByIntentionWithAbstractPlan(this, node);
+                return node;
             }
         }
 
@@ -135,8 +140,10 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.WithAbstractPlan.NotTopLevelParent(parent, desire);
+            IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+                IntentionNodeNotTopLevel.WithAbstractPlan.NotTopLevelParent node = new IntentionNodeNotTopLevel.WithAbstractPlan.NotTopLevelParent(parent, desire);
+                parent.replaceDesireByIntentionWithAbstractPlan(this, node);
+                return node;
             }
         }
 
@@ -159,8 +166,10 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.WithCommand.ActingAtTopLevelParent(parent, desire);
+            IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+                IntentionNodeNotTopLevel.WithCommand.ActingAtTopLevelParent node = new IntentionNodeNotTopLevel.WithCommand.ActingAtTopLevelParent(parent, desire);
+                parent.replaceDesireByIntentionActing(this, node);
+                return node;
             }
         }
 
@@ -173,9 +182,12 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent(parent, desire);
+            IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+                IntentionNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent node = new IntentionNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent(parent, desire);
+                parent.replaceDesireByIntentionReasoning(this, node);
+                return node;
             }
+
         }
 
         /**
@@ -187,8 +199,10 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.WithCommand.ActingNotTopLevelParent(parent, desire);
+            IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+                IntentionNodeNotTopLevel.WithCommand.ActingNotTopLevelParent node = new IntentionNodeNotTopLevel.WithCommand.ActingNotTopLevelParent(parent, desire);
+                parent.replaceDesireByIntentionActing(this, node);
+                return node;
             }
         }
 
@@ -201,9 +215,12 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            IntentionNodeNotTopLevel<?, ?, ?> formIntentionNode() {
-                return new IntentionNodeNotTopLevel.WithCommand.ReasoningNotTopLevelParent(parent, desire);
+            IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode() {
+                IntentionNodeNotTopLevel.WithCommand.ReasoningNotTopLevelParent node = new IntentionNodeNotTopLevel.WithCommand.ReasoningNotTopLevelParent(parent, desire);
+                parent.replaceDesireByIntentionReasoning(this, node);
+                return node;
             }
+
         }
 
     }

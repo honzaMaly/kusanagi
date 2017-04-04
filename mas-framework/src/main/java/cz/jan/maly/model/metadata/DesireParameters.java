@@ -5,7 +5,6 @@ import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.knowledge.Fact;
 import cz.jan.maly.model.knowledge.FactSet;
 import cz.jan.maly.model.knowledge.Memory;
-import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
@@ -20,8 +19,8 @@ import java.util.Set;
  * Created by Jan on 16-Feb-17.
  */
 public class DesireParameters implements FactContainerInterface, DesireKeyIdentificationInterface {
-    private final Map<FactKey, Object> factParameterMap = new HashMap<>();
-    private final Map<FactKey, Set<?>> factSetParameterMap = new HashMap<>();
+    private final Map<FactKey, Fact<?>> factParameterMap = new HashMap<>();
+    private final Map<FactKey, FactSet<?>> factSetParameterMap = new HashMap<>();
 
     @Getter
     private final DesireKey desireKey;
@@ -32,13 +31,13 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
         //fill maps with actual parameters from memory
         desireKey.getParametersTypesForFacts()
                 .forEach(factKey -> {
-                    Optional<?> value = memory.returnFactValueForGivenKey(factKey);
-                    value.ifPresent(o -> factParameterMap.put(factKey, MASFacade.CLONER.deepClone(o)));
+                    Optional<Fact<?>> value = memory.returnFactCopyForGivenKey(factKey);
+                    value.ifPresent(fact -> factParameterMap.put(factKey, fact));
                 });
         desireKey.getParametersTypesForFactSets()
                 .forEach(factKey -> {
-                    Optional<Set<?>> value = memory.returnFactSetValueForGivenKey(factKey);
-                    value.ifPresent(set -> factSetParameterMap.put(factKey, MASFacade.CLONER.deepClone(set)));
+                    Optional<FactSet<?>> value = memory.returnFactSetCopyForGivenKey(factKey);
+                    value.ifPresent(factSet -> factSetParameterMap.put(factKey, factSet));
                 });
     }
 

@@ -8,8 +8,14 @@ import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
 import lombok.Builder;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static cz.jan.maly.model.BasicFactsKeys.IS_UNIT;
+import static cz.jan.maly.model.BasicFactsKeys.REPRESENTS_UNIT;
 
 /**
  * Type definition - agent type observing game
@@ -34,7 +40,10 @@ public class AgentTypeObservingGame extends AgentTypeMakingObservations<Game> {
                                    Set<FactKey<?>> usingTypesForFacts, Set<FactKey<?>> usingTypesForFactSets,
                                    AgentType.ConfigurationInitializationStrategy initializationStrategy) {
         super(name, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason,
-                usingTypesForFacts, usingTypesForFactSets, initializationStrategy, BWAgentInGame.observingCommand());
+
+                //add facts related to agent - IS_UNIT, REPRESENTS_UNIT
+                Stream.concat(usingTypesForFacts.stream(), Arrays.stream(new FactKey<?>[]{IS_UNIT, REPRESENTS_UNIT})).collect(Collectors.toSet()),
+                usingTypesForFactSets, initializationStrategy, BWAgentInGame.observingCommand());
     }
 
     //builder with default fields

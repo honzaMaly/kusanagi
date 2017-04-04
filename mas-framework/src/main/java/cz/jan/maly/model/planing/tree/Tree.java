@@ -41,6 +41,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
     private final ChildNodeManipulation<IntentionNodeAtTopLevel.WithDesireForOthers, DesireNodeAtTopLevel.ForOthers> manipulatorWithDesiresForOthers = new ChildNodeManipulation<>();
     private final ChildNodeManipulation<IntentionNodeAtTopLevel.WithAbstractPlan.Own, DesireNodeAtTopLevel.Own.WithAbstractIntention> manipulatorWithOwnAbstractPlan = new ChildNodeManipulation<>();
 
+    //to aggregate data
     private final List<ChildNodeManipulation<? extends IntentionNodeAtTopLevel<?, ?>, ? extends DesireNodeAtTopLevel<?>>> registers = new ArrayList<>();
 
     public Tree(Agent<?> agent) {
@@ -73,10 +74,14 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
      *
      * @param desireRegister
      */
-    public void updateTopLevelDesires(ReadOnlyDesireRegister desireRegister) {
-        updateTopLevelDesires(desireRegister, manipulatorWithDesiresForOthers.getDesiresKeyForUncommittedNodes(),
-                manipulatorWithOwnAbstractPlan.getDesiresKeyForUncommittedNodes(), manipulatorWithActingCommands.getDesiresKeyForUncommittedNodes(),
-                manipulatorWithReasoningCommands.getDesiresKeyForUncommittedNodes());
+    public void updateDesires(ReadOnlyDesireRegister desireRegister) {
+        updateTopLevelDesires(desireRegister, manipulatorWithDesiresForOthers.removeDesiresForUncommittedNodesAndReturnTheirKeys(),
+                manipulatorWithOwnAbstractPlan.removeDesiresForUncommittedNodesAndReturnTheirKeys(), manipulatorWithActingCommands.removeDesiresForUncommittedNodesAndReturnTheirKeys(),
+                manipulatorWithReasoningCommands.removeDesiresForUncommittedNodesAndReturnTheirKeys());
+
+        //tell nodes with abstract plans to update its childes
+        manipulatorWithOwnAbstractPlan.intentionNodesByKey.values().forEach(IntentionNodeWithChildes::updateDesires);
+        manipulationWithAbstractDesiresFromOthers.intentionNodesByKey.values().forEach(IntentionNodeWithChildes::updateDesires);
     }
 
     /**

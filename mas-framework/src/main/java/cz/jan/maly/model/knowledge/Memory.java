@@ -70,8 +70,8 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     }
 
     @Override
-    public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
-        Fact<V> fact = (Fact<V>) factParameterMap.get(factKey);
+    public <K> Optional<K> returnFactValueForGivenKey(FactKey<K> factKey) {
+        Fact<K> fact = (Fact<K>) factParameterMap.get(factKey);
         if (fact != null) {
             return Optional.ofNullable(fact.getContent());
         }
@@ -79,11 +79,41 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         return Optional.empty();
     }
 
+    /**
+     * Returns copy of fact
+     * @param factKey
+     * @param <K>
+     * @return
+     */
+    public <K> Optional<Fact<K>> returnFactCopyForGivenKey(FactKey<K> factKey) {
+        Fact<K> fact = (Fact<K>) factParameterMap.get(factKey);
+        if (fact != null) {
+            return Optional.ofNullable(fact.copyFact());
+        }
+        MyLogger.getLogger().warning("Given key is not present!");
+        return Optional.empty();
+    }
+
     @Override
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
-        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factKey);
+    public <K, S extends Set<K>> Optional<S> returnFactSetValueForGivenKey(FactKey<K> factKey) {
+        FactSet<K> factSet = (FactSet<K>) factSetParameterMap.get(factKey);
         if (factSet != null) {
             return Optional.ofNullable((S) factSet.getContent());
+        }
+        MyLogger.getLogger().warning("Given key is not present!");
+        return Optional.empty();
+    }
+
+    /**
+     * Returns copy of fact set
+     * @param factKey
+     * @param <K>
+     * @return
+     */
+    public <K> Optional<FactSet<K>> returnFactSetCopyForGivenKey(FactKey<K> factKey) {
+        FactSet<K> factSet = (FactSet<K>) factSetParameterMap.get(factKey);
+        if (factSet != null) {
+            return Optional.ofNullable(factSet.copyFact());
         }
         MyLogger.getLogger().warning("Given key is not present!");
         return Optional.empty();

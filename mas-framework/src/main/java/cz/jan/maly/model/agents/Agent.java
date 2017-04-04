@@ -125,7 +125,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 commandExecutor.visitTree();
                 commitmentRemovalDecider.visitTree();
                 doRoutine(this);
-                tree.updateTopLevelDesires(desireMediator.getSnapshotOfRegister());
+                tree.updateDesires(desireMediator.getSnapshotOfRegister());
             }
 
             removeAgent();

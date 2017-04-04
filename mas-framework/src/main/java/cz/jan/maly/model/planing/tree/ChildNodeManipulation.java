@@ -18,14 +18,16 @@ class ChildNodeManipulation<V extends Node<?> & VisitorAcceptor & IntentionNodeI
     final Map<DesireParameters, V> intentionNodesByKey = new HashMap<>();
 
     /**
-     * Get set of desires key for uncommitted nodes
+     * Get set of desires key for uncommitted nodes. Remove all uncommitted nodes
      *
      * @return
      */
-    Set<DesireKey> getDesiresKeyForUncommittedNodes() {
-        return desiresNodesByKey.keySet().stream()
+    Set<DesireKey> removeDesiresForUncommittedNodesAndReturnTheirKeys() {
+        Set<DesireKey> desireKeys = desiresNodesByKey.keySet().stream()
                 .map(DesireParameters::getDesireKey)
                 .collect(Collectors.toSet());
+        desiresNodesByKey.clear();
+        return desireKeys;
     }
 
     /**

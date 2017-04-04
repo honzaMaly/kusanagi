@@ -12,8 +12,8 @@ import cz.jan.maly.service.implementation.BotFacade;
 import cz.jan.maly.service.implementation.GameCommandExecutor;
 import cz.jan.maly.utils.MyLogger;
 
-import static cz.jan.maly.model.FactsKeys.IS;
-import static cz.jan.maly.model.FactsKeys.REPRESENTS;
+import static cz.jan.maly.model.BasicFactsKeys.IS_UNIT;
+import static cz.jan.maly.model.BasicFactsKeys.REPRESENTS_UNIT;
 
 /**
  * BWAgentInGame is agent which makes observations of game
@@ -24,17 +24,17 @@ public class BWAgentInGame extends Agent.MakingObservation<Game> {
 
     //single definition of command to observe to be used by all agents of this type
     private static final ObservingCommand<Game> OBSERVING_COMMAND = (memory, environment) -> {
-        if (!memory.returnFactValueForGivenKey(IS).isPresent()) {
+        if (!memory.returnFactValueForGivenKey(IS_UNIT).isPresent()) {
             MyLogger.getLogger().warning("Trying to access commendable unit but it is not present.");
             throw new RuntimeException("Trying to access commendable unit but it is not present.");
         }
 
         //update fields by creating new instance
-        AUnitWithCommands unitWithCommands = memory.returnFactValueForGivenKey(IS).get().makeObservationOfEnvironment(environment.getFrameCount());
+        AUnitWithCommands unitWithCommands = memory.returnFactValueForGivenKey(IS_UNIT).get().makeObservationOfEnvironment(environment.getFrameCount());
 
         //add updated version of itself to knowledge
-        memory.updateFact(new Fact<>(unitWithCommands, IS));
-        memory.updateFact(new Fact<>(unitWithCommands, REPRESENTS));
+        memory.updateFact(new Fact<>(unitWithCommands, IS_UNIT));
+        memory.updateFact(new Fact<>(unitWithCommands, REPRESENTS_UNIT));
         return true;
     };
 
@@ -43,8 +43,8 @@ public class BWAgentInGame extends Agent.MakingObservation<Game> {
         this.gameCommandExecutor = botFacade.getGameCommandExecutor();
 
         //add itself to knowledge
-        beliefs.updateFact(new Fact<>(unit, IS));
-        beliefs.updateFact(new Fact<>(unit, REPRESENTS));
+        beliefs.updateFact(new Fact<>(unit, IS_UNIT));
+        beliefs.updateFact(new Fact<>(unit, REPRESENTS_UNIT));
     }
 
     @Override

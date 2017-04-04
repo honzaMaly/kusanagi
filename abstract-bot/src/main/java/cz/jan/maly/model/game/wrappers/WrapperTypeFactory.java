@@ -34,8 +34,8 @@ class WrapperTypeFactory {
 
     static void add(AUnitTypeWrapper type) {
         UNIT_TYPE_REGISTER.addWrappedType(type.type, type);
-        if (type.isBuilding()) {
-            buildingsByRace.computeIfAbsent(type.getRace(), race -> new HashSet<>()).add(type);
+        if (type.type.isBuilding()) {
+            buildingsByRace.computeIfAbsent(type.type.getRace(), race -> new HashSet<>()).add(type);
         }
     }
 
