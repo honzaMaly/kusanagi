@@ -1,9 +1,11 @@
 package cz.jan.maly.model.game.wrappers;
 
-import bwapi.*;
+import bwapi.Order;
+import bwapi.Unit;
+import bwapi.UnitCommandType;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.Optional;
 
 /**
  * Extension of unit wrapper with fields related to commanding unit. This unit can also be commanded
@@ -32,8 +34,8 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
     @Getter
     private final Optional<AUnitCommand> lastCommand;
 
-    AUnitWithCommands(Unit unit, boolean isCreatingUnit) {
-        super(unit, isCreatingUnit);
+    AUnitWithCommands(Unit unit, boolean isCreatingUnit, int frameCount) {
+        super(unit, isCreatingUnit, frameCount);
 
         if (!isCreatingUnit) {
             this.target = Optional.ofNullable(unit.getTarget());

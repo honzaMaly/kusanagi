@@ -8,6 +8,7 @@ import cz.jan.maly.utils.MyLogger;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -64,13 +65,14 @@ public class WorkingMemory extends Memory<Tree> {
     /**
      * Update fact value
      *
-     * @param factToUpdate
+     * @param factKey
+     * @param value
      * @param <V>
      */
-    public <V> void updateFact(Fact<V> factToUpdate) {
-        Fact<V> fact = (Fact<V>) factParameterMap.get(factToUpdate.getType());
+    public <V> void updateFact(FactKey<V> factKey, V value) {
+        Fact<V> fact = (Fact<V>) factParameterMap.get(factKey);
         if (fact != null) {
-            fact.addFact(factToUpdate.getContent());
+            fact.addFact(value);
         } else {
             MyLogger.getLogger().warning("Given key is not present!");
         }
@@ -94,13 +96,31 @@ public class WorkingMemory extends Memory<Tree> {
     /**
      * Update fact value
      *
-     * @param factToAdd
+     * @param factKey
+     * @param value
      * @param <V>
      */
-    public <V> void updateFactSetByFact(Fact<V> factToAdd) {
-        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factToAdd.getType());
+    public <V> void updateFactSetByFact(FactKey<V> factKey, V value) {
+        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factKey);
         if (factSet != null) {
-            factSet.addFact(factToAdd.getContent());
+            factSet.addFact(value);
+        } else {
+            MyLogger.getLogger().warning("Given key is not present!");
+        }
+    }
+
+    /**
+     * Update fact value
+     *
+     * @param factKey
+     * @param values
+     * @param <V>
+     */
+    public <V> void updateFactSetByFacts(FactKey<V> factKey, Set<V> values) {
+        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factKey);
+        if (factSet != null) {
+            factSet.eraseSet();
+            values.forEach(factSet::addFact);
         } else {
             MyLogger.getLogger().warning("Given key is not present!");
         }
@@ -109,13 +129,14 @@ public class WorkingMemory extends Memory<Tree> {
     /**
      * Erase fact from set
      *
-     * @param factToRemove
+     * @param factKey
+     * @param value
      * @param <V>
      */
-    public <V> void eraseFactFromFactSet(Fact<V> factToRemove) {
-        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factToRemove.getType());
+    public <V> void eraseFactFromFactSet(FactKey<V> factKey, V value) {
+        FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factKey);
         if (factSet != null) {
-            factSet.removeFact(factToRemove.getContent());
+            factSet.removeFact(value);
         } else {
             MyLogger.getLogger().warning("Given key is not present!");
         }

@@ -45,6 +45,8 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     @Getter
     private final KnowledgeMediator knowledgeMediator;
 
+    final MASFacade masFacade;
+
     protected final WorkingMemory beliefs;
     private final Tree tree = new Tree(this);
     private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
@@ -61,6 +63,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
         this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
         this.beliefs = new WorkingMemory(tree, this.agentType, this.id);
+        this.masFacade = masFacade;
     }
 
     @Override
@@ -119,7 +122,6 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                         break;
                     }
                 }
-
                 //execute routine
                 commitmentDecider.visitTree();
                 commandExecutor.visitTree();
@@ -252,6 +254,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
      * @param <E>
      */
     public static abstract class MakingObservation<E> extends Agent<AgentTypeMakingObservations<E>> {
+
         protected MakingObservation(AgentTypeMakingObservations<E> agentType, MASFacade masFacade) {
             super(agentType, masFacade);
         }

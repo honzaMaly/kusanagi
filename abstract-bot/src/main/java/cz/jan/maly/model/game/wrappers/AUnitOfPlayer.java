@@ -1,9 +1,12 @@
 package cz.jan.maly.model.game.wrappers;
 
-import bwapi.*;
+import bwapi.Unit;
+import bwapi.UnitType;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -141,8 +144,8 @@ public class AUnitOfPlayer extends AUnit.Players {
     @Getter
     private final boolean isUnderDisruptionWeb;
 
-    AUnitOfPlayer(Unit unit, boolean isCreatingUnit) {
-        super(unit, isCreatingUnit);
+    AUnitOfPlayer(Unit unit, boolean isCreatingUnit, int frameCount) {
+        super(unit, isCreatingUnit, frameCount);
 
         this.isLoaded = unit.isLoaded();
         this.hasNuke = unit.hasNuke();

@@ -12,6 +12,7 @@ import java.util.Optional;
 public class ATilePosition {
     public static final int SIZE_IN_PIXELS = TilePosition.SIZE_IN_PIXELS;
 
+    @Getter
     final TilePosition tilePosition;
 
     @Getter

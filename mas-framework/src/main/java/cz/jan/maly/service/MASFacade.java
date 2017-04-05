@@ -36,6 +36,8 @@ public class MASFacade implements TerminableService {
     public static final CommandManager<ReasoningCommand> REASONING_EXECUTOR = new CommandManager<ReasoningCommand>() {
     };
 
+    private final InternalClockObtainingStrategy clockObtainingStrategy;
+
     //register of agents - to assign ids to them
     @Getter
     private final AgentsRegister agentsRegister = new AgentsRegister();
@@ -49,6 +51,14 @@ public class MASFacade implements TerminableService {
     private final KnowledgeMediator knowledgeMediator = new KnowledgeMediator();
 
     private final Set<Agent> agentsInSystem = new HashSet<>();
+
+    public MASFacade(InternalClockObtainingStrategy clockObtainingStrategy) {
+        this.clockObtainingStrategy = clockObtainingStrategy;
+    }
+
+    public int getInternalClockCounter() {
+        return clockObtainingStrategy.internalClockCounter();
+    }
 
     /**
      * Register agent in system
@@ -77,6 +87,13 @@ public class MASFacade implements TerminableService {
         agentsInSystem.forEach(this::removeAgentFromSystem);
         desireMediator.terminate();
         knowledgeMediator.terminate();
+    }
+
+    /**
+     * Strategy to get internal clock of system
+     */
+    public interface InternalClockObtainingStrategy {
+        int internalClockCounter();
     }
 
 }

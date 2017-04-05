@@ -14,9 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Jan on 01-Apr-17.
  */
 public class UnitWrapperFactory {
-    private static final Map<Integer, UnitValue<AUnit.Enemy>> enemyUnits = new ConcurrentHashMap<>();
-    private static final Map<Integer, UnitValue<AUnit>> resourceUnits = new ConcurrentHashMap<>();
-    private static final Map<Integer, UnitValue<AUnitWithCommands>> playersUnits = new ConcurrentHashMap<>();
+    private static final Map<Integer, AUnit.Enemy> enemyUnits = new ConcurrentHashMap<>();
+    private static final Map<Integer, AUnit> resourceUnits = new ConcurrentHashMap<>();
+    private static final Map<Integer, AUnitWithCommands> playersUnits = new ConcurrentHashMap<>();
     private static final Set<Integer> idsOfDeadUnits = (new ConcurrentHashMap<Integer, Object>()).keySet();
 
     //todo move units from maps if they become hostile/friendly?
@@ -58,25 +58,26 @@ public class UnitWrapperFactory {
      * @return
      */
     public static AUnitWithCommands getCurrentWrappedUnitToCommand(Unit unit, int frameCount, boolean isCreatingUnit) {
-        UnitValue<AUnitWithCommands> unitValue = playersUnits.get(unit.getID());
+        AUnitWithCommands unitValue = playersUnits.get(unit.getID());
 
         //unit is present
         if (unitValue != null) {
 
             //update unit only if it is not current
-            if (unitValue.lastUpdate + BotFacade.getRefreshInfoAboutOwnUnitAfterFrames() < frameCount) {
-                unitValue.unit = new AUnitWithCommands(unit, isCreatingUnit);
-                unitValue.lastUpdate = frameCount;
-                wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
+            if (unitValue.getFrameCount() + BotFacade.getRefreshInfoAboutOwnUnitAfterFrames() < frameCount) {
+                unitValue = new AUnitWithCommands(unit, isCreatingUnit, frameCount);
+                playersUnits.put(unit.getID(), unitValue);
+                wrapReferencedUnitsForUnit(unitValue, frameCount, isCreatingUnit);
             }
-            return unitValue.unit;
+        } else {
+
+            //register new unit
+            unitValue = new AUnitWithCommands(unit, isCreatingUnit, frameCount);
+            playersUnits.put(unit.getID(), unitValue);
+            wrapReferencedUnitsForUnit(unitValue, frameCount, isCreatingUnit);
         }
 
-        //register new unit
-        unitValue = new UnitValue<>(new AUnitWithCommands(unit, isCreatingUnit), frameCount);
-        playersUnits.put(unit.getID(), unitValue);
-        wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
-        return unitValue.unit;
+        return unitValue;
     }
 
     /**
@@ -86,23 +87,23 @@ public class UnitWrapperFactory {
      * @param frameCount
      */
     private static void wrapEnemyUnits(Unit unit, int frameCount, boolean isCreatingUnit) {
-        UnitValue<AUnit.Enemy> unitValue = enemyUnits.get(unit.getID());
+        AUnit.Enemy unitValue = enemyUnits.get(unit.getID());
 
         //unit is present
         if (unitValue != null) {
 
             //update unit only if it is not current
-            if (unitValue.lastUpdate + BotFacade.getRefreshInfoAboutEnemyUnitAfterFrames() < frameCount) {
-                unitValue.unit = new AUnit.Enemy(unit, isCreatingUnit);
-                unitValue.lastUpdate = frameCount;
-                wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
+            if (unitValue.getFrameCount() + BotFacade.getRefreshInfoAboutEnemyUnitAfterFrames() < frameCount) {
+                unitValue = new AUnit.Enemy(unit, isCreatingUnit, frameCount);
+                enemyUnits.put(unit.getID(), unitValue);
+                wrapReferencedUnitsForUnit(unitValue, frameCount, isCreatingUnit);
             }
         } else {
 
             //register new unit
-            unitValue = new UnitValue<>(new AUnit.Enemy(unit, isCreatingUnit), frameCount);
+            unitValue = new AUnit.Enemy(unit, isCreatingUnit, frameCount);
             enemyUnits.put(unit.getID(), unitValue);
-            wrapReferencedUnitsForUnit(unitValue.unit, frameCount, isCreatingUnit);
+            wrapReferencedUnitsForUnit(unitValue, frameCount, isCreatingUnit);
         }
     }
 
@@ -112,23 +113,25 @@ public class UnitWrapperFactory {
      * @param unit
      * @param frameCount
      */
-    private static void wrapResourceUnits(Unit unit, int frameCount, boolean isCreatingUnit) {
-        UnitValue<AUnit> unitValue = resourceUnits.get(unit.getID());
+    public static AUnit wrapResourceUnits(Unit unit, int frameCount, boolean isCreatingUnit) {
+        AUnit unitValue = resourceUnits.get(unit.getID());
 
         //unit is present
         if (unitValue != null) {
 
             //update unit only if it is not current
-            if (unitValue.lastUpdate + BotFacade.getRefreshInfoAboutResourceUnitAfterFrames() < frameCount) {
-                unitValue.unit = new AUnit(unit, isCreatingUnit);
-                unitValue.lastUpdate = frameCount;
+            if (unitValue.getFrameCount() + BotFacade.getRefreshInfoAboutResourceUnitAfterFrames() < frameCount) {
+                unitValue = new AUnit(unit, isCreatingUnit, frameCount);
+                resourceUnits.put(unit.getID(), unitValue);
             }
         } else {
 
             //register new unit
-            unitValue = new UnitValue<>(new AUnit(unit, isCreatingUnit), frameCount);
+            unitValue = new AUnit(unit, isCreatingUnit, frameCount);
             resourceUnits.put(unit.getID(), unitValue);
         }
+
+        return unitValue;
     }
 
     /**
@@ -185,7 +188,7 @@ public class UnitWrapperFactory {
      */
     static Optional<AUnit.Enemy> getWrappedEnemyUnit(Integer unitId) {
         if (enemyUnits.containsKey(unitId)) {
-            return Optional.ofNullable(enemyUnits.get(unitId).unit);
+            return Optional.ofNullable(enemyUnits.get(unitId));
         }
         return Optional.empty();
     }
@@ -198,7 +201,7 @@ public class UnitWrapperFactory {
      */
     static Optional<AUnit> getWrappedResourceUnit(Integer unitId) {
         if (resourceUnits.containsKey(unitId)) {
-            return Optional.ofNullable(resourceUnits.get(unitId).unit);
+            return Optional.ofNullable(resourceUnits.get(unitId));
         }
         return Optional.empty();
     }
@@ -211,7 +214,7 @@ public class UnitWrapperFactory {
      */
     static Optional<AUnitOfPlayer> getWrappedPlayersUnit(Integer unitId) {
         if (playersUnits.containsKey(unitId)) {
-            return Optional.ofNullable(playersUnits.get(unitId).unit);
+            return Optional.ofNullable(playersUnits.get(unitId));
         }
         return Optional.empty();
     }
@@ -224,27 +227,14 @@ public class UnitWrapperFactory {
      */
     static Optional<AUnit> getWrappedUnit(Integer unitId) {
         if (enemyUnits.containsKey(unitId)) {
-            return Optional.ofNullable(enemyUnits.get(unitId).unit);
+            return Optional.ofNullable(enemyUnits.get(unitId));
         }
         if (resourceUnits.containsKey(unitId)) {
-            return Optional.ofNullable(resourceUnits.get(unitId).unit);
+            return Optional.ofNullable(resourceUnits.get(unitId));
         }
         if (playersUnits.containsKey(unitId)) {
-            return Optional.ofNullable(playersUnits.get(unitId).unit);
+            return Optional.ofNullable(playersUnits.get(unitId));
         }
         return Optional.empty();
-    }
-
-    /**
-     * Keep unit and frame of its last update together
-     */
-    private static class UnitValue<T extends AUnit> {
-        T unit;
-        int lastUpdate;
-
-        UnitValue(T unit, int lastUpdate) {
-            this.unit = unit;
-            this.lastUpdate = lastUpdate;
-        }
     }
 }

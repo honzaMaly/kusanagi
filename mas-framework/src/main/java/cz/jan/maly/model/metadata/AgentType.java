@@ -10,7 +10,6 @@ import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.OwnDesire;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.utils.MyLogger;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.util.HashSet;
@@ -69,7 +68,6 @@ public class AgentType extends Key {
      * @param usingTypesForFactSets
      * @param initializationStrategy
      */
-    @Builder
     protected AgentType(String name, Set<DesireKey> desiresForOthers,
                         Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
                         Set<DesireKey> desiresWithIntentionToReason, Set<FactKey<?>> usingTypesForFacts,

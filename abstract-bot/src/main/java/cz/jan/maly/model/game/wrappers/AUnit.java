@@ -20,6 +20,7 @@ public class AUnit {
 
     final Unit unit;
 
+    @Getter
     private final int unitId;
 
     private final UnitType type;
@@ -183,14 +184,18 @@ public class AUnit {
 
     final List<Unit> enemyUnitsInRadiusOfSight = new ArrayList<>();
 
+    @Getter
+    private final int frameCount;
+
     final List<Integer> enemyUnitsInRadiusOfSightIds;
 
-    AUnit(Unit unit, boolean isCreatingUnit) {
+    AUnit(Unit unit, boolean isCreatingUnit, int frameCount) {
         this.unit = unit;
         this.type = unit.getType();
         this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
+        this.frameCount = frameCount;
 
-        //todo strange behaviour leading to crash
+        //todo strange behaviour in bwmirror
         //units in weapon range
 //        if (!isCreatingUnit && !unit.getPlayer().isNeutral()
 //                && !resourcesTypes.contains(unit.getType())) {
@@ -283,9 +288,7 @@ public class AUnit {
 
     private void addEnemyUnitsInWeaponRange(List<Unit> unitsInWeaponRange) {
         for (Unit unitInWeaponRange : unitsInWeaponRange) {
-            if (unitInWeaponRange.getPlayer().getID() != unit.getPlayer().getID()
-                    && !unitInWeaponRange.getPlayer().isNeutral()
-                    && !resourcesTypes.contains(unitInWeaponRange.getType())) {
+            if (unitInWeaponRange.getPlayer().isEnemy(unit.getPlayer())) {
                 this.enemyUnitsInWeaponRange.add(unitInWeaponRange);
             }
         }
@@ -374,8 +377,8 @@ public class AUnit {
      * Enemy
      */
     public static class Enemy extends AUnit {
-        Enemy(Unit unit, boolean isCreatingUnit) {
-            super(unit, isCreatingUnit);
+        Enemy(Unit unit, boolean isCreatingUnit, int frameCount) {
+            super(unit, isCreatingUnit, frameCount);
         }
 
         public List<AUnitOfPlayer> getEnemyUnitsInWeaponRange() {
@@ -416,8 +419,8 @@ public class AUnit {
      * Player's unit
      */
     public static class Players extends AUnit {
-        Players(Unit unit, boolean isCreatingUnit) {
-            super(unit, isCreatingUnit);
+        Players(Unit unit, boolean isCreatingUnit, int frameCount) {
+            super(unit, isCreatingUnit, frameCount);
         }
 
         public List<AUnit.Enemy> getEnemyUnitsInWeaponRange() {

@@ -1,7 +1,7 @@
 package cz.jan.maly.service;
 
 import bwapi.Unit;
-import cz.jan.maly.model.agent.BWAgentInGame;
+import cz.jan.maly.model.agent.AgentUnit;
 import cz.jan.maly.service.implementation.BotFacade;
 
 import java.util.Optional;
@@ -20,6 +20,6 @@ public interface AgentUnitHandler {
      * @param frameCount
      * @return
      */
-    Optional<BWAgentInGame> createAgentForUnit(Unit unit, BotFacade botFacade, int frameCount);
+    Optional<AgentUnit> createAgentForUnit(Unit unit, BotFacade botFacade, int frameCount);
 
 }

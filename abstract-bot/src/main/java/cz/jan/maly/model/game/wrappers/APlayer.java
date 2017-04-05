@@ -142,7 +142,9 @@ public class APlayer {
      * Method to refresh fields in wrapper for unit
      */
     public APlayer makeObservationOfEnvironment() {
-        return instances.put(player.getID(), new APlayer(player));
+        APlayer aPlayer = new APlayer(player);
+        instances.put(player.getID(), aPlayer);
+        return aPlayer;
     }
 
     /**
@@ -156,9 +158,11 @@ public class APlayer {
             return Optional.empty();
         }
         if (instances.containsKey(player.getID())) {
-            return Optional.ofNullable(instances.get(player.getID()));
+            return Optional.of(instances.get(player.getID()));
         } else {
-            return Optional.ofNullable(instances.put(player.getID(), new APlayer(player)));
+            APlayer aPlayer = new APlayer(player);
+            instances.put(player.getID(), aPlayer);
+            return Optional.of(aPlayer);
         }
     }
 

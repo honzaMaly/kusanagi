@@ -14,6 +14,9 @@ public class AgentTypeMakingObservations<E> extends AgentType {
     @Getter
     private ObservingCommand<E> observingCommand;
 
+    @Getter
+    private final int skipTurnsToMakeObservation;
+
     /**
      * Define agent type. Together with initial desires
      *
@@ -28,10 +31,12 @@ public class AgentTypeMakingObservations<E> extends AgentType {
     protected AgentTypeMakingObservations(String name, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                           Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason,
                                           Set<FactKey<?>> usingTypesForFacts, Set<FactKey<?>> usingTypesForFactSets,
-                                          ConfigurationInitializationStrategy initializationStrategy, ObservingCommand<E> observingCommand) {
+                                          ConfigurationInitializationStrategy initializationStrategy,
+                                          ObservingCommand<E> observingCommand, int skipTurnsToMakeObservation) {
         super(name, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason,
                 usingTypesForFacts, usingTypesForFactSets, initializationStrategy);
         this.observingCommand = observingCommand;
+        this.skipTurnsToMakeObservation = skipTurnsToMakeObservation;
     }
 
     //builder with default fields
@@ -42,5 +47,6 @@ public class AgentTypeMakingObservations<E> extends AgentType {
         private Set<DesireKey> desiresWithIntentionToReason = new HashSet<>();
         private Set<FactKey<?>> usingTypesForFacts = new HashSet<>();
         private Set<FactKey<?>> usingTypesForFactSets = new HashSet<>();
+        private int skipTurnsToMakeObservation = 5;
     }
 }

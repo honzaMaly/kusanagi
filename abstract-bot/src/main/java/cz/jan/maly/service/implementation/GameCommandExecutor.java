@@ -28,7 +28,7 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
     private final List<QueuedItemInterfaceWithResponseWithCommandClassGetter> queuedItems = new ArrayList<>();
 
     //counter of frames
-    private long countOfPassedFrames = 0;
+    private int countOfPassedFrames = 0;
 
     private final Game game;
 
@@ -36,7 +36,8 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
         this.game = game;
     }
 
-    public synchronized long getCountOfPassedFrames() {
+    //Not synchronized. Speed is primal concern not accuracy
+    int getCountOfPassedFrames() {
         return countOfPassedFrames;
     }
 
@@ -126,7 +127,9 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
         //this is not vital to have it synchronized. primary concern is speed
         this.countOfPassedFrames = game.getFrameCount();
 
-        MyLogger.getLogger().info("Frame commands executed in " + (System.currentTimeMillis() - start) + " ms");
+//        long tameItTook = (System.currentTimeMillis() - start);
+//        MyLogger.getLogger().info("Frame commands " + countOfPassedFrames + " executed in " + tameItTook + " ms");
+//        game.printf("Frame commands " + countOfPassedFrames + " executed in " + tameItTook + " ms");
     }
 
     /**
