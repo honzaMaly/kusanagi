@@ -18,6 +18,7 @@ import cz.jan.maly.model.planing.tree.visitors.CommandExecutor;
 import cz.jan.maly.model.planing.tree.visitors.CommitmentDecider;
 import cz.jan.maly.model.planing.tree.visitors.CommitmentRemovalDecider;
 import cz.jan.maly.service.MASFacade;
+import cz.jan.maly.service.MediatorTemplate;
 import cz.jan.maly.service.implementation.DesireMediator;
 import cz.jan.maly.service.implementation.KnowledgeMediator;
 import cz.jan.maly.utils.MyLogger;
@@ -45,7 +46,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     @Getter
     private final KnowledgeMediator knowledgeMediator;
 
-    final MASFacade masFacade;
+    private final MASFacade masFacade;
 
     protected final WorkingMemory beliefs;
     private final Tree tree = new Tree(this);
@@ -67,6 +68,14 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     @Override
+    public String toString() {
+        return "Agent{" +
+                "id=" + id +
+                ", agentType=" + agentType.getName() +
+                '}';
+    }
+
+    @Override
     public void run() {
 
         //run main routine in its own thread
@@ -85,8 +94,8 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     void shareKnowledge(Worker worker) {
-        if (knowledgeMediator.registerKnowledge(beliefs.cloneMemory(), this, worker)) {
-            synchronized (lockMonitor) {
+        synchronized (lockMonitor) {
+            if (knowledgeMediator.registerKnowledge(beliefs.cloneMemory(), this, worker)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {
@@ -94,12 +103,29 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 }
             }
         }
+        waitForMediatorNextUpdate(knowledgeMediator);
         beliefs.addKnowledge(knowledgeMediator.getSnapshotOfRegister());
     }
 
     private void removeAgent() {
         desireMediator.removeAgentFromRegister(this, this);
         tree.removeCommitmentToSharedDesires();
+    }
+
+    /**
+     * Method to wait on next update of mediator - to make sure all send data are propagated to registers
+     *
+     * @param mediator
+     */
+    private void waitForMediatorNextUpdate(MediatorTemplate<?, ?> mediator) {
+        long currentUpdate = mediator.getUpdateCount();
+        while (currentUpdate == mediator.getUpdateCount()) {
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                MyLogger.getLogger().warning(getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+            }
+        }
     }
 
     /**
@@ -127,6 +153,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 commandExecutor.visitTree();
                 commitmentRemovalDecider.visitTree();
                 doRoutine(this);
+                waitForMediatorNextUpdate(desireMediator);
                 tree.updateDesires(desireMediator.getSnapshotOfRegister());
             }
 
@@ -141,7 +168,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 if (!response) {
                     MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute command");
                 }
-                lockMonitor.notify();
+                lockMonitor.notifyAll();
             }
         }
     }
@@ -268,8 +295,8 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
         protected abstract boolean requestObservation(ObservingCommand<E> observingCommand, ResponseReceiverInterface<Boolean> responseReceiver);
 
         private void makeObservation(Worker worker) {
-            if (requestObservation(agentType.getObservingCommand(), worker)) {
-                synchronized (lockMonitor) {
+            synchronized (lockMonitor) {
+                if (requestObservation(agentType.getObservingCommand(), worker)) {
                     try {
                         lockMonitor.wait();
                     } catch (InterruptedException e) {

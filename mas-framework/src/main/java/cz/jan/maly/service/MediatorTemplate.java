@@ -18,11 +18,11 @@ import java.util.List;
 public abstract class MediatorTemplate<V extends Register<?>, T extends Register<?> & WorkingRegister<V>> implements TerminableService {
     protected final T workingRegister;
     private V readOnlyRegister;
-    private final Object registerLockMonitor = new Object();
-    protected final List<QueuedItemInterfaceWithResponse<?>> queuedItems = new ArrayList<>();
+    private final List<QueuedItemInterfaceWithResponse<?>> queuedItems = new ArrayList<>();
     private final LengthOfIntervalObtainingStrategy lengthOfIntervalObtainingStrategy;
     private boolean shouldConsume = true;
     private final Object isAliveLockMonitor = new Object();
+    private long updates = 0;
 
     protected MediatorTemplate(T workingRegister, LengthOfIntervalObtainingStrategy lengthOfIntervalObtainingStrategy) {
         this.workingRegister = workingRegister;
@@ -42,14 +42,33 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
     }
 
     /**
+     * Add request to internal queue
+     *
+     * @param request
+     * @return
+     */
+    protected boolean addToQueue(QueuedItemInterfaceWithResponse<?> request) {
+        synchronized (queuedItems) {
+            return queuedItems.add(request);
+        }
+    }
+
+    /**
+     * Get number of updates of mediator
+     *
+     * @return
+     */
+    public long getUpdateCount() {
+        return updates;
+    }
+
+    /**
      * Returns snapshot of register
      *
      * @return
      */
     public V getSnapshotOfRegister() {
-        synchronized (registerLockMonitor) {
-            return readOnlyRegister;
-        }
+        return readOnlyRegister;
     }
 
     public void terminate() {
@@ -82,7 +101,7 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
 
                     //sleep until time is up or another request was received
                     duration = System.currentTimeMillis() - start;
-                    while (duration < lengthOfIntervalObtainingStrategy.getLengthOfInterval() || queuedItems.isEmpty()) {
+                    while (duration < lengthOfIntervalObtainingStrategy.getLengthOfInterval() && queuedItems.isEmpty()) {
                         try {
                             Thread.sleep(Math.min(5, Math.max(0, lengthOfIntervalObtainingStrategy.getLengthOfInterval() - duration)));
                         } catch (InterruptedException e) {
@@ -96,9 +115,9 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
                 }
 
                 //update read only register by copy of current one
-                synchronized (registerLockMonitor) {
-                    readOnlyRegister = workingRegister.makeSnapshot();
-                }
+                readOnlyRegister = workingRegister.makeSnapshot();
+                //does not need to be synchronized as this is only increased and agents check if their local update is less then update of this class
+                updates++;
 
                 //check for termination condition
                 synchronized (isAliveLockMonitor) {

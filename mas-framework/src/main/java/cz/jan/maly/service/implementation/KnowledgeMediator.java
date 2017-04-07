@@ -28,19 +28,17 @@ public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, 
      * @return
      */
     public boolean registerKnowledge(ReadOnlyMemory readOnlyMemory, Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    return workingRegister.addAgentsMemory(readOnlyMemory, owner);
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                return workingRegister.addAgentsMemory(readOnlyMemory, owner);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
 }

@@ -14,12 +14,15 @@ public class AnotherAgentsDesireWithAbstractIntentionFormulation extends DesireF
 
     @Override
     public Optional<DesireFromAnotherAgent.WithAbstractIntention> formDesire(SharedDesireForAgents desireForAgents, WorkingMemory memory) {
-        DesireFromAnotherAgent.WithAbstractIntention withAbstractIntention = new DesireFromAnotherAgent.WithAbstractIntention(desireForAgents,
-                memory, getDecisionInDesire(desireForAgents.getDesireKey()), getDecisionInIntention(desireForAgents.getDesireKey()),
-                getTypesOfDesiresToConsiderWhenCommitting(desireForAgents.getDesireKey()),
-                getTypesOfDesiresToConsiderWhenRemovingCommitment(desireForAgents.getDesireKey()),
-                desiresForOthersByKey.get(desireForAgents.getDesireKey()), desiresWithAbstractIntentionByKey.get(desireForAgents.getDesireKey()), desiresWithIntentionToActByKey.get(desireForAgents.getDesireKey()),
-                desiresWithIntentionToReasonByKey.get(desireForAgents.getDesireKey()));
-        return Optional.of(withAbstractIntention);
+        if (supportsDesireType(desireForAgents.getDesireKey())) {
+            DesireFromAnotherAgent.WithAbstractIntention withAbstractIntention = new DesireFromAnotherAgent.WithAbstractIntention(desireForAgents,
+                    memory, getDecisionInDesire(desireForAgents.getDesireKey()), getDecisionInIntention(desireForAgents.getDesireKey()),
+                    getTypesOfDesiresToConsiderWhenCommitting(desireForAgents.getDesireKey()),
+                    getTypesOfDesiresToConsiderWhenRemovingCommitment(desireForAgents.getDesireKey()),
+                    desiresForOthersByKey.get(desireForAgents.getDesireKey()), desiresWithAbstractIntentionByKey.get(desireForAgents.getDesireKey()), desiresWithIntentionToActByKey.get(desireForAgents.getDesireKey()),
+                    desiresWithIntentionToReasonByKey.get(desireForAgents.getDesireKey()));
+            return Optional.of(withAbstractIntention);
+        }
+        return Optional.empty();
     }
 }

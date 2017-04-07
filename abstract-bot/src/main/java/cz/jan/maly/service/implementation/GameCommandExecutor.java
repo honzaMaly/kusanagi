@@ -9,7 +9,6 @@ import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ObservingCommand;
 import cz.jan.maly.service.CommandManager;
 import cz.jan.maly.service.ObservingCommandManager;
-import cz.jan.maly.utils.MyLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,35 +44,14 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
     private final Map<AgentType, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
 
     /**
-     * Method to add item to queue with code to execute action in GAME
+     * Add request to internal queue
      *
-     * @param command
-     * @param responseReceiver
+     * @param request
      * @return
      */
-    public boolean addCommandToObserve(ObservingCommand<Game> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
+    private boolean addToQueue(QueuedItemInterfaceWithResponseWithCommandClassGetter request) {
         synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
-                @Override
-                Class getClassOfCommand() {
-                    return command.getClass();
-                }
-
-                @Override
-                AgentType getAgentType() {
-                    return agentType;
-                }
-
-                @Override
-                public Boolean executeCode() {
-                    return executeCommand(command, memory, game);
-                }
-
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
+            return queuedItems.add(request);
         }
     }
 
@@ -84,30 +62,59 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
      * @param responseReceiver
      * @return
      */
+    public boolean addCommandToObserve(ObservingCommand<Game> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
+        return addToQueue(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
+            @Override
+            Class getClassOfCommand() {
+                return command.getClass();
+            }
+
+            @Override
+            AgentType getAgentType() {
+                return agentType;
+            }
+
+            @Override
+            public Boolean executeCode() {
+                return executeCommand(command, memory, game);
+            }
+
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
+    }
+
+    /**
+     * Method to add item to queue with code to execute action in GAME
+     *
+     * @param command
+     * @param responseReceiver
+     * @return
+     */
     public boolean addCommandToAct(ActCommand<?> command, WorkingMemory memory, ResponseReceiverInterface<Boolean> responseReceiver, AgentType agentType) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
-                @Override
-                Class getClassOfCommand() {
-                    return command.getClass();
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponseWithCommandClassGetter() {
+            @Override
+            Class getClassOfCommand() {
+                return command.getClass();
+            }
 
-                @Override
-                AgentType getAgentType() {
-                    return agentType;
-                }
+            @Override
+            AgentType getAgentType() {
+                return agentType;
+            }
 
-                @Override
-                public Boolean executeCode() {
-                    return executeCommand(command, memory);
-                }
+            @Override
+            public Boolean executeCode() {
+                return executeCommand(command, memory);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -141,15 +148,15 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
             synchronized (queuedItems) {
                 queuedItem = queuedItems.remove(0);
             }
-            executeCommand(queuedItem);
+            long timeItTook = executeCommand(queuedItem);
+            lastDurationOfCommandTypeExecutionForAgentType.computeIfAbsent(queuedItem.getAgentType(), at -> new HashMap<>()).put(queuedItem.getClassOfCommand(), timeItTook);
         }
     }
 
-    private void executeCommand(QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem) {
+    private long executeCommand(QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem) {
         long start = System.currentTimeMillis();
         queuedItem.executeItem();
-        lastDurationOfCommandTypeExecutionForAgentType.computeIfAbsent(queuedItem.getAgentType(), at -> new HashMap<>()).put(queuedItem.getClassOfCommand(), System.currentTimeMillis() - start);
-        MyLogger.getLogger().info("Command executed in " + (System.currentTimeMillis() - start) + " ms");
+        return System.currentTimeMillis() - start;
     }
 
     /**
@@ -164,13 +171,18 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
             if (System.currentTimeMillis() >= end) {
                 break;
             }
+            QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem;
             synchronized (queuedItems) {
-                QueuedItemInterfaceWithResponseWithCommandClassGetter queuedItem = queuedItems.get(i);
-                long executionTime = lastDurationOfCommandTypeExecutionForAgentType.getOrDefault(queuedItem.getAgentType(), new HashMap<>()).getOrDefault(queuedItem.getClassOfCommand(), BotFacade.getMaxFrameExecutionTime());
-                if (executionTime < end - System.currentTimeMillis()) {
-                    executeCommand(queuedItems.remove(i));
-                    return i;
+                queuedItem = queuedItems.get(i);
+            }
+            long executionTime = lastDurationOfCommandTypeExecutionForAgentType.getOrDefault(queuedItem.getAgentType(), new HashMap<>()).getOrDefault(queuedItem.getClassOfCommand(), BotFacade.getMaxFrameExecutionTime());
+            if (executionTime < end - System.currentTimeMillis()) {
+                synchronized (queuedItems) {
+                    queuedItem = queuedItems.remove(i);
                 }
+                executionTime = executeCommand(queuedItem);
+                lastDurationOfCommandTypeExecutionForAgentType.computeIfAbsent(queuedItem.getAgentType(), at -> new HashMap<>()).put(queuedItem.getClassOfCommand(), executionTime);
+                return i;
             }
         }
         return 0;

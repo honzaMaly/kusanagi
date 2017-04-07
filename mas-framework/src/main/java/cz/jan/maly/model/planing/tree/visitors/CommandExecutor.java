@@ -54,8 +54,8 @@ public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverIn
     }
 
     private void sendActingCommandForExecution(ActCommand<?> command) {
-        if (agent.sendCommandToExecute(command, this)) {
-            synchronized (lockMonitor) {
+        synchronized (lockMonitor) {
+            if (agent.sendCommandToExecute(command, this)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {

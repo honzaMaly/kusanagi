@@ -13,20 +13,20 @@ class SharingDesireRoutine implements ResponseReceiverInterface<Boolean> {
     private Boolean registered = false;
 
     boolean sharedDesire(SharedDesireInRegister sharedDesire, Tree tree) {
-        if (tree.getAgent().getDesireMediator().registerDesire(sharedDesire, this)) {
-            synchronized (lockMonitor) {
+        synchronized (lockMonitor) {
+            if (tree.getAgent().getDesireMediator().registerDesire(sharedDesire, this)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {
                     MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
                 }
-            }
 
-            //is desire register, if so, make intention out of it
-            if (registered) {
-                return true;
-            } else {
-                MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                //is desire register, if so, make intention out of it
+                if (registered) {
+                    return true;
+                } else {
+                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                }
             }
         }
         return false;

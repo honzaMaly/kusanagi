@@ -18,21 +18,21 @@ public class SharingDesireRemovalInSubtreeRoutine implements ResponseReceiverInt
     boolean unregisterSharedDesire(Set<SharedDesireForAgents> sharedDesires, Tree tree) {
 
         //share desire and wait for response of registration
-        if (tree.getAgent().getDesireMediator().unregisterDesires(new HashSet<>(sharedDesires), this)) {
-            synchronized (lockMonitor) {
+        synchronized (lockMonitor) {
+            if (tree.getAgent().getDesireMediator().unregisterDesires(new HashSet<>(sharedDesires), this)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {
                     MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
                 }
-            }
 
-            //is desire register, if so, make intention out of it
-            if (unregistered) {
-                tree.removeSharedDesiresForOtherAgents(sharedDesires);
-                return true;
-            } else {
-                MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                //is desire register, if so, make intention out of it
+                if (unregistered) {
+                    tree.removeSharedDesiresForOtherAgents(sharedDesires);
+                    return true;
+                } else {
+                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                }
             }
         }
         return false;

@@ -22,4 +22,18 @@ public class FactsKeys {
         }
     };
 
+    public static final FactKey<Boolean> IS_BASE = new FactKey<Boolean>("IS_BASE", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+
+    public static final FactKey<AUnit> HAS_HATCHERY = new FactKey<AUnit>("HAS_HATCHERY", true) {
+        @Override
+        public AUnit getInitValue() {
+            return null;
+        }
+    };
+
 }

@@ -7,14 +7,17 @@ package cz.jan.maly.service.implementation;
 public class AgentsRegister {
     //adding ids using integer incremental counter should not be a problem
     private int idCounter = 0;
+    private final Object lock = new Object();
 
     /**
      * Get free id for agent to be used
      *
      * @return
      */
-    public synchronized int getFreeId() {
-        idCounter++;
-        return idCounter;
+    public int getFreeId() {
+        synchronized (lock) {
+            idCounter++;
+            return idCounter;
+        }
     }
 }

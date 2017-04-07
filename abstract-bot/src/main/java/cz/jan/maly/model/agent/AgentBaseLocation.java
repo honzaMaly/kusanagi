@@ -16,7 +16,6 @@ public class AgentBaseLocation extends AgentObservingGame<AgentTypeBaseLocation>
 
     public AgentBaseLocation(AgentTypeBaseLocation agentType, BotFacade botFacade, BaseLocation location) {
         super(agentType, botFacade);
-
         //add itself to knowledge
         beliefs.updateFact(IS_BASE_LOCATION, location);
         AgentTypeBaseLocation.updateKnowledgeAboutResources(location, beliefs, 0);

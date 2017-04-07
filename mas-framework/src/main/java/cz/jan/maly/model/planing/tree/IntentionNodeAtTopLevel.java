@@ -81,21 +81,21 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
                     //share desire and wait for response of registration
                     SharedDesireForAgents sharedDesire = intention.getSharedDesireForAgents();
-                    if (tree.getAgent().getDesireMediator().removeCommitmentToDesire(tree.getAgent(), sharedDesire, this)) {
-                        synchronized (lockMonitor) {
+                    synchronized (lockMonitor) {
+                        if (tree.getAgent().getDesireMediator().removeCommitmentToDesire(tree.getAgent(), sharedDesire, this)) {
                             try {
                                 lockMonitor.wait();
                             } catch (InterruptedException e) {
                                 MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
                             }
-                        }
 
-                        //is desire register, if so, make intention out of it
-                        if (registered) {
-                            formDesireNodeAndReplaceIntentionNode();
-                            return true;
-                        } else {
-                            MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                            //is desire register, if so, make intention out of it
+                            if (registered) {
+                                formDesireNodeAndReplaceIntentionNode();
+                                return true;
+                            } else {
+                                MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
+                            }
                         }
                     }
                 }

@@ -4,6 +4,7 @@ import bwapi.Unit;
 import bwapi.UnitType;
 import bwapi.WeaponType;
 import bwta.BWTA;
+import bwta.BaseLocation;
 import lombok.Getter;
 
 import java.util.*;
@@ -170,6 +171,9 @@ public class AUnit {
     @Getter
     private final Optional<bwta.Region> unitRegion;
 
+    @Getter
+    private final Optional<bwta.BaseLocation> nearestBaseLocation;
+
     final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
 
     final List<Integer> enemyUnitsInWeaponRangeIds;
@@ -192,7 +196,18 @@ public class AUnit {
     AUnit(Unit unit, boolean isCreatingUnit, int frameCount) {
         this.unit = unit;
         this.type = unit.getType();
+
+        //identify position
+        this.position = new APosition(unit.getPosition());
         this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
+        if (unitRegion.isPresent()) {
+            Optional<BaseLocation> nearestBaseLocation = unitRegion.get().getBaseLocations().stream()
+                    .min(Comparator.comparingInt(o -> o.getPosition().getApproxDistance(position.p)));
+            this.nearestBaseLocation = nearestBaseLocation;
+        } else {
+            this.nearestBaseLocation = Optional.empty();
+        }
+
         this.frameCount = frameCount;
 
         //todo strange behaviour in bwmirror
@@ -237,7 +252,6 @@ public class AUnit {
                 .map(Unit::getID)
                 .collect(Collectors.toList());
 
-        this.position = new APosition(unit.getPosition());
         this.exists = unit.exists();
         this.velocityX = unit.getVelocityX();
         this.isIdle = unit.isIdle();

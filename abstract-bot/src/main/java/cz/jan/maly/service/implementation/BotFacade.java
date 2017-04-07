@@ -60,9 +60,12 @@ public class BotFacade extends DefaultBWListener {
     private GameCommandExecutor gameCommandExecutor;
 
     //fields provided by user
-    private final AgentUnitHandler agentUnitFactory;
+    private final AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy;
     private final PlayerInitializer playerInitializer;
     private final LocationInitializer locationInitializer;
+
+    //this is created with new game
+    private AgentUnitHandler agentUnitFactory;
 
     //game related fields
     private Mirror mirror = new Mirror();
@@ -73,8 +76,8 @@ public class BotFacade extends DefaultBWListener {
     @Getter
     private Player self;
 
-    public BotFacade(AgentUnitHandler agentUnitFactory, PlayerInitializer playerInitializer, LocationInitializer locationInitializer) {
-        this.agentUnitFactory = agentUnitFactory;
+    public BotFacade(AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy, PlayerInitializer playerInitializer, LocationInitializer locationInitializer) {
+        this.agentUnitFactoryCreationStrategy = agentUnitFactoryCreationStrategy;
         this.playerInitializer = playerInitializer;
         this.locationInitializer = locationInitializer;
         MyLogger.setLoggingLevel(Level.WARNING);
@@ -83,6 +86,7 @@ public class BotFacade extends DefaultBWListener {
     @Override
     public void onStart() {
         UnitWrapperFactory.clearCache();
+        WrapperTypeFactory.clearCache();
 
         //initialize game related data
         game = mirror.getGame();
@@ -92,6 +96,7 @@ public class BotFacade extends DefaultBWListener {
         gameCommandExecutor = new GameCommandExecutor(game);
         masFacade = new MASFacade(() -> gameCommandExecutor.getCountOfPassedFrames());
         ADDITIONAL_OBSERVATIONS_PROCESSOR = new AdditionalCommandToObserveGameProcessor(gameCommandExecutor);
+        agentUnitFactory = agentUnitFactoryCreationStrategy.createFactory();
 
         //Use BWTA to analyze map
         //This may take a few minutes if the map is processed first time!
@@ -100,12 +105,6 @@ public class BotFacade extends DefaultBWListener {
         BWTA.analyze();
 
         MyLogger.getLogger().info("Map data ready");
-
-        //init types
-        AUpgradeTypeWrapper.initTypes();
-        AUnitTypeWrapper.initTypes();
-        ATechTypeWrapper.initTypes();
-        AWeaponTypeWrapper.initTypes();
 
         //reference on agents
         List<Agent<?>> agentsToRun = new ArrayList<>();
@@ -145,7 +144,7 @@ public class BotFacade extends DefaultBWListener {
     }
 
     @Override
-    public synchronized void onUnitCreate(Unit unit) {
+    public void onUnitCreate(Unit unit) {
         if (self.getID() == unit.getPlayer().getID()) {
             Optional<AgentUnit> agent = agentUnitFactory.createAgentForUnit(unit, this, game.getFrameCount());
             agent.ifPresent(agentObservingGame -> {
@@ -198,4 +197,17 @@ public class BotFacade extends DefaultBWListener {
     }
 
     //TODO handle more events - unit renegade, visibility
+
+    /**
+     * Contract for strategy to create new AgentUnitFactory for new game
+     */
+    public interface AgentUnitFactoryCreationStrategy {
+
+        /**
+         * Creates new factory
+         *
+         * @return
+         */
+        AgentUnitHandler createFactory();
+    }
 }

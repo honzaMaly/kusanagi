@@ -74,20 +74,20 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
             if (desire.getDesireForAgents().mayTryToCommit() && desire.shouldCommit(dataForDecision)) {
 
-                if (tree.getAgent().getDesireMediator().addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
+                synchronized (lockMonitor) {
+                    if (tree.getAgent().getDesireMediator().addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
 
-                    //wait for registered
-                    synchronized (lockMonitor) {
+                        //wait for registered
                         try {
                             lockMonitor.wait();
                         } catch (InterruptedException e) {
                             MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
                         }
-                    }
 
-                    //if agent is committed according to system...
-                    if (desire.getDesireForAgents().isAgentCommittedToDesire(parent.getAgent())) {
-                        return Optional.of(formIntentionNodeAndReplaceSelfInParent());
+                        //if agent is committed according to system...
+                        if (desire.getDesireForAgents().isAgentCommittedToDesire(parent.getAgent())) {
+                            return Optional.of(formIntentionNodeAndReplaceSelfInParent());
+                        }
                     }
                 }
             }

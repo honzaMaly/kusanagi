@@ -222,7 +222,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
 
     @Override
     public Set<DesireParameters> committedSharedDesiresParametersByOtherAgents() {
-        Set<DesireParameters> toReturn = manipulationWithAbstractDesiresFromOthers.intentionNodesByKey.keySet();
+        Set<DesireParameters> toReturn = new HashSet<>(manipulationWithAbstractDesiresFromOthers.intentionNodesByKey.keySet());
         toReturn.addAll(manipulationWithDesiresFromOthers.intentionNodesByKey.keySet());
         return toReturn;
     }

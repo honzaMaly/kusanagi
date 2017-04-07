@@ -22,15 +22,25 @@ class WrapperTypeRegister<T, V extends AbstractWrapper<T>> {
     }
 
     /**
+     * Clear cache
+     */
+    void clear() {
+        types.clear();
+    }
+
+    /**
      * Returns corresponding wrapper for type instance
      *
      * @param type
      * @return
      */
     V createFrom(T type) {
-        if (type == null || !types.containsKey(type)) {
+        if (type == null) {
             MyLogger.getLogger().warning("Type is null.");
             throw new RuntimeException("Type is null.");
+        }
+        if (!types.containsKey(type)) {
+            return strategyToWrapType.createNewWrapper(type);
         }
         return types.get(type);
     }

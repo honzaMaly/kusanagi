@@ -13,7 +13,7 @@ import java.util.Set;
  * Created by Jan on 28-Mar-17.
  */
 @Getter
-class WrapperTypeFactory {
+public class WrapperTypeFactory {
     private static final WrapperTypeRegister<TechType, ATechTypeWrapper> A_TECH_TYPE_REGISTER = new WrapperTypeRegister<>(ATechTypeWrapper::new);
     private static final WrapperTypeRegister<UpgradeType, AUpgradeTypeWrapper> UPGRADE_TYPE_REGISTER = new WrapperTypeRegister<>(AUpgradeTypeWrapper::new);
     private static final WrapperTypeRegister<WeaponType, AWeaponTypeWrapper> WEAPON_TYPE_REGISTER = new WrapperTypeRegister<>(AWeaponTypeWrapper::new);
@@ -23,12 +23,22 @@ class WrapperTypeFactory {
     private static final Map<Race, Set<AUnitTypeWrapper>> buildingsByRace = new HashMap<>();
 
     /**
+     * Clear cache
+     */
+    public static void clearCache() {
+        A_TECH_TYPE_REGISTER.clear();
+        UPGRADE_TYPE_REGISTER.clear();
+        UPGRADE_TYPE_REGISTER.clear();
+        UPGRADE_TYPE_REGISTER.clear();
+    }
+
+    /**
      * Returns corresponding wrapper for type instance
      *
      * @param type
      * @return
      */
-    static AUnitTypeWrapper createFrom(UnitType type) {
+    public static AUnitTypeWrapper createFrom(UnitType type) {
         return UNIT_TYPE_REGISTER.createFrom(type);
     }
 

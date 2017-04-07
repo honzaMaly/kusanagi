@@ -19,7 +19,6 @@ public class AgentPlayerInitializer implements PlayerInitializer {
 
     public static final AgentTypePlayer PLAYER = AgentTypePlayer.builder()
             .name("PLAYER")
-            .skipTurnsToMakeObservation(20)
             .initializationStrategy(type -> {
 
                 //todo

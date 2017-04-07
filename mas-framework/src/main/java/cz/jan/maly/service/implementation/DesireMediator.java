@@ -35,19 +35,17 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @return
      */
     public boolean registerDesire(SharedDesireInRegister sharedDesire, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    return workingRegister.addedDesire(sharedDesire);
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                return workingRegister.addedDesire(sharedDesire);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -57,20 +55,18 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @param responseReceiver
      * @return
      */
-    public boolean removeAgentFromRegister(Agent agent, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    return workingRegister.removeAgent(agent);
-                }
+    public void removeAgentFromRegister(Agent agent, ResponseReceiverInterface<Boolean> responseReceiver) {
+        addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                return workingRegister.removeAgent(agent);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -81,19 +77,17 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @return
      */
     public boolean unregisterDesire(SharedDesire sharedDesire, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    return workingRegister.removedDesire(sharedDesire);
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                return workingRegister.removedDesire(sharedDesire);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -104,20 +98,18 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @return
      */
     public boolean unregisterDesires(Set<SharedDesire> sharedDesires, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    sharedDesires.forEach(workingRegister::removedDesire);
-                    return true;
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                sharedDesires.forEach(workingRegister::removedDesire);
+                return true;
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -129,19 +121,17 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @return
      */
     public boolean addCommitmentToDesire(Agent agentWhoWantsToCommitTo, SharedDesireForAgents desireForOthersHeWantsToCommitTo, ResponseReceiverInterface<Optional<SharedDesireForAgents>> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Optional<SharedDesireForAgents>>() {
-                @Override
-                public Optional<SharedDesireForAgents> executeCode() {
-                    return workingRegister.commitToDesire(agentWhoWantsToCommitTo, desireForOthersHeWantsToCommitTo);
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponse<Optional<SharedDesireForAgents>>() {
+            @Override
+            public Optional<SharedDesireForAgents> executeCode() {
+                return workingRegister.commitToDesire(agentWhoWantsToCommitTo, desireForOthersHeWantsToCommitTo);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Optional<SharedDesireForAgents>> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Optional<SharedDesireForAgents>> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -153,19 +143,17 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @return
      */
     public boolean removeCommitmentToDesire(Agent agentWhoWantsToRemoveCommitment, SharedDesireForAgents desireHeWantsToRemoveCommitmentTo, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    return workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo);
-                }
+        return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                return workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo);
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
     /**
@@ -176,21 +164,19 @@ public class DesireMediator extends MediatorTemplate<ReadOnlyDesireRegister, Wor
      * @param responseReceiver
      * @return
      */
-    public boolean removeCommitmentToDesires(Agent agentWhoWantsToRemoveCommitment, Set<SharedDesireForAgents> desiresHeWantsToRemoveCommitmentTo, ResponseReceiverInterface<Boolean> responseReceiver) {
-        synchronized (queuedItems) {
-            return queuedItems.add(new QueuedItemInterfaceWithResponse<Boolean>() {
-                @Override
-                public Boolean executeCode() {
-                    desiresHeWantsToRemoveCommitmentTo.forEach(desireHeWantsToRemoveCommitmentTo -> workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo));
-                    return true;
-                }
+    public void removeCommitmentToDesires(Agent agentWhoWantsToRemoveCommitment, Set<SharedDesireForAgents> desiresHeWantsToRemoveCommitmentTo, ResponseReceiverInterface<Boolean> responseReceiver) {
+        addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                desiresHeWantsToRemoveCommitmentTo.forEach(desireHeWantsToRemoveCommitmentTo -> workingRegister.removeCommitmentToDesire(agentWhoWantsToRemoveCommitment, desireHeWantsToRemoveCommitmentTo));
+                return true;
+            }
 
-                @Override
-                public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
-                    return responseReceiver;
-                }
-            });
-        }
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
     }
 
 }

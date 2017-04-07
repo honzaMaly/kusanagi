@@ -74,7 +74,7 @@ public class WorkingMemory extends Memory<Tree> {
         if (fact != null) {
             fact.addFact(value);
         } else {
-            MyLogger.getLogger().warning("Given key is not present!");
+            MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         }
     }
 
@@ -89,7 +89,7 @@ public class WorkingMemory extends Memory<Tree> {
         if (fact != null) {
             fact.removeFact();
         } else {
-            MyLogger.getLogger().warning("Given key is not present!");
+            MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         }
     }
 
@@ -105,7 +105,7 @@ public class WorkingMemory extends Memory<Tree> {
         if (factSet != null) {
             factSet.addFact(value);
         } else {
-            MyLogger.getLogger().warning("Given key is not present!");
+            MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         }
     }
 
@@ -122,7 +122,7 @@ public class WorkingMemory extends Memory<Tree> {
             factSet.eraseSet();
             values.forEach(factSet::addFact);
         } else {
-            MyLogger.getLogger().warning("Given key is not present!");
+            MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         }
     }
 
@@ -138,7 +138,7 @@ public class WorkingMemory extends Memory<Tree> {
         if (factSet != null) {
             factSet.removeFact(value);
         } else {
-            MyLogger.getLogger().warning("Given key is not present!");
+            MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         }
     }
 
@@ -153,7 +153,7 @@ public class WorkingMemory extends Memory<Tree> {
         if (factSet != null) {
             factSet.eraseSet();
         } else {
-            MyLogger.getLogger().warning("Given key is not present!");
+            MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         }
     }
 }

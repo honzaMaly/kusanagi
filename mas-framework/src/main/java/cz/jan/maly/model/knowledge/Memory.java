@@ -75,12 +75,13 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         if (fact != null) {
             return Optional.ofNullable(fact.getContent());
         }
-        MyLogger.getLogger().warning("Given key is not present!");
+        MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         return Optional.empty();
     }
 
     /**
      * Returns copy of fact
+     *
      * @param factKey
      * @param <K>
      * @return
@@ -90,7 +91,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         if (fact != null) {
             return Optional.ofNullable(fact.copyFact());
         }
-        MyLogger.getLogger().warning("Given key is not present!");
+        MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         return Optional.empty();
     }
 
@@ -100,12 +101,13 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         if (factSet != null) {
             return Optional.ofNullable((S) factSet.getContent());
         }
-        MyLogger.getLogger().warning("Given key is not present!");
+        MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         return Optional.empty();
     }
 
     /**
      * Returns copy of fact set
+     *
      * @param factKey
      * @param <K>
      * @return
@@ -115,7 +117,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         if (factSet != null) {
             return Optional.ofNullable(factSet.copyFact());
         }
-        MyLogger.getLogger().warning("Given key is not present!");
+        MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         return Optional.empty();
     }
 
