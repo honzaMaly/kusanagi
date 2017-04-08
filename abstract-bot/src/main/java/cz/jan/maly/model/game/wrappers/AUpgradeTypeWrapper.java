@@ -43,28 +43,10 @@ public class AUpgradeTypeWrapper extends AbstractWrapper<UpgradeType> {
     private final int upgradeTime;
 
     private final UnitType whatUpgrades;
-
-    public AUnitTypeWrapper getWhatUpgrades() {
-        return WrapperTypeFactory.createFrom(whatUpgrades);
-    }
-
     private final List<UnitType> whatsRequiredList;
-
-    public List<AUnitTypeWrapper> getWhatsRequiredList() {
-        return whatsRequiredList.stream()
-                .map(WrapperTypeFactory::createFrom)
-                .collect(Collectors.toList());
-    }
-
     private final UnitType whatsRequired;
-
-    public AUnitTypeWrapper getWhatsRequired() {
-        return WrapperTypeFactory.createFrom(whatsRequired);
-    }
-
     @Getter
     private final int upgradeTimeFactor;
-
     @Getter
     private final int mineralPriceFactor;
 
@@ -88,6 +70,20 @@ public class AUpgradeTypeWrapper extends AbstractWrapper<UpgradeType> {
         this.whatsRequiredList = repeats.stream().map(type::whatsRequired).collect(Collectors.toList());
         this.upgradeTimeFactor = type.upgradeTimeFactor();
         this.mineralPriceFactor = type.mineralPriceFactor();
+    }
+
+    public AUnitTypeWrapper getWhatUpgrades() {
+        return WrapperTypeFactory.createFrom(whatUpgrades);
+    }
+
+    public List<AUnitTypeWrapper> getWhatsRequiredList() {
+        return whatsRequiredList.stream()
+                .map(WrapperTypeFactory::createFrom)
+                .collect(Collectors.toList());
+    }
+
+    public AUnitTypeWrapper getWhatsRequired() {
+        return WrapperTypeFactory.createFrom(whatsRequired);
     }
 
 }

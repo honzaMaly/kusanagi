@@ -73,7 +73,7 @@ public abstract class DesireUpdater<A extends IntentionNodeNotTopLevel.WithComma
      * @param forNode
      */
     protected abstract void updateDesires(Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason, K forNode);
+                                          Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason, K forNode);
 
     void addDesireReasoning(E desireNode) {
         manipulatorWithReasoningCommands.addDesireNode(desireNode);

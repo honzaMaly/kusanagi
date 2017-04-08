@@ -23,15 +23,15 @@ public class GameData {
         players = getPlayers(game);
     }
 
-    private List<Player> getPlayers(Game game){
+    private List<Player> getPlayers(Game game) {
         return game.getPlayers().stream()
                 .filter(player -> !player.isNeutral())
-                .filter(player -> player.allUnitCount()>0)
+                .filter(player -> player.allUnitCount() > 0)
                 .collect(Collectors.toList());
     }
 
     //todo use decision rules from sscai, pick player who played better
-    public Optional<Player> getVictoriousPlayer(){
+    public Optional<Player> getVictoriousPlayer() {
         return Optional.empty();
     }
 

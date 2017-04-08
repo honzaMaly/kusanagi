@@ -8,6 +8,7 @@ public interface ResponseReceiverInterface<V> {
 
     /**
      * Method is called on receiver to end him response
+     *
      * @param response
      */
     void receiveResponse(V response);

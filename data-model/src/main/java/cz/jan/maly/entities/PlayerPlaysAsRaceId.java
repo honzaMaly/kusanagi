@@ -16,6 +16,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
-public class PlayerPlaysAsRaceId implements Serializable{
+public class PlayerPlaysAsRaceId implements Serializable {
     private PlayerId player;
 }

@@ -25,11 +25,11 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
 
     //FIFO
     private final List<QueuedItemInterfaceWithResponseWithCommandClassGetter> queuedItems = new ArrayList<>();
-
+    private final Game game;
+    //structures to keep durations of command execution
+    private final Map<AgentType, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
     //counter of frames
     private int countOfPassedFrames = 0;
-
-    private final Game game;
 
     GameCommandExecutor(Game game) {
         this.game = game;
@@ -39,9 +39,6 @@ public class GameCommandExecutor implements CommandManager<ActCommand<?>>, Obser
     int getCountOfPassedFrames() {
         return countOfPassedFrames;
     }
-
-    //structures to keep durations of command execution
-    private final Map<AgentType, Map<Class, Long>> lastDurationOfCommandTypeExecutionForAgentType = new HashMap<>();
 
     /**
      * Add request to internal queue

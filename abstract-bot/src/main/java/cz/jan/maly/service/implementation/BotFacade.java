@@ -5,7 +5,9 @@ import bwta.BWTA;
 import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.AgentUnit;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.game.wrappers.*;
+import cz.jan.maly.model.game.wrappers.APlayer;
+import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
+import cz.jan.maly.model.game.wrappers.WrapperTypeFactory;
 import cz.jan.maly.service.AgentUnitHandler;
 import cz.jan.maly.service.LocationInitializer;
 import cz.jan.maly.service.MASFacade;
@@ -29,41 +31,31 @@ public class BotFacade extends DefaultBWListener {
     //TODO !!!THIS IS HACK DO NOT USE INSIDE OTHER COMMAND INTERACTING WITH GAME!!!
     //class to handle additional commands with observations requests
     public static AdditionalCommandToObserveGameProcessor ADDITIONAL_OBSERVATIONS_PROCESSOR;
-
-    //keep track of agent units
-    private final Map<Integer, AgentUnit> agentsWithGameRepresentation = new HashMap<>();
-
-    //facade for MAS
-    private MASFacade masFacade;
-
     @Setter
     @Getter
     private static int gameDefaultSpeed = 20;
-
     @Setter
     @Getter
     private static long maxFrameExecutionTime = 30;
-
     @Setter
     @Getter
     private static long refreshInfoAboutOwnUnitAfterFrames = 2;
-
     @Setter
     @Getter
     private static long refreshInfoAboutEnemyUnitAfterFrames = 4;
-
     @Setter
     @Getter
     private static long refreshInfoAboutResourceUnitAfterFrames = 20;
-
-    //executor of game commands
-    private GameCommandExecutor gameCommandExecutor;
-
+    //keep track of agent units
+    private final Map<Integer, AgentUnit> agentsWithGameRepresentation = new HashMap<>();
     //fields provided by user
     private final AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy;
     private final PlayerInitializer playerInitializer;
     private final LocationInitializer locationInitializer;
-
+    //facade for MAS
+    private MASFacade masFacade;
+    //executor of game commands
+    private GameCommandExecutor gameCommandExecutor;
     //this is created with new game
     private AgentUnitHandler agentUnitFactory;
 

@@ -39,6 +39,13 @@ public class APosition {
 
     // =========================================================
 
+    static Optional<APosition> creteOrEmpty(Position position) {
+        if (position == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new APosition(position));
+    }
+
     /**
      * Returns distance from one position to other in build tiles. One build tile equals to 32 pixels. Usage
      * of build tiles instead of pixels is preferable, because it's easier to imagine distances if one knows
@@ -76,13 +83,6 @@ public class APosition {
      */
     public APosition translate(int pixelDX, int pixelDY) {
         return new APosition(getX() + pixelDX, getY() + pixelDY);
-    }
-
-    static Optional<APosition> creteOrEmpty(Position position) {
-        if (position == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new APosition(position));
     }
 
 }

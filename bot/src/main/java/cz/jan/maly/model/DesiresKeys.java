@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 import static cz.jan.maly.model.BasicFactsKeys.IS_BASE_LOCATION;
 import static cz.jan.maly.model.BasicFactsKeys.MINERAL;
+import static cz.jan.maly.model.FactsKeys.HAS_HATCHERY;
 import static cz.jan.maly.model.FactsKeys.MINERAL_TO_MINE;
 
 /**
@@ -27,6 +28,6 @@ public class DesiresKeys {
 
     public static final DesireKey MINE_MINERALS_IN_BASE = new DesireKey("MINE_MINERALS_IN_BASE",
             new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE_LOCATION})),
-            new HashSet<>(Arrays.asList(new FactKey<?>[]{MINERAL})));
+            new HashSet<>(Arrays.asList(new FactKey<?>[]{MINERAL, HAS_HATCHERY})));
 
 }

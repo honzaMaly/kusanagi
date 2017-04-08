@@ -42,272 +42,147 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
     private final int width;
 
     private final List<UpgradeType> upgrades;
-
-    public List<AUpgradeTypeWrapper> getUpgrades() {
-        return upgrades.stream()
-                .map(WrapperTypeFactory::createFrom)
-                .collect(Collectors.toList());
-    }
-
     @Getter
     private final int gasPrice;
-
     @Getter
     private final int height;
-
     @Getter
     private final boolean isWorker;
-
     @Getter
     private final double topSpeed;
-
     @Getter
     private final boolean isFlyer;
-
     @Getter
     private final Race race;
-
     @Getter
     private final boolean isBeacon;
-
     private final Map<UnitType, Integer> requiredUnits;
-
-    public Map<AUnitTypeWrapper, Integer> getRequiredUnits() {
-        return requiredUnits.entrySet().stream()
-                .collect(Collectors.toMap(entry -> WrapperTypeFactory.createFrom(entry.getKey()), Map.Entry::getValue));
-    }
-
     private final TechType cloakingTech;
-
-    public ATechTypeWrapper getCloakingTech() {
-        return WrapperTypeFactory.createFrom(cloakingTech);
-    }
-
     private final List<TechType> abilities;
-
-    public List<ATechTypeWrapper> getAbilities() {
-        return abilities.stream()
-                .map(WrapperTypeFactory::createFrom)
-                .collect(Collectors.toList());
-    }
-
     private final TechType requiredTech;
-
-    public ATechTypeWrapper getRequiredTech() {
-        return WrapperTypeFactory.createFrom(requiredTech);
-    }
-
     private final UpgradeType armorUpgrade;
-
-    public AUpgradeTypeWrapper getArmorUpgrade() {
-        return WrapperTypeFactory.createFrom(armorUpgrade);
-    }
-
     @Getter
     private final int seekRange;
-
     @Getter
     private final int supplyRequired;
-
     @Getter
     private final int spaceRequired;
-
     @Getter
     private final int dimensionDown;
-
     @Getter
     private final int destroyScore;
-
     @Getter
     private final int tileHeight;
-
     private final WeaponType groundWeapon;
-
-    public AWeaponTypeWrapper getGroundWeapon() {
-        return WrapperTypeFactory.createFrom(groundWeapon);
-    }
-
     @Getter
     private final int maxShields;
-
     @Getter
     private final int dimensionUp;
-
     @Getter
     private final int sightRange;
-
     private final WeaponType airWeapon;
-
-    public AWeaponTypeWrapper getAirWeapon() {
-        return WrapperTypeFactory.createFrom(airWeapon);
-    }
-
     @Getter
     private final int maxAirHits;
-
     @Getter
     private final int acceleration;
-
     @Getter
     private final int turnRadius;
-
     @Getter
     private final boolean canProduce;
-
     @Getter
     private final int haltDistance;
-
     @Getter
     private final boolean regeneratesHP;
-
     @Getter
     private final int dimensionRight;
-
     @Getter
     private final int tileWidth;
-
     @Getter
     private final int spaceProvided;
-
     @Getter
     private final int maxGroundHits;
-
     @Getter
     private final boolean isSpellcaster;
-
     @Getter
     private final int dimensionLeft;
-
     @Getter
     private final boolean isInvincible;
-
     @Getter
     private final int buildTime;
-
     @Getter
     private final boolean canAttack;
-
     @Getter
     private final boolean isOrganic;
-
     @Getter
     private final int maxEnergy;
-
     @Getter
     private final int supplyProvided;
-
     @Getter
     private final int maxHitPoints;
-
     @Getter
     private final int buildScore;
-
     @Getter
     private final boolean hasPermanentCloak;
-
     @Getter
     private final boolean isSpecialBuilding;
-
     @Getter
     private final boolean isResourceContainer;
-
     @Getter
     private final boolean isTwoUnitsInOneEgg;
-
     @Getter
     private final boolean requiresPsi;
-
     @Getter
     private final boolean isMineralField;
-
     @Getter
     private final boolean canBuildAddon;
-
     @Getter
     private final boolean requiresCreep;
-
     @Getter
     private final boolean isRefinery;
-
     @Getter
     private final boolean isBurrowable;
-
     @Getter
     private final boolean producesCreep;
-
     @Getter
     private final boolean isFlyingBuilding;
-
     @Getter
     private final boolean isPowerup;
-
     @Getter
     private final boolean isFlagBeacon;
-
     @Getter
     private final boolean isResourceDepot;
-
     @Getter
     private final boolean isCloakable;
-
     @Getter
     private final boolean isBuilding;
-
     @Getter
     private final boolean isNeutral;
-
     @Getter
     private final boolean isDetector;
-
     @Getter
     private final boolean producesLarva;
-
     private final List<TechType> researchesWhat;
-
-    public List<ATechTypeWrapper> getResearchesWhat() {
-        return researchesWhat.stream()
-                .map(WrapperTypeFactory::createFrom)
-                .collect(Collectors.toList());
-    }
-
     @Getter
     private final boolean isCritter;
-
     private final List<UpgradeType> upgradesWhat;
-
-    public List<AUpgradeTypeWrapper> getUpgradesWhat() {
-        return upgradesWhat.stream()
-                .map(WrapperTypeFactory::createFrom)
-                .collect(Collectors.toList());
-    }
-
     @Getter
     private final boolean isMelee;
-
     @Getter
     private final int mineralPrice;
-
     @Getter
     private final boolean isMilitaryBuilding;
-
     @Getter
     private final boolean isMilitaryBuildingAntiAir;
-
     @Getter
     private final boolean isMilitaryBuildingAntiGround;
-
     @Getter
     private final boolean isSupplyUnit;
-
     @Getter
     private final boolean isGasBuilding;
-
     @Getter
     private final boolean isBase;
-
     @Getter
     private final boolean repairableMechanically;
-
     @Getter
     private final boolean healable;
 
@@ -422,6 +297,55 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         // Repair & Heal
         this.repairableMechanically = isBuilding() || isMechanical();
         this.healable = isOrganic() || isWorker();
+    }
+
+    public List<AUpgradeTypeWrapper> getUpgrades() {
+        return upgrades.stream()
+                .map(WrapperTypeFactory::createFrom)
+                .collect(Collectors.toList());
+    }
+
+    public Map<AUnitTypeWrapper, Integer> getRequiredUnits() {
+        return requiredUnits.entrySet().stream()
+                .collect(Collectors.toMap(entry -> WrapperTypeFactory.createFrom(entry.getKey()), Map.Entry::getValue));
+    }
+
+    public ATechTypeWrapper getCloakingTech() {
+        return WrapperTypeFactory.createFrom(cloakingTech);
+    }
+
+    public List<ATechTypeWrapper> getAbilities() {
+        return abilities.stream()
+                .map(WrapperTypeFactory::createFrom)
+                .collect(Collectors.toList());
+    }
+
+    public ATechTypeWrapper getRequiredTech() {
+        return WrapperTypeFactory.createFrom(requiredTech);
+    }
+
+    public AUpgradeTypeWrapper getArmorUpgrade() {
+        return WrapperTypeFactory.createFrom(armorUpgrade);
+    }
+
+    public AWeaponTypeWrapper getGroundWeapon() {
+        return WrapperTypeFactory.createFrom(groundWeapon);
+    }
+
+    public AWeaponTypeWrapper getAirWeapon() {
+        return WrapperTypeFactory.createFrom(airWeapon);
+    }
+
+    public List<ATechTypeWrapper> getResearchesWhat() {
+        return researchesWhat.stream()
+                .map(WrapperTypeFactory::createFrom)
+                .collect(Collectors.toList());
+    }
+
+    public List<AUpgradeTypeWrapper> getUpgradesWhat() {
+        return upgradesWhat.stream()
+                .map(WrapperTypeFactory::createFrom)
+                .collect(Collectors.toList());
     }
 
     /**

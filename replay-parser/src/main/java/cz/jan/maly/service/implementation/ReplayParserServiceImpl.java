@@ -109,7 +109,7 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
         }
 
         @Override
-        public void onEnd(boolean b){
+        public void onEnd(boolean b) {
             log.info("Game has finished. Processing data...");
 
             //todo collect all data and save them

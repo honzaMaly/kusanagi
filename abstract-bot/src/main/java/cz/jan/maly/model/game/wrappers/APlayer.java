@@ -139,15 +139,6 @@ public class APlayer {
     }
 
     /**
-     * Method to refresh fields in wrapper for unit
-     */
-    public APlayer makeObservationOfEnvironment() {
-        APlayer aPlayer = new APlayer(player);
-        instances.put(player.getID(), aPlayer);
-        return aPlayer;
-    }
-
-    /**
      * Wrapped player is returned
      *
      * @param player
@@ -164,6 +155,15 @@ public class APlayer {
             instances.put(player.getID(), aPlayer);
             return Optional.of(aPlayer);
         }
+    }
+
+    /**
+     * Method to refresh fields in wrapper for unit
+     */
+    public APlayer makeObservationOfEnvironment() {
+        APlayer aPlayer = new APlayer(player);
+        instances.put(player.getID(), aPlayer);
+        return aPlayer;
     }
 
 }

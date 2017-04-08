@@ -10,11 +10,9 @@ import lombok.Getter;
  */
 public class Fact<V> {
 
-    private V content;
-
     @Getter
     private final FactKey<V> type;
-
+    private V content;
     private int decay = 0;
 
     public Fact(V content, FactKey<V> type) {

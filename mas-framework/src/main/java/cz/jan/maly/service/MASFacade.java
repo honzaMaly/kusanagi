@@ -21,7 +21,9 @@ public class MASFacade implements TerminableService {
 
     //for cloning data
     public static final Cloner CLONER = new Cloner();
-
+    //instance of reasoning manager, it can be shared by agents as it is stateless
+    public static final CommandManager<ReasoningCommand> REASONING_EXECUTOR = new CommandManager<ReasoningCommand>() {
+    };
     //framework timing configuration...
     @Setter
     @Getter
@@ -31,11 +33,6 @@ public class MASFacade implements TerminableService {
     @Setter
     @Getter
     public static int lengthOfIntervalBeforeUpdatingRegisterWithMemory = 100;
-
-    //instance of reasoning manager, it can be shared by agents as it is stateless
-    public static final CommandManager<ReasoningCommand> REASONING_EXECUTOR = new CommandManager<ReasoningCommand>() {
-    };
-
     private final InternalClockObtainingStrategy clockObtainingStrategy;
 
     //register of agents - to assign ids to them

@@ -13,6 +13,13 @@ import lombok.AllArgsConstructor;
 public abstract class BWAPIPainter {
     private final Game bwapi;
 
+    /**
+     * Returns a <b>new</b> Position that represents the effect of moving this position by [deltaX, deltaY].
+     */
+    public static Position translate(Position position, int deltaPixelX, int deltaPixelY) {
+        return new Position(position.getX() + deltaPixelX, position.getY() + deltaPixelY);
+    }
+
     protected void paintMessage(String text, Position position) {
         bwapi.drawTextScreen(position, text);
     }
@@ -41,26 +48,19 @@ public abstract class BWAPIPainter {
 
         //split text to multiple lines if it is too long
         int lines = 1;
-        if (text.length()>=25){
+        if (text.length() >= 25) {
             String[] words = text.split(" ");
             text = "";
-            for (String s : words){
-                if (text.length()>=25){
+            for (String s : words) {
+                if (text.length() >= 25) {
                     text = text + "\n";
                     lines++;
                 }
-                text = text +s;
+                text = text + s;
             }
         }
 
-        bwapi.drawTextMap(translate(position, (int) (-2.7 * Math.min(text.length(), 25)), -2*lines), text);
-    }
-
-    /**
-     * Returns a <b>new</b> Position that represents the effect of moving this position by [deltaX, deltaY].
-     */
-    public static Position translate(Position position, int deltaPixelX, int deltaPixelY) {
-        return new Position(position.getX() + deltaPixelX, position.getY() + deltaPixelY);
+        bwapi.drawTextMap(translate(position, (int) (-2.7 * Math.min(text.length(), 25)), -2 * lines), text);
     }
 
 }

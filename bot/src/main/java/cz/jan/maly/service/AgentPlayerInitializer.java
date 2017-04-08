@@ -12,11 +12,6 @@ import cz.jan.maly.service.implementation.BotFacade;
  */
 public class AgentPlayerInitializer implements PlayerInitializer {
 
-    @Override
-    public AgentPlayer createAgentForPlayer(APlayer player, BotFacade botFacade, Race enemyInitialRace) {
-        return new AgentPlayer(PLAYER, botFacade, player, enemyInitialRace);
-    }
-
     public static final AgentTypePlayer PLAYER = AgentTypePlayer.builder()
             .name("PLAYER")
             .initializationStrategy(type -> {
@@ -25,4 +20,9 @@ public class AgentPlayerInitializer implements PlayerInitializer {
 
             })
             .build();
+
+    @Override
+    public AgentPlayer createAgentForPlayer(APlayer player, BotFacade botFacade, Race enemyInitialRace) {
+        return new AgentPlayer(PLAYER, botFacade, player, enemyInitialRace);
+    }
 }

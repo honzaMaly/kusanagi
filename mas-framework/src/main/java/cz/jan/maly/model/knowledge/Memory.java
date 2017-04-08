@@ -20,15 +20,13 @@ import java.util.stream.Collectors;
 public abstract class Memory<V extends PlanningTreeInterface> implements FactContainerInterface, PlanningTreeInterface {
     final Map<FactKey<?>, Fact<?>> factParameterMap = new HashMap<>();
     final Map<FactKey<?>, FactSet<?>> factSetParameterMap = new HashMap<>();
-    Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes = new HashMap<>();
-    Map<Integer, ReadOnlyMemory> sharedKnowledgeByOtherAgents = new HashMap<>();
     final V tree;
-
     @Getter
     final AgentType agentType;
-
     @Getter
     final int agentId;
+    Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes = new HashMap<>();
+    Map<Integer, ReadOnlyMemory> sharedKnowledgeByOtherAgents = new HashMap<>();
 
     Memory(V tree, AgentType agentType, int agentId) {
         this.tree = tree;
@@ -55,6 +53,14 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         factSetParameterMap.forEach((factKey, set) -> this.factSetParameterMap.put(factKey, set.copyFact()));
         sharedKnowledgeByOtherAgentsTypes.forEach((agentT, readOnlyMemories) -> this.sharedKnowledgeByOtherAgentsTypes.put(agentT, readOnlyMemories.stream().collect(Collectors.toSet())));
         sharedKnowledgeByOtherAgents.forEach((integer, readOnlyMemory) -> this.sharedKnowledgeByOtherAgents.put(integer, readOnlyMemory));
+    }
+
+    public boolean isFactKeyForValueInMemory(FactKey<?> factKey) {
+        return factParameterMap.containsKey(factKey);
+    }
+
+    public boolean isFactKeyForSetInMemory(FactKey<?> factKey) {
+        return factSetParameterMap.containsKey(factKey);
     }
 
     public Optional<ReadOnlyMemory> getReadOnlyMemoryForAgent(int agentId) {

@@ -28,46 +28,20 @@ import java.util.stream.Collectors;
 @Service
 public class FileReplayParserServiceImpl implements FileReplayParserService {
 
+    private final List<Replay> replaysToParse = new ArrayList<>();
+    private final Pattern lineWithMatchPattern = Pattern.compile("map\\s=\\s[\\w\\\\\\*\\.\\?-]+");
     @Value(value = "${paths-to-replays.replays-path}")
     private String replaysPath;
-
     @Value("${paths-to-replays.bots}")
     private String botsFolder;
-
     @Value("${paths-to-replays.players}")
     private String playersFolder;
-
     @Value("${path-bwapi-ini.path}")
     private String bwapiIniPath;
-
     @Value("${path-starcraft.path}")
     private String starcraftPath;
-
-    private final List<Replay> replaysToParse = new ArrayList<>();
-
     private File bwapiIni;
-
     private File starcraftFolder;
-
-    @PostConstruct
-    public void intConfigurationFileAndGameDirectoryFields() throws Exception {
-        bwapiIni = new File(bwapiIniPath);
-        starcraftFolder = new File(starcraftPath);
-    }
-
-    private final Pattern lineWithMatchPattern = Pattern.compile("map\\s=\\s[\\w\\\\\\*\\.\\?-]+");
-
-    @Override
-    public void loadReplaysToParse() {
-        addReplaysToMap(replaysPath + "\\" + playersFolder, false);
-        addReplaysToMap(replaysPath + "\\" + botsFolder, true);
-        log.info("Replays to be parsed: " + replaysToParse.size());
-    }
-
-    private void addReplaysToMap(String pathToReplays, boolean isForBots) {
-        List<File> allReplays = getAllFilesInFolder(pathToReplays);
-        allReplays.forEach(file -> replaysToParse.add(new Replay(file, isForBots)));
-    }
 
     private static List<File> getAllFilesInFolder(String directoryName) {
         File directory = new File(directoryName);
@@ -86,6 +60,24 @@ public class FileReplayParserServiceImpl implements FileReplayParserService {
         return files;
     }
 
+    @PostConstruct
+    public void intConfigurationFileAndGameDirectoryFields() throws Exception {
+        bwapiIni = new File(bwapiIniPath);
+        starcraftFolder = new File(starcraftPath);
+    }
+
+    @Override
+    public void loadReplaysToParse() {
+        addReplaysToMap(replaysPath + "\\" + playersFolder, false);
+        addReplaysToMap(replaysPath + "\\" + botsFolder, true);
+        log.info("Replays to be parsed: " + replaysToParse.size());
+    }
+
+    private void addReplaysToMap(String pathToReplays, boolean isForBots) {
+        List<File> allReplays = getAllFilesInFolder(pathToReplays);
+        allReplays.forEach(file -> replaysToParse.add(new Replay(file, isForBots)));
+    }
+
     @Override
     public Optional<Replay> setNextReplayToPlay() throws NoSuchFileException {
         if (replaysToParse.isEmpty()) {
@@ -94,7 +86,7 @@ public class FileReplayParserServiceImpl implements FileReplayParserService {
             Replay replayToParseNext = replaysToParse.remove(0);
             try {
                 setupReplayInConfigurationFile(replayToParseNext.getFile());
-                log.info("New replay was setup in configuration file. Replay file set to: "+replayToParseNext.getFile());
+                log.info("New replay was setup in configuration file. Replay file set to: " + replayToParseNext.getFile());
             } catch (IOException e) {
                 log.error("Could not setup replay. " + e);
                 return Optional.empty();

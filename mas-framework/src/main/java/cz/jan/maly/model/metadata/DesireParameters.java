@@ -46,7 +46,7 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
         if (fact != null) {
             return Optional.ofNullable(fact.getContent());
         }
-        MyLogger.getLogger().warning("Given key is not present!");
+        MyLogger.getLogger().warning(factKey.getName() + " is not present in parameters.");
         return Optional.empty();
     }
 
@@ -55,7 +55,7 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
         if (factSet != null) {
             return Optional.ofNullable((S) factSet.getContent());
         }
-        MyLogger.getLogger().warning("Given key is not present!");
+        MyLogger.getLogger().warning(factKey.getName() + " is not present in parameters.");
         return Optional.empty();
     }
 

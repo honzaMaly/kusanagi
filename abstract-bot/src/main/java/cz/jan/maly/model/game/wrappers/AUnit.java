@@ -20,178 +20,115 @@ public class AUnit {
             .collect(Collectors.toSet());
 
     final Unit unit;
-
+    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
+    final List<Integer> enemyUnitsInWeaponRangeIds;
+    final List<Unit> friendlyUnitsInRadiusOfSight = new ArrayList<>();
+    final List<Integer> friendlyUnitsInRadiusOfSightIds;
+    final List<Unit> resourceUnitsInRadiusOfSight = new ArrayList<>();
+    final List<Integer> resourceUnitsInRadiusOfSightIds;
+    final List<Unit> enemyUnitsInRadiusOfSight = new ArrayList<>();
+    final List<Integer> enemyUnitsInRadiusOfSightIds;
     @Getter
     private final int unitId;
-
     private final UnitType type;
-
-    public AUnitTypeWrapper getType() {
-        return WrapperTypeFactory.createFrom(type);
-    }
-
     @Getter
     private final boolean exists;
-
     @Getter
     private final APosition position;
-
     @Getter
     private final boolean isFlying;
-
     @Getter
     private final boolean isSieged;
-
     @Getter
     private final boolean isStuck;
-
     @Getter
     private final boolean isLifted;
-
     @Getter
     private final boolean isMoving;
-
     @Getter
     private final int shields;
-
     @Getter
     private final double velocityY;
-
     @Getter
     private final int hitPoints;
-
     @Getter
     private final boolean isAccelerating;
-
     @Getter
     private final double velocityX;
-
     @Getter
     private final boolean isIdle;
-
     @Getter
     private final boolean isBeingGathered;
-
     @Getter
     private final boolean isBraking;
-
     @Getter
     private final boolean isEnsnared;
-
     @Getter
     private final boolean isLockedDown;
-
     @Getter
     private final boolean isParasited;
-
     @Getter
     private final boolean isIrradiated;
-
     @Getter
     private final boolean isBurrowed;
-
     @Getter
     private final boolean isAttacking;
-
     @Getter
     private final boolean isCloaked;
-
     @Getter
     private final boolean isConstructing;
-
     @Getter
     private final boolean isCarryingGas;
-
     @Getter
     private final boolean isInvincible;
-
     @Getter
     private final boolean isDetected;
-
     @Getter
     private final boolean isAttackFrame;
-
     @Getter
     private final boolean isGatheringGas;
-
     @Getter
     private final boolean isMaelstrommed;
-
     @Getter
     private final boolean isBeingHealed;
-
     @Getter
     private final boolean isMorphing;
-
     @Getter
     private final boolean isUnderDarkSwarm;
-
     @Getter
     private final boolean isTargetable;
-
     @Getter
     private final boolean isStasised;
-
     @Getter
     private final boolean isRepairing;
-
     @Getter
     private final boolean isPlagued;
-
     @Getter
     private final boolean isStimmed;
-
     @Getter
     private final boolean isUnderStorm;
-
     @Getter
     private final boolean isVisible;
-
     @Getter
     private final boolean isPowered;
-
     @Getter
     private final boolean isStartingAttack;
-
     @Getter
     private final boolean isUnderAttack;
-
     @Getter
     private final boolean isBeingConstructed;
-
     @Getter
     private final boolean isGatheringMinerals;
-
     @Getter
     private final boolean isCarryingMinerals;
-
     @Getter
     private final Optional<APlayer> player;
-
     @Getter
     private final Optional<bwta.Region> unitRegion;
-
     @Getter
     private final Optional<bwta.BaseLocation> nearestBaseLocation;
-
-    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
-
-    final List<Integer> enemyUnitsInWeaponRangeIds;
-
-    final List<Unit> friendlyUnitsInRadiusOfSight = new ArrayList<>();
-
-    final List<Integer> friendlyUnitsInRadiusOfSightIds;
-
-    final List<Unit> resourceUnitsInRadiusOfSight = new ArrayList<>();
-
-    final List<Integer> resourceUnitsInRadiusOfSightIds;
-
-    final List<Unit> enemyUnitsInRadiusOfSight = new ArrayList<>();
-
     @Getter
     private final int frameCount;
-
-    final List<Integer> enemyUnitsInRadiusOfSightIds;
 
     AUnit(Unit unit, boolean isCreatingUnit, int frameCount) {
         this.unit = unit;
@@ -300,6 +237,10 @@ public class AUnit {
         unitId = unit.getID();
     }
 
+    public AUnitTypeWrapper getType() {
+        return WrapperTypeFactory.createFrom(type);
+    }
+
     private void addEnemyUnitsInWeaponRange(List<Unit> unitsInWeaponRange) {
         for (Unit unitInWeaponRange : unitsInWeaponRange) {
             if (unitInWeaponRange.getPlayer().isEnemy(unit.getPlayer())) {
@@ -320,8 +261,8 @@ public class AUnit {
         return getHitPoints() < getType().getMaxHitPoints();
     }
 
-    public boolean isDead() {
-        return UnitWrapperFactory.isDead(unitId);
+    public boolean isAlive() {
+        return !UnitWrapperFactory.isDead(unitId);
     }
 
     /**

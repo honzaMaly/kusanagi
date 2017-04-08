@@ -15,23 +15,23 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Created by Jan on 30-Oct-16.
  */
 @SpringBootApplication(scanBasePackages = {
-        "cz.jan.maly","cz.jan.maly.service"
+        "cz.jan.maly", "cz.jan.maly.service"
 })
 @EnableScheduling
 @EntityScan(basePackages = {"cz.jan.maly.entities"})
 @EnableJpaRepositories(basePackages = {"cz.jan.maly.repositories"})
 public class ParserApplication extends SpringBootServletInitializer implements CommandLineRunner {
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ParserApplication.class);
-    }
-
     @Autowired
     private ReplayParserService replayParserService;
 
     public static void main(String[] args) {
         SpringApplication.run(ParserApplication.class, args);
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(ParserApplication.class);
     }
 
     @Override

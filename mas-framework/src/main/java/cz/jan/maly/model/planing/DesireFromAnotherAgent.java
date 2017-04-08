@@ -13,7 +13,7 @@ import java.util.Set;
  * Template for agent's desires transformation. Desire originated from another agent is transformed
  * Created by Jan on 16-Feb-17.
  */
-public abstract class DesireFromAnotherAgent<T extends Intention<? extends DesireFromAnotherAgent<T>>> extends InternalDesire<T> {
+public abstract class DesireFromAnotherAgent<T extends Intention<? extends DesireFromAnotherAgent<?>>> extends InternalDesire<T> {
 
     @Getter
     private final SharedDesireForAgents desireForAgents;
@@ -35,8 +35,10 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
         private final Set<DesireKey> desiresWithIntentionToAct;
         private final Set<DesireKey> desiresWithIntentionToReason;
 
-        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, Commitment commitment,
-                                     RemoveCommitment removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+        public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory,
+                                     Commitment commitment,
+                                     RemoveCommitment removeCommitment,
+                                     Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
                                      Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, Set<DesireKey> desiresForOthers,
                                      Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
                                      Set<DesireKey> desiresWithIntentionToReason) {
@@ -61,15 +63,16 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     public static class WithIntentionWithPlan extends DesireFromAnotherAgent<IntentionCommand.FromAnotherAgent> {
         private final CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy;
 
-        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, Commitment commitment,
-                                     RemoveCommitment removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+        public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory,
+                                     Commitment commitment,
+                                     RemoveCommitment removeCommitment,
+                                     Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
                                      Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                                      CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy) {
             super(desireOriginatedFrom, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, false);
             this.commandCreationStrategy = commandCreationStrategy;
         }
-
 
         @Override
         public IntentionCommand.FromAnotherAgent formIntention(Agent agent) {

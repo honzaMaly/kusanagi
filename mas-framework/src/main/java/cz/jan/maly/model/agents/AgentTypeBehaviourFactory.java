@@ -1,6 +1,7 @@
 package cz.jan.maly.model.agents;
 
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.DesireForOthers;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.OwnDesire;
@@ -29,7 +30,8 @@ interface AgentTypeBehaviourFactory {
      * @param parentDesireKey
      * @return
      */
-    OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey);
+    OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey,
+                                                                       DesireParameters parentsDesireParameters);
 
     /**
      * Forms OwnDesire with reasoning command
@@ -46,7 +48,8 @@ interface AgentTypeBehaviourFactory {
      * @param parentDesireKey
      * @return
      */
-    OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey, DesireKey parentDesireKey);
+    OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey, DesireKey parentDesireKey,
+                                                          DesireParameters parentsDesireParameters);
 
     /**
      * Forms OwnDesire with reasoning command
@@ -63,7 +66,8 @@ interface AgentTypeBehaviourFactory {
      * @param parentDesireKey
      * @return
      */
-    OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey, DesireKey parentDesireKey);
+    OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey, DesireKey parentDesireKey,
+                                                    DesireParameters parentsDesireParameters);
 
     /**
      * Forms DesireForOthers
@@ -80,7 +84,8 @@ interface AgentTypeBehaviourFactory {
      * @param parentDesireKey
      * @return
      */
-    DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey);
+    DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey,
+                                        DesireParameters parentsDesireParameters);
 
     /**
      * Forms DesireFromAnotherAgent WithAbstractIntention

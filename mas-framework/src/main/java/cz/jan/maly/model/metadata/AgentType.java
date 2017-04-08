@@ -13,6 +13,7 @@ import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,37 +24,28 @@ import java.util.Set;
  * Created by Jan on 15-Feb-17.
  */
 public class AgentType extends Key {
+    private final OwnDesireWithAbstractIntentionFormulation.Stacked
+            ownDesireWithAbstractIntentionFormulation = new OwnDesireWithAbstractIntentionFormulation.Stacked();
+    private final OwnDesireWithIntentionWithActingCommandFormulation.Stacked
+            ownDesireWithIntentionWithActingCommandFormulation = new OwnDesireWithIntentionWithActingCommandFormulation.Stacked();
+    private final OwnDesireWithIntentionWithReasoningCommandFormulation.Stacked
+            ownDesireWithIntentionWithReasoningCommandFormulation = new OwnDesireWithIntentionWithReasoningCommandFormulation.Stacked();
+    private final AnotherAgentsDesireWithAbstractIntentionFormulation
+            anotherAgentsDesireWithAbstractIntentionFormulation = new AnotherAgentsDesireWithAbstractIntentionFormulation();
+    private final AnotherAgentsDesireWithIntentionWithActingCommandFormulation
+            anotherAgentsDesireWithIntentionWithActingCommandFormulation = new AnotherAgentsDesireWithIntentionWithActingCommandFormulation();
+    private final OwnDesireWithSharedDesireFormulation.Stacked
+            ownDesireWithSharedDesireFormulation = new OwnDesireWithSharedDesireFormulation.Stacked();
     //initial desires for this agent type
     private Set<DesireKey> desiresForOthers;
     private Set<DesireKey> desiresWithAbstractIntention;
     private Set<DesireKey> desiresWithIntentionToAct;
     private Set<DesireKey> desiresWithIntentionToReason;
-
     private Set<DesireKey> supportedDesiresOfOtherAgents = new HashSet<>();
-
     @Getter
     private Set<FactKey<?>> usingTypesForFacts;
     @Getter
     private Set<FactKey<?>> usingTypesForFactSets;
-
-    private final OwnDesireWithAbstractIntentionFormulation.Stacked
-            ownDesireWithAbstractIntentionFormulation = new OwnDesireWithAbstractIntentionFormulation.Stacked();
-
-    private final OwnDesireWithIntentionWithActingCommandFormulation.Stacked
-            ownDesireWithIntentionWithActingCommandFormulation = new OwnDesireWithIntentionWithActingCommandFormulation.Stacked();
-
-    private final OwnDesireWithIntentionWithReasoningCommandFormulation.Stacked
-            ownDesireWithIntentionWithReasoningCommandFormulation = new OwnDesireWithIntentionWithReasoningCommandFormulation.Stacked();
-
-    private final AnotherAgentsDesireWithAbstractIntentionFormulation
-            anotherAgentsDesireWithAbstractIntentionFormulation = new AnotherAgentsDesireWithAbstractIntentionFormulation();
-
-    private final AnotherAgentsDesireWithIntentionWithActingCommandFormulation
-            anotherAgentsDesireWithIntentionWithActingCommandFormulation = new AnotherAgentsDesireWithIntentionWithActingCommandFormulation();
-
-    private final OwnDesireWithSharedDesireFormulation.Stacked
-            ownDesireWithSharedDesireFormulation = new OwnDesireWithSharedDesireFormulation.Stacked();
-
     private boolean isConfigurationInitialized = false;
 
     /**
@@ -105,16 +97,6 @@ public class AgentType extends Key {
         checkSupport(desiresWithIntentionToAct, ownDesireWithIntentionWithActingCommandFormulation);
     }
 
-    //builder with default fields
-    public static class AgentTypeBuilder {
-        private Set<DesireKey> desiresForOthers = new HashSet<>();
-        private Set<DesireKey> desiresWithAbstractIntention = new HashSet<>();
-        private Set<DesireKey> desiresWithIntentionToAct = new HashSet<>();
-        private Set<DesireKey> desiresWithIntentionToReason = new HashSet<>();
-        private Set<FactKey<?>> usingTypesForFacts = new HashSet<>();
-        private Set<FactKey<?>> usingTypesForFactSets = new HashSet<>();
-    }
-
     /**
      * Check if instance of DesireFormulation supports given keys
      *
@@ -124,6 +106,27 @@ public class AgentType extends Key {
     private void checkSupport(Set<DesireKey> keysToSupport, DesireFormulation desireFormulation) {
         Optional<DesireKey> first = keysToSupport.stream()
                 .filter(key -> !desireFormulation.supportsDesireType(key))
+                .findAny();
+        if (first.isPresent()) {
+            MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
+            throw new IllegalArgumentException(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
+        }
+    }
+
+    /**
+     * Check if instance of DesireFormulation supports given keys
+     *
+     * @param keysToSupport
+     * @param desireFormulation
+     */
+    private <T extends DesireFormulation & OwnInternalDesireFormulationStacked<?>> void checkSupport(Map<DesireKey, Set<DesireKey>> keysToSupport, T desireFormulation) {
+        Optional<DesireKey> first = keysToSupport.entrySet()
+                .stream()
+                .map(entry -> entry.getValue().stream()
+                        .filter(value -> !desireFormulation.supportsDesireType(entry.getKey(), value))
+                        .findFirst())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .findAny();
         if (first.isPresent()) {
             MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
@@ -161,8 +164,8 @@ public class AgentType extends Key {
      * @param memory
      * @return
      */
-    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
-        Optional<OwnDesire.WithAbstractIntention> withAbstractIntention = ownDesireWithAbstractIntentionFormulation.formDesire(parentKey, key, memory);
+    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey parentKey, DesireKey key, WorkingMemory memory, DesireParameters parentsDesireParameters) {
+        Optional<OwnDesire.WithAbstractIntention> withAbstractIntention = ownDesireWithAbstractIntentionFormulation.formDesire(parentKey, key, memory, parentsDesireParameters);
         if (!withAbstractIntention.isPresent()) {
             MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.WithAbstractIntention instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.WithAbstractIntention instance for desire key: " + key.getName());
@@ -194,8 +197,8 @@ public class AgentType extends Key {
      * @param memory
      * @return
      */
-    public OwnDesire.Acting formOwnActingDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
-        Optional<OwnDesire.Acting> acting = ownDesireWithIntentionWithActingCommandFormulation.formDesire(parentKey, key, memory);
+    public OwnDesire.Acting formOwnActingDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory, DesireParameters parentsDesireParameters) {
+        Optional<OwnDesire.Acting> acting = ownDesireWithIntentionWithActingCommandFormulation.formDesire(parentKey, key, memory, parentsDesireParameters);
         if (!acting.isPresent()) {
             MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.Acting instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.Acting instance for desire key: " + key.getName());
@@ -227,8 +230,8 @@ public class AgentType extends Key {
      * @param memory
      * @return
      */
-    public OwnDesire.Reasoning formOwnReasoningDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
-        Optional<OwnDesire.Reasoning> reasoning = ownDesireWithIntentionWithReasoningCommandFormulation.formDesire(parentKey, key, memory);
+    public OwnDesire.Reasoning formOwnReasoningDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory, DesireParameters parentsDesireParameters) {
+        Optional<OwnDesire.Reasoning> reasoning = ownDesireWithIntentionWithReasoningCommandFormulation.formDesire(parentKey, key, memory, parentsDesireParameters);
         if (!reasoning.isPresent()) {
             MyLogger.getLogger().warning(this.getName() + " does not support creation of OwnDesire.Reasoning instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of OwnDesire.Reasoning instance for desire key: " + key.getName());
@@ -260,8 +263,8 @@ public class AgentType extends Key {
      * @param memory
      * @return
      */
-    public DesireForOthers formDesireForOthers(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
-        Optional<DesireForOthers> desireForOthers = ownDesireWithSharedDesireFormulation.formDesire(parentKey, key, memory);
+    public DesireForOthers formDesireForOthers(DesireKey parentKey, DesireKey key, WorkingMemory memory, DesireParameters parentsDesireParameters) {
+        Optional<DesireForOthers> desireForOthers = ownDesireWithSharedDesireFormulation.formDesire(parentKey, key, memory, parentsDesireParameters);
         if (!desireForOthers.isPresent()) {
             MyLogger.getLogger().warning(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
             throw new IllegalArgumentException(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
@@ -283,21 +286,6 @@ public class AgentType extends Key {
             throw new IllegalArgumentException(this.getName() + " does not support creation of DesireForOthers instance for desire key: " + key.getName());
         }
         return desireForOthers.get();
-    }
-
-    /**
-     * This contract is used to fill data structures with configuration using protected methods "addConfiguration". Method
-     * is called only one time in constructor. One should avoid adding additional configuration outside of this method
-     * as other structures to initialize agent memory are initialize only once after calling this method.
-     */
-    public interface ConfigurationInitializationStrategy {
-
-        /**
-         * Add configuration to type
-         *
-         * @param type
-         */
-        void initializeConfiguration(AgentType type);
     }
 
     /**
@@ -331,7 +319,7 @@ public class AgentType extends Key {
             MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
             throw new RuntimeException("Cannot add new configuration to initialized type.");
         }
-        ownDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(key, parent, configuration);
+        ownDesireWithAbstractIntentionFormulation.addDesireFormulationConfiguration(parent, key, configuration);
     }
 
     /**
@@ -360,7 +348,7 @@ public class AgentType extends Key {
             MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
             throw new RuntimeException("Cannot add new configuration to initialized type.");
         }
-        ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(key, parent, configuration);
+        ownDesireWithIntentionWithActingCommandFormulation.addDesireFormulationConfiguration(parent, key, configuration);
     }
 
     /**
@@ -389,7 +377,7 @@ public class AgentType extends Key {
             MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
             throw new RuntimeException("Cannot add new configuration to initialized type.");
         }
-        ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(key, parent, configuration);
+        ownDesireWithIntentionWithReasoningCommandFormulation.addDesireFormulationConfiguration(parent, key, configuration);
     }
 
     /**
@@ -432,7 +420,7 @@ public class AgentType extends Key {
             MyLogger.getLogger().warning("Cannot add new configuration to initialized type.");
             throw new RuntimeException("Cannot add new configuration to initialized type.");
         }
-        ownDesireWithSharedDesireFormulation.addDesireFormulationConfiguration(key, parent, configuration);
+        ownDesireWithSharedDesireFormulation.addDesireFormulationConfiguration(parent, key, configuration);
     }
 
     /**
@@ -473,6 +461,31 @@ public class AgentType extends Key {
 
     public Set<DesireKey> getSupportedDesiresOfOtherAgents() {
         return supportedDesiresOfOtherAgents;
+    }
+
+    /**
+     * This contract is used to fill data structures with configuration using protected methods "addConfiguration". Method
+     * is called only one time in constructor. One should avoid adding additional configuration outside of this method
+     * as other structures to initialize agent memory are initialize only once after calling this method.
+     */
+    public interface ConfigurationInitializationStrategy {
+
+        /**
+         * Add configuration to type
+         *
+         * @param type
+         */
+        void initializeConfiguration(AgentType type);
+    }
+
+    //builder with default fields
+    public static class AgentTypeBuilder {
+        private Set<DesireKey> desiresForOthers = new HashSet<>();
+        private Set<DesireKey> desiresWithAbstractIntention = new HashSet<>();
+        private Set<DesireKey> desiresWithIntentionToAct = new HashSet<>();
+        private Set<DesireKey> desiresWithIntentionToReason = new HashSet<>();
+        private Set<FactKey<?>> usingTypesForFacts = new HashSet<>();
+        private Set<FactKey<?>> usingTypesForFactSets = new HashSet<>();
     }
 
 }

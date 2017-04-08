@@ -339,16 +339,16 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
                 protected void updateDesires(Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                              Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason, FromAnotherAgent forNode) {
                     desiresForOthers.stream()
-                            .map(key -> tree.getAgent().formDesireForOthers(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formDesireForOthers(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(desireForOthers -> this.addDesireWithDesireForOthers(new DesireNodeNotTopLevel.ForOthers.TopLevelParent(forNode, desireForOthers)));
                     desiresWithIntentionToAct.stream()
-                            .map(key -> tree.getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(acting -> this.addDesireActing(new DesireNodeNotTopLevel.WithCommand.ActingAtTopLevelParent(forNode, acting)));
                     desiresWithIntentionToReason.stream()
-                            .map(key -> tree.getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(reasoning -> this.addDesireReasoning(new DesireNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent(forNode, reasoning)));
                     desiresWithAbstractIntention.stream()
-                            .map(key -> tree.getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(withAbstractIntention -> this.addDesireWithAbstractPlan(new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(forNode, withAbstractIntention)));
                 }
             };
@@ -399,16 +399,16 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
                 protected void updateDesires(Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                              Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason, Own forNode) {
                     desiresForOthers.stream()
-                            .map(key -> tree.getAgent().formDesireForOthers(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formDesireForOthers(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(desireForOthers -> this.addDesireWithDesireForOthers(new DesireNodeNotTopLevel.ForOthers.TopLevelParent(forNode, desireForOthers)));
                     desiresWithIntentionToAct.stream()
-                            .map(key -> tree.getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formOwnDesireWithActingCommand(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(acting -> this.addDesireActing(new DesireNodeNotTopLevel.WithCommand.ActingAtTopLevelParent(forNode, acting)));
                     desiresWithIntentionToReason.stream()
-                            .map(key -> tree.getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formOwnDesireWithReasoningCommand(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(reasoning -> this.addDesireReasoning(new DesireNodeNotTopLevel.WithCommand.ReasoningAtTopLevelParent(forNode, reasoning)));
                     desiresWithAbstractIntention.stream()
-                            .map(key -> tree.getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey()))
+                            .map(key -> tree.getAgent().formOwnDesireWithAbstractIntention(key, intention.getDesireKey(), intention.getParametersOfDesire()))
                             .forEach(withAbstractIntention -> this.addDesireWithAbstractPlan(new DesireNodeNotTopLevel.WithAbstractPlan.TopLevelParent(forNode, withAbstractIntention)));
                 }
             };

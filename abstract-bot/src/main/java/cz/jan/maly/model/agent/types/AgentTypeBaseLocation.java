@@ -41,25 +41,6 @@ public class AgentTypeBaseLocation extends AgentTypeMakingObservations<Game> {
     };
 
     /**
-     * Method to update base info about resources. DO NOT CALL OUTSIDE MAIN GAME THREAD!
-     *
-     * @param location
-     * @param memory
-     * @param frameCount
-     */
-    public static void updateKnowledgeAboutResources(BaseLocation location, WorkingMemory memory, int frameCount) {
-        Set<AUnit> minerals = location.getMinerals().stream()
-                .map(unit -> UnitWrapperFactory.wrapResourceUnits(unit, frameCount, false))
-                .collect(Collectors.toSet());
-        memory.updateFactSetByFacts(MINERAL, minerals);
-
-        Set<AUnit> geysers = location.getGeysers().stream()
-                .map(unit -> UnitWrapperFactory.wrapResourceUnits(unit, frameCount, false))
-                .collect(Collectors.toSet());
-        memory.updateFactSetByFacts(GEYSER, geysers);
-    }
-
-    /**
      * Define agent type. Together with initial desires
      *
      * @param name
@@ -87,6 +68,25 @@ public class AgentTypeBaseLocation extends AgentTypeMakingObservations<Game> {
                         GEYSER})).collect(Collectors.toSet()),
 
                 initializationStrategy, OBSERVING_COMMAND, skipTurnsToMakeObservation);
+    }
+
+    /**
+     * Method to update base info about resources. DO NOT CALL OUTSIDE MAIN GAME THREAD!
+     *
+     * @param location
+     * @param memory
+     * @param frameCount
+     */
+    public static void updateKnowledgeAboutResources(BaseLocation location, WorkingMemory memory, int frameCount) {
+        Set<AUnit> minerals = location.getMinerals().stream()
+                .map(unit -> UnitWrapperFactory.wrapResourceUnits(unit, frameCount, false))
+                .collect(Collectors.toSet());
+        memory.updateFactSetByFacts(MINERAL, minerals);
+
+        Set<AUnit> geysers = location.getGeysers().stream()
+                .map(unit -> UnitWrapperFactory.wrapResourceUnits(unit, frameCount, false))
+                .collect(Collectors.toSet());
+        memory.updateFactSetByFacts(GEYSER, geysers);
     }
 
     //builder with default fields

@@ -2,6 +2,7 @@ package cz.jan.maly.model.metadata.agents;
 
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.Intention;
 import cz.jan.maly.model.planing.InternalDesire;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
  * Contract for stacked desire formulations - which forms desires from agent's memory and based on parent's type
  * Created by Jan on 11-Mar-17.
  */
-interface OwnInternalDesireFormulationStacked<T extends InternalDesire<? extends Intention<T>>> {
+public interface OwnInternalDesireFormulationStacked<T extends InternalDesire<? extends Intention<T>>> {
 
     /**
      * Form desire of given key with data initialized from memory depending on parent's key. If no parent is specified
@@ -22,6 +23,15 @@ interface OwnInternalDesireFormulationStacked<T extends InternalDesire<? extends
      * @param memory
      * @return
      */
-    Optional<T> formDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory);
+    Optional<T> formDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory, DesireParameters parentsDesireParameters);
+
+    /**
+     * Returns true if desire can be instantiated
+     *
+     * @param parent
+     * @param key
+     * @return
+     */
+    boolean supportsDesireType(DesireKey parent, DesireKey key);
 
 }

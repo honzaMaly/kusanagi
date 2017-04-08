@@ -22,9 +22,9 @@ public class ConfigurationWithAbstractPlan extends CommonConfiguration {
 
     @Builder
     private ConfigurationWithAbstractPlan(Commitment decisionInDesire, RemoveCommitment decisionInIntention,
-                                            Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
-                                            Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                            Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
+                                          Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                                          Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
+                                          Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
         super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment);
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;

@@ -10,80 +10,46 @@ import lombok.Getter;
 public class AWeaponTypeWrapper extends AbstractWrapper<WeaponType> {
 
     private final UnitType whatUses;
-
-    public AUnitTypeWrapper getWhatUses() {
-        return WrapperTypeFactory.createFrom(whatUses);
-    }
-
     @Getter
     private final int maxRange;
-
     private final TechType tech;
-
-    public ATechTypeWrapper getTech() {
-        return WrapperTypeFactory.createFrom(tech);
-    }
-
     @Getter
     private final int minRange;
-
     @Getter
     private final int outerSplashRadius;
-
     @Getter
     private final boolean targetsNonRobotic;
-
     @Getter
     private final int innerSplashRadius;
-
     @Getter
     private final int medianSplashRadius;
-
     @Getter
     private final boolean targetsMechanical;
-
     @Getter
     private final boolean targetsNonBuilding;
-
     @Getter
     private final int damageFactor;
-
     @Getter
     private final ExplosionType explosionType;
-
     @Getter
     private final boolean targetsAir;
-
     @Getter
     private final DamageType damageType;
-
     @Getter
     private final boolean targetsTerrain;
-
     @Getter
     private final boolean targetsOwn;
-
     @Getter
     private final int damageCooldown;
-
     @Getter
     private final int damageAmount;
-
     @Getter
     private final boolean targetsGround;
-
     @Getter
     private final boolean targetsOrgOrMech;
-
     private final UpgradeType upgradeType;
-
-    public AUpgradeTypeWrapper getUpgradeType() {
-        return WrapperTypeFactory.createFrom(upgradeType);
-    }
-
     @Getter
     private final boolean targetsOrganic;
-
     @Getter
     private final int damageBonus;
 
@@ -115,6 +81,18 @@ public class AWeaponTypeWrapper extends AbstractWrapper<WeaponType> {
         this.upgradeType = type.upgradeType();
         this.targetsOrganic = type.targetsOrganic();
         this.damageBonus = type.damageBonus();
+    }
+
+    public AUnitTypeWrapper getWhatUses() {
+        return WrapperTypeFactory.createFrom(whatUses);
+    }
+
+    public ATechTypeWrapper getTech() {
+        return WrapperTypeFactory.createFrom(tech);
+    }
+
+    public AUpgradeTypeWrapper getUpgradeType() {
+        return WrapperTypeFactory.createFrom(upgradeType);
     }
 
     public double getDamageNormalized() {

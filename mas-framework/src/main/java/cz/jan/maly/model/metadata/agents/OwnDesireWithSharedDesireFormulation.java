@@ -2,9 +2,11 @@ package cz.jan.maly.model.metadata.agents;
 
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.agents.configuration.CommonConfiguration;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
 import cz.jan.maly.model.planing.DesireForOthers;
+import cz.jan.maly.utils.MyLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +32,11 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
         return Optional.empty();
     }
 
+    @Override
+    public boolean supportsDesireType(DesireKey desireKey) {
+        return supportsType(desireKey);
+    }
+
     /**
      * Add configuration for desire
      *
@@ -49,7 +56,7 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
         private final Map<DesireKey, OwnDesireWithSharedDesireFormulation> stack = new HashMap<>();
 
         @Override
-        public Optional<DesireForOthers> formDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory) {
+        public Optional<DesireForOthers> formDesire(DesireKey parentKey, DesireKey key, WorkingMemory memory, DesireParameters parentsDesireParameters) {
             OwnDesireWithSharedDesireFormulation formulation = stack.get(parentKey);
             if (formulation != null) {
                 if (formulation.supportsDesireType(key)) {
@@ -57,11 +64,20 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
                             memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
                             formulation.getTypesOfDesiresToConsiderWhenCommitting(key),
                             formulation.getTypesOfDesiresToConsiderWhenRemovingCommitment(key), formulation.sharedDesireKeyByKey.get(key),
-                            formulation.countOfAgentsToCommitByKey.get(key));
+                            formulation.countOfAgentsToCommitByKey.get(key), parentsDesireParameters);
                     return Optional.of(forOthers);
                 }
             }
             return formDesire(key, memory);
+        }
+
+        @Override
+        public boolean supportsDesireType(DesireKey parent, DesireKey key) {
+            if (stack.get(parent) == null || !stack.get(parent).supportsDesireType(key)) {
+                MyLogger.getLogger().warning(parent.getName() + " is not associated with " + key.getName());
+                return supportsType(key);
+            }
+            return true;
         }
 
         /**

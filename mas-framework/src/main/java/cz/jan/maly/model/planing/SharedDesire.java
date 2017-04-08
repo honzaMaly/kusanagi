@@ -14,13 +14,11 @@ import java.util.Set;
  */
 public abstract class SharedDesire extends Desire {
 
-    final Set<Agent> committedAgents = new HashSet<>();
-
     @Getter
     protected final Agent originatedFromAgent;
-
     @Getter
     protected final int limitOnNumberOfAgentsToCommit;
+    final Set<Agent> committedAgents = new HashSet<>();
 
     SharedDesire(DesireKey desireKey, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit) {
         super(desireKey, originatedFromAgent.getBeliefs());

@@ -17,11 +17,11 @@ import java.util.List;
  */
 public abstract class MediatorTemplate<V extends Register<?>, T extends Register<?> & WorkingRegister<V>> implements TerminableService {
     protected final T workingRegister;
-    private V readOnlyRegister;
     private final List<QueuedItemInterfaceWithResponse<?>> queuedItems = new ArrayList<>();
     private final LengthOfIntervalObtainingStrategy lengthOfIntervalObtainingStrategy;
-    private boolean shouldConsume = true;
     private final Object isAliveLockMonitor = new Object();
+    private V readOnlyRegister;
+    private boolean shouldConsume = true;
     private long updates = 0;
 
     protected MediatorTemplate(T workingRegister, LengthOfIntervalObtainingStrategy lengthOfIntervalObtainingStrategy) {
@@ -32,13 +32,6 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
         //main code for mediator to handle queue and update shared register
         Consumer consumer = new Consumer();
         consumer.start();
-    }
-
-    /**
-     * Interface for strategy describing method to return interval to wait before updating read only register
-     */
-    protected interface LengthOfIntervalObtainingStrategy {
-        int getLengthOfInterval();
     }
 
     /**
@@ -76,6 +69,13 @@ public abstract class MediatorTemplate<V extends Register<?>, T extends Register
             this.shouldConsume = false;
             MyLogger.getLogger().info(this.getClass().getSimpleName() + " is being terminated.");
         }
+    }
+
+    /**
+     * Interface for strategy describing method to return interval to wait before updating read only register
+     */
+    protected interface LengthOfIntervalObtainingStrategy {
+        int getLengthOfInterval();
     }
 
     /**

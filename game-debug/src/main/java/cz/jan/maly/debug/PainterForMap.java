@@ -25,18 +25,18 @@ public class PainterForMap extends BWAPIPainter {
 
     }
 
-    public void paintMapAnnotation(){
+    public void paintMapAnnotation() {
         paintChokePoints();
         paintBasePoints();
         paintBoardersOfRegions();
         paintRegionsPoints();
     }
 
-    private void paintBoardersOfRegions(){
+    private void paintBoardersOfRegions() {
         bordersOfRegions.forEach(position -> paintCircleFilled(position, 1, Color.Orange));
     }
 
-    private void paintRegionsPoints(){
+    private void paintRegionsPoints() {
         BWTA.getRegions().forEach(region -> paintCircleFilled(region.getCenter(), dotRadius, Color.Blue));
     }
 

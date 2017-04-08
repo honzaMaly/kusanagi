@@ -12,10 +12,9 @@ import java.util.Set;
  */
 public class AgentTypeMakingObservations<E> extends AgentType {
     @Getter
-    private ObservingCommand<E> observingCommand;
-
-    @Getter
     private final int skipTurnsToMakeObservation;
+    @Getter
+    private ObservingCommand<E> observingCommand;
 
     /**
      * Define agent type. Together with initial desires

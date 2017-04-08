@@ -6,6 +6,7 @@ import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.AgentTypeMakingObservations;
 import cz.jan.maly.model.metadata.DesireKey;
+import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.DesireForOthers;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.OwnDesire;
@@ -32,31 +33,25 @@ import java.util.Optional;
  */
 public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFactory, ResponseReceiverInterface<Boolean>, Runnable {
 
-    //lock
-    final Object lockMonitor = new Object();
-
-    @Getter
-    private final int id;
-
     @Getter
     protected final E agentType;
-
+    protected final WorkingMemory beliefs;
+    //lock
+    final Object lockMonitor = new Object();
+    @Getter
+    private final int id;
     @Getter
     private final DesireMediator desireMediator;
     @Getter
     private final KnowledgeMediator knowledgeMediator;
-
     private final MASFacade masFacade;
-
-    protected final WorkingMemory beliefs;
     private final Tree tree = new Tree(this);
     private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
     private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree);
     private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(tree);
-
+    private final Object isAliveLockMonitor = new Object();
     //to handle main routine of agent
     private boolean isAlive = true;
-    private final Object isAliveLockMonitor = new Object();
 
     protected Agent(E agentType, MASFacade masFacade) {
         this.id = masFacade.getAgentsRegister().getFreeId();
@@ -129,51 +124,6 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     /**
-     * Worker execute workflow of this agent.
-     */
-    class Worker extends Thread implements ResponseReceiverInterface<Boolean> {
-
-        @Override
-        public void run() {
-
-            //init agent
-            doRoutine(this);
-            tree.initTopLevelDesires(desireMediator.getSnapshotOfRegister());
-
-            while (true) {
-
-                //check if agent is still alive
-                synchronized (isAliveLockMonitor) {
-                    if (!isAlive) {
-                        break;
-                    }
-                }
-                //execute routine
-                commitmentDecider.visitTree();
-                commandExecutor.visitTree();
-                commitmentRemovalDecider.visitTree();
-                doRoutine(this);
-                waitForMediatorNextUpdate(desireMediator);
-                tree.updateDesires(desireMediator.getSnapshotOfRegister());
-            }
-
-            removeAgent();
-        }
-
-        @Override
-        public void receiveResponse(Boolean response) {
-
-            //notify waiting method
-            synchronized (lockMonitor) {
-                if (!response) {
-                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute command");
-                }
-                lockMonitor.notifyAll();
-            }
-        }
-    }
-
-    /**
      * Execute reasoning command
      *
      * @param command
@@ -222,8 +172,9 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     @Override
-    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey) {
-        return agentType.formOwnDesireWithAbstractIntention(parentDesireKey, desireKey, beliefs);
+    public OwnDesire.WithAbstractIntention formOwnDesireWithAbstractIntention(DesireKey desireKey, DesireKey parentDesireKey,
+                                                                              DesireParameters parentsDesireParameters) {
+        return agentType.formOwnDesireWithAbstractIntention(parentDesireKey, desireKey, beliefs, parentsDesireParameters);
     }
 
     @Override
@@ -232,8 +183,9 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     @Override
-    public OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey, DesireKey parentDesireKey) {
-        return agentType.formOwnReasoningDesire(parentDesireKey, desireKey, beliefs);
+    public OwnDesire.Reasoning formOwnDesireWithReasoningCommand(DesireKey desireKey, DesireKey parentDesireKey,
+                                                                 DesireParameters parentsDesireParameters) {
+        return agentType.formOwnReasoningDesire(parentDesireKey, desireKey, beliefs, parentsDesireParameters);
     }
 
     @Override
@@ -242,8 +194,9 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     @Override
-    public OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey, DesireKey parentDesireKey) {
-        return agentType.formOwnActingDesire(parentDesireKey, desireKey, beliefs);
+    public OwnDesire.Acting formOwnDesireWithActingCommand(DesireKey desireKey, DesireKey parentDesireKey,
+                                                           DesireParameters parentsDesireParameters) {
+        return agentType.formOwnActingDesire(parentDesireKey, desireKey, beliefs, parentsDesireParameters);
     }
 
     @Override
@@ -252,8 +205,9 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     }
 
     @Override
-    public DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey) {
-        return agentType.formDesireForOthers(parentDesireKey, desireKey, beliefs);
+    public DesireForOthers formDesireForOthers(DesireKey desireKey, DesireKey parentDesireKey,
+                                               DesireParameters parentsDesireParameters) {
+        return agentType.formDesireForOthers(parentDesireKey, desireKey, beliefs, parentsDesireParameters);
     }
 
     @Override
@@ -312,6 +266,51 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
             shareKnowledge(worker);
         }
 
+    }
+
+    /**
+     * Worker execute workflow of this agent.
+     */
+    class Worker extends Thread implements ResponseReceiverInterface<Boolean> {
+
+        @Override
+        public void run() {
+
+            //init agent
+            doRoutine(this);
+            tree.initTopLevelDesires(desireMediator.getSnapshotOfRegister());
+
+            while (true) {
+
+                //check if agent is still alive
+                synchronized (isAliveLockMonitor) {
+                    if (!isAlive) {
+                        break;
+                    }
+                }
+                //execute routine
+                commitmentDecider.visitTree();
+                commandExecutor.visitTree();
+                commitmentRemovalDecider.visitTree();
+                doRoutine(this);
+                waitForMediatorNextUpdate(desireMediator);
+                tree.updateDesires(desireMediator.getSnapshotOfRegister());
+            }
+
+            removeAgent();
+        }
+
+        @Override
+        public void receiveResponse(Boolean response) {
+
+            //notify waiting method
+            synchronized (lockMonitor) {
+                if (!response) {
+                    MyLogger.getLogger().warning(this.getClass().getSimpleName() + " could not execute command");
+                }
+                lockMonitor.notifyAll();
+            }
+        }
     }
 
 }

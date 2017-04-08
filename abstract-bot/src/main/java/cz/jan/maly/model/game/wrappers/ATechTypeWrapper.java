@@ -25,30 +25,13 @@ public class ATechTypeWrapper extends AbstractWrapper<TechType> {
     private final int researchTime;
 
     private final WeaponType weapon;
-
-    public AWeaponTypeWrapper getAWeaponTypeWrapper() {
-        return WrapperTypeFactory.createFrom(weapon);
-    }
-
     @Getter
     private final boolean targetsUnit;
-
     private final UnitType whatResearches;
-
-    public AUnitTypeWrapper getWhatResearches() {
-        return WrapperTypeFactory.createFrom(whatResearches);
-    }
-
     @Getter
     private final int mineralPrice;
-
     @Getter
     private final UnitType requiredUnit;
-
-    public AUnitTypeWrapper getRequiredUnit() {
-        return WrapperTypeFactory.createFrom(requiredUnit);
-    }
-
     @Getter
     private final boolean targetsPosition;
 
@@ -68,5 +51,17 @@ public class ATechTypeWrapper extends AbstractWrapper<TechType> {
         this.mineralPrice = type.mineralPrice();
         this.requiredUnit = type.requiredUnit();
         this.targetsPosition = type.targetsPosition();
+    }
+
+    public AWeaponTypeWrapper getAWeaponTypeWrapper() {
+        return WrapperTypeFactory.createFrom(weapon);
+    }
+
+    public AUnitTypeWrapper getWhatResearches() {
+        return WrapperTypeFactory.createFrom(whatResearches);
+    }
+
+    public AUnitTypeWrapper getRequiredUnit() {
+        return WrapperTypeFactory.createFrom(requiredUnit);
     }
 }

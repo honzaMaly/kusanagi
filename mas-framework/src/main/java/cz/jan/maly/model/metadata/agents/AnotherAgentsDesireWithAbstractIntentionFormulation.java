@@ -1,6 +1,7 @@
 package cz.jan.maly.model.metadata.agents;
 
 import cz.jan.maly.model.knowledge.WorkingMemory;
+import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.DesireFromAnotherAgent;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 
@@ -24,5 +25,10 @@ public class AnotherAgentsDesireWithAbstractIntentionFormulation extends DesireF
             return Optional.of(withAbstractIntention);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public boolean supportsDesireType(DesireKey desireKey) {
+        return supportsType(desireKey);
     }
 }
