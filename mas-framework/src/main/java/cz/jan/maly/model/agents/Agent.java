@@ -52,6 +52,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     private final Object isAliveLockMonitor = new Object();
     //to handle main routine of agent
     private boolean isAlive = true;
+    private boolean removeAgentFromGlobalBeliefs = false;
 
     protected Agent(E agentType, MASFacade masFacade) {
         this.id = masFacade.getAgentsRegister().getFreeId();
@@ -102,9 +103,12 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
         beliefs.addKnowledge(knowledgeMediator.getSnapshotOfRegister());
     }
 
-    private void removeAgent() {
+    private void removeAgent(boolean removeFromKnowledge) {
         desireMediator.removeAgentFromRegister(this, this);
         tree.removeCommitmentToSharedDesires();
+        if (removeFromKnowledge) {
+            knowledgeMediator.removeAgent(this, this);
+        }
     }
 
     /**
@@ -223,9 +227,10 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     /**
      * Method to be called when one want to terminate agent
      */
-    public void terminateAgent() {
+    public void terminateAgent(boolean removeAgentFromGlobalBeliefs) {
         synchronized (isAliveLockMonitor) {
             this.isAlive = false;
+            this.removeAgentFromGlobalBeliefs = removeAgentFromGlobalBeliefs;
         }
     }
 
@@ -297,7 +302,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 tree.updateDesires(desireMediator.getSnapshotOfRegister());
             }
 
-            removeAgent();
+            removeAgent(removeAgentFromGlobalBeliefs);
         }
 
         @Override

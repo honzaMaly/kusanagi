@@ -11,7 +11,7 @@ import java.io.IOException;
 public class SimpleBot extends BotFacade {
 
     private SimpleBot() {
-        super(AgentUnitFactory::new, new AgentPlayerInitializer(), new AgentLocationInitializer());
+        super(AgentUnitFactory::new, AgentPlayerInitializer::new, AgentLocationInitializer::new);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, IntrospectionException {

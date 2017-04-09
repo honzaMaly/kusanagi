@@ -71,9 +71,9 @@ public class MASFacade implements TerminableService {
      *
      * @param agent
      */
-    public void removeAgentFromSystem(Agent agent) {
+    public void removeAgentFromSystem(Agent agent, boolean removeAgentFromGlobalBeliefs) {
         if (agentsInSystem.remove(agent)) {
-            agent.terminateAgent();
+            agent.terminateAgent(removeAgentFromGlobalBeliefs);
         } else {
             MyLogger.getLogger().warning("Agent is not registered in system.");
             throw new IllegalArgumentException("Agent is not registered in system.");
@@ -81,7 +81,7 @@ public class MASFacade implements TerminableService {
     }
 
     public void terminate() {
-        agentsInSystem.forEach(this::removeAgentFromSystem);
+        agentsInSystem.forEach(agent -> agent.terminateAgent(true));
         desireMediator.terminate();
         knowledgeMediator.terminate();
     }

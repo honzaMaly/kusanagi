@@ -268,11 +268,7 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         this.researchesWhat = new ArrayList<>(type.researchesWhat());
         this.isCritter = type.isCritter();
         this.upgradesWhat = new ArrayList<>(type.upgradesWhat());
-        if (isType(type, new UnitType[]{UnitType.Zerg_Zergling})) {
-            this.mineralPrice = type.mineralPrice() / 2;
-        } else {
-            this.mineralPrice = type.mineralPrice();
-        }
+        this.mineralPrice = type.mineralPrice();
 
         //additional fields
         this.isBase = type.isBuilding() && isType(type, new UnitType[]{UnitType.Terran_Command_Center, UnitType.Protoss_Nexus, UnitType.Zerg_Hatchery,

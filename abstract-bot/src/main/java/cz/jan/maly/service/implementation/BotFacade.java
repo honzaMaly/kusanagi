@@ -50,14 +50,17 @@ public class BotFacade extends DefaultBWListener {
     private final Map<Integer, AgentUnit> agentsWithGameRepresentation = new HashMap<>();
     //fields provided by user
     private final AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy;
-    private final PlayerInitializer playerInitializer;
-    private final LocationInitializer locationInitializer;
+    private final PlayerInitializerCreationStrategy playerInitializerCreationStrategy;
+    private final LocationInitializerCreationStrategy locationInitializerCreationStrategy;
     //facade for MAS
     private MASFacade masFacade;
     //executor of game commands
     private GameCommandExecutor gameCommandExecutor;
+
     //this is created with new game
     private AgentUnitHandler agentUnitFactory;
+    private PlayerInitializer playerInitializer;
+    private LocationInitializer locationInitializer;
 
     //game related fields
     private Mirror mirror = new Mirror();
@@ -68,10 +71,12 @@ public class BotFacade extends DefaultBWListener {
     @Getter
     private Player self;
 
-    public BotFacade(AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy, PlayerInitializer playerInitializer, LocationInitializer locationInitializer) {
+    public BotFacade(AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy,
+                     PlayerInitializerCreationStrategy playerInitializerCreationStrategy,
+                     LocationInitializerCreationStrategy locationInitializerCreationStrategy) {
         this.agentUnitFactoryCreationStrategy = agentUnitFactoryCreationStrategy;
-        this.playerInitializer = playerInitializer;
-        this.locationInitializer = locationInitializer;
+        this.playerInitializerCreationStrategy = playerInitializerCreationStrategy;
+        this.locationInitializerCreationStrategy = locationInitializerCreationStrategy;
         MyLogger.setLoggingLevel(Level.WARNING);
     }
 
@@ -88,7 +93,9 @@ public class BotFacade extends DefaultBWListener {
         gameCommandExecutor = new GameCommandExecutor(game);
         masFacade = new MASFacade(() -> gameCommandExecutor.getCountOfPassedFrames());
         ADDITIONAL_OBSERVATIONS_PROCESSOR = new AdditionalCommandToObserveGameProcessor(gameCommandExecutor);
+        playerInitializer = playerInitializerCreationStrategy.createFactory();
         agentUnitFactory = agentUnitFactoryCreationStrategy.createFactory();
+        locationInitializer = locationInitializerCreationStrategy.createFactory();
 
         //Use BWTA to analyze map
         //This may take a few minutes if the map is processed first time!
@@ -153,7 +160,7 @@ public class BotFacade extends DefaultBWListener {
     public void onUnitDestroy(Unit unit) {
         if (self.getID() == unit.getPlayer().getID()) {
             Optional<AgentUnit> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit.getID()));
-            agent.ifPresent(agentObservingGame -> masFacade.removeAgentFromSystem(agentObservingGame));
+            agent.ifPresent(agentObservingGame -> masFacade.removeAgentFromSystem(agentObservingGame, false));
         }
         UnitWrapperFactory.unitDied(unit);
     }
@@ -161,7 +168,8 @@ public class BotFacade extends DefaultBWListener {
     @Override
     public void onUnitMorph(Unit unit) {
         if (self.getID() == unit.getPlayer().getID()) {
-            onUnitDestroy(unit);
+            Optional<AgentUnit> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit.getID()));
+            agent.ifPresent(agentObservingGame -> masFacade.removeAgentFromSystem(agentObservingGame, true));
             onUnitCreate(unit);
         }
     }
@@ -201,5 +209,31 @@ public class BotFacade extends DefaultBWListener {
          * @return
          */
         AgentUnitHandler createFactory();
+    }
+
+    /**
+     * Contract for strategy to create new LocationInitializer for new game
+     */
+    public interface LocationInitializerCreationStrategy {
+
+        /**
+         * Creates new factory
+         *
+         * @return
+         */
+        LocationInitializer createFactory();
+    }
+
+    /**
+     * Contract for strategy to create new PlayerInitializer for new game
+     */
+    public interface PlayerInitializerCreationStrategy {
+
+        /**
+         * Creates new factory
+         *
+         * @return
+         */
+        PlayerInitializer createFactory();
     }
 }

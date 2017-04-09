@@ -85,4 +85,23 @@ public class APosition {
         return new APosition(getX() + pixelDX, getY() + pixelDY);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        APosition aPosition = (APosition) o;
+
+        if (x != aPosition.x) return false;
+        if (y != aPosition.y) return false;
+        return aTilePosition.equals(aPosition.aTilePosition);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x;
+        result = 31 * result + y;
+        result = 31 * result + aTilePosition.hashCode();
+        return result;
+    }
 }

@@ -48,4 +48,16 @@ public class WorkingMemoryRegister extends MemoryRegister implements WorkingRegi
         decayMap.put(owner, 1);
         return true;
     }
+
+    /**
+     * Remove memory of agent in register
+     *
+     * @param owner
+     * @return
+     */
+    public boolean removeAgentsMemory(Agent owner) {
+        dataByOriginator.remove(owner);
+        decayMap.remove(owner);
+        return true;
+    }
 }

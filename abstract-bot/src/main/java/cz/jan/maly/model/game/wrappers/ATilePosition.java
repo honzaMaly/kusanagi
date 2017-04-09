@@ -34,4 +34,27 @@ public class ATilePosition {
         }
         return Optional.of(new ATilePosition(tilePosition));
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ATilePosition position = (ATilePosition) o;
+
+        if (x != position.x) return false;
+        if (y != position.y) return false;
+        return Double.compare(position.length, length) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = x;
+        result = 31 * result + y;
+        temp = Double.doubleToLongBits(length);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

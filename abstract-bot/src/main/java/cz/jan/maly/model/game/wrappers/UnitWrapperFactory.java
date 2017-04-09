@@ -3,10 +3,7 @@ package cz.jan.maly.model.game.wrappers;
 import bwapi.Unit;
 import cz.jan.maly.service.implementation.BotFacade;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,7 +14,7 @@ public class UnitWrapperFactory {
     private static final Map<Integer, AUnit.Enemy> enemyUnits = new ConcurrentHashMap<>();
     private static final Map<Integer, AUnit> resourceUnits = new ConcurrentHashMap<>();
     private static final Map<Integer, AUnitWithCommands> playersUnits = new ConcurrentHashMap<>();
-    private static final Set<Integer> idsOfDeadUnits = (new ConcurrentHashMap<Integer, Object>()).keySet();
+    private static final Set<Integer> idsOfDeadUnits = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
 
     //todo move units from maps if they become hostile/friendly?
 

@@ -146,7 +146,7 @@ public class AUnitOfPlayer extends AUnit.Players {
         this.isUnderDisruptionWeb = unit.isUnderDisruptionWeb();
     }
 
-    public List<AUnitTypeWrapper> getUpgrades() {
+    public List<AUnitTypeWrapper> getTrainingQueue() {
         return trainingQueue.stream()
                 .map(WrapperTypeFactory::createFrom)
                 .collect(Collectors.toList());

@@ -41,4 +41,25 @@ public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, 
         });
     }
 
+    /**
+     * Method to add item to queue with code to remove agent
+     *
+     * @param owner
+     * @param responseReceiver
+     * @return
+     */
+    public boolean removeAgent(Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
+        return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
+            @Override
+            public Boolean executeCode() {
+                return workingRegister.removeAgentsMemory(owner);
+            }
+
+            @Override
+            public ResponseReceiverInterface<Boolean> getReceiverOfResponse() {
+                return responseReceiver;
+            }
+        });
+    }
+
 }

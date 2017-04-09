@@ -21,11 +21,21 @@ import java.util.Optional;
  * Created by Jan on 17-Dec-16.
  */
 public class AgentUnitFactory implements AgentUnitHandler {
+    public static final AUnitTypeWrapper ZERGLING_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Zergling);
+    public static final AUnitTypeWrapper DRONE_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Drone);
+    public static final AUnitTypeWrapper HATCHERY_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Hatchery);
+    public static final AUnitTypeWrapper LARVA_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Larva);
+    public static final AUnitTypeWrapper EGG_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Egg);
+    public static final AUnitTypeWrapper SPAWNING_POOL_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Spawning_Pool);
+
     private final Map<AUnitTypeWrapper, AgentTypeUnit> agentConfigurationForUnitType = new HashMap<>();
 
     {
-        agentConfigurationForUnitType.put(WrapperTypeFactory.createFrom(UnitType.Zerg_Drone), AgentsUnitTypes.WORKER);
-        agentConfigurationForUnitType.put(WrapperTypeFactory.createFrom(UnitType.Zerg_Hatchery), AgentsUnitTypes.HATCHERY);
+        agentConfigurationForUnitType.put(DRONE_TYPE, AgentsUnitTypes.DRONE);
+        agentConfigurationForUnitType.put(HATCHERY_TYPE, AgentsUnitTypes.HATCHERY);
+        agentConfigurationForUnitType.put(LARVA_TYPE, AgentsUnitTypes.LARVA);
+        agentConfigurationForUnitType.put(EGG_TYPE, AgentsUnitTypes.EGG);
+        agentConfigurationForUnitType.put(SPAWNING_POOL_TYPE, AgentsUnitTypes.SPAWNING_POOL);
     }
 
     @Override

@@ -71,6 +71,11 @@ public interface UnitActions {
         return unit().unit.move(target.p);
     }
 
+    default boolean move(ATilePosition target) {
+        APosition aPosition = new APosition(target.getX(), target.getY());
+        return unit().unit.move(aPosition.p);
+    }
+
     /**
      * Orders the unit to patrol between its current position and the specified position. While patrolling,
      * units will attack and chase enemy units that they encounter, and then return u().to its patrol route.

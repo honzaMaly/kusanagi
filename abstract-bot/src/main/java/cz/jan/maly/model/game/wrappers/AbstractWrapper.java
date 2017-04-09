@@ -8,6 +8,8 @@ import lombok.Getter;
  * Created by Jan on 27-Mar-17.
  */
 abstract class AbstractWrapper<T> {
+
+    @Getter
     final T type;
 
     @Getter
@@ -51,7 +53,7 @@ abstract class AbstractWrapper<T> {
 
         AbstractWrapper<?> that = (AbstractWrapper<?>) o;
 
-        return type.equals(that.type);
+        return name.equals(that.name);
     }
 
     @Override

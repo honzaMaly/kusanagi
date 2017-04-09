@@ -7,6 +7,7 @@ import cz.jan.maly.model.agent.AgentRegion;
 import cz.jan.maly.model.agent.types.AgentTypeBaseLocation;
 import cz.jan.maly.model.agent.types.AgentTypeRegion;
 import cz.jan.maly.model.game.wrappers.AUnit;
+import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
@@ -21,11 +22,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static cz.jan.maly.model.AgentsUnitTypes.HATCHERY;
+import static cz.jan.maly.model.AgentsUnitTypes.*;
 import static cz.jan.maly.model.BasicFactsKeys.*;
 import static cz.jan.maly.model.DesiresKeys.*;
 import static cz.jan.maly.model.FactsKeys.HAS_HATCHERY;
 import static cz.jan.maly.model.FactsKeys.IS_BASE;
+import static cz.jan.maly.service.AgentUnitFactory.DRONE_TYPE;
 
 /**
  * Strategy to initialize player
@@ -104,18 +106,94 @@ public class AgentLocationInitializer implements LocationInitializer {
                         .build();
                 type.addConfiguration(MINE_MINERALS_IN_BASE, mineMinerals);
 
+                //Make request to build drone where there are not enough drones
+                //consider egg on location - is morphing to drone, take in account local drones, global pool - do not make more than 5 drones in base before pool
+                ConfigurationWithSharedDesire buildDrone = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(MORPH_TO_DRONE)
+                        .decisionInDesire((desire, dataForDecision) -> {
+                                    if (!desire.returnFactValueForGivenKey(IS_BASE).get()) {
+                                        return false;
+                                    }
+                                    boolean isThereAnySpawningPoolBuild = !desire.getReadOnlyMemoriesForAgentType(SPAWNING_POOL).isEmpty();
+                                    BaseLocation myBaseLocation = desire.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
+                                    long countOfEggsInBaseMorphingToDrone = desire.getReadOnlyMemoriesForAgentType(EGG).stream()
+                                            .filter(readOnlyMemory -> {
+                                                AUnitOfPlayer unitOfPlayer = readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT).get();
+                                                return unitOfPlayer.getNearestBaseLocation().get().getY() == myBaseLocation.getY() &&
+                                                        unitOfPlayer.getNearestBaseLocation().get().getX() == myBaseLocation.getX() &&
+                                                        unitOfPlayer.getTrainingQueue().contains(DRONE_TYPE);
+                                            })
+                                            .count();
+
+                                    //pool is not build and globally there is less then 5 drones
+                                    if (!isThereAnySpawningPoolBuild && desire.getReadOnlyMemoriesForAgentType(DRONE).size() + countOfEggsInBaseMorphingToDrone < 5) {
+                                        return true;
+                                    }
+
+                                    long countOfDronesInBase = desire.getReadOnlyMemoriesForAgentType(DRONE).stream()
+                                            .filter(readOnlyMemory -> {
+                                                AUnitOfPlayer unitOfPlayer = readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT).get();
+                                                return unitOfPlayer.getNearestBaseLocation().isPresent()
+                                                        && unitOfPlayer.getNearestBaseLocation().get().getY() == myBaseLocation.getY()
+                                                        && unitOfPlayer.getNearestBaseLocation().get().getX() == myBaseLocation.getX();
+                                            })
+                                            .count();
+
+                                    //pool is build and on base is less then 6 drones
+                                    if (isThereAnySpawningPoolBuild && countOfDronesInBase + countOfEggsInBaseMorphingToDrone < 6) {
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                        )
+                        .decisionInIntention((intention, dataForDecision) -> {
+                            if (!intention.returnFactValueForGivenKey(IS_BASE).get()) {
+                                return true;
+                            }
+                            boolean isThereAnySpawningPoolBuild = !intention.getReadOnlyMemoriesForAgentType(SPAWNING_POOL).isEmpty();
+                            BaseLocation myBaseLocation = intention.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
+                            long countOfEggsInBaseMorphingToDrone = intention.getReadOnlyMemoriesForAgentType(EGG).stream()
+                                    .filter(readOnlyMemory -> {
+                                        AUnitOfPlayer unitOfPlayer = readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT).get();
+                                        return unitOfPlayer.getNearestBaseLocation().get().getY() == myBaseLocation.getY() &&
+                                                unitOfPlayer.getNearestBaseLocation().get().getX() == myBaseLocation.getX() &&
+                                                unitOfPlayer.getTrainingQueue().contains(DRONE_TYPE);
+                                    })
+                                    .count();
+
+                            //pool is not build and globally there is at least 5 drones (build or to be build)
+                            if (!isThereAnySpawningPoolBuild && intention.getReadOnlyMemoriesForAgentType(DRONE).size() + countOfEggsInBaseMorphingToDrone >= 5) {
+                                return true;
+                            }
+
+                            long countOfDronesInBase = intention.getReadOnlyMemoriesForAgentType(DRONE).stream()
+                                    .filter(readOnlyMemory -> {
+                                        AUnitOfPlayer unitOfPlayer = readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT).get();
+                                        return unitOfPlayer.getNearestBaseLocation().get().getY() == myBaseLocation.getY() &&
+                                                unitOfPlayer.getNearestBaseLocation().get().getX() == myBaseLocation.getX();
+                                    })
+                                    .count();
+
+                            //pool is build and on base is at least 6 drones (build or to be build)
+                            if (isThereAnySpawningPoolBuild && countOfDronesInBase + countOfEggsInBaseMorphingToDrone >= 6) {
+                                return true;
+                            }
+                            return false;
+                        })
+                        .counts(1)
+                        .build();
+                type.addConfiguration(MORPH_TO_DRONE, buildDrone);
+
             })
             .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE})))
             .usingTypesForFactSets(new HashSet<>(Arrays.asList(new FactKey<?>[]{HAS_HATCHERY})))
             .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{AM_I_BASE, AM_I_STILL_BASE})))
-            .desiresForOthers(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS_IN_BASE})))
+            .desiresForOthers(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS_IN_BASE, MORPH_TO_DRONE})))
             .build();
+
     public static final AgentTypeRegion REGION = AgentTypeRegion.builder()
             .name("REGION")
             .initializationStrategy(type -> {
-
-                //todo
-
             })
             .build();
 
