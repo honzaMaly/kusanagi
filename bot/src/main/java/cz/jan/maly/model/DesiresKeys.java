@@ -10,8 +10,7 @@ import java.util.HashSet;
 import static cz.jan.maly.model.BasicFactsKeys.IS_BASE_LOCATION;
 import static cz.jan.maly.model.BasicFactsKeys.MINERAL;
 import static cz.jan.maly.model.FactsKeys.*;
-import static cz.jan.maly.service.AgentUnitFactory.DRONE_TYPE;
-import static cz.jan.maly.service.AgentUnitFactory.SPAWNING_POOL_TYPE;
+import static cz.jan.maly.service.AgentUnitFactory.*;
 
 /**
  * Created by Jan on 15-Mar-17.
@@ -47,6 +46,16 @@ public class DesiresKeys {
             .staticFactValues(new HashSet<>(Arrays.asList(new Fact<?>[]{new Fact<>(DRONE_TYPE, UNIT_TYPE)})))
             .build();
 
+    public static final DesireKey MORPH_TO_ZERGLING = DesireKey.builder()
+            .name("MORPH_TO_ZERGLING")
+            .staticFactValues(new HashSet<>(Arrays.asList(new Fact<?>[]{new Fact<>(ZERGLING_TYPE, UNIT_TYPE)})))
+            .build();
+
+    public static final DesireKey MORPH_TO_OVERLORD = DesireKey.builder()
+            .name("MORPH_TO_OVERLORD")
+            .staticFactValues(new HashSet<>(Arrays.asList(new Fact<?>[]{new Fact<>(OVERLORD_TYPE, UNIT_TYPE)})))
+            .build();
+
     public static final DesireKey PLAN_BUILDING_POOL = DesireKey.builder()
             .name("PLAN_BUILDING_POOL")
             .parametersTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{BASE_FOR_POOL})))
@@ -56,10 +65,6 @@ public class DesiresKeys {
     public static final DesireKey BUILD_POOL = DesireKey.builder()
             .name("BUILD_POOL")
             .parametersTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{PLACE_FOR_BUILDING})))
-            .build();
-
-    public static final DesireKey MOVE_TO_BASE = DesireKey.builder()
-            .name("MOVE_TO_BASE")
             .build();
 
     public static final DesireKey FIND_PLACE_TO_BUILD = DesireKey.builder()

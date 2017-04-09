@@ -27,6 +27,7 @@ public class AgentUnitFactory implements AgentUnitHandler {
     public static final AUnitTypeWrapper LARVA_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Larva);
     public static final AUnitTypeWrapper EGG_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Egg);
     public static final AUnitTypeWrapper SPAWNING_POOL_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Spawning_Pool);
+    public static final AUnitTypeWrapper OVERLORD_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Overlord);
 
     private final Map<AUnitTypeWrapper, AgentTypeUnit> agentConfigurationForUnitType = new HashMap<>();
 
@@ -36,6 +37,7 @@ public class AgentUnitFactory implements AgentUnitHandler {
         agentConfigurationForUnitType.put(LARVA_TYPE, AgentsUnitTypes.LARVA);
         agentConfigurationForUnitType.put(EGG_TYPE, AgentsUnitTypes.EGG);
         agentConfigurationForUnitType.put(SPAWNING_POOL_TYPE, AgentsUnitTypes.SPAWNING_POOL);
+        agentConfigurationForUnitType.put(OVERLORD_TYPE, AgentsUnitTypes.OVERLORD);
     }
 
     @Override

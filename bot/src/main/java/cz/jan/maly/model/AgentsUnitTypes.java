@@ -29,30 +29,67 @@ import static cz.jan.maly.service.AgentUnitFactory.SPAWNING_POOL_TYPE;
  * Created by Jan on 15-Mar-17.
  */
 public class AgentsUnitTypes {
-    private static final Random RANDOM = new Random();
 
     public static final AgentTypeUnit HATCHERY = AgentTypeUnit.builder()
-            .name("HATCHERY_TYPE")
+            .name("HATCHERY")
+            .initializationStrategy(type -> {
+            })
+            .build();
+
+    public static final AgentTypeUnit OVERLORD = AgentTypeUnit.builder()
+            .name("OVERLORD")
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit EGG = AgentTypeUnit.builder()
-            .name("EGG_TYPE")
+            .name("EGG")
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit SPAWNING_POOL = AgentTypeUnit.builder()
-            .name("SPAWNING_POOL_TYPE")
+            .name("SPAWNING_POOL")
             .initializationStrategy(type -> {
             })
             .build();
 
     //morph
     public static final AgentTypeUnit LARVA = AgentTypeUnit.builder()
-            .name("LARVA_TYPE")
+            .name("LARVA")
             .initializationStrategy(type -> {
+
+                //command to morph to drone
+                ConfigurationWithCommand.WithActingCommandDesiredByOtherAgent morphToDrone = ConfigurationWithCommand
+                        .WithActingCommandDesiredByOtherAgent.builder()
+                        .commandCreationStrategy(intention -> new ActCommand.DesiredByAnotherAgent(intention) {
+                            @Override
+                            public boolean act(WorkingMemory memory) {
+                                return intention.returnFactValueForGivenKey(IS_UNIT).get().morph(intention.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get());
+                            }
+                        })
+                        //is there enough resources, also does not morph to something else
+                        .decisionInDesire((desire, dataForDecision) -> {
+                            Optional<APlayer> aPlayer = desire.getReadOnlyMemories().stream()
+                                    .filter(readOnlyMemory -> readOnlyMemory.isFactKeyForValueInMemory(IS_PLAYER))
+                                    .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_PLAYER))
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .findAny();
+
+                            if (!aPlayer.isPresent() || aPlayer.get().getMinerals() < desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice()) {
+                                return false;
+                            }
+                            BaseLocation myBaseLocation = desire.returnFactValueForGivenKey(IS_UNIT).get().getNearestBaseLocation().get();
+                            BaseLocation otherLocation = desire.returnFactValueForGivenKeyInParameters(IS_BASE_LOCATION).get();
+                            return !(myBaseLocation.getX() != otherLocation.getX()
+                                    || myBaseLocation.getY() != otherLocation.getY());
+                        })
+                        .decisionInIntention((intention, dataForDecision) -> true)
+                        .build();
+
+                //morph to drone
+                type.addConfiguration(MORPH_TO_DRONE, morphToDrone);
 
                 //general command to morph to type
                 ConfigurationWithCommand.WithActingCommandDesiredByOtherAgent morphToType = ConfigurationWithCommand
@@ -71,26 +108,16 @@ public class AgentsUnitTypes {
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
                                     .findAny();
-                            if (!aPlayer.isPresent()) {
-                                return false;
-                            }
-                            if (aPlayer.get().getMinerals() < desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice()) {
-                                return false;
-                            }
-                            BaseLocation myBaseLocation = desire.returnFactValueForGivenKey(IS_UNIT).get().getNearestBaseLocation().get();
-                            BaseLocation otherLocation = desire.returnFactValueForGivenKeyInParameters(IS_BASE_LOCATION).get();
-                            return !(myBaseLocation.getX() != otherLocation.getX()
-                                    || myBaseLocation.getY() != otherLocation.getY());
+                            return !(!aPlayer.isPresent() || aPlayer.get().getMinerals() < desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice());
                         })
                         .decisionInIntention((intention, dataForDecision) -> true)
                         .build();
 
-                //morph to drone
-                type.addConfiguration(MORPH_TO_DRONE, morphToType);
-
                 //morph to zergling
+                type.addConfiguration(MORPH_TO_ZERGLING, morphToType);
 
                 //morph to overlord
+                type.addConfiguration(MORPH_TO_OVERLORD, morphToType);
 
             })
             .build();
@@ -99,23 +126,24 @@ public class AgentsUnitTypes {
             .name("DRONE")
 //            .desiresWithIntentionToAct(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS})))
 //            .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{SELECT_MINERAL})))
-            .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINING_MINERAL, MINERAL_TO_MINE,
-                    LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE, PLACE_FOR_BUILDING})))
+            .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINING_MINERAL, MINERAL_TO_MINE, PLACE_FOR_BUILDING})))
             .initializationStrategy((AgentType type) -> {
 
                 //abstract plan to build pool in base
                 ConfigurationWithAbstractPlan buildPool = ConfigurationWithAbstractPlan.builder()
                         .decisionInDesire((desire, dataForDecision) -> {
+                            if (desire.returnFactValueForGivenKey(IS_UNIT).get().isCarryingMinerals()) {
+                                return false;
+                            }
                             Optional<APlayer> aPlayer = desire.getReadOnlyMemories().stream()
                                     .filter(readOnlyMemory -> readOnlyMemory.isFactKeyForValueInMemory(IS_PLAYER))
                                     .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_PLAYER))
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
                                     .findAny();
-                            if (!aPlayer.isPresent()) {
-                                return false;
-                            }
-                            if (aPlayer.get().getMinerals() < desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice()) {
+
+                            //commit little bit sooner to start looking for place and to get there
+                            if (!aPlayer.isPresent() || aPlayer.get().getMinerals() <= desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice() - 24) {
                                 return false;
                             }
                             return true;
@@ -221,14 +249,6 @@ public class AgentsUnitTypes {
                                         .filter(AUnit::isAlive)
                                         .filter(unit -> !mineralsBeingMined.contains(unit))
                                         .collect(Collectors.toSet());
-
-                                if (!memory.returnFactValueForGivenKey(LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE).isPresent()) {
-                                    AUnit mineralToSelectFrom = mineralsToMine.stream().skip(RANDOM.nextInt(mineralsToMine.size()))
-                                            .findAny().get();
-                                    memory.updateFact(MINERAL_TO_MINE, mineralToSelectFrom);
-                                    memory.updateFact(LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE, memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null));
-                                }
-
                                 if (!mineralsToMine.isEmpty()) {
 
                                     //select free nearest mineral to closest hatchery
@@ -240,89 +260,45 @@ public class AgentsUnitTypes {
                                                 .min(Comparator.comparingDouble(o -> BWTA.getGroundDistance(hatchery.get().getPosition().getATilePosition().getTilePosition(), o.getPosition().getATilePosition().getTilePosition())));
                                         mineralToPick.ifPresent(aUnit -> {
                                             memory.updateFact(MINERAL_TO_MINE, aUnit);
-                                            memory.updateFact(LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE, memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null));
+
+                                            //release currently mined mineral if it differs with mineral about to be mined
+                                            if (intention.returnFactValueForGivenKey(MINING_MINERAL).isPresent()
+                                                    && !intention.returnFactValueForGivenKey(MINING_MINERAL).get().equals(MINERAL_TO_MINE)) {
+                                                memory.updateFact(MINING_MINERAL, MINING_MINERAL.getInitValue());
+                                            }
                                         });
                                     }
                                 }
                                 return true;
                             }
                         })
-                        .decisionInDesire((desire, dataForDecision) -> {
-
-                                    //there is no selected mineral
-                                    if (!desire.returnFactValueForGivenKey(MINING_MINERAL).isPresent()) {
-                                        return true;
-                                    }
-
-                                    //skip if reason about mineral to mine recently
-                                    if (desire.returnFactValueForGivenKey(LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE).orElse(0) + RANDOM.nextInt(10) + 1
-                                            > desire.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0)) {
-                                        return false;
-                                    }
-
-                                    //selected mineral is not nearest unoccupied mineral
-                                    Set<AUnit> mineralsBeingMined = desire.getReadOnlyMemories().stream()
-                                            .filter(readOnlyMemory -> readOnlyMemory.getAgentId() != desire.getAgentId())
-                                            .filter(readOnlyMemory -> readOnlyMemory.isFactKeyForValueInMemory(MINING_MINERAL))
-                                            .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(MINING_MINERAL))
-                                            .filter(Optional::isPresent)
-                                            .map(Optional::get)
-                                            .collect(Collectors.toSet());
-                                    Set<AUnit> mineralsToMine = desire.returnFactSetValueOfParentIntentionForGivenKey(MINERAL).get().stream()
-                                            .filter(AUnit::isAlive)
-                                            .filter(unit -> !mineralsBeingMined.contains(unit))
-                                            .collect(Collectors.toSet());
-                                    if (!mineralsToMine.isEmpty()) {
-
-                                        //select free nearest mineral to closest hatchery and check if it is same as one currently mined
-                                        APosition myPosition = desire.returnFactValueForGivenKey(IS_UNIT).get().getPosition();
-                                        Optional<AUnit> hatchery = desire.returnFactSetValueOfParentIntentionForGivenKey(HAS_HATCHERY).get().stream()
-                                                .min(Comparator.comparingDouble(o -> BWTA.getGroundDistance(myPosition.getATilePosition().getTilePosition(), o.getPosition().getATilePosition().getTilePosition())));
-                                        if (hatchery.isPresent()) {
-                                            Optional<AUnit> mineralToPick = mineralsToMine.stream()
-                                                    .min(Comparator.comparingDouble(o -> BWTA.getGroundDistance(hatchery.get().getPosition().getATilePosition().getTilePosition(), o.getPosition().getATilePosition().getTilePosition())));
-                                            //selected is not the nearest
-                                            if (!mineralToPick.get().equals(desire.returnFactValueForGivenKey(MINING_MINERAL).get())) {
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                    return false;
-                                }
-                        )
+                        //look for other minerals only if you carry one or zou have not decided one to mine
+                        .decisionInDesire((desire, dataForDecision) -> !desire.returnFactValueForGivenKey(MINING_MINERAL).isPresent() || desire.returnFactValueForGivenKey(IS_UNIT).get().isCarryingMinerals())
                         .decisionInIntention((intention, dataForDecision) -> true)
                         .build();
                 type.addConfiguration(SELECT_MINERAL, MINE_MINERALS_IN_BASE, selectMineral);
 
                 //go to mine it
-                ConfigurationWithCommand.WithActingCommandDesiredBySelf miningConfiguration = ConfigurationWithCommand.
+                ConfigurationWithCommand.WithActingCommandDesiredBySelf mine = ConfigurationWithCommand.
                         WithActingCommandDesiredBySelf.builder()
                         .commandCreationStrategy(intention -> new ActCommand.Own(intention) {
                             @Override
                             public boolean act(WorkingMemory memory) {
-                                AUnit mineral = intention.returnFactValueForGivenKeyInDesireParameters(MINERAL_TO_MINE).get();
-                                boolean commandSent = intention.returnFactValueForGivenKey(IS_UNIT).get().gather(mineral);
-                                if (commandSent) {
-                                    memory.updateFact(MINING_MINERAL, mineral);
+                                boolean hasStartedMining = intention.returnFactValueForGivenKey(IS_UNIT).get().gather(intention.returnFactValueForGivenKeyInDesireParameters(MINERAL_TO_MINE).get());
+                                if (hasStartedMining) {
+                                    memory.updateFact(MINING_MINERAL, intention.returnFactValueForGivenKey(MINERAL_TO_MINE).get());
                                 }
-                                return commandSent;
+                                return hasStartedMining;
                             }
                         })
                         //mineral is selected, agent does not carry mineral and mineral to mine differs from mineral which is being mined. do not start mining mineral if other agent has selected it
-                        .decisionInDesire((desire, dataForDecision) -> desire.returnFactValueForGivenKeyInParameters(MINERAL_TO_MINE).isPresent()
-                                && !desire.returnFactValueForGivenKey(IS_UNIT).get().isCarryingMinerals()
+                        .decisionInDesire((desire, dataForDecision) -> !desire.returnFactValueForGivenKey(IS_UNIT).get().isCarryingMinerals()
+                                && desire.returnFactValueForGivenKeyInParameters(MINERAL_TO_MINE).isPresent()
                                 && !desire.returnFactValueForGivenKeyInParameters(MINERAL_TO_MINE).get().equals(desire.returnFactValueForGivenKey(MINING_MINERAL).orElse(null))
-                                && !desire.getReadOnlyMemories().stream()
-                                .filter(readOnlyMemory -> readOnlyMemory.getAgentId() != desire.getAgentId())
-                                .filter(readOnlyMemory -> readOnlyMemory.isFactKeyForValueInMemory(MINING_MINERAL))
-                                .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(MINING_MINERAL))
-                                .filter(Optional::isPresent)
-                                .map(Optional::get)
-                                .anyMatch(unit -> unit.equals(desire.returnFactValueForGivenKeyInParameters(MINERAL_TO_MINE).get()))
                         )
                         .decisionInIntention((intention, dataForDecision) -> true)
                         .build();
-                type.addConfiguration(MINE_MINERALS, MINE_MINERALS_IN_BASE, miningConfiguration);
+                type.addConfiguration(MINE_MINERALS, MINE_MINERALS_IN_BASE, mine);
 
             })
             .build();

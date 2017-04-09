@@ -38,13 +38,6 @@ public class FactsKeys {
         }
     };
 
-    public static final FactKey<Integer> LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE = new FactKey<Integer>("LAST_TIME_REASON_ABOUT_MINERAL_TO_MINE", false) {
-        @Override
-        public Integer getInitValue() {
-            return null;
-        }
-    };
-
     public static final FactKey<AUnit> HAS_HATCHERY = new FactKey<AUnit>("HAS_HATCHERY", true) {
         @Override
         public AUnit getInitValue() {
