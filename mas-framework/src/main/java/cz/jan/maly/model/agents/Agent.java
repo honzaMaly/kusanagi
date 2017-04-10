@@ -44,7 +44,6 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     private final DesireMediator desireMediator;
     @Getter
     private final KnowledgeMediator knowledgeMediator;
-    private final MASFacade masFacade;
     private final Tree tree = new Tree(this);
     private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
     private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree);
@@ -59,8 +58,10 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
         this.desireMediator = masFacade.getDesireMediator();
         this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
-        this.beliefs = new WorkingMemory(tree, this.agentType, this.id);
-        this.masFacade = masFacade;
+        this.beliefs = new WorkingMemory(tree, this.agentType, this.id,
+                at -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoriesForAgentType(at),
+                agentId -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoryForAgent(agentId),
+                () -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemories());
     }
 
     @Override
@@ -100,7 +101,6 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
             }
         }
         waitForMediatorNextUpdate(knowledgeMediator);
-        beliefs.addKnowledge(knowledgeMediator.getSnapshotOfRegister());
     }
 
     private void removeAgent(boolean removeFromKnowledge) {

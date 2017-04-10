@@ -196,7 +196,7 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         this.canMove = type.canMove();
         this.isSpell = type.isSpell();
         this.armor = type.armor();
-        this.tileSize = new ATilePosition(type.tileSize());
+        this.tileSize = ATilePosition.wrap(type.tileSize());
         this.isAddon = type.isAddon();
         this.isHero = type.isHero();
         this.width = type.width();

@@ -48,16 +48,6 @@ public class Fact<V> {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Fact<?> fact = (Fact<?>) o;
-
-        return type.equals(fact.type);
-    }
-
     /**
      * Returns copy of fact. Content is cloned so using the content is thread safe
      *
@@ -68,7 +58,20 @@ public class Fact<V> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Fact<?> fact = (Fact<?>) o;
+
+        if (!type.equals(fact.type)) return false;
+        return content != null ? content.equals(fact.content) : fact.content == null;
+    }
+
+    @Override
     public int hashCode() {
-        return type.hashCode();
+        int result = type.hashCode();
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        return result;
     }
 }

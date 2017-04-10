@@ -62,7 +62,7 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DesireParameters)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         DesireParameters that = (DesireParameters) o;
 

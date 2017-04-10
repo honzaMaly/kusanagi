@@ -27,7 +27,11 @@ public class AUnitCommand {
         this.target = Optional.ofNullable(command.getTarget());
         this.unit = Optional.ofNullable(command.getUnit());
         this.unitCommandType = command.getUnitCommandType();
-        this.targetPosition = APosition.creteOrEmpty(command.getTargetPosition());
+        if (command.getTargetPosition() == null) {
+            this.targetPosition = Optional.empty();
+        } else {
+            this.targetPosition = Optional.of(APosition.wrap(command.getTargetPosition()));
+        }
         this.targetTilePosition = ATilePosition.creteOrEmpty(command.getTargetTilePosition());
         this.isQueued = command.isQueued();
     }

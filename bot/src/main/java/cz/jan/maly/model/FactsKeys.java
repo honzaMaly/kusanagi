@@ -59,4 +59,25 @@ public class FactsKeys {
         }
     };
 
+    public static final FactKey<Integer> LAST_TIME_SCOUTED = new FactKey<Integer>("LAST_TIME_SCOUTED", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+
+    public static final FactKey<Boolean> IS_ENEMY_BASE = new FactKey<Boolean>("IS_ENEMY_BASE", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+
+    public static final FactKey<AUnit.Enemy> ENEMY_UNIT = new FactKey<AUnit.Enemy>("ENEMY_UNITS", true) {
+        @Override
+        public AUnit.Enemy getInitValue() {
+            return null;
+        }
+    };
+
 }

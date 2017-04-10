@@ -1,5 +1,7 @@
 package cz.jan.maly.model.game.wrappers;
 
+import bwapi.Position;
+
 /**
  * Class using default methods which are extracted from AUnitWithCommands class to separate this functionality.
  *
@@ -13,20 +15,6 @@ public interface UnitActions {
      * @return
      */
     AUnitWithCommands unit();
-
-    /**
-     * Unit will move by given distance (in build tiles) from given position.
-     */
-    default boolean moveAwayBy(int x, int y, double moveDistance) {
-        int dx = x - unit().unit.getX();
-        int dy = y - unit().unit.getY();
-        double vectorLength = Math.sqrt(dx * dx + dy * dy);
-        double modifier = (moveDistance * 32) / vectorLength;
-        dx = (int) (dx * modifier);
-        dy = (int) (dy * modifier);
-        APosition newPosition = new APosition(unit().unit.getX() - dx, unit().unit.getY() - dy);
-        return move(newPosition);
-    }
 
     /**
      * Attack unit
@@ -51,7 +39,7 @@ public interface UnitActions {
         if (unit().unit.isAttacking() && unit().unit.getTargetPosition() != null && unit().unit.getTargetPosition().equals(target)) {
             return false;
         } else {
-            return unit().unit.attack(target.p);
+            return unit().unit.attack(target.wrappedPosition);
         }
     }
 
@@ -64,16 +52,15 @@ public interface UnitActions {
     }
 
     default boolean build(AUnitTypeWrapper buildingType, ATilePosition buildTilePosition) {
-        return unit().unit.build(buildingType.type, buildTilePosition.tilePosition);
+        return unit().unit.build(buildingType.type, buildTilePosition.wrappedPosition);
     }
 
     default boolean move(APosition target) {
-        return unit().unit.move(target.p);
+        return unit().unit.move(target.wrappedPosition);
     }
 
-    default boolean move(ATilePosition target) {
-        APosition aPosition = new APosition(target.getX(), target.getY());
-        return unit().unit.move(aPosition.p);
+    default boolean move(AbstractPositionWrapper<?> target) {
+        return unit().unit.move(new Position(target.getX(), target.getY()));
     }
 
     /**
@@ -87,7 +74,7 @@ public interface UnitActions {
      * been passed to Broodwar. See also isPatrolling, canPatrol
      */
     default boolean patrol(APosition target) {
-        return unit().unit.patrol(target.p);
+        return unit().unit.patrol(target.wrappedPosition);
     }
 
     /**
@@ -235,7 +222,7 @@ public interface UnitActions {
      * fail after it has been passed to Broodwar. See also lift, isLifted, canLand
      */
     default boolean land(ATilePosition target) {
-        return unit().unit.land(target.tilePosition);
+        return unit().unit.land(target.wrappedPosition);
     }
 
     /**
@@ -285,7 +272,7 @@ public interface UnitActions {
      * isLoaded, canUnloadAll, canUnloadAtPosition
      */
     default boolean unloadAll(APosition target) {
-        return unit().unit.unloadAll(target.p);
+        return unit().unit.unloadAll(target.wrappedPosition);
     }
 
     /**
@@ -395,7 +382,7 @@ public interface UnitActions {
     }
 
     default boolean useTech(ATechTypeWrapper tech, APosition target) {
-        return unit().unit.useTech(tech.type, target.p);
+        return unit().unit.useTech(tech.type, target.wrappedPosition);
     }
 
     default boolean useTech(ATechTypeWrapper tech, AUnitOfPlayer target) {

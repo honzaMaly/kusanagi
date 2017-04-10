@@ -1,19 +1,15 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Position;
-import cz.jan.maly.model.game.util.PositionUtil;
 import lombok.Getter;
 
-import java.util.Optional;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Wrapper for BWMirror Position
  */
-public class APosition {
-    final Position p;
-
-    @Getter
-    private final int x, y;
+public class APosition extends AbstractPositionWrapper<Position> {
 
     @Getter
     private final ATilePosition aTilePosition;
@@ -21,47 +17,22 @@ public class APosition {
     @Getter
     private final double length;
 
-    public APosition(int pixelX, int pixelY) {
-        this.p = (new Position(pixelX, pixelY)).makeValid();
-        this.x = pixelX;
-        this.y = pixelY;
-        this.length = this.p.getLength();
-        this.aTilePosition = new ATilePosition(this.p.toTilePosition());
-    }
-
-    public APosition(Position p) {
-        this.p = p.makeValid();
-        this.x = this.p.getX();
-        this.y = this.p.getY();
-        this.length = this.p.getLength();
-        this.aTilePosition = new ATilePosition(this.p.toTilePosition());
-    }
-
-    // =========================================================
-
-    static Optional<APosition> creteOrEmpty(Position position) {
-        if (position == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new APosition(position));
+    private APosition(Position p) {
+        super(p, p.getX(), p.getY());
+        this.length = p.getLength();
+        this.aTilePosition = ATilePosition.wrap(p.toTilePosition());
     }
 
     /**
-     * Returns distance from one position to other in build tiles. One build tile equals to 32 pixels. Usage
-     * of build tiles instead of pixels is preferable, because it's easier to imagine distances if one knows
-     * building dimensions.
+     * Wrap position
+     *
+     * @param toWrap
+     * @return
      */
-    public double distanceTo(APosition position) {
-        return PositionUtil.distanceTo(this, position);
-    }
-
-    /**
-     * Returns distance from one position to other in build tiles. One build tile equals to 32 pixels. Usage
-     * of build tiles instead of pixels is preferable, because it's easier to imagine distances if one knows
-     * building dimensions.
-     */
-    public double distanceTo(AUnit unit) {
-        return PositionUtil.distanceTo(this, unit.getPosition());
+    public static APosition wrap(Position toWrap) {
+        Map<Integer, Map<Integer, AbstractPositionWrapper<?>>> positionsByCoordinates = cache.computeIfAbsent(Position.class, aClass -> new ConcurrentHashMap<>());
+        Map<Integer, AbstractPositionWrapper<?>> positionsByYCoordinates = positionsByCoordinates.computeIfAbsent(toWrap.getX(), integer -> new ConcurrentHashMap<>());
+        return (APosition) positionsByYCoordinates.computeIfAbsent(toWrap.getY(), integer -> new APosition(toWrap));
     }
 
     /**
@@ -78,30 +49,4 @@ public class APosition {
         return getY() / ATilePosition.SIZE_IN_PIXELS;
     }
 
-    /**
-     * Returns new position object that is translated in x,y by given values.
-     */
-    public APosition translate(int pixelDX, int pixelDY) {
-        return new APosition(getX() + pixelDX, getY() + pixelDY);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        APosition aPosition = (APosition) o;
-
-        if (x != aPosition.x) return false;
-        if (y != aPosition.y) return false;
-        return aTilePosition.equals(aPosition.aTilePosition);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = x;
-        result = 31 * result + y;
-        result = 31 * result + aTilePosition.hashCode();
-        return result;
-    }
 }

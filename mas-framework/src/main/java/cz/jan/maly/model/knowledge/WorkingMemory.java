@@ -3,10 +3,8 @@ package cz.jan.maly.model.knowledge;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.planing.tree.Tree;
-import cz.jan.maly.model.servicies.beliefs.ReadOnlyMemoryRegister;
 import cz.jan.maly.utils.MyLogger;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,25 +14,10 @@ import java.util.stream.Collectors;
  * Created by Jan on 24-Feb-17.
  */
 public class WorkingMemory extends Memory<Tree> {
-
-    public WorkingMemory(Tree tree, AgentType agentType, int agentId) {
-        super(tree, agentType, agentId);
-    }
-
-    /**
-     * Adds knowledge
-     *
-     * @param readOnlyMemoryRegister
-     */
-    public void addKnowledge(ReadOnlyMemoryRegister readOnlyMemoryRegister) {
-        Map<AgentType, Map<Integer, ReadOnlyMemory>> sharedKnowledgeByOtherAgents = readOnlyMemoryRegister.formKnowledge();
-        this.sharedKnowledgeByOtherAgents = sharedKnowledgeByOtherAgents.values().stream()
-                .flatMap(integerReadOnlyMemoryMap -> integerReadOnlyMemoryMap.entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        this.sharedKnowledgeByOtherAgentsTypes = sharedKnowledgeByOtherAgents.values().stream()
-                .map(Map::values)
-                .flatMap(Collection::stream)
-                .collect(Collectors.groupingBy(ReadOnlyMemory::getAgentType, Collectors.toSet()));
+    public WorkingMemory(Tree tree, AgentType agentType, int agentId,
+                         StrategyToGetSetOfMemoriesByAgentType strategyToGetSetOfMemoriesByAgentType,
+                         StrategyToGetMemoryOfAgent strategyToGetMemoryOfAgent, StrategyToGetAllMemories strategyToGetAllMemories) {
+        super(tree, agentType, agentId, strategyToGetSetOfMemoriesByAgentType, strategyToGetMemoryOfAgent, strategyToGetAllMemories);
     }
 
 
@@ -51,7 +34,7 @@ public class WorkingMemory extends Memory<Tree> {
                 factSetParameterMap.entrySet().stream()
                         .filter(factKeyFactEntry -> !factKeyFactEntry.getKey().isPrivate())
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
-                tree.getReadOnlyCopy(), agentType, agentId, sharedKnowledgeByOtherAgentsTypes, sharedKnowledgeByOtherAgents);
+                tree.getReadOnlyCopy(), agentType, agentId, strategyToGetSetOfMemoriesByAgentType, strategyToGetMemoryOfAgent, strategyToGetAllMemories);
     }
 
     /**

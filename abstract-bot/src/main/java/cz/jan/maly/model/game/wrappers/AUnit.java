@@ -2,7 +2,6 @@ package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Unit;
 import bwapi.UnitType;
-import bwapi.WeaponType;
 import bwta.BWTA;
 import bwta.BaseLocation;
 import lombok.Getter;
@@ -126,7 +125,7 @@ public class AUnit {
     @Getter
     private final Optional<bwta.Region> unitRegion;
     @Getter
-    private final Optional<bwta.BaseLocation> nearestBaseLocation;
+    private final Optional<ABaseLocationWrapper> nearestBaseLocation;
     @Getter
     private final int frameCount;
 
@@ -135,12 +134,12 @@ public class AUnit {
         this.type = unit.getType();
 
         //identify position
-        this.position = new APosition(unit.getPosition());
+        this.position = APosition.wrap(unit.getPosition());
         this.unitRegion = Optional.ofNullable(BWTA.getRegion(unit.getTilePosition()));
         if (unitRegion.isPresent()) {
             Optional<BaseLocation> nearestBaseLocation = unitRegion.get().getBaseLocations().stream()
-                    .min(Comparator.comparingInt(o -> o.getPosition().getApproxDistance(position.p)));
-            this.nearestBaseLocation = nearestBaseLocation;
+                    .min(Comparator.comparingInt(o -> o.getPosition().getApproxDistance(position.wrappedPosition)));
+            this.nearestBaseLocation = nearestBaseLocation.flatMap(baseLocation -> Optional.ofNullable(ABaseLocationWrapper.wrap(baseLocation)));
         } else {
             this.nearestBaseLocation = Optional.empty();
         }
@@ -280,19 +279,19 @@ public class AUnit {
         }
     }
 
-    /**
-     * Returns <b>true</b> if this unit can attack <b>targetUnit</b> in terms of both min and max range
-     * conditions fulfilled.
-     *
-     * @param safetyMargin allowed error (in tiles) applied to the max distance condition
-     */
-    public boolean hasRangeToAttack(AUnit targetUnit, double safetyMargin) {
-        AWeaponTypeWrapper weaponAgainstThisUnit = getWeaponAgainst(targetUnit);
-        double dist = getPosition().distanceTo(targetUnit);
-        return !weaponAgainstThisUnit.isForType(WeaponType.None)
-                && weaponAgainstThisUnit.getMaxRange() <= (dist + safetyMargin)
-                && weaponAgainstThisUnit.getMinRange() >= dist;
-    }
+//    /**
+//     * Returns <b>true</b> if this unit can attack <b>targetUnit</b> in terms of both min and max range
+//     * conditions fulfilled.
+//     *
+//     * @param safetyMargin allowed error (in tiles) applied to the max distance condition
+//     */
+//    public boolean hasRangeToAttack(AUnit targetUnit, double safetyMargin) {
+//        AWeaponTypeWrapper weaponAgainstThisUnit = getWeaponAgainst(targetUnit);
+//        double dist = getPosition().distanceTo(targetUnit);
+//        return !weaponAgainstThisUnit.isForType(WeaponType.None)
+//                && weaponAgainstThisUnit.getMaxRange() <= (dist + safetyMargin)
+//                && weaponAgainstThisUnit.getMinRange() >= dist;
+//    }
 
     /**
      * Returns weapon that would be used to attack given target.

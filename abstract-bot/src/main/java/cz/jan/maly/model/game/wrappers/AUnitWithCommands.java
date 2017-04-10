@@ -47,9 +47,17 @@ public class AUnitWithCommands extends AUnitOfPlayer implements UnitActions {
 
         this.order = Optional.ofNullable(unit.getOrder());
         this.lastCommand = AUnitCommand.creteOrEmpty(unit.getLastCommand());
-        this.targetPosition = APosition.creteOrEmpty(unit.getTargetPosition());
+        if (unit.getTargetPosition() != null) {
+            this.targetPosition = Optional.ofNullable(APosition.wrap(unit.getTargetPosition()));
+        } else {
+            this.targetPosition = Optional.empty();
+        }
         this.secondaryOrder = Optional.ofNullable(unit.getSecondaryOrder());
-        this.orderTargetPosition = APosition.creteOrEmpty(unit.getOrderTargetPosition());
+        if (unit.getOrderTargetPosition() != null) {
+            this.orderTargetPosition = Optional.ofNullable(APosition.wrap(unit.getOrderTargetPosition()));
+        } else {
+            this.orderTargetPosition = Optional.empty();
+        }
     }
 
     @Override

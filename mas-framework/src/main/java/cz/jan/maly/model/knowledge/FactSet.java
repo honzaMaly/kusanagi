@@ -71,11 +71,14 @@ public class FactSet<V> {
 
         FactSet<?> factSet = (FactSet<?>) o;
 
+        if (!decayMap.keySet().equals(factSet.decayMap.keySet())) return false;
         return type.equals(factSet.type);
     }
 
     @Override
     public int hashCode() {
-        return type.hashCode();
+        int result = decayMap.keySet().hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
     }
 }

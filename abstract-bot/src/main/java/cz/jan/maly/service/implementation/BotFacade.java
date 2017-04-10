@@ -6,6 +6,7 @@ import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.AgentUnit;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.game.wrappers.APlayer;
+import cz.jan.maly.model.game.wrappers.AbstractPositionWrapper;
 import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.model.game.wrappers.WrapperTypeFactory;
 import cz.jan.maly.service.AgentUnitHandler;
@@ -84,6 +85,7 @@ public class BotFacade extends DefaultBWListener {
     public void onStart() {
         UnitWrapperFactory.clearCache();
         WrapperTypeFactory.clearCache();
+        AbstractPositionWrapper.clearCache();
 
         //initialize game related data
         game = mirror.getGame();
@@ -160,7 +162,7 @@ public class BotFacade extends DefaultBWListener {
     public void onUnitDestroy(Unit unit) {
         if (self.getID() == unit.getPlayer().getID()) {
             Optional<AgentUnit> agent = Optional.ofNullable(agentsWithGameRepresentation.remove(unit.getID()));
-            agent.ifPresent(agentObservingGame -> masFacade.removeAgentFromSystem(agentObservingGame, false));
+            agent.ifPresent(agentObservingGame -> masFacade.removeAgentFromSystem(agentObservingGame, unit.getType().isBuilding()));
         }
         UnitWrapperFactory.unitDied(unit);
     }

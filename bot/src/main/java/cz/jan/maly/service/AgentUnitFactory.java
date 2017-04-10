@@ -38,6 +38,7 @@ public class AgentUnitFactory implements AgentUnitHandler {
         agentConfigurationForUnitType.put(EGG_TYPE, AgentsUnitTypes.EGG);
         agentConfigurationForUnitType.put(SPAWNING_POOL_TYPE, AgentsUnitTypes.SPAWNING_POOL);
         agentConfigurationForUnitType.put(OVERLORD_TYPE, AgentsUnitTypes.OVERLORD);
+        agentConfigurationForUnitType.put(ZERGLING_TYPE, AgentsUnitTypes.ZERGLING);
     }
 
     @Override

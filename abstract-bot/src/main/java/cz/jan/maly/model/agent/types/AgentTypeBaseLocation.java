@@ -2,6 +2,7 @@ package cz.jan.maly.model.agent.types;
 
 import bwapi.Game;
 import bwta.BaseLocation;
+import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
@@ -30,12 +31,12 @@ import static cz.jan.maly.model.BasicFactsKeys.*;
 public class AgentTypeBaseLocation extends AgentTypeMakingObservations<Game> {
     //single definition of command to observe to be used by all agents of this type
     private static final ObservingCommand<Game> OBSERVING_COMMAND = (memory, environment) -> {
-        Optional<BaseLocation> baseLocation = memory.returnFactValueForGivenKey(IS_BASE_LOCATION);
+        Optional<ABaseLocationWrapper> baseLocation = memory.returnFactValueForGivenKey(IS_BASE_LOCATION);
         if (!baseLocation.isPresent()) {
             MyLogger.getLogger().warning("Trying to access commendable unit but it is not present.");
             throw new RuntimeException("Trying to access commendable unit but it is not present.");
         }
-        updateKnowledgeAboutResources(baseLocation.get(), memory, environment.getFrameCount());
+        updateKnowledgeAboutResources(baseLocation.get().getWrappedPosition(), memory, environment.getFrameCount());
         memory.updateFact(MADE_OBSERVATION_IN_FRAME, environment.getFrameCount());
         return true;
     };

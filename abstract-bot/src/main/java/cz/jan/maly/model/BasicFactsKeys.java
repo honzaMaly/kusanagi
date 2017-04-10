@@ -1,10 +1,7 @@
 package cz.jan.maly.model;
 
 import bwapi.Race;
-import cz.jan.maly.model.game.wrappers.APlayer;
-import cz.jan.maly.model.game.wrappers.AUnit;
-import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
-import cz.jan.maly.model.game.wrappers.AUnitWithCommands;
+import cz.jan.maly.model.game.wrappers.*;
 import cz.jan.maly.model.metadata.FactKey;
 
 /**
@@ -27,9 +24,9 @@ public class BasicFactsKeys {
         }
     };
 
-    public static final FactKey<bwta.BaseLocation> IS_BASE_LOCATION = new FactKey<bwta.BaseLocation>("IS_BASE_LOCATION", false) {
+    public static final FactKey<ABaseLocationWrapper> IS_BASE_LOCATION = new FactKey<ABaseLocationWrapper>("IS_BASE_LOCATION", false) {
         @Override
-        public bwta.BaseLocation getInitValue() {
+        public ABaseLocationWrapper getInitValue() {
             return null;
         }
     };

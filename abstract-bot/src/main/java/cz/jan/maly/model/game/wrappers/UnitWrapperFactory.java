@@ -5,6 +5,7 @@ import cz.jan.maly.service.implementation.BotFacade;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * UnitWrapperFactory wraps units and handles refreshment of fields in wrappers to keep them current
@@ -17,6 +18,16 @@ public class UnitWrapperFactory {
     private static final Set<Integer> idsOfDeadUnits = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
 
     //todo move units from maps if they become hostile/friendly?
+
+    /**
+     * Return all registered enemy units alive
+     *
+     * @return
+     */
+    public static Stream<AUnit.Enemy> getStreamOfAllEnemyUnits() {
+        return enemyUnits.values().stream()
+                .filter(AUnit::isAlive);
+    }
 
     /**
      * Clear cache

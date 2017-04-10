@@ -1,10 +1,9 @@
 package cz.jan.maly.service;
 
 import bwapi.Race;
-import bwapi.TilePosition;
-import bwta.BaseLocation;
 import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.types.AgentTypePlayer;
+import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
 import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.model.game.wrappers.ATilePosition;
 import cz.jan.maly.model.game.wrappers.AUnit;
@@ -44,7 +43,7 @@ public class AgentPlayerInitializer implements PlayerInitializer {
                         .commandCreationStrategy(intention -> new ReasoningCommand(intention) {
                             @Override
                             public boolean act(WorkingMemory memory) {
-                                Optional<BaseLocation> base = memory.getReadOnlyMemoriesForAgentType(BASE_LOCATION)
+                                Optional<ABaseLocationWrapper> base = memory.getReadOnlyMemoriesForAgentType(BASE_LOCATION)
                                         .stream()
                                         .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_BASE).get())
                                         .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_BASE_LOCATION))
@@ -52,18 +51,17 @@ public class AgentPlayerInitializer implements PlayerInitializer {
                                         .map(Optional::get)
                                         .findAny();
                                 base.ifPresent(baseLocation -> {
-                                    Optional<TilePosition> tilePosition = memory.getReadOnlyMemoriesForAgentType(HATCHERY).stream()
+                                    Optional<ATilePosition> tilePosition = memory.getReadOnlyMemoriesForAgentType(HATCHERY).stream()
                                             .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT))
                                             .filter(Optional::isPresent)
                                             .map(Optional::get)
                                             .map(AUnit::getNearestBaseLocation)
                                             .filter(Optional::isPresent)
                                             .map(Optional::get)
-                                            .filter(location -> location.getY() == baseLocation.getY() &&
-                                                    location.getX() == baseLocation.getX())
-                                            .map(BaseLocation::getTilePosition)
+                                            .filter(baseLocation::equals)
+                                            .map(ABaseLocationWrapper::getTilePosition)
                                             .findFirst();
-                                    tilePosition.ifPresent(tp -> memory.updateFact(BASE_FOR_POOL, new ATilePosition(tp)));
+                                    tilePosition.ifPresent(tp -> memory.updateFact(BASE_FOR_POOL, tp));
                                 });
                                 return true;
                             }

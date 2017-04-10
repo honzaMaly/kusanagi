@@ -9,8 +9,10 @@ import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Template class for memory - it stores facts, sets of facts, agent type and commitment process in form of tree, and provide
@@ -25,13 +27,17 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     final AgentType agentType;
     @Getter
     final int agentId;
-    Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes = new HashMap<>();
-    Map<Integer, ReadOnlyMemory> sharedKnowledgeByOtherAgents = new HashMap<>();
+    final StrategyToGetSetOfMemoriesByAgentType strategyToGetSetOfMemoriesByAgentType;
+    final StrategyToGetMemoryOfAgent strategyToGetMemoryOfAgent;
+    final StrategyToGetAllMemories strategyToGetAllMemories;
 
-    Memory(V tree, AgentType agentType, int agentId) {
+    Memory(V tree, AgentType agentType, int agentId, StrategyToGetSetOfMemoriesByAgentType strategyToGetSetOfMemoriesByAgentType, StrategyToGetMemoryOfAgent strategyToGetMemoryOfAgent, StrategyToGetAllMemories strategyToGetAllMemories) {
         this.tree = tree;
         this.agentType = agentType;
         this.agentId = agentId;
+        this.strategyToGetSetOfMemoriesByAgentType = strategyToGetSetOfMemoriesByAgentType;
+        this.strategyToGetMemoryOfAgent = strategyToGetMemoryOfAgent;
+        this.strategyToGetAllMemories = strategyToGetAllMemories;
         agentType.getUsingTypesForFacts().forEach(factKey -> this.factParameterMap.put(factKey, factKey.returnEmptyFact()));
         agentType.getUsingTypesForFactSets().forEach(factKey -> this.factSetParameterMap.put(factKey, factKey.returnEmptyFactSet()));
     }
@@ -44,15 +50,21 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
      * @param tree
      * @param agentType
      * @param agentId
+     * @param strategyToGetSetOfMemoriesByAgentType
+     * @param strategyToGetMemoryOfAgent
+     * @param strategyToGetAllMemories
      */
-    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentType agentType, int agentId, Map<AgentType, Set<ReadOnlyMemory>> sharedKnowledgeByOtherAgentsTypes, Map<Integer, ReadOnlyMemory> sharedKnowledgeByOtherAgents) {
+    Memory(Map<FactKey, Fact> factParameterMap, Map<FactKey, FactSet> factSetParameterMap, V tree, AgentType agentType, int agentId,
+           StrategyToGetSetOfMemoriesByAgentType strategyToGetSetOfMemoriesByAgentType, StrategyToGetMemoryOfAgent strategyToGetMemoryOfAgent,
+           StrategyToGetAllMemories strategyToGetAllMemories) {
         this.tree = tree;
         this.agentType = agentType;
         this.agentId = agentId;
+        this.strategyToGetSetOfMemoriesByAgentType = strategyToGetSetOfMemoriesByAgentType;
+        this.strategyToGetMemoryOfAgent = strategyToGetMemoryOfAgent;
+        this.strategyToGetAllMemories = strategyToGetAllMemories;
         factParameterMap.forEach((factKey, o) -> this.factParameterMap.put(factKey, o.copyFact()));
         factSetParameterMap.forEach((factKey, set) -> this.factSetParameterMap.put(factKey, set.copyFact()));
-        sharedKnowledgeByOtherAgentsTypes.forEach((agentT, readOnlyMemories) -> this.sharedKnowledgeByOtherAgentsTypes.put(agentT, readOnlyMemories.stream().collect(Collectors.toSet())));
-        sharedKnowledgeByOtherAgents.forEach((integer, readOnlyMemory) -> this.sharedKnowledgeByOtherAgents.put(integer, readOnlyMemory));
     }
 
     public boolean isFactKeyForValueInMemory(FactKey<?> factKey) {
@@ -64,15 +76,15 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     }
 
     public Optional<ReadOnlyMemory> getReadOnlyMemoryForAgent(int agentId) {
-        return Optional.ofNullable(sharedKnowledgeByOtherAgents.get(agentId));
+        return strategyToGetMemoryOfAgent.getReadOnlyMemoryForAgent(agentId);
     }
 
     public Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
-        return sharedKnowledgeByOtherAgentsTypes.getOrDefault(agentType, new HashSet<>());
+        return strategyToGetSetOfMemoriesByAgentType.getReadOnlyMemoriesForAgentType(agentType);
     }
 
     public Set<ReadOnlyMemory> getReadOnlyMemories() {
-        return new HashSet<>(sharedKnowledgeByOtherAgents.values());
+        return strategyToGetAllMemories.getReadOnlyMemories();
     }
 
     @Override
@@ -184,5 +196,44 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         result = 31 * result + agentId;
         return result;
     }
+
+    /**
+     * Obtaining strategy
+     */
+    public interface StrategyToGetSetOfMemoriesByAgentType {
+        /**
+         * Get set of memories by agent type
+         *
+         * @param agentType
+         * @return
+         */
+        Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType);
+    }
+
+    /**
+     * Obtaining strategy
+     */
+    public interface StrategyToGetMemoryOfAgent {
+        /**
+         * Get ReadOnlyMemory by agent id
+         *
+         * @param agentId
+         * @return
+         */
+        Optional<ReadOnlyMemory> getReadOnlyMemoryForAgent(int agentId);
+    }
+
+    /**
+     * Obtaining strategy
+     */
+    public interface StrategyToGetAllMemories {
+        /**
+         * Get all beliefs in system
+         *
+         * @return
+         */
+        Set<ReadOnlyMemory> getReadOnlyMemories();
+    }
+
 }
 

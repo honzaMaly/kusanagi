@@ -71,4 +71,27 @@ public class DesiresKeys {
             .name("FIND_PLACE_TO_BUILD")
             .build();
 
+    public static final DesireKey AM_I_ENEMY_BASE = DesireKey.builder()
+            .name("AM_I_ENEMY_BASE")
+            .build();
+
+    public static final DesireKey ENEMIES_IN_BASE = DesireKey.builder()
+            .name("ENEMIES_IN_BASE")
+            .build();
+
+    public static final DesireKey VISIT = DesireKey.builder()
+            .name("VISIT")
+            .parametersTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE_LOCATION, LAST_TIME_SCOUTED})))
+            .build();
+
+    //TODO remove
+    public static final DesireKey AM_I_NOT_ENEMY_BASE = DesireKey.builder()
+            .name("AM_I_NOT_ENEMY_BASE")
+            .build();
+
+    public static final DesireKey ATTACK = DesireKey.builder()
+            .name("ATTACK")
+            .parametersTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE_LOCATION})))
+            .build();
+
 }
