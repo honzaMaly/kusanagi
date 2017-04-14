@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Template class for tracking commitment to desire which issues some agent to be achieved by other agents
+ * Template class for tracking commitmentDecider to desire which issues some agent to be achieved by other agents
  * Created by Jan on 22Feb17.
  */
 public abstract class SharedDesire extends Desire {
@@ -40,6 +40,10 @@ public abstract class SharedDesire extends Desire {
      */
     public Set<Agent> getCommittedAgents() {
         return new HashSet<>(committedAgents);
+    }
+
+    public int countOfCommittedAgents(){
+        return committedAgents.size();
     }
 
     /**

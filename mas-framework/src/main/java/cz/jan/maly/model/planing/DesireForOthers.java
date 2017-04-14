@@ -15,21 +15,21 @@ public class DesireForOthers extends InternalDesire<IntentionWithDesireForOtherA
     private final DesireKey sharedDesireKey;
     private final int limitOnNumberOfAgentsToCommit;
 
-    public DesireForOthers(DesireKey desireKey, WorkingMemory memory, Commitment commitment,
-                           RemoveCommitment removeCommitment,
-                           Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+    public DesireForOthers(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                           CommitmentDeciderInitializer removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                           Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                            DesireKey sharedDesireKey, int limitOnNumberOfAgentsToCommit) {
-        super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+        super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                 typesOfDesiresToConsiderWhenRemovingCommitment, false);
         this.sharedDesireKey = sharedDesireKey;
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;
     }
 
-    public DesireForOthers(DesireKey desireKey, WorkingMemory memory, Commitment commitment,
-                           RemoveCommitment removeCommitment,
+    public DesireForOthers(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                           CommitmentDeciderInitializer removeCommitment,
                            Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                            DesireKey sharedDesireKey, int limitOnNumberOfAgentsToCommit, DesireParameters parentsDesireParameters) {
-        super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+        super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                 typesOfDesiresToConsiderWhenRemovingCommitment, false, parentsDesireParameters);
         this.sharedDesireKey = sharedDesireKey;
         this.limitOnNumberOfAgentsToCommit = limitOnNumberOfAgentsToCommit;

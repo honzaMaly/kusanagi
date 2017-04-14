@@ -11,7 +11,7 @@ import lombok.Getter;
  * Created by Jan on 16-Feb-17.
  */
 public abstract class IntentionCommand<V extends InternalDesire<? extends IntentionCommand<?, ?>>, T extends CommandForIntention<? extends IntentionCommand<V, T>>> extends Intention<V> {
-    IntentionCommand(V originalDesire, RemoveCommitment removeCommitment) {
+    IntentionCommand(V originalDesire, CommitmentDeciderInitializer removeCommitment) {
         super(originalDesire, removeCommitment);
     }
 
@@ -30,7 +30,7 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
         private final SharedDesireForAgents sharedDesireForAgents;
         private final ActCommand.DesiredByAnotherAgent command;
 
-        FromAnotherAgent(DesireFromAnotherAgent.WithIntentionWithPlan originalDesire, RemoveCommitment removeCommitment,
+        FromAnotherAgent(DesireFromAnotherAgent.WithIntentionWithPlan originalDesire, CommitmentDeciderInitializer removeCommitment,
                          CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, FromAnotherAgent> commandCreationStrategy) {
             super(originalDesire, removeCommitment);
             this.sharedDesireForAgents = originalDesire.getDesireForAgents();
@@ -50,7 +50,7 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
     public static class OwnReasoning extends IntentionCommand<OwnDesire.Reasoning, ReasoningCommand> {
         private final ReasoningCommand command;
 
-        OwnReasoning(OwnDesire.Reasoning originalDesire, RemoveCommitment removeCommitment,
+        OwnReasoning(OwnDesire.Reasoning originalDesire, CommitmentDeciderInitializer removeCommitment,
                      CommandFormulationStrategy<ReasoningCommand, OwnReasoning> commandCreationStrategy) {
             super(originalDesire, removeCommitment);
             this.command = commandCreationStrategy.formCommand(this);
@@ -68,7 +68,7 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
     public static class OwnActing extends IntentionCommand<OwnDesire.Acting, ActCommand.Own> {
         private final ActCommand.Own command;
 
-        OwnActing(OwnDesire.Acting originalDesire, RemoveCommitment removeCommitment,
+        OwnActing(OwnDesire.Acting originalDesire, CommitmentDeciderInitializer removeCommitment,
                   CommandFormulationStrategy<ActCommand.Own, OwnActing> commandCreationStrategy) {
             super(originalDesire, removeCommitment);
             this.command = commandCreationStrategy.formCommand(this);

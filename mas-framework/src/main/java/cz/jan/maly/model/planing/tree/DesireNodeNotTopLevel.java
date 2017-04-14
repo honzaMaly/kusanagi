@@ -1,6 +1,5 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
 import cz.jan.maly.model.planing.command.ActCommand;
@@ -8,6 +7,7 @@ import cz.jan.maly.model.planing.command.CommandForIntention;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.utils.MyLogger;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,8 +25,9 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
 
     abstract IntentionNodeNotTopLevel<?, ?, ?> formDesireNodeAndReplaceIntentionNode();
 
-    public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
-        if (desire.shouldCommit(dataForDecision)) {
+    public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                                      List<DesireKey> typesAboutToMakeDecision) {
+        if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
             return Optional.of(formDesireNodeAndReplaceIntentionNode());
         }
         return Optional.empty();
@@ -67,8 +68,9 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
-                if (desire.shouldCommit(dataForDecision)) {
+            public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                                              List<DesireKey> typesAboutToMakeDecision) {
+                if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                     IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent node = new IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent(parent, desire);
                     SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
                     if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
@@ -90,8 +92,9 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
             }
 
             @Override
-            public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(DataForDecision dataForDecision) {
-                if (desire.shouldCommit(dataForDecision)) {
+            public Optional<IntentionNodeNotTopLevel<?, ?, ?>> makeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                                              List<DesireKey> typesAboutToMakeDecision) {
+                if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                     IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent node = new IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent(parent, desire);
                     SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
                     if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {

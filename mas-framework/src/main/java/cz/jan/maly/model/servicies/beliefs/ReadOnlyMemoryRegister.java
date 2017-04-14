@@ -4,9 +4,12 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
 import cz.jan.maly.model.metadata.AgentType;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Concrete implementation of MemoryRegister. Instance of class is intended as read only as it is shared among agents.
@@ -40,8 +43,8 @@ public class ReadOnlyMemoryRegister extends MemoryRegister {
      * @param agentType
      * @return
      */
-    public Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
-        return new HashSet<>(beliefsInSystem.getOrDefault(agentType, new HashMap<>()).values());
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+        return beliefsInSystem.getOrDefault(agentType, new HashMap<>()).values().stream();
     }
 
     /**
@@ -49,8 +52,8 @@ public class ReadOnlyMemoryRegister extends MemoryRegister {
      *
      * @return
      */
-    public Set<ReadOnlyMemory> getReadOnlyMemories() {
-        return new HashSet<>(beliefsInSystemByAgents.values());
+    public Stream<ReadOnlyMemory> getReadOnlyMemories() {
+        return beliefsInSystemByAgents.values().stream();
     }
 
 }

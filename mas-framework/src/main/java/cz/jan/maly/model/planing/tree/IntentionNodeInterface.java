@@ -1,6 +1,5 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.SharedDesireForAgents;
 
@@ -24,10 +23,10 @@ public interface IntentionNodeInterface {
     /**
      * Remove commitment to this intention and replace itself by desire
      *
-     * @param dataForDecision
      * @return
      */
-    boolean removeCommitment(DataForDecision dataForDecision);
+    boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                             List<DesireKey> typesAboutToMakeDecision);
 
     /**
      * Add own desire key to list + when intermediate node - ask childes

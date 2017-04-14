@@ -5,7 +5,7 @@ import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.planing.IntentionCommand;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Template class for CommandForIntention defines common data structure for some executable object by agent
@@ -24,7 +24,7 @@ public abstract class CommandForIntention<T extends IntentionCommand<?, ? extend
     }
 
     @Override
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
         return intention.returnFactSetValueForGivenKey(factKey);
     }
 
@@ -46,7 +46,7 @@ public abstract class CommandForIntention<T extends IntentionCommand<?, ? extend
      * @param <V>
      * @return
      */
-    protected <V> Optional<Set<V>> returnFactSetValueForGivenKeyInDesireParameters(FactKey<V> factKey) {
+    protected <V> Optional<Stream<V>> returnFactSetValueForGivenKeyInDesireParameters(FactKey<V> factKey) {
         return intention.returnFactSetValueForGivenKeyInDesireParameters(factKey);
     }
 

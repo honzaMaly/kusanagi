@@ -2,7 +2,6 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.agents.Agent;
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
@@ -12,8 +11,10 @@ import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Class extending Desire describes template for internal desires agents may want to commit to. Concrete implementation
@@ -21,20 +22,20 @@ import java.util.Set;
  * Created by Jan on 22-Feb-17.
  */
 public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements DecisionAboutCommitment, FactContainerInterface {
-    final Commitment commitment;
-    final RemoveCommitment removeCommitment;
+    final CommitmentDecider commitmentDecider;
+    final CommitmentDeciderInitializer removeCommitment;
     final Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment;
     @Getter
     final boolean isAbstract;
-    private final WorkingMemory memory;
+    final WorkingMemory memory;
     private final Set<DesireKey> typesOfDesiresToConsiderWhenCommitting;
     private final Optional<DesireParameters> parentsDesireParameters;
 
-    InternalDesire(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+    InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
                    Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                    boolean isAbstract) {
         super(desireKey, memory);
-        this.commitment = commitment;
+        this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.memory = memory;
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
@@ -43,11 +44,11 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
         this.parentsDesireParameters = Optional.empty();
     }
 
-    InternalDesire(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+    InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
                    Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                    boolean isAbstract, DesireParameters parentsDesireParameters) {
         super(desireKey, memory);
-        this.commitment = commitment;
+        this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.memory = memory;
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
@@ -56,17 +57,29 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
         this.parentsDesireParameters = Optional.of(parentsDesireParameters);
     }
 
-    InternalDesire(DesireParameters desireParameters, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+    InternalDesire(DesireParameters desireParameters, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
                    Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                    boolean isAbstract, int originatorId) {
         super(desireParameters, originatorId);
         this.memory = memory;
-        this.commitment = commitment;
+        this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
         this.typesOfDesiresToConsiderWhenCommitting = typesOfDesiresToConsiderWhenCommitting;
         this.typesOfDesiresToConsiderWhenRemovingCommitment = typesOfDesiresToConsiderWhenRemovingCommitment;
         this.parentsDesireParameters = Optional.empty();
+    }
+
+    public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                List<DesireKey> typesAboutToMakeDecision) {
+        return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
+                memory);
+    }
+
+    public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                List<DesireKey> typesAboutToMakeDecision, int numberOfCommittedAgents) {
+        return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
+                memory, numberOfCommittedAgents);
     }
 
     @Override
@@ -78,7 +91,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
         return memory.returnFactValueForGivenKey(factKey);
     }
 
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
         return memory.returnFactSetValueForGivenKey(factKey);
     }
 
@@ -86,11 +99,11 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
         return memory.getReadOnlyMemoryForAgent(agentId);
     }
 
-    public Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
         return memory.getReadOnlyMemoriesForAgentType(agentType);
     }
 
-    public Set<ReadOnlyMemory> getReadOnlyMemories() {
+    public Stream<ReadOnlyMemory> getReadOnlyMemories() {
         return memory.getReadOnlyMemories();
     }
 
@@ -129,22 +142,12 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
      * @param <S>
      * @return
      */
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueOfParentIntentionForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueOfParentIntentionForGivenKey(FactKey<V> factKey) {
         if (parentsDesireParameters.isPresent()) {
             return parentsDesireParameters.get().returnFactSetValueForGivenKey(factKey);
         }
         MyLogger.getLogger().warning("There are no parameters from parent intention present.");
         return Optional.empty();
-    }
-
-    /**
-     * Decides commitment - should agent commit?
-     *
-     * @param dataForDecision
-     * @return
-     */
-    public boolean shouldCommit(DataForDecision dataForDecision) {
-        return commitment.shouldCommit(this, dataForDecision);
     }
 
     /**

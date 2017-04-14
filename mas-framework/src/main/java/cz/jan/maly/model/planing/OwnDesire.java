@@ -15,17 +15,17 @@ import java.util.Set;
  * Created by Jan on 15-Feb-17.
  */
 public abstract class OwnDesire<T extends Intention<? extends OwnDesire<?>>> extends InternalDesire<T> {
-    OwnDesire(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+    OwnDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
               Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
               boolean isAbstract) {
-        super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+        super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                 typesOfDesiresToConsiderWhenRemovingCommitment, isAbstract);
     }
 
-    OwnDesire(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+    OwnDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
               Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
               boolean isAbstract, DesireParameters parentsDesireParameters) {
-        super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+        super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                 typesOfDesiresToConsiderWhenRemovingCommitment, isAbstract, parentsDesireParameters);
     }
 
@@ -38,12 +38,12 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<?>>> ext
         private final Set<DesireKey> desiresWithIntentionToAct;
         private final Set<DesireKey> desiresWithIntentionToReason;
 
-        public WithAbstractIntention(DesireKey desireKey, WorkingMemory memory, Commitment commitment,
-                                     RemoveCommitment removeCommitment,
+        public WithAbstractIntention(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                                     CommitmentDeciderInitializer removeCommitment,
                                      Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                      Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-            super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+            super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, true);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
@@ -51,13 +51,13 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<?>>> ext
             this.desiresWithIntentionToReason = desiresWithIntentionToReason;
         }
 
-        public WithAbstractIntention(DesireKey desireKey, WorkingMemory memory, Commitment commitment,
-                                     RemoveCommitment removeCommitment,
+        public WithAbstractIntention(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                                     CommitmentDeciderInitializer removeCommitment,
                                      Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                                      Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                      Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason,
                                      DesireParameters parentsDesireParameters) {
-            super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+            super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, true, parentsDesireParameters);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
@@ -78,21 +78,21 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<?>>> ext
     public static class Reasoning extends OwnDesire<IntentionCommand.OwnReasoning> {
         private final CommandFormulationStrategy<ReasoningCommand, IntentionCommand.OwnReasoning> commandCreationStrategy;
 
-        public Reasoning(DesireKey desireKey, WorkingMemory memory, Commitment commitment,
-                         RemoveCommitment removeCommitment,
-                         Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+        public Reasoning(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                         CommitmentDeciderInitializer removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                         Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                          CommandFormulationStrategy<ReasoningCommand, IntentionCommand.OwnReasoning> commandCreationStrategy) {
-            super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+            super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, false);
             this.commandCreationStrategy = commandCreationStrategy;
         }
 
-        public Reasoning(DesireKey desireKey, WorkingMemory memory, Commitment commitment,
-                         RemoveCommitment removeCommitment,
-                         Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+        public Reasoning(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                         CommitmentDeciderInitializer removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                         Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                          CommandFormulationStrategy<ReasoningCommand, IntentionCommand.OwnReasoning> commandCreationStrategy,
                          DesireParameters parentsDesireParameters) {
-            super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+            super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, false, parentsDesireParameters);
             this.commandCreationStrategy = commandCreationStrategy;
         }
@@ -109,19 +109,19 @@ public abstract class OwnDesire<T extends Intention<? extends OwnDesire<?>>> ext
     public static class Acting extends OwnDesire<IntentionCommand.OwnActing> {
         private final CommandFormulationStrategy<ActCommand.Own, IntentionCommand.OwnActing> commandCreationStrategy;
 
-        public Acting(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+        public Acting(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
                       Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                       CommandFormulationStrategy<ActCommand.Own, IntentionCommand.OwnActing> commandCreationStrategy) {
-            super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+            super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, false);
             this.commandCreationStrategy = commandCreationStrategy;
         }
 
-        public Acting(DesireKey desireKey, WorkingMemory memory, Commitment commitment, RemoveCommitment removeCommitment,
+        public Acting(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
                       Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                       CommandFormulationStrategy<ActCommand.Own, IntentionCommand.OwnActing> commandCreationStrategy,
                       DesireParameters parentsDesireParameters) {
-            super(desireKey, memory, commitment, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
+            super(desireKey, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
                     typesOfDesiresToConsiderWhenRemovingCommitment, false, parentsDesireParameters);
             this.commandCreationStrategy = commandCreationStrategy;
         }

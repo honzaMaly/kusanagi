@@ -1,7 +1,6 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
@@ -54,8 +53,9 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        public boolean removeCommitment(DataForDecision dataForDecision) {
-            if (intention.shouldRemoveCommitment(dataForDecision)) {
+        public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                        List<DesireKey> typesAboutToMakeDecision) {
+            if (intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                 formDesireNodeAndReplaceIntentionNode();
                 return true;
             }
@@ -76,8 +76,10 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
 
             @Override
-            public boolean removeCommitment(DataForDecision dataForDecision) {
-                if (intention.shouldRemoveCommitment(dataForDecision)) {
+            public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                            List<DesireKey> typesAboutToMakeDecision) {
+                if (intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
+                        desire.countOfCommittedAgents())) {
 
                     //share desire and wait for response of registration
                     SharedDesireForAgents sharedDesire = intention.getSharedDesireForAgents();
@@ -203,8 +205,10 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        public boolean removeCommitment(DataForDecision dataForDecision) {
-            if (intention.shouldRemoveCommitment(dataForDecision)) {
+        public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                        List<DesireKey> typesAboutToMakeDecision) {
+            if (intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
+                    intention.getSharedDesire().countOfCommittedAgents())) {
 
                 //share desire and wait for response of registration
                 if (sharingDesireRemovalRoutine.unregisterSharedDesire(intention.getSharedDesire(), tree)) {
@@ -258,8 +262,9 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
         }
 
         @Override
-        public boolean removeCommitment(DataForDecision dataForDecision) {
-            if (intention.shouldRemoveCommitment(dataForDecision)) {
+        public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                        List<DesireKey> typesAboutToMakeDecision) {
+            if (shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
 
                 //share desire and wait for response of registration
                 Set<SharedDesireForAgents> sharedDesires = new HashSet<>();
@@ -275,6 +280,9 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             }
             return false;
         }
+
+        protected abstract boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                          List<DesireKey> typesAboutToMakeDecision);
 
         @Override
         public void collectSharedDesiresForOtherAgentsInSubtree(Set<SharedDesireForAgents> sharedDesiresInSubtree) {
@@ -355,6 +363,11 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
             private final DesireFromAnotherAgent.WithAbstractIntention desire;
 
+            @Override
+            protected boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision) {
+                return intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision, desire.countOfCommittedAgents());
+            }
+
             FromAnotherAgent(Tree tree, DesireFromAnotherAgent.WithAbstractIntention desire) {
                 super(tree, desire);
                 this.desire = desire;
@@ -416,6 +429,11 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
             Own(Tree tree, OwnDesire.WithAbstractIntention desire) {
                 super(tree, desire);
                 desireUpdater.initDesires(intention, this);
+            }
+
+            @Override
+            protected boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision) {
+                return intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision);
             }
 
             @Override

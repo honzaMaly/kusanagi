@@ -2,15 +2,16 @@ package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.FactContainerInterface;
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.FactKey;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Class describing template for intention. Intention instance represents metadata and high level abstraction of
@@ -19,11 +20,11 @@ import java.util.Set;
  */
 public abstract class Intention<T extends InternalDesire<?>> implements FactContainerInterface, DesireKeyIdentificationInterface, DecisionAboutCommitment {
     private final T originalDesire;
-    private final RemoveCommitment removeCommitment;
+    protected final CommitmentDecider removeCommitment;
 
-    Intention(T originalDesire, RemoveCommitment removeCommitment) {
+    Intention(T originalDesire, CommitmentDeciderInitializer removeCommitment) {
         this.originalDesire = originalDesire;
-        this.removeCommitment = removeCommitment;
+        this.removeCommitment = removeCommitment.initializeCommitmentDecider(originalDesire.desireParameters);
     }
 
     @Override
@@ -35,16 +36,6 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
         return originalDesire.desireParameters;
     }
 
-    /**
-     * Should agent remove commitment to this intention?
-     *
-     * @param dataForDecision
-     * @return
-     */
-    public boolean shouldRemoveCommitment(DataForDecision dataForDecision) {
-        return removeCommitment.shouldRemoveCommitment(this, dataForDecision);
-    }
-
     @Override
     public DesireKey getDesireKey() {
         return originalDesire.getDesireKey();
@@ -54,7 +45,7 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
         return originalDesire.returnFactValueForGivenKey(factKey);
     }
 
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
         return originalDesire.returnFactSetValueForGivenKey(factKey);
     }
 
@@ -69,6 +60,18 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
         return originalDesire.returnFactValueForGivenKeyInParameters(factKey);
     }
 
+    public boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                          List<DesireKey> typesAboutToMakeDecision) {
+        return removeCommitment.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
+                originalDesire.memory);
+    }
+
+    public boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                          List<DesireKey> typesAboutToMakeDecision, int numberOfCommittedAgents) {
+        return removeCommitment.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
+                originalDesire.memory, numberOfCommittedAgents);
+    }
+
     /**
      * Returns fact value set from desire parameters
      *
@@ -77,7 +80,7 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
      * @param <S>
      * @return
      */
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKeyInDesireParameters(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKeyInDesireParameters(FactKey<V> factKey) {
         return originalDesire.returnFactSetValueForGivenKeyInParameters(factKey);
     }
 
@@ -100,7 +103,7 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
      * @param <S>
      * @return
      */
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueOfParentIntentionForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueOfParentIntentionForGivenKey(FactKey<V> factKey) {
         return originalDesire.returnFactSetValueOfParentIntentionForGivenKey(factKey);
     }
 
@@ -108,11 +111,11 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
         return originalDesire.getReadOnlyMemoryForAgent(agentId);
     }
 
-    public Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
         return originalDesire.getReadOnlyMemoriesForAgentType(agentType);
     }
 
-    public Set<ReadOnlyMemory> getReadOnlyMemories() {
+    public Stream<ReadOnlyMemory> getReadOnlyMemories() {
         return originalDesire.getReadOnlyMemories();
     }
 

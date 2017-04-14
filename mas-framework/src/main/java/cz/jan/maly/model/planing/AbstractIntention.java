@@ -14,7 +14,7 @@ public class AbstractIntention<T extends InternalDesire<?>> extends Intention<T>
     private final Set<DesireKey> desiresWithIntentionToAct;
     private final Set<DesireKey> desiresWithIntentionToReason;
 
-    AbstractIntention(T originalDesire, RemoveCommitment removeCommitment,
+    AbstractIntention(T originalDesire, CommitmentDeciderInitializer removeCommitment,
                       Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
                       Set<DesireKey> desiresWithIntentionToReason) {
         super(originalDesire, removeCommitment);

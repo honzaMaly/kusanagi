@@ -8,7 +8,7 @@ import cz.jan.maly.model.metadata.FactKey;
 import lombok.Getter;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Class describing template for desire. Desire instance represents high level abstraction of
@@ -41,7 +41,7 @@ public abstract class Desire implements DesireKeyIdentificationInterface {
         return desireParameters.returnFactValueForGivenKey(factKey);
     }
 
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKeyInParameters(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKeyInParameters(FactKey<V> factKey) {
         return desireParameters.returnFactSetValueForGivenKey(factKey);
     }
 

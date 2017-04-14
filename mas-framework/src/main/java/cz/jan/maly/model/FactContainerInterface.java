@@ -3,7 +3,7 @@ package cz.jan.maly.model;
 import cz.jan.maly.model.metadata.FactKey;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Interface to be implemented by each class working with facts. Returned values are references on actual object (not copy
@@ -29,6 +29,6 @@ public interface FactContainerInterface {
      * @param <V>
      * @return
      */
-    <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey);
+    <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey);
 
 }

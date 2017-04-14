@@ -1,11 +1,11 @@
 package cz.jan.maly.model.planing.tree;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
 import cz.jan.maly.utils.MyLogger;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,8 +42,9 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         }
 
         @Override
-        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
-            if (desire.shouldCommit(dataForDecision)) {
+        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                                      List<DesireKey> typesAboutToMakeDecision) {
+            if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                 IntentionNodeAtTopLevel.WithDesireForOthers node = new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
                 SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
                 if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
@@ -71,8 +72,10 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         abstract IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent();
 
         @Override
-        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
-            if (desire.getDesireForAgents().mayTryToCommit() && desire.shouldCommit(dataForDecision)) {
+        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                                      List<DesireKey> typesAboutToMakeDecision) {
+            if (desire.getDesireForAgents().mayTryToCommit() && desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes,
+                    typesAboutToMakeDecision, desire.countOfCommittedAgents())) {
 
                 synchronized (lockMonitor) {
                     if (tree.getAgent().getDesireMediator().addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
@@ -149,8 +152,9 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
         }
 
         @Override
-        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(DataForDecision dataForDecision) {
-            if (desire.shouldCommit(dataForDecision)) {
+        public Optional<IntentionNodeAtTopLevel<?, ?>> makeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                                                      List<DesireKey> typesAboutToMakeDecision) {
+            if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                 return Optional.of(formIntentionNodeAndReplaceSelfInParent());
             }
             return Optional.empty();

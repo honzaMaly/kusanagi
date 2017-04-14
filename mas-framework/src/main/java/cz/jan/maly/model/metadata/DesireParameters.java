@@ -11,7 +11,7 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Class to define container with parameters (facts) for desire classes to be accessed by it. As this class is read only
@@ -50,10 +50,10 @@ public class DesireParameters implements FactContainerInterface, DesireKeyIdenti
         return Optional.empty();
     }
 
-    public <V, S extends Set<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
         FactSet<V> factSet = (FactSet<V>) factSetParameterMap.get(factKey);
         if (factSet != null) {
-            return Optional.ofNullable((S) factSet.getContent());
+            return Optional.ofNullable((S) factSet.getContent().stream());
         }
         MyLogger.getLogger().warning(factKey.getName() + " is not present in parameters.");
         return Optional.empty();

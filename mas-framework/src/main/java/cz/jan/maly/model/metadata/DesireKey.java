@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Class describing metadata for desire - used for identification and parameter type definition.
@@ -33,6 +34,14 @@ public class DesireKey extends Key implements FactContainerInterface {
         this.parametersTypesForFactSets = parametersTypesForFactSets;
     }
 
+    public Set<FactKey<?>> parametersTypesForStaticFacts(){
+        return factParameterMap.keySet();
+    }
+
+    public Set<FactKey<?>> parametersTypesForStaticFactsSets(){
+        return factSetParameterMap.keySet();
+    }
+
     //builder with default fields
     public static class DesireKeyBuilder {
         private Set<Fact<?>> staticFactValues = new HashSet<>();
@@ -52,10 +61,10 @@ public class DesireKey extends Key implements FactContainerInterface {
     }
 
     @Override
-    public <K, S extends Set<K>> Optional<S> returnFactSetValueForGivenKey(FactKey<K> factKey) {
+    public <K, S extends Stream<K>> Optional<S> returnFactSetValueForGivenKey(FactKey<K> factKey) {
         FactSet<K> factSet = (FactSet<K>) factSetParameterMap.get(factKey);
         if (factSet != null) {
-            return Optional.ofNullable((S) factSet.getContent());
+            return Optional.ofNullable((S) factSet.getContent().stream());
         }
         MyLogger.getLogger().warning(factKey.getName() + " is not present in " + this.getName() + " type definition.");
         return Optional.empty();

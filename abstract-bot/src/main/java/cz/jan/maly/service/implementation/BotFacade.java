@@ -5,6 +5,7 @@ import bwta.BWTA;
 import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.AgentUnit;
 import cz.jan.maly.model.agents.Agent;
+import cz.jan.maly.model.game.util.Annotator;
 import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.model.game.wrappers.AbstractPositionWrapper;
 import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
@@ -47,6 +48,11 @@ public class BotFacade extends DefaultBWListener {
     @Setter
     @Getter
     private static long refreshInfoAboutResourceUnitAfterFrames = 20;
+
+    @Setter
+    @Getter
+    private static boolean annotateMap = true;
+
     //keep track of agent units
     private final Map<Integer, AgentUnit> agentsWithGameRepresentation = new HashMap<>();
     //fields provided by user
@@ -71,6 +77,8 @@ public class BotFacade extends DefaultBWListener {
 
     @Getter
     private Player self;
+
+    private Annotator annotator;
 
     public BotFacade(AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy,
                      PlayerInitializerCreationStrategy playerInitializerCreationStrategy,
@@ -107,10 +115,13 @@ public class BotFacade extends DefaultBWListener {
 
         MyLogger.getLogger().info("Map data ready");
 
+        //init annotation
+        annotator = new Annotator(game.getPlayers().stream()
+                .filter(player -> player.isEnemy(self) || player.getID() == self.getID())
+                .collect(Collectors.toList()), self, game);
+
         //reference on agents
         List<Agent<?>> agentsToRun = new ArrayList<>();
-
-        //todo - create abstract agents?
 
         //init player as another agent
         Optional<APlayer> player = APlayer.wrapPlayer(self);
@@ -195,6 +206,11 @@ public class BotFacade extends DefaultBWListener {
         // === Catch any exception that occur not to "kill" the bot with one trivial error ===================
         catch (Exception e) {
             e.printStackTrace();
+        }
+
+        //annotate map
+        if (annotateMap) {
+            annotator.annotate();
         }
     }
 

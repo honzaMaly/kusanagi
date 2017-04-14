@@ -1,8 +1,7 @@
 package cz.jan.maly.model.metadata.agents.configuration;
 
 import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.planing.Commitment;
-import cz.jan.maly.model.planing.RemoveCommitment;
+import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,8 +15,8 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 public class CommonConfiguration {
-    private Commitment decisionInDesire;
-    private RemoveCommitment decisionInIntention;
+    private CommitmentDeciderInitializer decisionInDesire;
+    private CommitmentDeciderInitializer decisionInIntention;
     private Set<DesireKey> typesOfDesiresToConsiderWhenCommitting;
     private Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment;
 

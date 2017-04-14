@@ -4,9 +4,8 @@ import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.agents.configuration.CommonConfiguration;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstractPlan;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
-import cz.jan.maly.model.planing.Commitment;
+import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import cz.jan.maly.model.planing.IntentionCommand;
-import cz.jan.maly.model.planing.RemoveCommitment;
 import cz.jan.maly.model.planing.command.CommandForIntention;
 import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
 
@@ -19,16 +18,16 @@ import java.util.Set;
  * Created by Jan on 11-Mar-17.
  */
 public abstract class DesireFormulation {
-    private final Map<DesireKey, Commitment> decisionsByDesire = new HashMap<>();
-    private final Map<DesireKey, RemoveCommitment> decisionsByIntention = new HashMap<>();
+    private final Map<DesireKey, CommitmentDeciderInitializer> decisionsByDesire = new HashMap<>();
+    private final Map<DesireKey, CommitmentDeciderInitializer> decisionsByIntention = new HashMap<>();
     private final Map<DesireKey, Set<DesireKey>> typesOfDesiresToConsiderWhenCommitting = new HashMap<>();
     private final Map<DesireKey, Set<DesireKey>> typesOfDesiresToConsiderWhenRemovingCommitment = new HashMap<>();
 
-    RemoveCommitment getDecisionInIntention(DesireKey key) {
+    CommitmentDeciderInitializer getDecisionInIntention(DesireKey key) {
         return decisionsByIntention.get(key);
     }
 
-    Commitment getDecisionInDesire(DesireKey key) {
+    CommitmentDeciderInitializer getDecisionInDesire(DesireKey key) {
         return decisionsByDesire.get(key);
     }
 

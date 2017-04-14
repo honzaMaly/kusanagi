@@ -1,6 +1,5 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.model.planing.tree.*;
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Commitment visitor traverse subtrees to decide commitments to intentions removal - for given intention in root of subtree decide
+ * CommitmentDecider visitor traverse subtrees to decide commitments to intentions removal - for given intention in root of subtree decide
  * based on gate (and supplied arguments to it) if agent should remove commitment to this intention (if so,
  * intention is removed and replaced by desire). If commitment to intention is not removed visitor move further in subtree
  * else do backtrack to go to other branches
@@ -44,19 +43,15 @@ public class CommitmentRemovalDecider implements TreeVisitorInterface {
         while (it.hasNext()) {
             K node = it.next();
             node.removeCommitment(
-                    new DataForDecision(node.getParametersToLoad(),
-                            parent.getNodesWithIntention().stream()
-                                    .map(Node::getDesireKey)
-                                    .collect(Collectors.toList()),
-                            parent.getNodesWithDesire().stream()
-                                    .map(Node::getDesireKey)
-                                    .collect(Collectors.toList()),
-                            intentionNodes.stream()
-                                    .map(Node::getDesireKey)
-                                    .collect(Collectors.toList()),
-                            parent.getDesireKeyAssociatedWithParent()
-                    )
-            );
+                    parent.getNodesWithIntention().stream()
+                            .map(Node::getDesireKey)
+                            .collect(Collectors.toList()),
+                    parent.getNodesWithDesire().stream()
+                            .map(Node::getDesireKey)
+                            .collect(Collectors.toList()),
+                    intentionNodes.stream()
+                            .map(Node::getDesireKey)
+                            .collect(Collectors.toList()));
             it.remove();
         }
 

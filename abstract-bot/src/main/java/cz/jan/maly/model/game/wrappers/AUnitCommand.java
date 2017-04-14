@@ -5,7 +5,10 @@ import bwapi.UnitCommand;
 import bwapi.UnitCommandType;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Wrapper for BWMirror UnitCommand
@@ -13,7 +16,6 @@ import java.util.Optional;
  */
 @Getter
 public class AUnitCommand {
-
     private final int slot;
     private final Optional<Unit> target;
     private final Optional<Unit> unit;
@@ -24,8 +26,12 @@ public class AUnitCommand {
 
     private AUnitCommand(UnitCommand command) {
         this.slot = command.getSlot();
-        this.target = Optional.ofNullable(command.getTarget());
-        this.unit = Optional.ofNullable(command.getUnit());
+        if (typesWithTarget.contains(command.getUnitCommandType())) {
+            target = Optional.ofNullable(command.getTarget());
+        } else {
+            target = Optional.empty();
+        }
+        unit = Optional.ofNullable(command.getUnit());
         this.unitCommandType = command.getUnitCommandType();
         if (command.getTargetPosition() == null) {
             this.targetPosition = Optional.empty();
@@ -36,11 +42,17 @@ public class AUnitCommand {
         this.isQueued = command.isQueued();
     }
 
-    static Optional<AUnitCommand> creteOrEmpty(UnitCommand command) {
+    public static Optional<AUnitCommand> creteOrEmpty(UnitCommand command) {
         if (command == null) {
             return Optional.empty();
         }
         return Optional.of(new AUnitCommand(command));
     }
+
+    //to keep track of types with target
+    private static Set<UnitCommandType> typesWithTarget = new HashSet<>(Arrays.asList(new UnitCommandType[]{
+            UnitCommandType.Gather, UnitCommandType.Attack_Unit, UnitCommandType.Follow, UnitCommandType.Repair,
+            UnitCommandType.Load, UnitCommandType.Unload
+    }));
 
 }

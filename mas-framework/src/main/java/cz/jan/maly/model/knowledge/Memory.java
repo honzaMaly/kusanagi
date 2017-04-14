@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Template class for memory - it stores facts, sets of facts, agent type and commitment process in form of tree, and provide
@@ -79,11 +80,11 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         return strategyToGetMemoryOfAgent.getReadOnlyMemoryForAgent(agentId);
     }
 
-    public Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
         return strategyToGetSetOfMemoriesByAgentType.getReadOnlyMemoriesForAgentType(agentType);
     }
 
-    public Set<ReadOnlyMemory> getReadOnlyMemories() {
+    public Stream<ReadOnlyMemory> getReadOnlyMemories() {
         return strategyToGetAllMemories.getReadOnlyMemories();
     }
 
@@ -114,10 +115,10 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
     }
 
     @Override
-    public <K, S extends Set<K>> Optional<S> returnFactSetValueForGivenKey(FactKey<K> factKey) {
+    public <K, S extends Stream<K>> Optional<S> returnFactSetValueForGivenKey(FactKey<K> factKey) {
         FactSet<K> factSet = (FactSet<K>) factSetParameterMap.get(factKey);
         if (factSet != null) {
-            return Optional.ofNullable((S) factSet.getContent());
+            return Optional.ofNullable((S) factSet.getContent().stream());
         }
         MyLogger.getLogger().warning(factKey.getName() + " is not present in " + agentType.getName() + " type definition.");
         return Optional.empty();
@@ -207,7 +208,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
          * @param agentType
          * @return
          */
-        Set<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType);
+        Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType);
     }
 
     /**
@@ -232,7 +233,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
          *
          * @return
          */
-        Set<ReadOnlyMemory> getReadOnlyMemories();
+        Stream<ReadOnlyMemory> getReadOnlyMemories();
     }
 
 }

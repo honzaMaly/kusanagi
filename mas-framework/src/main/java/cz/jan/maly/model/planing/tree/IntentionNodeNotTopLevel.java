@@ -1,6 +1,5 @@
 package cz.jan.maly.model.planing.tree;
 
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.planing.*;
@@ -54,8 +53,9 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         }
 
         @Override
-        public boolean removeCommitment(DataForDecision dataForDecision) {
-            if (intention.shouldRemoveCommitment(dataForDecision)) {
+        public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                        List<DesireKey> typesAboutToMakeDecision) {
+            if (intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision, intention.getSharedDesire().countOfCommittedAgents())) {
 
                 //share desire and wait for response of registration
                 if (sharingDesireRemovalRoutine.unregisterSharedDesire(intention.getSharedDesire(), tree)) {
@@ -140,8 +140,9 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         }
 
         @Override
-        public boolean removeCommitment(DataForDecision dataForDecision) {
-            if (intention.shouldRemoveCommitment(dataForDecision)) {
+        public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                        List<DesireKey> typesAboutToMakeDecision) {
+            if (intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                 replaceIntentionByDesireInParent();
                 return true;
             }
@@ -243,8 +244,9 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         }
 
         @Override
-        public boolean removeCommitment(DataForDecision dataForDecision) {
-            if (intention.shouldRemoveCommitment(dataForDecision)) {
+        public boolean removeCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
+                                        List<DesireKey> typesAboutToMakeDecision) {
+            if (intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
 
                 //share desire and wait for response of registration
                 Set<SharedDesireForAgents> sharedDesires = new HashSet<>();

@@ -1,6 +1,5 @@
 package cz.jan.maly.model.planing.tree.visitors;
 
-import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
@@ -13,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Commitment visitor traverse subtrees to decide commitments to desires - for given desire in root of subtree decide
+ * CommitmentDecider visitor traverse subtrees to decide commitments to desires - for given desire in root of subtree decide
  * based on gate (and supplied arguments to it) if agent should commit to this desire (if so, intention is made) and
  * visitor move further in subtree else backtrack
  * Created by Jan on 22-Feb-17.
@@ -46,16 +45,13 @@ public class CommitmentDecider implements TreeVisitorInterface {
         while (it.hasNext()) {
             V node = it.next();
             Optional<K> committedDesire = node.makeCommitment(
-                    new DataForDecision(node.getParametersToLoad(),
-                            parent.getNodesWithIntention().stream()
-                                    .map(Node::getDesireKey)
-                                    .collect(Collectors.toList()),
-                            didNotMakeCommitmentToTypes,
-                            desiresNodes.stream()
-                                    .map(Node::getDesireKey)
-                                    .collect(Collectors.toList()),
-                            parent.getDesireKeyAssociatedWithParent()
-                    ));
+                    parent.getNodesWithIntention().stream()
+                            .map(Node::getDesireKey)
+                            .collect(Collectors.toList()),
+                    didNotMakeCommitmentToTypes,
+                    desiresNodes.stream()
+                            .map(Node::getDesireKey)
+                            .collect(Collectors.toList()));
             if (!committedDesire.isPresent()) {
                 didNotMakeCommitmentToTypes.add(node.getDesireKey());
             }

@@ -1,7 +1,10 @@
 package cz.jan.maly.model;
 
 import cz.jan.maly.model.agent.types.AgentTypeUnit;
-import cz.jan.maly.model.game.wrappers.*;
+import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
+import cz.jan.maly.model.game.wrappers.APlayer;
+import cz.jan.maly.model.game.wrappers.APosition;
+import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.DesireKey;
@@ -10,7 +13,6 @@ import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstract
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
-import cz.jan.maly.service.implementation.BotFacade;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,8 +20,6 @@ import java.util.stream.Collectors;
 import static cz.jan.maly.model.BasicFactsKeys.*;
 import static cz.jan.maly.model.DesiresKeys.*;
 import static cz.jan.maly.model.FactsKeys.*;
-import static cz.jan.maly.service.AgentLocationInitializer.BASE_LOCATION;
-import static cz.jan.maly.service.AgentUnitFactory.SPAWNING_POOL_TYPE;
 
 /**
  * Created by Jan on 15-Mar-17.
@@ -35,103 +35,12 @@ public class AgentsUnitTypes {
     public static final AgentTypeUnit OVERLORD = AgentTypeUnit.builder()
             .name("OVERLORD")
             .initializationStrategy(type -> {
-
-                //todo - maneuver, when under attack
-                //use reasoning command with observation to find suitable position
-                //move to position
-
-                //scouting - move to base scouted for last time. at start prefer unvisited base locations
-                ConfigurationWithCommand.WithActingCommandDesiredByOtherAgent goScouting = ConfigurationWithCommand
-                        .WithActingCommandDesiredByOtherAgent.builder()
-                        .decisionInDesire((desire, dataForDecision) -> {
-
-                            //already scouting
-                            if (dataForDecision.getMadeCommitmentToTypes().contains(VISIT)) {
-                                return false;
-                            }
-
-                            //never been visited, visit it
-                            if (!desire.returnFactValueForGivenKeyInParameters(LAST_TIME_SCOUTED).isPresent()) {
-                                return true;
-                            }
-
-                            Optional<Integer> lastlyVisitedLocation = desire.getReadOnlyMemoriesForAgentType(BASE_LOCATION).stream()
-                                    .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(LAST_TIME_SCOUTED))
-                                    .filter(Optional::isPresent)
-                                    .map(Optional::get)
-                                    .min(Integer::compareTo);
-                            return lastlyVisitedLocation.get() >= desire.returnFactValueForGivenKeyInParameters(LAST_TIME_SCOUTED).get();
-                        })
-                        .commandCreationStrategy(intention -> new ActCommand.DesiredByAnotherAgent(intention) {
-                            @Override
-                            public boolean act(WorkingMemory memory) {
-                                return intention.returnFactValueForGivenKey(IS_UNIT).get().move(intention.returnFactValueForGivenKeyInDesireParameters(IS_BASE_LOCATION).get());
-                            }
-                        })
-                        .decisionInIntention((intention, dataForDecision) -> false)
-                        .typesOfDesiresToConsiderWhenCommitting(new HashSet<>(Arrays.asList(new DesireKey[]{VISIT})))
-                        .build();
-                type.addConfiguration(VISIT, goScouting);
-
             })
             .build();
 
     public static final AgentTypeUnit ZERGLING = AgentTypeUnit.builder()
             .name("ZERGLING")
             .initializationStrategy(type -> {
-
-                //todo replace
-                ConfigurationWithCommand.WithActingCommandDesiredByOtherAgent attack = ConfigurationWithCommand
-                        .WithActingCommandDesiredByOtherAgent.builder()
-                        .decisionInDesire((desire, dataForDecision) -> {
-
-                            //already attacking
-                            if (dataForDecision.getMadeCommitmentToTypes().contains(ATTACK)) {
-                                return false;
-                            }
-
-                            //we are on position
-                            if (desire.returnFactValueForGivenKeyInParameters(IS_BASE_LOCATION).get().distanceTo(desire.returnFactValueForGivenKey(IS_UNIT).get().getPosition()) < 10) {
-                                return false;
-                            }
-
-                            return !desire.returnFactValueForGivenKey(REPRESENTS_UNIT).get().isAttacking()
-                                    && !desire.returnFactValueForGivenKey(REPRESENTS_UNIT).get().isUnderAttack();
-                        })
-                        .commandCreationStrategy(intention -> new ActCommand.DesiredByAnotherAgent(intention) {
-                            @Override
-                            public boolean act(WorkingMemory memory) {
-                                return intention.returnFactValueForGivenKey(IS_UNIT).get().attack(intention.returnFactValueForGivenKeyInDesireParameters(IS_BASE_LOCATION).get().getPosition());
-                            }
-                        })
-                        .decisionInIntention((intention, dataForDecision) -> true)
-                        .typesOfDesiresToConsiderWhenCommitting(new HashSet<>(Arrays.asList(new DesireKey[]{VISIT})))
-                        .build();
-                type.addConfiguration(ATTACK, attack);
-
-                //todo when idle - move to base
-
-                //todo - maneuver, when under attack
-                //use reasoning command with observation to find suitable position
-                //move to position
-                //desire to help me
-
-                //todo - go scouting
-                //do not scout when there is desire to attack or defend
-                //move to base scouted for last time
-
-                //todo - attack - at least 6 zerglings to start around me, or around me + with in base to attack, 2 and less remains in base to attack to end
-                //reason - set I am attacking - where - do it only if no defense desire
-                //go there - to center
-                //vs terran - marines -> scv -> bunker -> everything
-                //vs zerg - pool -> lings -> sunken -> everything
-                //vs protoss - zealots -> everything
-
-                //todo attack help
-                //help agent around
-
-                //todo - defend
-
             })
             .build();
 
@@ -183,34 +92,6 @@ public class AgentsUnitTypes {
                 //morph to drone
                 type.addConfiguration(MORPH_TO_DRONE, morphToDrone);
 
-                //general command to morph to type
-                ConfigurationWithCommand.WithActingCommandDesiredByOtherAgent morphToType = ConfigurationWithCommand
-                        .WithActingCommandDesiredByOtherAgent.builder()
-                        .commandCreationStrategy(intention -> new ActCommand.DesiredByAnotherAgent(intention) {
-                            @Override
-                            public boolean act(WorkingMemory memory) {
-                                return intention.returnFactValueForGivenKey(IS_UNIT).get().morph(intention.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get());
-                            }
-                        })
-                        //is there enough resources, also does not morph to something else
-                        .decisionInDesire((desire, dataForDecision) -> {
-                            Optional<APlayer> aPlayer = desire.getReadOnlyMemories().stream()
-                                    .filter(readOnlyMemory -> readOnlyMemory.isFactKeyForValueInMemory(IS_PLAYER))
-                                    .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_PLAYER))
-                                    .filter(Optional::isPresent)
-                                    .map(Optional::get)
-                                    .findAny();
-                            return !(!aPlayer.isPresent() || aPlayer.get().getMinerals() < desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice());
-                        })
-                        .decisionInIntention((intention, dataForDecision) -> true)
-                        .build();
-
-                //morph to zergling
-                type.addConfiguration(MORPH_TO_ZERGLING, morphToType);
-
-                //morph to overlord
-                type.addConfiguration(MORPH_TO_OVERLORD, morphToType);
-
             })
             .build();
 
@@ -220,78 +101,6 @@ public class AgentsUnitTypes {
 //            .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{SELECT_MINERAL})))
             .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINING_MINERAL, MINERAL_TO_MINE, PLACE_FOR_BUILDING})))
             .initializationStrategy((AgentType type) -> {
-
-                //todo - scouting
-                //go scouting if we have at least 5 workers and there is at least more than one initial base location with no visit and no scout assigned to it.
-
-                //todo - maneuver - is under attack
-                //use reasoning command with observation to find suitable position
-                //move to position
-
-                //todo - defend
-                //reason worker in base where it is is under attack - set which ones + enemies attacking them - make desire
-                //go to attack one of the enemies from desire
-
-                //abstract plan to build pool in base
-                ConfigurationWithAbstractPlan buildPool = ConfigurationWithAbstractPlan.builder()
-                        .decisionInDesire((desire, dataForDecision) -> {
-                            if (desire.returnFactValueForGivenKey(IS_UNIT).get().isCarryingMinerals()) {
-                                return false;
-                            }
-                            Optional<APlayer> aPlayer = desire.getReadOnlyMemories().stream()
-                                    .filter(readOnlyMemory -> readOnlyMemory.isFactKeyForValueInMemory(IS_PLAYER))
-                                    .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_PLAYER))
-                                    .filter(Optional::isPresent)
-                                    .map(Optional::get)
-                                    .findAny();
-
-                            //commit little bit sooner to start looking for place and to get there
-                            if (!aPlayer.isPresent() || aPlayer.get().getMinerals() <= desire.getDesireKey().returnFactValueForGivenKey(UNIT_TYPE).get().getMineralPrice() - 24) {
-                                return false;
-                            }
-                            return true;
-                        })
-                        .decisionInIntention((intention, dataForDecision) -> false)
-                        .desiresWithIntentionToAct(new HashSet<>(Arrays.asList(new DesireKey[]{BUILD_POOL})))
-                        .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{FIND_PLACE_TO_BUILD})))
-                        .build();
-                type.addConfiguration(PLAN_BUILDING_POOL, buildPool, false);
-
-                //find position
-                ConfigurationWithCommand.WithReasoningCommandDesiredBySelf findPlaceForBuilding = ConfigurationWithCommand
-                        .WithReasoningCommandDesiredBySelf.builder()
-                        .commandCreationStrategy(intention -> new ReasoningCommand(intention) {
-                            @Override
-                            public boolean act(WorkingMemory memory) {
-                                BotFacade.ADDITIONAL_OBSERVATIONS_PROCESSOR.requestObservation((m, e) -> {
-                                    ATilePosition position = ATilePosition.wrap(e.getBuildLocation(SPAWNING_POOL_TYPE.getType(), intention.returnFactValueOfParentIntentionForGivenKey(BASE_FOR_POOL).get().getWrappedPosition(), 20));
-                                    memory.updateFact(PLACE_FOR_BUILDING, position);
-                                    return true;
-                                }, memory, DRONE);
-                                return true;
-                            }
-                        })
-                        .decisionInDesire((desire, dataForDecision) -> true)
-                        .decisionInIntention((intention, dataForDecision) -> true)
-                        .build();
-                type.addConfiguration(FIND_PLACE_TO_BUILD, PLAN_BUILDING_POOL, findPlaceForBuilding);
-
-                //build pool
-                ConfigurationWithCommand.WithActingCommandDesiredBySelf build = ConfigurationWithCommand
-                        .WithActingCommandDesiredBySelf.builder()
-                        .commandCreationStrategy(intention -> new ActCommand.Own(intention) {
-                            @Override
-                            public boolean act(WorkingMemory memory) {
-                                ATilePosition buildHere = intention.returnFactValueForGivenKey(PLACE_FOR_BUILDING).get();
-                                memory.eraseFactValueForGivenKey(PLACE_FOR_BUILDING);
-                                return intention.returnFactValueForGivenKey(IS_UNIT).get().build(SPAWNING_POOL_TYPE, buildHere);
-                            }
-                        })
-                        .decisionInDesire((desire, dataForDecision) -> desire.returnFactValueForGivenKey(PLACE_FOR_BUILDING).isPresent()
-                        )
-                        .decisionInIntention((intention, dataForDecision) -> true)
-                        .build();
-                type.addConfiguration(BUILD_POOL, PLAN_BUILDING_POOL, build);
 
                 //abstract plan to mine minerals in base
                 ConfigurationWithAbstractPlan mineInBase = ConfigurationWithAbstractPlan.builder()
@@ -402,7 +211,6 @@ public class AgentsUnitTypes {
                         .decisionInIntention((intention, dataForDecision) -> true)
                         .build();
                 type.addConfiguration(MINE_MINERALS, MINE_MINERALS_IN_BASE, mine);
-
             })
             .build();
 
