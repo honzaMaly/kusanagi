@@ -17,11 +17,9 @@ import java.util.stream.Stream;
 public abstract class Feature<V, K> {
 
     private final DataForDecision dataForDecision;
-
+    private final FeatureRawValueObtainingStrategy<V> strategyToObtainValue;
     @Getter
     private double value = 0;
-
-    private final FeatureRawValueObtainingStrategy<V> strategyToObtainValue;
 
     Feature(DataForDecision dataForDecision, FeatureRawValueObtainingStrategy<V> strategyToObtainValue) {
         this.dataForDecision = dataForDecision;

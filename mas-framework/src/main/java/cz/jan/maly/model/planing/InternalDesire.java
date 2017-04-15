@@ -13,7 +13,6 @@ import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -21,52 +20,41 @@ import java.util.stream.Stream;
  * of this are used in planning tree.
  * Created by Jan on 22-Feb-17.
  */
-public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements DecisionAboutCommitment, FactContainerInterface {
-    final CommitmentDecider commitmentDecider;
+public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements FactContainerInterface {
     final CommitmentDeciderInitializer removeCommitment;
-    final Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment;
     @Getter
     final boolean isAbstract;
     final WorkingMemory memory;
-    private final Set<DesireKey> typesOfDesiresToConsiderWhenCommitting;
+    private final CommitmentDecider commitmentDecider;
     private final Optional<DesireParameters> parentsDesireParameters;
 
     InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                   Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                    boolean isAbstract) {
         super(desireKey, memory);
         this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.memory = memory;
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
-        this.typesOfDesiresToConsiderWhenCommitting = typesOfDesiresToConsiderWhenCommitting;
-        this.typesOfDesiresToConsiderWhenRemovingCommitment = typesOfDesiresToConsiderWhenRemovingCommitment;
         this.parentsDesireParameters = Optional.empty();
     }
 
     InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                   Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                    boolean isAbstract, DesireParameters parentsDesireParameters) {
         super(desireKey, memory);
         this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.memory = memory;
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
-        this.typesOfDesiresToConsiderWhenCommitting = typesOfDesiresToConsiderWhenCommitting;
-        this.typesOfDesiresToConsiderWhenRemovingCommitment = typesOfDesiresToConsiderWhenRemovingCommitment;
         this.parentsDesireParameters = Optional.of(parentsDesireParameters);
     }
 
     InternalDesire(DesireParameters desireParameters, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                   Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                    boolean isAbstract, int originatorId) {
         super(desireParameters, originatorId);
         this.memory = memory;
         this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
-        this.typesOfDesiresToConsiderWhenCommitting = typesOfDesiresToConsiderWhenCommitting;
-        this.typesOfDesiresToConsiderWhenRemovingCommitment = typesOfDesiresToConsiderWhenRemovingCommitment;
         this.parentsDesireParameters = Optional.empty();
     }
 
@@ -80,11 +68,6 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
                                 List<DesireKey> typesAboutToMakeDecision, int numberOfCommittedAgents) {
         return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
                 memory, numberOfCommittedAgents);
-    }
-
-    @Override
-    public Set<DesireKey> getParametersToLoad() {
-        return typesOfDesiresToConsiderWhenCommitting;
     }
 
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {

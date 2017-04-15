@@ -26,7 +26,10 @@ public class WorkingDesireRegister extends DesireRegister implements WorkingRegi
         Map<Agent, Map<SharedDesire, SharedDesireInRegister>> copy = new HashMap<>();
         dataByOriginator.forEach((agent, sharedDesireSharedDesireInRegisterMap) -> {
             Map<SharedDesire, SharedDesireInRegister> content = new HashMap<>();
-            sharedDesireSharedDesireInRegisterMap.forEach(content::put);
+            sharedDesireSharedDesireInRegisterMap.forEach((sharedDesire, sharedDesireInRegister) -> {
+                SharedDesireInRegister desireCopy = sharedDesireInRegister.getCopy();
+                content.put(desireCopy, desireCopy);
+            });
             copy.put(agent, content);
         });
         return new ReadOnlyDesireRegister(copy);

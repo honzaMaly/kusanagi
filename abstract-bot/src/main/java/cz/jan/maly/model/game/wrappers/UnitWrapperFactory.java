@@ -1,7 +1,8 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.Unit;
-import cz.jan.maly.service.implementation.BotFacade;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,6 +17,16 @@ public class UnitWrapperFactory {
     private static final Map<Integer, AUnit> resourceUnits = new ConcurrentHashMap<>();
     private static final Map<Integer, AUnitWithCommands> playersUnits = new ConcurrentHashMap<>();
     private static final Set<Integer> idsOfDeadUnits = Collections.newSetFromMap(new ConcurrentHashMap<Integer, Boolean>());
+
+    @Setter
+    @Getter
+    private static long refreshInfoAboutOwnUnitAfterFrames = 2;
+    @Setter
+    @Getter
+    private static long refreshInfoAboutEnemyUnitAfterFrames = 4;
+    @Setter
+    @Getter
+    private static long refreshInfoAboutResourceUnitAfterFrames = 20;
 
     //todo move units from maps if they become hostile/friendly?
 
@@ -72,7 +83,7 @@ public class UnitWrapperFactory {
         if (unitValue != null) {
 
             //update unit only if it is not current
-            if (unitValue.getFrameCount() + BotFacade.getRefreshInfoAboutOwnUnitAfterFrames() < frameCount) {
+            if (unitValue.getFrameCount() + getRefreshInfoAboutOwnUnitAfterFrames() < frameCount) {
                 unitValue = new AUnitWithCommands(unit, isCreatingUnit, frameCount);
                 playersUnits.put(unit.getID(), unitValue);
                 wrapReferencedUnitsForUnit(unitValue, frameCount, isCreatingUnit);
@@ -101,7 +112,7 @@ public class UnitWrapperFactory {
         if (unitValue != null) {
 
             //update unit only if it is not current
-            if (unitValue.getFrameCount() + BotFacade.getRefreshInfoAboutEnemyUnitAfterFrames() < frameCount) {
+            if (unitValue.getFrameCount() + getRefreshInfoAboutEnemyUnitAfterFrames() < frameCount) {
                 unitValue = new AUnit.Enemy(unit, isCreatingUnit, frameCount);
                 enemyUnits.put(unit.getID(), unitValue);
                 wrapReferencedUnitsForUnit(unitValue, frameCount, isCreatingUnit);
@@ -128,7 +139,7 @@ public class UnitWrapperFactory {
         if (unitValue != null) {
 
             //update unit only if it is not current
-            if (unitValue.getFrameCount() + BotFacade.getRefreshInfoAboutResourceUnitAfterFrames() < frameCount) {
+            if (unitValue.getFrameCount() + getRefreshInfoAboutResourceUnitAfterFrames() < frameCount) {
                 unitValue = new AUnit(unit, isCreatingUnit, frameCount);
                 resourceUnits.put(unit.getID(), unitValue);
             }

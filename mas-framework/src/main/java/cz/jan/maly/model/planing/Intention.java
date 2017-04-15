@@ -10,7 +10,6 @@ import cz.jan.maly.model.metadata.FactKey;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -18,18 +17,13 @@ import java.util.stream.Stream;
  * what agent has committed to achieve to. It may contain other desires related to this intention to be consider.
  * Created by Jan on 10-Feb-17.
  */
-public abstract class Intention<T extends InternalDesire<?>> implements FactContainerInterface, DesireKeyIdentificationInterface, DecisionAboutCommitment {
-    private final T originalDesire;
+public abstract class Intention<T extends InternalDesire<?>> implements FactContainerInterface, DesireKeyIdentificationInterface {
     protected final CommitmentDecider removeCommitment;
+    private final T originalDesire;
 
     Intention(T originalDesire, CommitmentDeciderInitializer removeCommitment) {
         this.originalDesire = originalDesire;
         this.removeCommitment = removeCommitment.initializeCommitmentDecider(originalDesire.desireParameters);
-    }
-
-    @Override
-    public Set<DesireKey> getParametersToLoad() {
-        return originalDesire.typesOfDesiresToConsiderWhenRemovingCommitment;
     }
 
     public DesireParameters getParametersOfDesire() {

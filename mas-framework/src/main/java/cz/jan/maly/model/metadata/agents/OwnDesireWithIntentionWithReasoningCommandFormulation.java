@@ -24,7 +24,6 @@ public class OwnDesireWithIntentionWithReasoningCommandFormulation extends Desir
         if (supportsDesireType(key)) {
             OwnDesire.Reasoning reasoning = new OwnDesire.Reasoning(key,
                     memory, getDecisionInDesire(key), getDecisionInIntention(key),
-                    getTypesOfDesiresToConsiderWhenCommitting(key), getTypesOfDesiresToConsiderWhenRemovingCommitment(key),
                     commandsByKey.get(key));
             return Optional.of(reasoning);
         }
@@ -49,8 +48,6 @@ public class OwnDesireWithIntentionWithReasoningCommandFormulation extends Desir
                 if (formulation.supportsDesireType(key)) {
                     OwnDesire.Reasoning reasoning = new OwnDesire.Reasoning(key,
                             memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
-                            formulation.getTypesOfDesiresToConsiderWhenCommitting(key),
-                            formulation.getTypesOfDesiresToConsiderWhenRemovingCommitment(key),
                             formulation.commandsByKey.get(key), parentsDesireParameters);
                     return Optional.of(reasoning);
                 }

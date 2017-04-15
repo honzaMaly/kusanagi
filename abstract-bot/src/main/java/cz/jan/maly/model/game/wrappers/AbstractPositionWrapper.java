@@ -27,6 +27,13 @@ public abstract class AbstractPositionWrapper<T> {
     }
 
     /**
+     * Clear cache
+     */
+    public static void clearCache() {
+        cache.clear();
+    }
+
+    /**
      * Returns distance from one position to other in build tiles. One build tile equals to 32 pixels. Usage
      * of build tiles instead of pixels is preferable, because it's easier to imagine distances if one knows
      * building dimensions.
@@ -43,13 +50,6 @@ public abstract class AbstractPositionWrapper<T> {
         int dx = oneX - otherX;
         int dy = oneY - otherY;
         return Math.sqrt(dx * dx + dy * dy) / ATilePosition.SIZE_IN_PIXELS;
-    }
-
-    /**
-     * Clear cache
-     */
-    public static void clearCache() {
-        cache.clear();
     }
 
     @Override

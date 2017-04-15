@@ -1,18 +1,10 @@
-package cz.jan.maly.service;
+package cz.jan.maly.service.implementation;
 
 import bwapi.Race;
 import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.types.AgentTypePlayer;
 import cz.jan.maly.model.game.wrappers.APlayer;
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.service.implementation.BotFacade;
-
-import java.util.Arrays;
-import java.util.HashSet;
-
-import static cz.jan.maly.model.DesiresKeys.*;
-import static cz.jan.maly.model.FactsKeys.BASE_FOR_POOL;
+import cz.jan.maly.service.PlayerInitializer;
 
 /**
  * Strategy to initialize agent representing "player"
@@ -24,9 +16,6 @@ public class AgentPlayerInitializer implements PlayerInitializer {
             .name("PLAYER")
             .initializationStrategy(type -> {
             })
-            .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{FIND_PLACE_TO_BUILD})))
-            .desiresForOthers(new HashSet<>(Arrays.asList(new DesireKey[]{PLAN_BUILDING_POOL, MORPH_TO_ZERGLING, MORPH_TO_OVERLORD})))
-            .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{BASE_FOR_POOL})))
             .build();
 
     @Override

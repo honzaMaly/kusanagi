@@ -3,13 +3,12 @@ package cz.jan.maly.model.planing.tree;
 import cz.jan.maly.model.DesireKeyIdentificationInterface;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
-import cz.jan.maly.model.planing.DecisionAboutCommitment;
 
 /**
  * Template for node. It defines common data structure (methods) for various nodes which extend it.
  * Created by Jan on 28-Feb-17.
  */
-public abstract class Node<K extends Parent<?, ?>> implements DesireKeyIdentificationInterface, DecisionAboutCommitment {
+public abstract class Node<K extends Parent<?, ?>> implements DesireKeyIdentificationInterface {
     final DesireParameters desireParameters;
     final int level;
     final K parent;

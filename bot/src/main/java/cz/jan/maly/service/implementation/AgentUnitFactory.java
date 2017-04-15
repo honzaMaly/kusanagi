@@ -1,4 +1,4 @@
-package cz.jan.maly.service;
+package cz.jan.maly.service.implementation;
 
 import bwapi.Unit;
 import bwapi.UnitType;
@@ -9,7 +9,7 @@ import cz.jan.maly.model.game.wrappers.AUnitTypeWrapper;
 import cz.jan.maly.model.game.wrappers.AUnitWithCommands;
 import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.model.game.wrappers.WrapperTypeFactory;
-import cz.jan.maly.service.implementation.BotFacade;
+import cz.jan.maly.service.AgentUnitHandler;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.HashMap;

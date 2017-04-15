@@ -25,11 +25,6 @@ public abstract class IntentionNodeNotTopLevel<V extends Intention<? extends Int
         this.intention = desire.formIntention(tree.getAgent());
     }
 
-    @Override
-    public Set<DesireKey> getParametersToLoad() {
-        return intention.getParametersToLoad();
-    }
-
     abstract void replaceIntentionByDesireInParent();
 
     /**

@@ -1,8 +1,8 @@
-package cz.jan.maly;
+package cz.jan.maly.main;
 
-import cz.jan.maly.service.AgentLocationInitializer;
-import cz.jan.maly.service.AgentPlayerInitializer;
-import cz.jan.maly.service.AgentUnitFactory;
+import cz.jan.maly.service.implementation.AgentLocationInitializer;
+import cz.jan.maly.service.implementation.AgentPlayerInitializer;
+import cz.jan.maly.service.implementation.AgentUnitFactory;
 import cz.jan.maly.service.implementation.BotFacade;
 
 import java.beans.IntrospectionException;

@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static cz.jan.maly.model.BasicFactsKeys.IS_REGION;
+import static cz.jan.maly.model.bot.BasicFactsKeys.IS_REGION;
 
 /**
  * Type definition - of agent representing region

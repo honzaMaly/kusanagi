@@ -4,7 +4,7 @@ import bwta.Region;
 import cz.jan.maly.model.agent.types.AgentTypeRegion;
 import cz.jan.maly.service.implementation.BotFacade;
 
-import static cz.jan.maly.model.BasicFactsKeys.IS_REGION;
+import static cz.jan.maly.model.bot.BasicFactsKeys.IS_REGION;
 
 /**
  * Agent representing region

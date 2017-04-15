@@ -51,7 +51,6 @@ public class CommitmentDeciderInitializer {
         this.globalBeliefSetTypesByAgentType = globalBeliefSetTypesByAgentType;
     }
 
-
     /**
      * Returns new instance of CommitmentDecider initilized by parameters from this instance
      *
@@ -76,7 +75,7 @@ public class CommitmentDeciderInitializer {
         boolean shouldCommit(DataForDecision dataForDecision);
     }
 
-    public static class CommitmentInitializerBuilder {
+    public static class CommitmentDeciderInitializerBuilder {
         private Set<DesireKey> desiresToConsider = new HashSet<>();
         private Set<FactWithOptionalValue<?>> staticBeliefsTypes = new HashSet<>();
         private Set<FactWithOptionalValueSet<?>> staticBeliefsSetTypes = new HashSet<>();

@@ -5,8 +5,8 @@ import cz.jan.maly.model.agent.types.AgentTypePlayer;
 import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.service.implementation.BotFacade;
 
-import static cz.jan.maly.model.BasicFactsKeys.ENEMY_RACE;
-import static cz.jan.maly.model.BasicFactsKeys.IS_PLAYER;
+import static cz.jan.maly.model.bot.BasicFactsKeys.ENEMY_RACE;
+import static cz.jan.maly.model.bot.BasicFactsKeys.IS_PLAYER;
 
 /**
  * Agent to represent "player" - to access field of Player

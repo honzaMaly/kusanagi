@@ -1,4 +1,4 @@
-package cz.jan.maly.model;
+package cz.jan.maly.model.bot;
 
 import bwapi.Race;
 import cz.jan.maly.model.game.wrappers.*;

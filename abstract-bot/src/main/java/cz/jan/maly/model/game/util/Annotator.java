@@ -30,14 +30,6 @@ public class Annotator {
     }
 
     /**
-     * Annotate map
-     */
-    public void annotate() {
-        PainterForMap.annotateMap(bwapi, bordersOfRegions);
-        PainterForUnits.annotateUnitsForPlayers(playersToAnnotate, player, bwapi);
-    }
-
-    /**
      * Returns a <b>new</b> Position that represents the effect of moving this position by [deltaX, deltaY].
      */
     private static Position translate(Position position, int deltaPixelX, int deltaPixelY) {
@@ -89,6 +81,14 @@ public class Annotator {
         }
 
         bwapi.drawTextMap(translate(position, (int) (-2.7 * Math.min(text.length(), 25)), -2 * lines), text);
+    }
+
+    /**
+     * Annotate map
+     */
+    public void annotate() {
+        PainterForMap.annotateMap(bwapi, bordersOfRegions);
+        PainterForUnits.annotateUnitsForPlayers(playersToAnnotate, player, bwapi);
     }
 
 }

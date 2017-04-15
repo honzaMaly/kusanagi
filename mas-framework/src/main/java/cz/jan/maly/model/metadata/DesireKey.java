@@ -34,20 +34,12 @@ public class DesireKey extends Key implements FactContainerInterface {
         this.parametersTypesForFactSets = parametersTypesForFactSets;
     }
 
-    public Set<FactKey<?>> parametersTypesForStaticFacts(){
+    public Set<FactKey<?>> parametersTypesForStaticFacts() {
         return factParameterMap.keySet();
     }
 
-    public Set<FactKey<?>> parametersTypesForStaticFactsSets(){
+    public Set<FactKey<?>> parametersTypesForStaticFactsSets() {
         return factSetParameterMap.keySet();
-    }
-
-    //builder with default fields
-    public static class DesireKeyBuilder {
-        private Set<Fact<?>> staticFactValues = new HashSet<>();
-        private Set<FactSet<?>> staticFactSets = new HashSet<>();
-        private Set<FactKey<?>> parametersTypesForFacts = new HashSet<>();
-        private Set<FactKey<?>> parametersTypesForFactSets = new HashSet<>();
     }
 
     @Override
@@ -68,6 +60,14 @@ public class DesireKey extends Key implements FactContainerInterface {
         }
         MyLogger.getLogger().warning(factKey.getName() + " is not present in " + this.getName() + " type definition.");
         return Optional.empty();
+    }
+
+    //builder with default fields
+    public static class DesireKeyBuilder {
+        private Set<Fact<?>> staticFactValues = new HashSet<>();
+        private Set<FactSet<?>> staticFactSets = new HashSet<>();
+        private Set<FactKey<?>> parametersTypesForFacts = new HashSet<>();
+        private Set<FactKey<?>> parametersTypesForFactSets = new HashSet<>();
     }
 
 }

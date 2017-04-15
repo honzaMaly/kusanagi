@@ -19,10 +19,8 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
     private final SharedDesireForAgents desireForAgents;
 
     DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
-                           CommitmentDeciderInitializer removeCommitment, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
-                           Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, boolean isAbstract) {
-        super(desireOriginatedFrom.desireParameters, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
-                typesOfDesiresToConsiderWhenRemovingCommitment, isAbstract, desireOriginatedFrom.originatorId);
+                           CommitmentDeciderInitializer removeCommitment, boolean isAbstract) {
+        super(desireOriginatedFrom.desireParameters, memory, commitmentDecider, removeCommitment, isAbstract, desireOriginatedFrom.originatorId);
         this.desireForAgents = desireOriginatedFrom;
     }
 
@@ -41,13 +39,10 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
 
         public WithAbstractIntention(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory,
                                      CommitmentDeciderInitializer commitmentDecider,
-                                     CommitmentDeciderInitializer removeCommitment,
-                                     Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
-                                     Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, Set<DesireKey> desiresForOthers,
+                                     CommitmentDeciderInitializer removeCommitment, Set<DesireKey> desiresForOthers,
                                      Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
                                      Set<DesireKey> desiresWithIntentionToReason) {
-            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
-                    typesOfDesiresToConsiderWhenRemovingCommitment, true);
+            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, true);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
             this.desiresWithIntentionToAct = desiresWithIntentionToAct;
@@ -69,10 +64,8 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
 
         public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory,
                                      CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                                     Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                                      CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy) {
-            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, typesOfDesiresToConsiderWhenCommitting,
-                    typesOfDesiresToConsiderWhenRemovingCommitment, false);
+            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, false);
             this.commandCreationStrategy = commandCreationStrategy;
         }
 

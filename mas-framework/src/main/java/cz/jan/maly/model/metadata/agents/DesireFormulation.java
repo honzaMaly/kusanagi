@@ -20,8 +20,6 @@ import java.util.Set;
 public abstract class DesireFormulation {
     private final Map<DesireKey, CommitmentDeciderInitializer> decisionsByDesire = new HashMap<>();
     private final Map<DesireKey, CommitmentDeciderInitializer> decisionsByIntention = new HashMap<>();
-    private final Map<DesireKey, Set<DesireKey>> typesOfDesiresToConsiderWhenCommitting = new HashMap<>();
-    private final Map<DesireKey, Set<DesireKey>> typesOfDesiresToConsiderWhenRemovingCommitment = new HashMap<>();
 
     CommitmentDeciderInitializer getDecisionInIntention(DesireKey key) {
         return decisionsByIntention.get(key);
@@ -29,14 +27,6 @@ public abstract class DesireFormulation {
 
     CommitmentDeciderInitializer getDecisionInDesire(DesireKey key) {
         return decisionsByDesire.get(key);
-    }
-
-    Set<DesireKey> getTypesOfDesiresToConsiderWhenCommitting(DesireKey key) {
-        return typesOfDesiresToConsiderWhenCommitting.get(key);
-    }
-
-    Set<DesireKey> getTypesOfDesiresToConsiderWhenRemovingCommitment(DesireKey key) {
-        return typesOfDesiresToConsiderWhenRemovingCommitment.get(key);
     }
 
     /**
@@ -48,8 +38,6 @@ public abstract class DesireFormulation {
     void addDesireFormulationConfiguration(DesireKey key, CommonConfiguration configuration) {
         this.decisionsByDesire.put(key, configuration.getDecisionInDesire());
         this.decisionsByIntention.put(key, configuration.getDecisionInIntention());
-        this.typesOfDesiresToConsiderWhenCommitting.put(key, configuration.getTypesOfDesiresToConsiderWhenCommitting());
-        this.typesOfDesiresToConsiderWhenRemovingCommitment.put(key, configuration.getTypesOfDesiresToConsiderWhenRemovingCommitment());
     }
 
     /**

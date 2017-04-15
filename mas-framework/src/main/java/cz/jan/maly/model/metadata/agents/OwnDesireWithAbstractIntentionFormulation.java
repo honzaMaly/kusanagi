@@ -22,7 +22,6 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
         if (supportsDesireType(key)) {
             OwnDesire.WithAbstractIntention withAbstractIntention = new OwnDesire.WithAbstractIntention(key,
                     memory, getDecisionInDesire(key), getDecisionInIntention(key),
-                    getTypesOfDesiresToConsiderWhenCommitting(key), getTypesOfDesiresToConsiderWhenRemovingCommitment(key),
                     desiresForOthersByKey.get(key), desiresWithAbstractIntentionByKey.get(key), desiresWithIntentionToActByKey.get(key),
                     desiresWithIntentionToReasonByKey.get(key));
             return Optional.of(withAbstractIntention);
@@ -48,8 +47,6 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
                 if (formulation.supportsDesireType(key)) {
                     OwnDesire.WithAbstractIntention withAbstractIntention = new OwnDesire.WithAbstractIntention(key,
                             memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
-                            formulation.getTypesOfDesiresToConsiderWhenCommitting(key),
-                            formulation.getTypesOfDesiresToConsiderWhenRemovingCommitment(key),
                             formulation.desiresForOthersByKey.get(key),
                             formulation.desiresWithAbstractIntentionByKey.get(key), formulation.desiresWithIntentionToActByKey.get(key),
                             formulation.desiresWithIntentionToReasonByKey.get(key), parentsDesireParameters);

@@ -4,6 +4,7 @@ import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.metadata.DesireParameters;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Concrete implementation of SharedDesire to be used in register
@@ -13,6 +14,19 @@ public class SharedDesireInRegister extends SharedDesire {
 
     SharedDesireInRegister(DesireParameters desireParameters, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit) {
         super(desireParameters, originatedFromAgent, limitOnNumberOfAgentsToCommit, new HashSet<>());
+    }
+
+    private SharedDesireInRegister(DesireParameters desireParameters, Agent originatedFromAgent, int limitOnNumberOfAgentsToCommit, Set<Agent> committedAgents) {
+        super(desireParameters, originatedFromAgent, limitOnNumberOfAgentsToCommit, committedAgents);
+    }
+
+    /**
+     * Return copy to be shared in concurrent environment
+     *
+     * @return
+     */
+    public SharedDesireInRegister getCopy() {
+        return new SharedDesireInRegister(desireParameters, originatedFromAgent, limitOnNumberOfAgentsToCommit, committedAgents);
     }
 
     /**

@@ -17,7 +17,7 @@ public class FactWithOptionalValueSetsForAgentType<V> extends FactWithOptionalVa
     private final AgentType agentType;
 
     public FactWithOptionalValueSetsForAgentType(FactKey<V> factKey, AgentType agentType,
-                       FeatureRawValueObtainingStrategy<Stream<Optional<Stream<V>>>> strategyToObtainValue) {
+                                                 FeatureRawValueObtainingStrategy<Stream<Optional<Stream<V>>>> strategyToObtainValue) {
         super(factKey, strategyToObtainValue);
         this.agentType = agentType;
     }

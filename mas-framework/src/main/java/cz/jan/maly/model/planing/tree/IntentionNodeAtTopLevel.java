@@ -29,11 +29,6 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
     abstract void formDesireNodeAndReplaceIntentionNode();
 
-    @Override
-    public Set<DesireKey> getParametersToLoad() {
-        return intention.getParametersToLoad();
-    }
-
     /**
      * Class to extend template - to define intention node without child
      */
@@ -363,15 +358,15 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
             private final DesireFromAnotherAgent.WithAbstractIntention desire;
 
-            @Override
-            protected boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision) {
-                return intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision, desire.countOfCommittedAgents());
-            }
-
             FromAnotherAgent(Tree tree, DesireFromAnotherAgent.WithAbstractIntention desire) {
                 super(tree, desire);
                 this.desire = desire;
                 desireUpdater.initDesires(intention, this);
+            }
+
+            @Override
+            protected boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes, List<DesireKey> typesAboutToMakeDecision) {
+                return intention.shouldRemoveCommitment(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision, desire.countOfCommittedAgents());
             }
 
             @Override

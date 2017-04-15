@@ -9,7 +9,6 @@ import cz.jan.maly.utils.MyLogger;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Template for desire not in top level
@@ -36,11 +35,6 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
     @Override
     public DesireKey getAssociatedDesireKey() {
         return getDesireKey();
-    }
-
-    @Override
-    public Set<DesireKey> getParametersToLoad() {
-        return desire.getParametersToLoad();
     }
 
     /**

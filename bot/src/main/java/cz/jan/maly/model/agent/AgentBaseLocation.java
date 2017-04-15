@@ -5,8 +5,8 @@ import cz.jan.maly.model.agent.types.AgentTypeBaseLocation;
 import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
 import cz.jan.maly.service.implementation.BotFacade;
 
-import static cz.jan.maly.model.BasicFactsKeys.IS_BASE_LOCATION;
-import static cz.jan.maly.model.BasicFactsKeys.MADE_OBSERVATION_IN_FRAME;
+import static cz.jan.maly.model.bot.BasicFactsKeys.IS_BASE_LOCATION;
+import static cz.jan.maly.model.bot.BasicFactsKeys.MADE_OBSERVATION_IN_FRAME;
 
 /**
  * Agent for base location in game

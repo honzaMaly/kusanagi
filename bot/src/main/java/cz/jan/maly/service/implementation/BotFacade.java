@@ -33,21 +33,14 @@ public class BotFacade extends DefaultBWListener {
     //TODO !!!THIS IS HACK DO NOT USE INSIDE OTHER COMMAND INTERACTING WITH GAME!!!
     //class to handle additional commands with observations requests
     public static AdditionalCommandToObserveGameProcessor ADDITIONAL_OBSERVATIONS_PROCESSOR;
+
     @Setter
     @Getter
     private static int gameDefaultSpeed = 20;
+
     @Setter
     @Getter
     private static long maxFrameExecutionTime = 30;
-    @Setter
-    @Getter
-    private static long refreshInfoAboutOwnUnitAfterFrames = 2;
-    @Setter
-    @Getter
-    private static long refreshInfoAboutEnemyUnitAfterFrames = 4;
-    @Setter
-    @Getter
-    private static long refreshInfoAboutResourceUnitAfterFrames = 20;
 
     @Setter
     @Getter

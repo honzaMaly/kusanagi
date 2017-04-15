@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>abstract-bot</artifactId>
-    <description>Module defining abstract structure of MAS of bot.</description>
+    <description>Module defining abstract structures for bot.</description>
 
     <dependencies>
         <dependency>

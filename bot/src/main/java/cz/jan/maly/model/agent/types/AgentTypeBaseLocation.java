@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static cz.jan.maly.model.BasicFactsKeys.*;
+import static cz.jan.maly.model.bot.BasicFactsKeys.*;
 
 /**
  * Type definition - agent type for base location

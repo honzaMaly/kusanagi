@@ -42,7 +42,7 @@ public abstract class SharedDesire extends Desire {
         return new HashSet<>(committedAgents);
     }
 
-    public int countOfCommittedAgents(){
+    public int countOfCommittedAgents() {
         return committedAgents.size();
     }
 
