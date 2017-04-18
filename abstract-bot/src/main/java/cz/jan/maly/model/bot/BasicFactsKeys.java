@@ -73,4 +73,11 @@ public class BasicFactsKeys {
         }
     };
 
+    public static final FactKey<Double> AVAILABLE_MINERALS = new FactKey<Double>("AVAILABLE_MINERALS", false) {
+        @Override
+        public Double getInitValue() {
+            return null;
+        }
+    };
+
 }

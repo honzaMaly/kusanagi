@@ -55,6 +55,11 @@ public class FileReplayParserServiceImpl implements FileReplayParserService {
                 if (fileExtension.equals("rep")) {
                     files.add(file);
                 }
+            } else {
+                if (file.isDirectory()){
+                    List<File> replays = getAllFilesInFolder(directoryName+"\\"+file.getName());
+                    files.addAll(replays);
+                }
             }
         }
         return files;
@@ -69,7 +74,7 @@ public class FileReplayParserServiceImpl implements FileReplayParserService {
     @Override
     public void loadReplaysToParse() {
         addReplaysToMap(replaysPath + "\\" + playersFolder, false);
-        addReplaysToMap(replaysPath + "\\" + botsFolder, true);
+//        addReplaysToMap(replaysPath + "\\" + botsFolder, true);
         log.info("Replays to be parsed: " + replaysToParse.size());
     }
 

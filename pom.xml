@@ -35,6 +35,8 @@
         <guava.version>19.0</guava.version>
         <dagger.version>2.8</dagger.version>
         <cloning.version>1.9.3</cloning.version>
+        <burlap.version>3.0.1</burlap.version>
+        <weka.version>3.8.1</weka.version>
     </properties>
 
     <build>
@@ -123,6 +125,18 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>nz.ac.waikato.cms.weka</groupId>
+                <artifactId>weka-stable</artifactId>
+                <version>${weka.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>edu.brown.cs.burlap</groupId>
+                <artifactId>burlap</artifactId>
+                <version>${burlap.version}</version>
             </dependency>
 
             <dependency>

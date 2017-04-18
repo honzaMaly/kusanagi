@@ -1,12 +1,13 @@
 package cz.jan.maly.service.implementation;
 
-import bwapi.DefaultBWListener;
-import bwapi.Mirror;
+import bwapi.*;
 import bwta.BWTA;
+import cz.jan.maly.model.AgentMakingObservations;
 import cz.jan.maly.model.Replay;
-import cz.jan.maly.model.game.GameData;
+import cz.jan.maly.model.watcher.agent_watcher_extension.AgentWatcherPlayer;
 import cz.jan.maly.service.FileReplayParserService;
 import cz.jan.maly.service.ReplayParserService;
+import cz.jan.maly.service.WatcherMediatorService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -30,9 +33,12 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
     @Autowired
     private FileReplayParserService fileReplayParserService;
 
+    @Autowired
+    private WatcherMediatorService watcherMediatorService;
+
     private Mirror mirror = new Mirror();
 
-    private GameData currentGame;
+    private Game currentGame;
     private Replay currentReplay;
 
     /**
@@ -77,11 +83,12 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
     }
 
     private class GameListener extends DefaultBWListener implements Runnable {
+        private final List<AgentMakingObservations> agentsWithObservations = new ArrayList<>();
 
         @Override
         public void onStart() {
             log.info("New game started");
-            currentGame = new GameData(mirror.getGame());
+            currentGame = mirror.getGame();
 
             //Use BWTA to analyze map
             //This may take a few minutes if the map is processed first time!
@@ -93,8 +100,16 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
             //todo check if game was already parsed, if so, leave game and move to next play
             //todo if not start processing of game
 
+            Optional<Player> player = currentGame.getPlayers().stream()
+                    .filter(p -> p.getRace().equals(Race.Zerg))
+                    .findAny();
+
+            AgentWatcherPlayer agentWatcherPlayer = new AgentWatcherPlayer(player.get());
+            agentsWithObservations.add(agentWatcherPlayer);
+            watcherMediatorService.addWatcher(agentWatcherPlayer);
+
             //speed up game to maximal possible
-            currentGame.getGame().setLocalSpeed(0);
+//            currentGame.setLocalSpeed(0);
         }
 
         @Override
@@ -104,12 +119,20 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
             //todo collect all data and save them
 
             setNextReplay();
+            watcherMediatorService.clearAllAgents();
         }
 
         @Override
         public void onFrame() {
 
-            //todo collect game states
+            //make observations
+            agentsWithObservations.forEach(AgentMakingObservations::makeObservation);
+
+            //watch agents, update their additional beliefs and track theirs commitment
+            watcherMediatorService.watchAgents();
+
+            //todo
+
         }
 
         @Override

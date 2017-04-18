@@ -1,4 +1,4 @@
-package cz.jan.maly;
+package cz.jan.maly.main;
 
 import cz.jan.maly.service.ReplayParserService;
 import org.springframework.beans.factory.annotation.Autowired;

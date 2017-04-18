@@ -19,15 +19,15 @@ spring:
         dialect: ru.megadevelopers.hibernate.dialect.SequencePerTablePostgresDialect
 
 paths-to-replays:
-  replays-path: 'C:\Program Files (x86)\StarCraft\Maps\Replays'
+  replays-path: 'c:\Program Files (x86)\StarCraft\Maps\replays'
   bots: bots
   players: players
 
 chaosluncher-configuration:
-  path: 'C:\Users\Jan\Desktop\Chaosluncher Run With Full Privileges.lnk'
+  path: 'c:\Users\Jan\Desktop\Chaosluncher Run With Full Privileges.lnk'
 
 path-bwapi-ini:
-  path: 'C:\Program Files (x86)\StarCraft\bwapi-data\bwapi.ini'
+  path: 'c:\Program Files (x86)\StarCraft\bwapi-data\bwapi.ini'
 
 path-starcraft:
-  path: 'C:\Program Files (x86)\StarCraft'
+  path: 'c:\Program Files (x86)\StarCraft'
