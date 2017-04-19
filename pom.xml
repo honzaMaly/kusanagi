@@ -37,6 +37,7 @@
         <cloning.version>1.9.3</cloning.version>
         <burlap.version>3.0.1</burlap.version>
         <weka.version>3.8.1</weka.version>
+        <mapdb.version>3.0.3</mapdb.version>
     </properties>
 
     <build>
@@ -125,6 +126,12 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mapdb</groupId>
+                <artifactId>mapdb</artifactId>
+                <version>${mapdb.version}</version>
             </dependency>
 
             <dependency>

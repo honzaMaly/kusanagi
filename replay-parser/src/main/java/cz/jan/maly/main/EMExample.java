@@ -10,36 +10,25 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class EmExample {
+public class EMExample {
 
     public static void main(String[] args) throws Exception {
         // load data
         Instances data = getTrainingSet();
 
-        List<Instances> list = java.util.Arrays.asList(data, data, data, data);
-        List<String> ems = list.parallelStream()
-                .map(instances -> {
-                    System.out.println("---Starting---");
-                    // build clusterer
-                    EM clusterer = new EM();
-                    try {
-                        clusterer.setMaxIterations(20);
-                        clusterer.setNumKMeansRuns(5);
-                        clusterer.buildClusterer(data);
+        EM clusterer = new EM();
+        clusterer.setMaxIterations(20);
+        clusterer.setNumKMeansRuns(5);
+        clusterer.buildClusterer(data);
 
-                        // evaluate clusterer
-                        ClusterEvaluation eval = new ClusterEvaluation();
-                        eval.setClusterer(clusterer);
-                        eval.evaluateClusterer(data);
-                        return eval.clusterResultsToString();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return "";
-                }).collect(Collectors.toList());
+        // evaluate clusterer
+        ClusterEvaluation eval = new ClusterEvaluation();
+        eval.setClusterer(clusterer);
+        eval.evaluateClusterer(data);
+
 
         // print results
-        ems.forEach(System.out::println);
+        System.out.println(eval.clusterResultsToString());
     }
 
     private static Instances getTrainingSet() {
