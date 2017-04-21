@@ -10,7 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>bot</module>
-        <module>data-model</module>
         <module>replay-parser</module>
         <module>abstract-bot</module>
         <module>mas-framework</module>
@@ -26,14 +25,7 @@
         <lombok-maven-plugin.version>1.16.10.0</lombok-maven-plugin.version>
         <lombok.version>1.16.10</lombok.version>
         <annotations.version>13.0</annotations.version>
-        <hibernate-spatial.version>5.2.2.Final</hibernate-spatial.version>
-        <hibernate.version>5.2.2.Final</hibernate.version>
-        <postgres-hibernate-mapper.version>2.0</postgres-hibernate-mapper.version>
-        <spring-boot.version>1.4.0.RELEASE</spring-boot.version>
         <slf4j.version>1.7.21</slf4j.version>
-        <postgresql.version>9.4.1209.jre7</postgresql.version>
-        <guava.version>19.0</guava.version>
-        <dagger.version>2.8</dagger.version>
         <cloning.version>1.9.3</cloning.version>
         <burlap.version>3.0.1</burlap.version>
         <weka.version>3.8.1</weka.version>
@@ -83,17 +75,6 @@
         </pluginManagement>
     </build>
 
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/libs-milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
 
@@ -106,26 +87,6 @@
                 <groupId>bwmirror</groupId>
                 <artifactId>bwmirror</artifactId>
                 <version>${bwmirror.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-releasetrain</artifactId>
-                <version>Hopper-SR2</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <!--
-                    Import dependency management from Spring Boot
-                    Please see http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#using-boot-maven-without-a-parent
-                 -->
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
             <dependency>
@@ -147,59 +108,9 @@
             </dependency>
 
             <dependency>
-                <groupId>ru.megadevelopers</groupId>
-                <artifactId>postgres-hibernate-mapper</artifactId>
-                <version>${postgres-hibernate-mapper.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>uk.com.robust-it</groupId>
                 <artifactId>cloning</artifactId>
                 <version>${cloning.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>${hibernate.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${postgresql.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-spatial</artifactId>
-                <version>${hibernate-spatial.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>postgresql</groupId>
-                        <artifactId>postgresql</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.postgis</groupId>
-                        <artifactId>postgis-jdbc</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hibernate</groupId>
-                        <artifactId>hibernate-core</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>

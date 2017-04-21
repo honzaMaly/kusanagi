@@ -1,19 +1,19 @@
 package cz.jan.maly.service.implementation;
 
-import cz.jan.maly.model.watcher.*;
+import cz.jan.maly.model.watcher.AgentWatcher;
+import cz.jan.maly.model.watcher.FactConverter;
+import cz.jan.maly.model.watcher.FactConverterByAgentType;
 import cz.jan.maly.service.WatcherMediatorService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
  * Implementation of WatcherMediatorService
  * Created by Jan on 18-Apr-17.
  */
-@Slf4j
-@Service
 public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     private final Set<AgentWatcher<?>> watchers = new HashSet<>();
 
@@ -36,7 +36,7 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     public void watchAgents() {
 
         //TODO
-        watchers.forEach(agentWatcher -> agentWatcher.planWhereStatusHasChanged(this));
+        watchers.forEach(agentWatcher -> agentWatcher.handleTrajectoriesOfPlans(this));
 
     }
 

@@ -3,43 +3,32 @@ package cz.jan.maly.service.implementation;
 import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.AgentMakingObservations;
-import cz.jan.maly.model.Replay;
+import cz.jan.maly.model.game.util.Annotator;
+import cz.jan.maly.model.tracking.Replay;
+import cz.jan.maly.model.watcher.FactConverter;
 import cz.jan.maly.model.watcher.agent_watcher_extension.AgentWatcherPlayer;
-import cz.jan.maly.service.FileReplayParserService;
+import cz.jan.maly.service.FileReplayLoaderService;
 import cz.jan.maly.service.ReplayParserService;
+import cz.jan.maly.service.StorageService;
 import cz.jan.maly.service.WatcherMediatorService;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import cz.jan.maly.utils.MyLogger;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Concrete implementation of service to parse replays
  * Created by Jan on 17-Nov-16.
  */
-@Slf4j
-@Service
 public class ReplayParserServiceImpl extends DefaultBWListener implements ReplayParserService {
-
-    @Value("${chaosluncher-configuration.path}")
-    private String chaosluncherPath;
-
-    @Autowired
-    private FileReplayParserService fileReplayParserService;
-
-    @Autowired
-    private WatcherMediatorService watcherMediatorService;
-
-    private Mirror mirror = new Mirror();
-
-    private Game currentGame;
-    private Replay currentReplay;
+    private static final String chaosluncherPath = "c:\\Users\\Jan\\Desktop\\Chaosluncher Run With Full Privileges.lnk";
+    private static final StorageService STORAGE_SERVICE = StorageServiceImplementation.getInstance();
+    private FileReplayLoaderService fileReplayLoaderService = new FileReplayLoaderServiceImpl();
+    private WatcherMediatorService watcherMediatorService = new WatcherMediatorServiceImpl();
+    private Optional<Replay> replay;
+    private final Thread gameListener = new Thread(new GameListener(), "GameListener");
 
     /**
      * Method to start Chaosluncher with predefined configuration. Sadly process can be only started, not closed. See comment in method body to setup it appropriately
@@ -52,74 +41,130 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
          * Lunch C haosluncher with full privileges, guide to setup such a shortucut is on http://lifehacker.com/how-to-eliminate-uac-prompts-for-specific-applications-493128966.
          * Also do not forget to set: Setting > Run Starcraft on Startup to initialize game based on configuration file.
          */
-        log.info("Starting Chaosluncher...");
+        MyLogger.getLogger().info("Starting Chaosluncher...");
         Runtime rt = Runtime.getRuntime();
         rt.exec("cmd /c start \"\" \"" + chaosluncherPath + "\"");
     }
 
+    /**
+     * Return next replay to parse
+     *
+     * @return
+     */
+    private Replay getNextReplay() throws Exception {
+        File nextReplay = fileReplayLoaderService.returnNextReplayToPlay();
+        return new Replay(nextReplay);
+    }
+
+    /**
+     * Set next replay or terminate listener
+     *
+     * @return
+     */
     private void setNextReplay() {
         try {
-            Optional<Replay> nextReplay = fileReplayParserService.setNextReplayToPlay();
-            while (!nextReplay.isPresent()) {
-                nextReplay = fileReplayParserService.setNextReplayToPlay();
-            }
-            currentReplay = nextReplay.get();
-        } catch (NoSuchFileException e) {
-            log.info(e.getLocalizedMessage());
+            replay = Optional.of(getNextReplay());
+        } catch (Exception e) {
+            MyLogger.getLogger().warning(e.getLocalizedMessage());
+
+            //terminate process
+            System.exit(1);
         }
     }
 
     @Override
     public void parseReplays() {
-        Thread gameListener = new Thread(new GameListener(), "GameListener");
+
+        //start game listener
         gameListener.start();
-        fileReplayParserService.loadReplaysToParse();
+
+        //load all not parsed replays
+        fileReplayLoaderService.loadReplaysToParse();
+        setNextReplay();
+
+        //try to lunch chaosluncher
         try {
-            setNextReplay();
             startChaosluncher();
         } catch (IOException e) {
-            log.error("Could not start Chaosluncher.");
+
+            //terminate process
+            MyLogger.getLogger().warning("Could not start Chaosluncher. " + e.getLocalizedMessage());
+            System.exit(1);
         }
     }
 
     private class GameListener extends DefaultBWListener implements Runnable {
         private final List<AgentMakingObservations> agentsWithObservations = new ArrayList<>();
+        private final Set<Integer> playersToParse = new HashSet<>();
+        private Mirror mirror = new Mirror();
+        private Game currentGame;
+        private Player parsingPlayer;
+        private Annotator annotator;
 
         @Override
         public void onStart() {
-            log.info("New game started");
+
+            //mark replay as loaded to skipp it next time
+            if (playersToParse.isEmpty()) {
+                STORAGE_SERVICE.markReplayAsParsed(replay.get());
+            }
+
+            MyLogger.getLogger().info("New game from replay " + replay.get().getFile());
             currentGame = mirror.getGame();
 
             //Use BWTA to analyze map
             //This may take a few minutes if the map is processed first time!
-            log.info("Analyzing map...");
+            MyLogger.getLogger().info("Analyzing map...");
             BWTA.readMap();
             BWTA.analyze();
-            log.info("Map data ready");
+            MyLogger.getLogger().info("Map data ready");
 
-            //todo check if game was already parsed, if so, leave game and move to next play
-            //todo if not start processing of game
+            //add all zerg players to parse queue, if queue is empty (as replay will be parsed for first time)
+            if (playersToParse.isEmpty()) {
+                playersToParse.addAll(currentGame.getPlayers().stream()
+                        .filter(p -> p.getRace().equals(Race.Zerg))
+                        .filter(p -> p.allUnitCount() == 9)
+                        .peek(player -> MyLogger.getLogger().info(player.getRace() + " id: " + player.getID() + " units: " + player.allUnitCount()))
+                        .map(Player::getID)
+                        .collect(Collectors.toSet())
+                );
+            }
 
-            Optional<Player> player = currentGame.getPlayers().stream()
-                    .filter(p -> p.getRace().equals(Race.Zerg))
-                    .findAny();
+            //set player to parse
+            parsingPlayer = currentGame.getPlayers().stream()
+                    .filter(p -> playersToParse.contains(p.getID()))
+                    .findFirst()
+                    .get();
 
-            AgentWatcherPlayer agentWatcherPlayer = new AgentWatcherPlayer(player.get());
+            //init annotation
+            annotator = new Annotator(currentGame.getPlayers().stream()
+                    .filter(player -> player.isEnemy(parsingPlayer) || player.getID() == parsingPlayer.getID())
+                    .collect(Collectors.toList()), parsingPlayer, currentGame);
+
+            //TODO init other agents
+            AgentWatcherPlayer agentWatcherPlayer = new AgentWatcherPlayer(parsingPlayer);
             agentsWithObservations.add(agentWatcherPlayer);
             watcherMediatorService.addWatcher(agentWatcherPlayer);
 
             //speed up game to maximal possible
-//            currentGame.setLocalSpeed(0);
+            currentGame.setLocalSpeed(0);
         }
 
         @Override
         public void onEnd(boolean b) {
-            log.info("Game has finished. Processing data...");
+            MyLogger.getLogger().info("Game has finished. Processing data...");
 
             //todo collect all data and save them
 
-            setNextReplay();
+            //clear cache
             watcherMediatorService.clearAllAgents();
+            FactConverter.clearCache();
+            playersToParse.remove(parsingPlayer.getID());
+
+            //if all players in queue were parsed, move to next replay
+            if (playersToParse.isEmpty()) {
+                setNextReplay();
+            }
         }
 
         @Override
@@ -131,8 +176,10 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
             //watch agents, update their additional beliefs and track theirs commitment
             watcherMediatorService.watchAgents();
 
-            //todo
+            //TODO add logic
 
+            //annotate map
+//            annotator.annotate();
         }
 
         @Override

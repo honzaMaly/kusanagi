@@ -33,6 +33,10 @@ public class FactConverter<V> implements Converter {
         usedIds.add(order);
     }
 
+    public static void clearCache(){
+        usedIds.clear();
+    }
+
 
     /**
      * Convert value to double

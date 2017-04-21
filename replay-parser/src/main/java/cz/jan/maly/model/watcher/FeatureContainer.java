@@ -1,32 +1,37 @@
 package cz.jan.maly.model.watcher;
 
+import com.rits.cloning.Cloner;
 import cz.jan.maly.service.WatcherMediatorService;
+import cz.jan.maly.utils.MyLogger;
 import lombok.Builder;
-import lombok.Getter;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * Template. Contains map of fact keys and their feature values
  * Created by Jan on 17-Apr-17.
  */
 public class FeatureContainer {
+
+    //cloning features...
+    private static final Cloner CLONER = new Cloner();
+
     private final Set<FactConverter<?>> convertersForFacts;
     private final Set<FactConverter<Stream<?>>> convertersForFactSets;
     private final Set<FactConverter<Stream<Optional<?>>>> convertersForFactsForGlobalBeliefs;
     private final Set<FactConverter<Stream<Optional<Stream<?>>>>> convertersForFactSetsForGlobalBeliefs;
     private final Set<FactConverterByAgentType<Stream<Optional<?>>>> convertersForFactsForGlobalBeliefsByAgentType;
     private final Set<FactConverterByAgentType<Stream<Optional<Stream<?>>>>> convertersForFactSetsForGlobalBeliefsByAgentType;
-    private final List<Integer> indexes = new ArrayList<>();
-    @Getter
+    private final List<Integer> indexes;
+    private final Set<Integer> indexesSet = new HashSet<>();
     private double[] featureVector;
     private boolean hasChanged;
-    @Getter
-    private double[] featureCommitmentVector;
-    private final List<Integer> indexesForCommitment = new ArrayList<>();
+    private final List<Integer> indexesForCommitment;
 
     @Builder
     private FeatureContainer(Set<FactConverter<?>> convertersForFacts, Set<FactConverter<Stream<?>>> convertersForFactSets,
@@ -42,20 +47,34 @@ public class FeatureContainer {
         this.convertersForFactSetsForGlobalBeliefsByAgentType = convertersForFactSetsForGlobalBeliefsByAgentType;
 
         //add indexes
-        indexes.addAll(convertersForFacts.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
-        indexes.addAll(convertersForFactSets.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
-        indexes.addAll(convertersForFactsForGlobalBeliefs.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
-        indexes.addAll(convertersForFactSetsForGlobalBeliefs.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
-        indexes.addAll(convertersForFactsForGlobalBeliefsByAgentType.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
-        indexes.addAll(convertersForFactSetsForGlobalBeliefsByAgentType.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
-
-        featureVector = new double[indexes.size()];
-        Collections.sort(indexes);
+        addIndexes(convertersForFacts.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
+        addIndexes(convertersForFactSets.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
+        addIndexes(convertersForFactsForGlobalBeliefs.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
+        addIndexes(convertersForFactSetsForGlobalBeliefs.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
+        addIndexes(convertersForFactsForGlobalBeliefsByAgentType.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
+        addIndexes(convertersForFactSetsForGlobalBeliefsByAgentType.stream().map(FactConverter::getOrder).collect(Collectors.toList()));
+        indexes = indexesSet.stream().sorted().collect(Collectors.toList());
 
         //add commitments
-        indexesForCommitment.addAll(interestedInCommitments.stream().map(DesireID::getID).collect(Collectors.toList()));
-        featureCommitmentVector = new double[indexesForCommitment.size()];
-        Collections.sort(indexesForCommitment);
+        indexesSet.clear();
+        addIndexes(interestedInCommitments.stream().map(DesireID::getID).collect(Collectors.toList()));
+        indexesForCommitment = indexesSet.stream().sorted().collect(Collectors.toList());
+
+        //make feature vector
+        featureVector = new double[indexes.size() + indexesForCommitment.size()];
+    }
+
+    public double[] getFeatureVector() {
+        return CLONER.deepClone(featureVector);
+    }
+
+    private void addIndexes(List<Integer> indexes) {
+        for (Integer integer : indexes) {
+            if (indexesSet.contains(integer)) {
+                MyLogger.getLogger().warning("Found duplicity index.");
+            }
+            indexesSet.add(integer);
+        }
     }
 
     /**
@@ -92,12 +111,12 @@ public class FeatureContainer {
         //check commitment
         indexesForCommitment.forEach(integer -> {
             double commitment = 0;
-            if (committedToIDs.contains(integer)){
+            if (committedToIDs.contains(integer)) {
                 commitment = 1;
             }
-            if (featureCommitmentVector[integer]!=commitment){
-                featureVector[integer] = commitment;
-                if (!hasChanged){
+            if (featureVector[integer + indexes.size()] != commitment) {
+                featureVector[integer + indexes.size()] = commitment;
+                if (!hasChanged) {
                     hasChanged = true;
                 }
             }
@@ -108,14 +127,15 @@ public class FeatureContainer {
 
     /**
      * Compare values. If differ update value and set flag that value has changed
+     *
      * @param converter
      * @param computedValue
      */
-    private void updatedFact(FactConverter<?> converter, double computedValue){
+    private void updatedFact(FactConverter<?> converter, double computedValue) {
         int index = indexes.indexOf(converter.getOrder());
         if (featureVector[index] != computedValue) {
             featureVector[index] = computedValue;
-            if (!hasChanged){
+            if (!hasChanged) {
                 hasChanged = true;
             }
         }

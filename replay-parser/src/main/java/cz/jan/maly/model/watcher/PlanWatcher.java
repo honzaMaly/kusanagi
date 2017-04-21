@@ -1,5 +1,7 @@
 package cz.jan.maly.model.watcher;
 
+import cz.jan.maly.model.tracking.State;
+import cz.jan.maly.model.tracking.Trajectory;
 import cz.jan.maly.service.WatcherMediatorService;
 import lombok.Getter;
 
@@ -16,11 +18,15 @@ public abstract class PlanWatcher {
     private boolean isCommitted = false;
 
     @Getter
+    private final Trajectory trajectory;
+
+    @Getter
     private final DesireID desireKey;
 
     protected PlanWatcher(FeatureContainerInitializationStrategy featureContainerInitializationStrategy, DesireID desireKey) {
         this.container = featureContainerInitializationStrategy.returnFeatureContainer();
         this.desireKey = desireKey;
+        this.trajectory = new Trajectory(new State(this.container.getFeatureVector(), isCommitted));
     }
 
     /**
@@ -38,37 +44,21 @@ public abstract class PlanWatcher {
     protected abstract boolean isAgentCommitted();
 
     /**
-     * Was status updated
+     * If agent transit to new state (either feature vector has changed or commitment) add new state to trajectory
      *
      * @param beliefs
      * @param mediatorService
      * @return
      */
-    public boolean hasStatusChanged(Beliefs beliefs, WatcherMediatorService mediatorService, Set<Integer> committedToIDs) {
-        boolean hasStatusChanged = container.isStatusUpdated(beliefs, mediatorService, committedToIDs);
+    public void addNewStateIfAgentHasTransitedToOne(Beliefs beliefs, WatcherMediatorService mediatorService, Set<Integer> committedToIDs) {
+        boolean hasStatusChanged = false;
         if (isCommitted != isAgentCommitted()) {
             isCommitted = !isCommitted;
-            return true;
+            hasStatusChanged = true;
         }
-        return hasStatusChanged;
-    }
-
-    /**
-     * Get current feature vector
-     *
-     * @return
-     */
-    public double[] getFeatureVector() {
-        return container.getFeatureVector();
-    }
-
-    /**
-     * Get current feature vector
-     *
-     * @return
-     */
-    public double[] getFeatureVectorOfCommitment() {
-        return container.getFeatureCommitmentVector();
+        if (container.isStatusUpdated(beliefs, mediatorService, committedToIDs) || hasStatusChanged) {
+            trajectory.addNewState(new State(container.getFeatureVector(), isCommitted));
+        }
     }
 
     @Override

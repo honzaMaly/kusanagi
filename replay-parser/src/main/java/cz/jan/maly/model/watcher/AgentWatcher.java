@@ -3,7 +3,6 @@ package cz.jan.maly.model.watcher;
 import cz.jan.maly.service.WatcherMediatorService;
 import lombok.Getter;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,24 +47,17 @@ public class AgentWatcher<T extends AgentWatcherType> {
     }
 
     /**
-     * Get all plans where status has changed compare to last time
+     * Handle trajectories of plans
      *
      * @param mediatorService
      * @return
      */
-    public List<PlanWatcher> planWhereStatusHasChanged(WatcherMediatorService mediatorService) {
+    public void handleTrajectoriesOfPlans(WatcherMediatorService mediatorService) {
         Set<Integer> committedIDs = plansToWatch.stream()
                 .filter(PlanWatcher::isCommitted)
                 .map(planWatcher -> planWatcher.getDesireKey().getID())
                 .collect(Collectors.toSet());
-        return plansToWatch.stream()
-                .filter(planWatcher -> planWatcher.hasStatusChanged(beliefs, mediatorService, committedIDs))
-
-                //todo replace with saving state
-                .peek(planWatcher -> System.out.println(planWatcher.getDesireKey().getName() + ": " + Arrays.toString(planWatcher.getFeatureVector()) + ", "
-                        + Arrays.toString(planWatcher.getFeatureVectorOfCommitment()) + " committed: " + planWatcher.isCommitted()))
-
-                .collect(Collectors.toList());
+        plansToWatch.forEach(planWatcher -> planWatcher.addNewStateIfAgentHasTransitedToOne(beliefs, mediatorService, committedIDs));
     }
 
     @Override
