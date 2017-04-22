@@ -8,7 +8,35 @@ import cz.jan.maly.model.metadata.FactKey;
  * Basic fact keys - used in agent to relate them with representation
  * Created by Jan on 15-Mar-17.
  */
-public class BasicFactsKeys {
+public class FactKeys {
+
+    public static final FactKey<AUnit> MINING_MINERAL = new FactKey<AUnit>("MINING_MINERAL", false) {
+        @Override
+        public AUnit getInitValue() {
+            return null;
+        }
+    };
+
+    public static final FactKey<AUnit> MINERAL_TO_MINE = new FactKey<AUnit>("MINERAL_TO_MINE", true) {
+        @Override
+        public AUnit getInitValue() {
+            return null;
+        }
+    };
+
+    public static final FactKey<Boolean> IS_BASE = new FactKey<Boolean>("IS_BASE", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+
+    public static final FactKey<AUnit> HAS_HATCHERY = new FactKey<AUnit>("HAS_HATCHERY", true) {
+        @Override
+        public AUnit getInitValue() {
+            return null;
+        }
+    };
 
     public static final FactKey<AUnitWithCommands> IS_UNIT = new FactKey<AUnitWithCommands>("IS_UNIT", true) {
         @Override

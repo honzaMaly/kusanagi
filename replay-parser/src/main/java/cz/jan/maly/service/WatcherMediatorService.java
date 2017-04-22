@@ -1,11 +1,10 @@
 package cz.jan.maly.service;
 
+import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSets;
+import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSetsForAgentType;
+import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValues;
+import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValuesForAgentType;
 import cz.jan.maly.model.watcher.AgentWatcher;
-import cz.jan.maly.model.watcher.FactConverter;
-import cz.jan.maly.model.watcher.FactConverterByAgentType;
-
-import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Contract for service to track watchers
@@ -28,7 +27,7 @@ public interface WatcherMediatorService {
      * @param <V>
      * @return
      */
-    <V extends Stream<Optional<?>>> double getFeatureValueOfFact(FactConverter<V> convertingStrategy);
+    <V> double getFeatureValueOfFact(FactWithSetOfOptionalValues<V> convertingStrategy);
 
     /**
      * Convert fact set to feature value
@@ -37,7 +36,7 @@ public interface WatcherMediatorService {
      * @param <V>
      * @return
      */
-    <V extends Stream<Optional<Stream<?>>>> double getFeatureValueOfFactSet(FactConverter<V> convertingStrategy);
+    <V> double getFeatureValueOfFactSet(FactWithOptionalValueSets<V> convertingStrategy);
 
     /**
      * Convert fact to feature value
@@ -46,7 +45,7 @@ public interface WatcherMediatorService {
      * @param <V>
      * @return
      */
-    <V extends Stream<Optional<?>>> double getFeatureValueOfFact(FactConverterByAgentType<V> convertingStrategy);
+    <V> double getFeatureValueOfFact(FactWithSetOfOptionalValuesForAgentType<V> convertingStrategy);
 
     /**
      * Convert fact set to feature value
@@ -55,6 +54,6 @@ public interface WatcherMediatorService {
      * @param <V>
      * @return
      */
-    <V extends Stream<Optional<Stream<?>>>> double getFeatureValueOfFactSet(FactConverterByAgentType<V> convertingStrategy);
+    <V> double getFeatureValueOfFactSet(FactWithOptionalValueSetsForAgentType<V> convertingStrategy);
 
 }

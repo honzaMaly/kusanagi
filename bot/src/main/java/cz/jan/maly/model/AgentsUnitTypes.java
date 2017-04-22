@@ -1,6 +1,7 @@
 package cz.jan.maly.model;
 
 import cz.jan.maly.model.agent.types.AgentTypeUnit;
+import cz.jan.maly.model.bot.AgentTypes;
 import cz.jan.maly.model.game.wrappers.APosition;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.knowledge.WorkingMemory;
@@ -18,9 +19,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static cz.jan.maly.model.DesiresKeys.*;
-import static cz.jan.maly.model.FactsKeys.*;
-import static cz.jan.maly.model.bot.BasicFactsKeys.IS_UNIT;
-import static cz.jan.maly.model.bot.BasicFactsKeys.MINERAL;
+import static cz.jan.maly.model.bot.FactConverters.*;
+import static cz.jan.maly.model.bot.FactKeys.*;
 
 /**
  * Created by Jan on 15-Mar-17.
@@ -28,44 +28,44 @@ import static cz.jan.maly.model.bot.BasicFactsKeys.MINERAL;
 public class AgentsUnitTypes {
 
     public static final AgentTypeUnit HATCHERY = AgentTypeUnit.builder()
-            .name("HATCHERY")
+            .agentTypeID(AgentTypes.HATCHERY)
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit OVERLORD = AgentTypeUnit.builder()
-            .name("OVERLORD")
+            .agentTypeID(AgentTypes.OVERLORD)
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit ZERGLING = AgentTypeUnit.builder()
-            .name("ZERGLING")
+            .agentTypeID(AgentTypes.ZERGLING)
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit EGG = AgentTypeUnit.builder()
-            .name("EGG")
+            .agentTypeID(AgentTypes.EGG)
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit SPAWNING_POOL = AgentTypeUnit.builder()
-            .name("SPAWNING_POOL")
+            .agentTypeID(AgentTypes.SPAWNING_POOL)
             .initializationStrategy(type -> {
             })
             .build();
 
     //morph
     public static final AgentTypeUnit LARVA = AgentTypeUnit.builder()
-            .name("LARVA")
+            .agentTypeID(AgentTypes.LARVA)
             .initializationStrategy(type -> {
             })
             .build();
 
     public static final AgentTypeUnit DRONE = AgentTypeUnit.builder()
-            .name("DRONE")
+            .agentTypeID(AgentTypes.DRONE)
             .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINING_MINERAL, MINERAL_TO_MINE})))
             .initializationStrategy(type -> {
 
@@ -78,9 +78,7 @@ public class AgentsUnitTypes {
                                     }
                                     return false;
                                 })
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{
-                                        new FactWithOptionalValueSet<>(MINERAL, aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0))
-                                })))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -90,9 +88,7 @@ public class AgentsUnitTypes {
                                     }
                                     return false;
                                 })
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{
-                                        new FactWithOptionalValueSet<>(MINERAL, aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0))
-                                })))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
                                 .build()
                         )
                         .desiresWithIntentionToAct(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS})))
@@ -129,7 +125,7 @@ public class AgentsUnitTypes {
 
                                             //release currently mined mineral if it differs with mineral about to be mined
                                             if (intention.returnFactValueForGivenKey(MINING_MINERAL).isPresent()
-                                                    && !intention.returnFactValueForGivenKey(MINING_MINERAL).get().equals(MINERAL_TO_MINE)) {
+                                                    && !intention.returnFactValueForGivenKey(MINING_MINERAL).get().equals(aUnit)) {
                                                 memory.updateFact(MINING_MINERAL, MINING_MINERAL.getInitValue());
                                             }
                                         });
@@ -142,21 +138,7 @@ public class AgentsUnitTypes {
                                 .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(MINING_MINERAL) == 0
                                         && dataForDecision.getFeatureValueBeliefs(IS_UNIT) == 0)
                                 .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        new FactWithOptionalValue<>(MINING_MINERAL, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                return 1;
-                                            }
-                                            return 0;
-                                        }),
-                                        new FactWithOptionalValue<>(IS_UNIT, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                if (aUnit.get().isCarryingMinerals()) {
-                                                    return 1;
-                                                }
-                                            }
-                                            return 0;
-                                        }),
-                                })))
+                                        IS_MINING_MINERAL, IS_CARRYING_MINERAL})))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -180,20 +162,7 @@ public class AgentsUnitTypes {
                                 .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(MINING_MINERAL) == 1
                                         && dataForDecision.getFeatureValueBeliefs(IS_UNIT) == 1)
                                 .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        new FactWithOptionalValue<>(MINING_MINERAL, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                return 1;
-                                            }
-                                            return 0;
-                                        }),
-                                        new FactWithOptionalValue<>(IS_UNIT, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                if (aUnit.get().isCarryingMinerals()) {
-                                                    return 1;
-                                                }
-                                            }
-                                            return 0;
-                                        }),
+                                        IS_MINING_MINERAL, IS_CARRYING_MINERAL
                                 })))
                                 .build()
                         )
@@ -222,26 +191,7 @@ public class AgentsUnitTypes {
                                         && dataForDecision.getFeatureValueBeliefs(MINING_MINERAL) == 0
                                         && dataForDecision.getFeatureValueBeliefs(IS_UNIT) == 0)
                                 .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        new FactWithOptionalValue<>(MINING_MINERAL, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                return 1;
-                                            }
-                                            return 0;
-                                        }),
-                                        new FactWithOptionalValue<>(MINERAL_TO_MINE, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                return 1;
-                                            }
-                                            return 0;
-                                        }),
-                                        new FactWithOptionalValue<>(IS_UNIT, aUnit -> {
-                                            if (aUnit.isPresent()) {
-                                                if (aUnit.get().isCarryingMinerals()) {
-                                                    return 1;
-                                                }
-                                            }
-                                            return 0;
-                                        }),
+                                        IS_MINING_MINERAL, IS_CARRYING_MINERAL, HAS_SELECTED_MINERAL_TO_MINE
                                 })))
                                 .build()
                         )

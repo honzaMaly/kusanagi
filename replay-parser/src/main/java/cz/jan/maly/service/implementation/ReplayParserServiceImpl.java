@@ -3,9 +3,7 @@ package cz.jan.maly.service.implementation;
 import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.AgentMakingObservations;
-import cz.jan.maly.model.game.util.Annotator;
 import cz.jan.maly.model.tracking.Replay;
-import cz.jan.maly.model.watcher.FactConverter;
 import cz.jan.maly.model.watcher.agent_watcher_extension.AgentWatcherPlayer;
 import cz.jan.maly.service.FileReplayLoaderService;
 import cz.jan.maly.service.ReplayParserService;
@@ -99,7 +97,6 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
         private Mirror mirror = new Mirror();
         private Game currentGame;
         private Player parsingPlayer;
-        private Annotator annotator;
 
         @Override
         public void onStart() {
@@ -136,11 +133,6 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
                     .findFirst()
                     .get();
 
-            //init annotation
-            annotator = new Annotator(currentGame.getPlayers().stream()
-                    .filter(player -> player.isEnemy(parsingPlayer) || player.getID() == parsingPlayer.getID())
-                    .collect(Collectors.toList()), parsingPlayer, currentGame);
-
             //TODO init other agents
             AgentWatcherPlayer agentWatcherPlayer = new AgentWatcherPlayer(parsingPlayer);
             agentsWithObservations.add(agentWatcherPlayer);
@@ -158,7 +150,6 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
 
             //clear cache
             watcherMediatorService.clearAllAgents();
-            FactConverter.clearCache();
             playersToParse.remove(parsingPlayer.getID());
 
             //if all players in queue were parsed, move to next replay
@@ -178,8 +169,6 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
 
             //TODO add logic
 
-            //annotate map
-//            annotator.annotate();
         }
 
         @Override

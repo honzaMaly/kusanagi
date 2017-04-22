@@ -3,6 +3,7 @@ package cz.jan.maly.service.implementation;
 import bwapi.Race;
 import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.types.AgentTypePlayer;
+import cz.jan.maly.model.bot.AgentTypes;
 import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.service.PlayerInitializer;
 
@@ -13,7 +14,7 @@ import cz.jan.maly.service.PlayerInitializer;
 public class AgentPlayerInitializer implements PlayerInitializer {
 
     public static final AgentTypePlayer PLAYER = AgentTypePlayer.builder()
-            .name("PLAYER")
+            .agentTypeID(AgentTypes.PLAYER)
             .initializationStrategy(type -> {
             })
             .build();

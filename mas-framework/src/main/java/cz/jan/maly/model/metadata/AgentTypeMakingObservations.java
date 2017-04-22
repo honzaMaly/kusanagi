@@ -19,7 +19,7 @@ public class AgentTypeMakingObservations<E> extends AgentType {
     /**
      * Define agent type. Together with initial desires
      *
-     * @param name
+     * @param agentTypeID
      * @param desiresForOthers
      * @param desiresWithAbstractIntention
      * @param desiresWithIntentionToAct
@@ -27,12 +27,12 @@ public class AgentTypeMakingObservations<E> extends AgentType {
      * @param usingTypesForFacts
      * @param usingTypesForFactSets
      */
-    protected AgentTypeMakingObservations(String name, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
+    protected AgentTypeMakingObservations(AgentTypeID agentTypeID, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                                           Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason,
                                           Set<FactKey<?>> usingTypesForFacts, Set<FactKey<?>> usingTypesForFactSets,
                                           ConfigurationInitializationStrategy initializationStrategy,
                                           ObservingCommand<E> observingCommand, int skipTurnsToMakeObservation) {
-        super(name, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason,
+        super(agentTypeID, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason,
                 usingTypesForFacts, usingTypesForFactSets, initializationStrategy);
         this.observingCommand = observingCommand;
         this.skipTurnsToMakeObservation = skipTurnsToMakeObservation;

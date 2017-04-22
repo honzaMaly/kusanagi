@@ -1,7 +1,7 @@
 package cz.jan.maly.model.watcher;
 
+import cz.jan.maly.model.metadata.AgentTypeID;
 import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.metadata.Key;
 import cz.jan.maly.model.watcher.updating_strategies.Reasoning;
 import lombok.Getter;
 
@@ -15,15 +15,15 @@ import java.util.Set;
  * Created by Jan on 17-Apr-17.
  */
 @Getter
-public class AgentWatcherType extends Key {
+public class AgentWatcherType extends AgentTypeID {
     private final Set<FactKey<?>> factKeys;
     private final Set<FactKey<?>> factSetsKeys;
     private final List<PlanWatcherInitializationStrategy> planWatchers;
     private final Optional<Reasoning> reasoning;
 
-    protected AgentWatcherType(String name, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys, List<PlanWatcherInitializationStrategy> planWatchers,
-                             Optional<Reasoning> reasoning) {
-        super(name, AgentWatcherType.class);
+    protected AgentWatcherType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys, List<PlanWatcherInitializationStrategy> planWatchers,
+                               Optional<Reasoning> reasoning) {
+        super(agentTypeID.getName(), agentTypeID.getID());
         this.factKeys = factKeys;
         this.factSetsKeys = factSetsKeys;
         this.planWatchers = planWatchers;

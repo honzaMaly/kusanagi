@@ -2,10 +2,7 @@ package cz.jan.maly.model.agent.types;
 
 import bwapi.Game;
 import cz.jan.maly.model.game.wrappers.APlayer;
-import cz.jan.maly.model.metadata.AgentType;
-import cz.jan.maly.model.metadata.AgentTypeMakingObservations;
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.*;
 import cz.jan.maly.model.planing.command.ObservingCommand;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Builder;
@@ -17,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static cz.jan.maly.model.bot.BasicFactsKeys.*;
+import static cz.jan.maly.model.bot.FactKeys.*;
 
 /**
  * Type definition - agent type for player
@@ -44,7 +41,7 @@ public class AgentTypePlayer extends AgentTypeMakingObservations<Game> {
     /**
      * Define agent type. Together with initial desires
      *
-     * @param name
+     * @param agentTypeID
      * @param desiresForOthers
      * @param desiresWithAbstractIntention
      * @param desiresWithIntentionToAct
@@ -54,11 +51,11 @@ public class AgentTypePlayer extends AgentTypeMakingObservations<Game> {
      * @param initializationStrategy
      */
     @Builder
-    private AgentTypePlayer(String name, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
+    private AgentTypePlayer(AgentTypeID agentTypeID, Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
                             Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason,
                             Set<FactKey<?>> usingTypesForFacts, Set<FactKey<?>> usingTypesForFactSets,
                             AgentType.ConfigurationInitializationStrategy initializationStrategy, int skipTurnsToMakeObservation) {
-        super(name, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason,
+        super(agentTypeID, desiresForOthers, desiresWithAbstractIntention, desiresWithIntentionToAct, desiresWithIntentionToReason,
 
                 //add facts related to agent - IS_UNIT, REPRESENTS_UNIT
                 Stream.concat(usingTypesForFacts.stream(), Arrays.stream(new FactKey<?>[]{IS_PLAYER, ENEMY_RACE,

@@ -1,5 +1,6 @@
 package cz.jan.maly.model.watcher;
 
+import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.tracking.State;
 import cz.jan.maly.model.tracking.Trajectory;
 import cz.jan.maly.service.WatcherMediatorService;
@@ -21,9 +22,9 @@ public abstract class PlanWatcher {
     private final Trajectory trajectory;
 
     @Getter
-    private final DesireID desireKey;
+    private final DesireKeyID desireKey;
 
-    protected PlanWatcher(FeatureContainerInitializationStrategy featureContainerInitializationStrategy, DesireID desireKey) {
+    protected PlanWatcher(FeatureContainerInitializationStrategy featureContainerInitializationStrategy, DesireKeyID desireKey) {
         this.container = featureContainerInitializationStrategy.returnFeatureContainer();
         this.desireKey = desireKey;
         this.trajectory = new Trajectory(new State(this.container.getFeatureVector(), isCommitted));

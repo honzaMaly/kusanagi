@@ -3,6 +3,8 @@ package cz.jan.maly.model.watcher;
 import cz.jan.maly.model.knowledge.Fact;
 import cz.jan.maly.model.knowledge.FactSet;
 import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.containers.FactWithOptionalValue;
+import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSet;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.HashMap;
@@ -51,12 +53,12 @@ public class Beliefs {
      * @param <V>
      * @return
      */
-    public <V> double getFeatureValueOfFact(FactConverter<V> convertingStrategy) {
+    public <V> double getFeatureValueOfFact(FactWithOptionalValue<V> convertingStrategy) {
         if (!facts.containsKey(convertingStrategy.getFactKey())) {
             MyLogger.getLogger().warning(convertingStrategy.getFactKey().getName() + " is not present in.");
             throw new RuntimeException(convertingStrategy.getFactKey().getName());
         }
-        return convertingStrategy.convert((V) facts.get(convertingStrategy.getFactKey()).getContent());
+        return convertingStrategy.getStrategyToObtainValue().returnRawValue(Optional.ofNullable((V) facts.get(convertingStrategy.getFactKey()).getContent()));
     }
 
     /**
@@ -66,12 +68,12 @@ public class Beliefs {
      * @param <V>
      * @return
      */
-    public <V extends Stream<?>> double getFeatureValueOfFactSet(FactConverter<V> convertingStrategy) {
+    public <V> double getFeatureValueOfFactSet(FactWithOptionalValueSet<V> convertingStrategy) {
         if (!factSets.containsKey(convertingStrategy.getFactKey())) {
             MyLogger.getLogger().warning(convertingStrategy.getFactKey().getName() + " is not present in.");
             throw new RuntimeException(convertingStrategy.getFactKey().getName());
         }
-        return convertingStrategy.convert((V) factSets.get(convertingStrategy.getFactKey()).getContent().stream());
+        return convertingStrategy.getStrategyToObtainValue().returnRawValue(Optional.ofNullable(((Set<V>)factSets.get(convertingStrategy.getFactKey()).getContent()).stream()));
     }
 
     /**

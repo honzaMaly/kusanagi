@@ -6,6 +6,8 @@ import cz.jan.maly.model.agent.AgentBaseLocation;
 import cz.jan.maly.model.agent.AgentRegion;
 import cz.jan.maly.model.agent.types.AgentTypeBaseLocation;
 import cz.jan.maly.model.agent.types.AgentTypeRegion;
+import cz.jan.maly.model.bot.AgentTypes;
+import cz.jan.maly.model.bot.FactConverters;
 import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.knowledge.WorkingMemory;
@@ -28,9 +30,9 @@ import java.util.stream.Collectors;
 import static cz.jan.maly.model.AgentsUnitTypes.HATCHERY;
 import static cz.jan.maly.model.DesiresKeys.AM_I_BASE;
 import static cz.jan.maly.model.DesiresKeys.MINE_MINERALS_IN_BASE;
-import static cz.jan.maly.model.FactsKeys.HAS_HATCHERY;
-import static cz.jan.maly.model.FactsKeys.IS_BASE;
-import static cz.jan.maly.model.bot.BasicFactsKeys.*;
+import static cz.jan.maly.model.bot.FactConverters.COUNT_OF_MINERALS;
+import static cz.jan.maly.model.bot.FactConverters.HAS_HATCHERY_COUNT;
+import static cz.jan.maly.model.bot.FactKeys.*;
 
 /**
  * Strategy to initialize player
@@ -39,7 +41,7 @@ import static cz.jan.maly.model.bot.BasicFactsKeys.*;
 public class AgentLocationInitializer implements LocationInitializer {
 
     public static final AgentTypeBaseLocation BASE_LOCATION = AgentTypeBaseLocation.builder()
-            .name("BASE_LOCATION")
+            .agentTypeID(AgentTypes.BASE_LOCATION)
             .initializationStrategy(type -> {
 
                 //todo remove is base from beliefs
@@ -67,22 +69,11 @@ public class AgentLocationInitializer implements LocationInitializer {
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_BASE) == 0)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        new FactWithOptionalValue<>(IS_BASE, aBoolean -> {
-                                            if (aBoolean.isPresent()) {
-                                                if (aBoolean.get()) {
-                                                    return 1;
-                                                }
-                                            }
-                                            return 0;
-                                        })
-                                })))
+                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefSets(HAS_HATCHERY) == 0)
-                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{
-                                        new FactWithOptionalValueSet<>(HAS_HATCHERY, aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0))
-                                })))
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{HAS_HATCHERY_COUNT})))
                                 .build())
                         .build();
                 type.addConfiguration(AM_I_BASE, amIBase);
@@ -93,19 +84,8 @@ public class AgentLocationInitializer implements LocationInitializer {
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_BASE) == 1
                                         && dataForDecision.getFeatureValueDesireBeliefSets(MINERAL) > 0)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        new FactWithOptionalValue<>(IS_BASE, aBoolean -> {
-                                            if (aBoolean.isPresent()) {
-                                                if (aBoolean.get()) {
-                                                    return 1;
-                                                }
-                                            }
-                                            return 0;
-                                        })
-                                })))
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{
-                                        new FactWithOptionalValueSet<>(MINERAL, aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0))
-                                })))
+                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -113,22 +93,9 @@ public class AgentLocationInitializer implements LocationInitializer {
                                         || dataForDecision.getFeatureValueBeliefSets(MINERAL) == 0
                                         || dataForDecision.getFeatureValueBeliefSets(MINERAL) != dataForDecision.getFeatureValueDesireBeliefSets(MINERAL)
                                 )
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        new FactWithOptionalValue<>(IS_BASE, aBoolean -> {
-                                            if (aBoolean.isPresent()) {
-                                                if (aBoolean.get()) {
-                                                    return 1;
-                                                }
-                                            }
-                                            return 0;
-                                        })
-                                })))
-                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{
-                                        new FactWithOptionalValueSet<>(MINERAL, aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0))
-                                })))
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{
-                                        new FactWithOptionalValueSet<>(MINERAL, aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0))
-                                })))
+                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
                                 .build()
                         )
                         .build();
@@ -142,7 +109,7 @@ public class AgentLocationInitializer implements LocationInitializer {
             .build();
 
     public static final AgentTypeRegion REGION = AgentTypeRegion.builder()
-            .name("REGION")
+            .agentTypeID(AgentTypes.REGION)
             .initializationStrategy(type -> {
             })
             .build();

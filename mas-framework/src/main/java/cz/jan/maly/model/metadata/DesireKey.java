@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * Class describing metadata for desire - used for identification and parameter type definition.
  * Created by Jan on 14-Feb-17.
  */
-public class DesireKey extends Key implements FactContainerInterface {
+public class DesireKey extends DesireKeyID implements FactContainerInterface {
     private final Map<FactKey<?>, Fact<?>> factParameterMap = new HashMap<>();
     private final Map<FactKey<?>, FactSet<?>> factSetParameterMap = new HashMap<>();
 
@@ -25,9 +25,9 @@ public class DesireKey extends Key implements FactContainerInterface {
     private final Set<FactKey<?>> parametersTypesForFactSets;
 
     @Builder
-    private DesireKey(String name, Set<Fact<?>> staticFactValues, Set<FactSet<?>> staticFactSets,
+    private DesireKey(DesireKeyID id, Set<Fact<?>> staticFactValues, Set<FactSet<?>> staticFactSets,
                       Set<FactKey<?>> parametersTypesForFacts, Set<FactKey<?>> parametersTypesForFactSets) {
-        super(name, DesireKey.class);
+        super(id.getName(), id.getID());
         staticFactValues.forEach(fact -> factParameterMap.put(fact.getType(), fact));
         staticFactSets.forEach(factSet -> factSetParameterMap.put(factSet.getType(), factSet));
         this.parametersTypesForFacts = parametersTypesForFacts;

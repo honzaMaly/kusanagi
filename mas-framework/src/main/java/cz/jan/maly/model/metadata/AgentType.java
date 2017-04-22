@@ -23,7 +23,7 @@ import java.util.Set;
  * creation using desire key
  * Created by Jan on 15-Feb-17.
  */
-public class AgentType extends Key {
+public class AgentType extends AgentTypeID {
     private final OwnDesireWithAbstractIntentionFormulation.Stacked
             ownDesireWithAbstractIntentionFormulation = new OwnDesireWithAbstractIntentionFormulation.Stacked();
     private final OwnDesireWithIntentionWithActingCommandFormulation.Stacked
@@ -51,7 +51,7 @@ public class AgentType extends Key {
     /**
      * Define agent type. Together with initial desires
      *
-     * @param name
+     * @param agentTypeID
      * @param desiresForOthers
      * @param desiresWithAbstractIntention
      * @param desiresWithIntentionToAct
@@ -60,11 +60,11 @@ public class AgentType extends Key {
      * @param usingTypesForFactSets
      * @param initializationStrategy
      */
-    protected AgentType(String name, Set<DesireKey> desiresForOthers,
+    protected AgentType(AgentTypeID agentTypeID, Set<DesireKey> desiresForOthers,
                         Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
                         Set<DesireKey> desiresWithIntentionToReason, Set<FactKey<?>> usingTypesForFacts,
                         Set<FactKey<?>> usingTypesForFactSets, ConfigurationInitializationStrategy initializationStrategy) {
-        super(name, AgentType.class);
+        super(agentTypeID.getName(), agentTypeID.getID());
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;

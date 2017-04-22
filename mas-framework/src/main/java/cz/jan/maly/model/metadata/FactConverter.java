@@ -14,16 +14,38 @@ import java.util.stream.Stream;
  * Template for feature
  * Created by Jan on 14-Apr-17.
  */
-public abstract class Feature<V, K> {
+public abstract class FactConverter<V, K> implements Converter {
 
     private final DataForDecision dataForDecision;
     private final FeatureRawValueObtainingStrategy<V> strategyToObtainValue;
     @Getter
     private double value = 0;
+    private final int id;
 
-    Feature(DataForDecision dataForDecision, FeatureRawValueObtainingStrategy<V> strategyToObtainValue) {
+    FactConverter(DataForDecision dataForDecision, FeatureRawValueObtainingStrategy<V> strategyToObtainValue, int id) {
         this.dataForDecision = dataForDecision;
         this.strategyToObtainValue = strategyToObtainValue;
+        this.id = id;
+    }
+
+    @Override
+    public int getID() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FactConverter<?, ?> that = (FactConverter<?, ?>) o;
+
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 
     /**
@@ -50,51 +72,14 @@ public abstract class Feature<V, K> {
 
     /**
      * For belief
-     */
-    public static class BeliefFromKeyPresence extends Feature<Boolean, List<DesireKey>> {
-        private final DesireKey desireKey;
-
-        public BeliefFromKeyPresence(DataForDecision dataForDecision, DesireKey desireKey) {
-            super(dataForDecision, aBoolean -> {
-                if (aBoolean) {
-                    return 1;
-                }
-                return 0;
-            });
-            this.desireKey = desireKey;
-        }
-
-        @Override
-        public void hasUpdatedValueFromRegisterChanged(List<DesireKey> list) {
-            hasValueChanged(list.contains(desireKey));
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            BeliefFromKeyPresence that = (BeliefFromKeyPresence) o;
-
-            return desireKey.equals(that.desireKey);
-        }
-
-        @Override
-        public int hashCode() {
-            return desireKey.hashCode();
-        }
-    }
-
-    /**
-     * For belief
      *
      * @param <V>
      */
-    public static class BeliefFromKey<V> extends Feature<Optional<V>, DesireKey> {
+    public static class BeliefFromKey<V> extends FactConverter<Optional<V>, DesireKey> {
         private final FactKey<V> factKey;
 
         public BeliefFromKey(DataForDecision dataForDecision, DesireKey desireKey, FactWithOptionalValue<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
             hasUpdatedValueFromRegisterChanged(desireKey);
         }
@@ -108,6 +93,7 @@ public abstract class Feature<V, K> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
 
             BeliefFromKey<?> that = (BeliefFromKey<?>) o;
 
@@ -116,7 +102,9 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -125,11 +113,11 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class BeliefSetFromKey<V> extends Feature<Optional<Stream<V>>, DesireKey> {
+    public static class BeliefSetFromKey<V> extends FactConverter<Optional<Stream<V>>, DesireKey> {
         private final FactKey<V> factKey;
 
         public BeliefSetFromKey(DataForDecision dataForDecision, DesireKey desireKey, FactWithOptionalValueSet<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
             hasUpdatedValueFromRegisterChanged(desireKey);
         }
@@ -151,7 +139,9 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -160,12 +150,12 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class BeliefFromDesire<V> extends Feature<Optional<V>, DesireParameters> {
+    public static class BeliefFromDesire<V> extends FactConverter<Optional<V>, DesireParameters> {
         private final FactKey<V> factKey;
 
         public BeliefFromDesire(DataForDecision dataForDecision, DesireParameters desireParameters,
                                 FactWithOptionalValue<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
             hasUpdatedValueFromRegisterChanged(desireParameters);
         }
@@ -187,7 +177,9 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -196,12 +188,12 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class BeliefSetFromDesire<V> extends Feature<Optional<Stream<V>>, DesireParameters> {
+    public static class BeliefSetFromDesire<V> extends FactConverter<Optional<Stream<V>>, DesireParameters> {
         private final FactKey<V> factKey;
 
         public BeliefSetFromDesire(DataForDecision dataForDecision, DesireParameters desireParameters,
                                    FactWithOptionalValueSet<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
             hasUpdatedValueFromRegisterChanged(desireParameters);
         }
@@ -223,7 +215,9 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -232,11 +226,11 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class Belief<V> extends Feature<Optional<V>, WorkingMemory> {
+    public static class Belief<V> extends FactConverter<Optional<V>, WorkingMemory> {
         private final FactKey<V> factKey;
 
         public Belief(DataForDecision dataForDecision, FactWithOptionalValue<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
         }
 
@@ -257,7 +251,9 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -266,11 +262,11 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class GlobalBelief<V> extends Feature<Stream<Optional<V>>, WorkingMemory> {
+    public static class GlobalBelief<V> extends FactConverter<Stream<Optional<V>>, WorkingMemory> {
         private final FactKey<V> factKey;
 
         public GlobalBelief(DataForDecision dataForDecision, FactWithSetOfOptionalValues<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
         }
 
@@ -293,7 +289,9 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -302,12 +300,12 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class GlobalBeliefForAgentType<V> extends Feature<Stream<Optional<V>>, WorkingMemory> {
+    public static class GlobalBeliefForAgentType<V> extends FactConverter<Stream<Optional<V>>, WorkingMemory> {
         private final FactKey<V> factKey;
         private final AgentType agentType;
 
         public GlobalBeliefForAgentType(DataForDecision dataForDecision, FactWithSetOfOptionalValuesForAgentType<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
             this.agentType = container.getAgentType();
         }
@@ -331,7 +329,8 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            int result = factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
             result = 31 * result + agentType.hashCode();
             return result;
         }
@@ -342,11 +341,11 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class BeliefSet<V> extends Feature<Optional<Stream<V>>, WorkingMemory> {
+    public static class BeliefSet<V> extends FactConverter<Optional<Stream<V>>, WorkingMemory> {
         private final FactKey<V> factKey;
 
         public BeliefSet(DataForDecision dataForDecision, FactWithOptionalValueSet<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
         }
 
@@ -359,15 +358,18 @@ public abstract class Feature<V, K> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
 
-            BeliefFromKey<?> that = (BeliefFromKey<?>) o;
+            BeliefSet<?> beliefSet = (BeliefSet<?>) o;
 
-            return factKey.equals(that.factKey);
+            return factKey.equals(beliefSet.factKey);
         }
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -376,11 +378,11 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class GlobalBeliefSet<V> extends Feature<Stream<Optional<Stream<V>>>, WorkingMemory> {
+    public static class GlobalBeliefSet<V> extends FactConverter<Stream<Optional<Stream<V>>>, WorkingMemory> {
         private final FactKey<V> factKey;
 
         public GlobalBeliefSet(DataForDecision dataForDecision, FactWithOptionalValueSets<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
         }
 
@@ -395,15 +397,18 @@ public abstract class Feature<V, K> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
 
-            BeliefFromKey<?> that = (BeliefFromKey<?>) o;
+            GlobalBeliefSet<?> that = (GlobalBeliefSet<?>) o;
 
             return factKey.equals(that.factKey);
         }
 
         @Override
         public int hashCode() {
-            return factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
+            return result;
         }
     }
 
@@ -412,12 +417,12 @@ public abstract class Feature<V, K> {
      *
      * @param <V>
      */
-    public static class GlobalBeliefSetForAgentType<V> extends Feature<Stream<Optional<Stream<V>>>, WorkingMemory> {
+    public static class GlobalBeliefSetForAgentType<V> extends FactConverter<Stream<Optional<Stream<V>>>, WorkingMemory> {
         private final FactKey<V> factKey;
         private final AgentType agentType;
 
         public GlobalBeliefSetForAgentType(DataForDecision dataForDecision, FactWithOptionalValueSetsForAgentType<V> container) {
-            super(dataForDecision, container.getStrategyToObtainValue());
+            super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
             this.factKey = container.getFactKey();
             this.agentType = container.getAgentType();
         }
@@ -441,8 +446,49 @@ public abstract class Feature<V, K> {
 
         @Override
         public int hashCode() {
-            int result = factKey.hashCode();
+            int result = super.hashCode();
+            result = 31 * result + factKey.hashCode();
             result = 31 * result + agentType.hashCode();
+            return result;
+        }
+    }
+
+    /**
+     * For belief
+     */
+    public static class BeliefFromKeyPresence extends FactConverter<Boolean, List<DesireKey>> {
+        private final DesireKey desireKey;
+
+        public BeliefFromKeyPresence(DataForDecision dataForDecision, DesireKey desireKey) {
+            super(dataForDecision, aBoolean -> {
+                if (aBoolean) {
+                    return 1;
+                }
+                return 0;
+            }, desireKey.getID());
+            this.desireKey = desireKey;
+        }
+
+        @Override
+        public void hasUpdatedValueFromRegisterChanged(List<DesireKey> list) {
+            hasValueChanged(list.contains(desireKey));
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            BeliefFromKeyPresence that = (BeliefFromKeyPresence) o;
+
+            return desireKey.equals(that.desireKey);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + desireKey.hashCode();
             return result;
         }
     }

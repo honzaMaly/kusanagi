@@ -4,8 +4,8 @@ import cz.jan.maly.model.agent.types.AgentTypeUnit;
 import cz.jan.maly.model.game.wrappers.AUnitWithCommands;
 import cz.jan.maly.service.implementation.BotFacade;
 
-import static cz.jan.maly.model.bot.BasicFactsKeys.IS_UNIT;
-import static cz.jan.maly.model.bot.BasicFactsKeys.REPRESENTS_UNIT;
+import static cz.jan.maly.model.bot.FactKeys.IS_UNIT;
+import static cz.jan.maly.model.bot.FactKeys.REPRESENTS_UNIT;
 
 /**
  * Agent for unit in game

@@ -1,8 +1,7 @@
 package cz.jan.maly.model.metadata.containers;
 
 import cz.jan.maly.model.FeatureRawValueObtainingStrategy;
-import cz.jan.maly.model.metadata.FactKey;
-import lombok.AllArgsConstructor;
+import cz.jan.maly.model.metadata.FactConverterID;
 import lombok.Getter;
 
 import java.util.Optional;
@@ -13,23 +12,11 @@ import java.util.stream.Stream;
  * Created by Jan on 14-Apr-17.
  */
 @Getter
-@AllArgsConstructor
-public class FactWithOptionalValueSet<V> {
-    private final FactKey<V> factKey;
+public class FactWithOptionalValueSet<V> extends FactConverterID<V> {
     private final FeatureRawValueObtainingStrategy<Optional<Stream<V>>> strategyToObtainValue;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FactWithOptionalValueSet<?> that = (FactWithOptionalValueSet<?>) o;
-
-        return factKey.equals(that.factKey);
-    }
-
-    @Override
-    public int hashCode() {
-        return factKey.hashCode();
+    public FactWithOptionalValueSet(FactConverterID<V> factConverterID, FeatureRawValueObtainingStrategy<Optional<Stream<V>>> strategyToObtainValue) {
+        super(factConverterID.getID(), factConverterID.getFactKey());
+        this.strategyToObtainValue = strategyToObtainValue;
     }
 }
