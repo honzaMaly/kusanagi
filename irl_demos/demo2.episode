@@ -1,48 +1,77 @@
 !!burlap.behavior.singleagent.Episode
 actionSequence:
-- &id002 !!burlap.mdp.core.action.SimpleAction {name: north}
 - &id001 !!burlap.mdp.core.action.SimpleAction {name: east}
+- &id002 !!burlap.mdp.core.action.SimpleAction {name: north}
 - *id001
+- *id001
+- *id002
+- *id002
+- *id002
+- *id002
+- *id002
+- *id002
+- *id002
 - *id002
 - *id001
 - *id001
-- *id002
-- *id002
-rewardSequence: [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
+- *id001
+- *id001
+- &id003 !!burlap.mdp.core.action.SimpleAction {name: south}
+- *id001
+- *id001
+- *id001
+- *id001
+- *id001
+- *id001
+- *id001
+- *id003
+- *id003
+- *id003
+- !!burlap.mdp.core.action.SimpleAction {name: west}
+- *id003
+- *id003
+- *id003
+- *id003
+- *id003
+- *id001
+- *id001
+rewardSequence: [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+  -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,
+  -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0]
 stateSequence:
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 0, y: 0}
-  locations: &id003
-  - {name: loc0, type: 1, x: 0, y: 0}
-  - {name: loc1, type: 2, x: 0, y: 4}
-  - {name: loc2, type: 3, x: 4, y: 4}
-  - {name: loc3, type: 4, x: 4, y: 0}
-  - {name: loc4, type: 0, x: 1, y: 0}
-  - {name: loc5, type: 0, x: 1, y: 2}
-  - {name: loc6, type: 0, x: 1, y: 4}
-  - {name: loc7, type: 0, x: 3, y: 1}
-  - {name: loc8, type: 0, x: 3, y: 3}
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 0, y: 1}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 1, y: 1}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 2, y: 1}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 2, y: 2}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 3, y: 2}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 4, y: 2}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 4, y: 3}
-  locations: *id003
-- !!burlap.domain.singleagent.gridworld.state.GridWorldState
-  agent: {name: agent, x: 4, y: 4}
-  locations: *id003
+- !!cz.jan.maly.main.EXGridState {x: 0, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 0, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 0, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 1}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 2}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 3}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 4}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 5}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 6}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 7}
+- !!cz.jan.maly.main.EXGridState {x: 1, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 2, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 3, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 4, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 4, y: 9}
+- !!cz.jan.maly.main.EXGridState {x: 4, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 5, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 6, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 7, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 6, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 7, y: 8}
+- !!cz.jan.maly.main.EXGridState {x: 7, y: 7}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 7}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 6}
+- !!cz.jan.maly.main.EXGridState {x: 9, y: 6}
+- !!cz.jan.maly.main.EXGridState {x: 9, y: 5}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 5}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 4}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 3}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 2}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 1}
+- !!cz.jan.maly.main.EXGridState {x: 8, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 9, y: 0}
+- !!cz.jan.maly.main.EXGridState {x: 10, y: 0}

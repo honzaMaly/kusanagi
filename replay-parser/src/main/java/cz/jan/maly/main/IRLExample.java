@@ -2,34 +2,34 @@ package cz.jan.maly.main;
 
 import burlap.behavior.functionapproximation.dense.DenseStateFeatures;
 import burlap.behavior.policy.GreedyQPolicy;
+import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.auxiliary.EpisodeSequenceVisualizer;
 import burlap.behavior.singleagent.auxiliary.StateReachability;
 import burlap.behavior.singleagent.auxiliary.valuefunctionvis.ValueFunctionVisualizerGUI;
+import burlap.behavior.singleagent.auxiliary.valuefunctionvis.common.ArrowActionGlyph;
+import burlap.behavior.singleagent.auxiliary.valuefunctionvis.common.LandmarkColorBlendInterpolation;
+import burlap.behavior.singleagent.auxiliary.valuefunctionvis.common.PolicyGlyphPainter2D;
+import burlap.behavior.singleagent.auxiliary.valuefunctionvis.common.StateValuePainter2D;
 import burlap.behavior.singleagent.learnfromdemo.RewardValueProjection;
 import burlap.behavior.singleagent.learnfromdemo.mlirl.MLIRL;
 import burlap.behavior.singleagent.learnfromdemo.mlirl.MLIRLRequest;
 import burlap.behavior.singleagent.learnfromdemo.mlirl.commonrfs.LinearStateDifferentiableRF;
 import burlap.behavior.singleagent.learnfromdemo.mlirl.differentiableplanners.DifferentiableSparseSampling;
 import burlap.behavior.valuefunction.QProvider;
+import burlap.behavior.valuefunction.ValueFunction;
 import burlap.debugtools.RandomFactory;
 import burlap.domain.singleagent.gridworld.GridWorldDomain;
-import burlap.domain.singleagent.gridworld.GridWorldVisualizer;
-import burlap.domain.singleagent.gridworld.state.GridAgent;
-import burlap.domain.singleagent.gridworld.state.GridLocation;
-import burlap.domain.singleagent.gridworld.state.GridWorldState;
-import burlap.mdp.auxiliary.StateGenerator;
-import burlap.mdp.core.oo.OODomain;
-import burlap.mdp.core.oo.propositional.GroundedProp;
-import burlap.mdp.core.oo.propositional.PropositionalFunction;
-import burlap.mdp.core.oo.state.OOState;
 import burlap.mdp.core.state.State;
+import burlap.mdp.core.state.vardomain.VariableDomain;
+import burlap.mdp.singleagent.SADomain;
 import burlap.mdp.singleagent.environment.SimulatedEnvironment;
-import burlap.mdp.singleagent.oo.OOSADomain;
 import burlap.shell.visual.VisualExplorer;
+import burlap.statehashing.HashableStateFactory;
 import burlap.statehashing.simple.SimpleHashableStateFactory;
 import burlap.visualizer.Visualizer;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -39,24 +39,22 @@ import java.util.List;
  * If you wish to verify which demonstrations were saved to disk, use the {@link #launchSavedEpisodeSequenceVis(String)}
  * method, giving it the path to where you saved the data. Then, use the {@link #runIRL(String)} method giving it
  * the same path to the saved demonstrations to actually run IRL. It will then visualize the learned reward function
+ *
  * @author James MacGlashan.
  */
 public class IRLExample {
 
-    GridWorldDomain gwd;
-    OOSADomain domain;
-    StateGenerator sg;
+    ExampleGridWorld gwd;
+    SADomain domain;
     Visualizer v;
+    State initialState = new EXGridState(0, 0);
+    HashableStateFactory hashingFactory = new SimpleHashableStateFactory();
 
-    public IRLExample(){
+    public IRLExample() {
 
-        this.gwd = new GridWorldDomain(5 ,5);
-        this.gwd.setNumberOfLocationTypes(5);
-        gwd.makeEmptyMap();
+        this.gwd = new ExampleGridWorld();
         this.domain = gwd.generateDomain();
-        State bs = this.basicState();
-        this.sg = new LeftSideGen(5, bs);
-        this.v = GridWorldVisualizer.getVisualizer(this.gwd.getMap());
+        this.v = gwd.getVisualizer();
 
     }
 
@@ -72,8 +70,8 @@ public class IRLExample {
      * A recommendation for examples is to record two demonstrations that both go to the pink cell while avoiding blue ones
      * and do so from two different start locations on the left (if you keep resetting the environment, it will change where the agent starts).
      */
-    public void launchExplorer(){
-        SimulatedEnvironment env = new SimulatedEnvironment(this.domain, this.sg);
+    public void launchExplorer() {
+        SimulatedEnvironment env = new SimulatedEnvironment(this.domain, this.initialState);
         VisualExplorer exp = new VisualExplorer(this.domain, env, this.v, 800, 800);
         exp.addKeyAction("w", GridWorldDomain.ACTION_NORTH, "");
         exp.addKeyAction("s", GridWorldDomain.ACTION_SOUTH, "");
@@ -89,7 +87,7 @@ public class IRLExample {
     /**
      * Launch a episode sequence visualizer to display the saved trajectories in the folder "irlDemo"
      */
-    public void launchSavedEpisodeSequenceVis(String pathToEpisodes){
+    public void launchSavedEpisodeSequenceVis(String pathToEpisodes) {
 
         new EpisodeSequenceVisualizer(this.v, this.domain, pathToEpisodes);
 
@@ -98,16 +96,16 @@ public class IRLExample {
     /**
      * Runs MLIRL on the trajectories stored in the "irlDemo" directory and then visualizes the learned reward function.
      */
-    public void runIRL(String pathToEpisodes){
+    public void runIRL(String pathToEpisodes) {
 
         //create reward function features to use
-        LocationFeatures features = new LocationFeatures(this.domain, 5);
+        LocationFeatures features = new LocationFeatures(11 * 11);
 
         //create a reward function that is linear with respect to those features and has small random
         //parameter values to start
-        LinearStateDifferentiableRF rf = new LinearStateDifferentiableRF(features, 5);
-        for(int i = 0; i < rf.numParameters(); i++){
-            rf.setParameter(i, RandomFactory.getMapped(0).nextDouble()*0.2 - 0.1);
+        LinearStateDifferentiableRF rf = new LinearStateDifferentiableRF(features, 11 * 11);
+        for (int i = 0; i < rf.numParameters(); i++) {
+            rf.setParameter(i, RandomFactory.getMapped(0).nextDouble() * 0.2 - 0.1);
         }
 
         //load our saved demonstrations from disk
@@ -117,7 +115,7 @@ public class IRLExample {
         //but you will probably want to use a fairly large horizon for this kind of reward function.
         double beta = 10;
         //DifferentiableVI dplanner = new DifferentiableVI(this.domain, rf, 0.99, beta, new SimpleHashableStateFactory(), 0.01, 100);
-        DifferentiableSparseSampling dplanner = new DifferentiableSparseSampling(this.domain, rf, 0.99, new SimpleHashableStateFactory(), 10, -1, beta);
+        DifferentiableSparseSampling dplanner = new DifferentiableSparseSampling(this.domain, rf, 0.99, hashingFactory, 10, -1, beta);
 
         dplanner.toggleDebugPrinting(false);
 
@@ -129,79 +127,55 @@ public class IRLExample {
         MLIRL irl = new MLIRL(request, 0.1, 0.1, 10);
         irl.performIRL();
 
-        //get all states in the domain so we can visualize the learned reward function for them
-        List<State> allStates = StateReachability.getReachableStates(basicState(), this.domain, new SimpleHashableStateFactory());
+        manualValueFunctionVis(new RewardValueProjection(rf),
+                new GreedyQPolicy((QProvider) request.getPlanner()));
 
-        //get a standard grid world value function visualizer, but give it StateRewardFunctionValue which returns the
-        //reward value received upon reaching each state which will thereby let us render the reward function that is
-        //learned rather than the value function for it.
-        ValueFunctionVisualizerGUI gui = GridWorldDomain.getGridWorldValueFunctionVisualization(
-                allStates,
-                5,
-                5,
-                new RewardValueProjection(rf),
-                new GreedyQPolicy((QProvider) request.getPlanner())
-        );
+    }
 
+    public void manualValueFunctionVis(ValueFunction valueFunction, Policy p) {
+
+        List<State> allStates = StateReachability.getReachableStates(
+                initialState, domain, hashingFactory);
+
+        //define color function
+        LandmarkColorBlendInterpolation rb = new LandmarkColorBlendInterpolation();
+        rb.addNextLandMark(0., Color.RED);
+        rb.addNextLandMark(1., Color.BLUE);
+
+        //define a 2D painter of state values,
+        //specifying which attributes correspond to the x and y coordinates of the canvas
+        StateValuePainter2D svp = new StateValuePainter2D(rb);
+        svp.setXYKeys("x", "y",
+                new VariableDomain(0, 11), new VariableDomain(0, 11),
+                1, 1);
+
+        //create our ValueFunctionVisualizer that paints for all states
+        //using the ValueFunction source and the state value painter we defined
+        ValueFunctionVisualizerGUI gui = new ValueFunctionVisualizerGUI(
+                allStates, svp, valueFunction);
+
+        //define a policy painter that uses arrow glyphs for each of the grid world actions
+        PolicyGlyphPainter2D spp = new PolicyGlyphPainter2D();
+        spp.setXYKeys("x", "y", new VariableDomain(0, 11),
+                new VariableDomain(0, 11),
+                1, 1);
+
+        spp.setActionNameGlyphPainter(GridWorldDomain.ACTION_NORTH, new ArrowActionGlyph(0));
+        spp.setActionNameGlyphPainter(GridWorldDomain.ACTION_SOUTH, new ArrowActionGlyph(1));
+        spp.setActionNameGlyphPainter(GridWorldDomain.ACTION_EAST, new ArrowActionGlyph(2));
+        spp.setActionNameGlyphPainter(GridWorldDomain.ACTION_WEST, new ArrowActionGlyph(3));
+        spp.setRenderStyle(PolicyGlyphPainter2D.PolicyGlyphRenderStyle.DISTSCALED);
+
+
+        //add our policy renderer to it
+        gui.setSpp(spp);
+        gui.setPolicy(p);
+
+        //set the background color for places where states are not rendered to grey
+        gui.setBgColor(Color.GRAY);
+
+        //start it
         gui.initGUI();
-
-
-    }
-
-
-    /**
-     * Creates a grid world state with the agent in (0,0) and various different grid cell types scattered about.
-     * @return a grid world state with the agent in (0,0) and various different grid cell types scattered about.
-     */
-    protected State basicState(){
-
-        GridWorldState s = new GridWorldState(
-                new GridAgent(0, 0),
-                new GridLocation(0, 0, 1, "loc0"),
-                new GridLocation(0, 4, 2, "loc1"),
-                new GridLocation(4, 4, 3, "loc2"),
-                new GridLocation(4, 0, 4, "loc3"),
-
-                new GridLocation(1, 0, 0, "loc4"),
-                new GridLocation(1, 2, 0, "loc5"),
-                new GridLocation(1, 4, 0, "loc6"),
-                new GridLocation(3, 1, 0, "loc7"),
-                new GridLocation(3, 3, 0, "loc8")
-        );
-
-        return s;
-    }
-
-    /**
-     * State generator that produces initial agent states somewhere on the left side of the grid.
-     */
-    public static class LeftSideGen implements StateGenerator {
-
-
-        protected int height;
-        protected State sourceState;
-
-
-        public LeftSideGen(int height, State sourceState){
-            this.setParams(height, sourceState);
-        }
-
-        public void setParams(int height, State sourceState){
-            this.height = height;
-            this.sourceState = sourceState;
-        }
-
-
-
-        public State generateState() {
-
-            GridWorldState s = (GridWorldState)this.sourceState.copy();
-
-            int h = RandomFactory.getDefault().nextInt(this.height);
-            s.touchAgent().y = h;
-
-            return s;
-        }
     }
 
     /**
@@ -212,49 +186,27 @@ public class IRLExample {
     public static class LocationFeatures implements DenseStateFeatures {
 
         protected int numLocations;
-        PropositionalFunction inLocationPF;
 
-
-        public LocationFeatures(OODomain domain, int numLocations){
+        public LocationFeatures(int numLocations) {
             this.numLocations = numLocations;
-            this.inLocationPF = domain.propFunction(GridWorldDomain.PF_AT_LOCATION);
-        }
-
-        public LocationFeatures(int numLocations, PropositionalFunction inLocationPF) {
-            this.numLocations = numLocations;
-            this.inLocationPF = inLocationPF;
         }
 
         @Override
         public double[] features(State s) {
 
-            double [] fv = new double[this.numLocations];
+            double[] fv = new double[this.numLocations];
 
-            int aL = this.getActiveLocationVal((OOState)s);
-            if(aL != -1){
+            int aL = ((EXGridState) s).getIndex();
+            if (aL != -1) {
                 fv[aL] = 1.;
             }
 
             return fv;
         }
 
-
-        protected int getActiveLocationVal(OOState s){
-
-            List<GroundedProp> gps = this.inLocationPF.allGroundings(s);
-            for(GroundedProp gp : gps){
-                if(gp.isTrue(s)){
-                    GridLocation l = (GridLocation)s.object(gp.params[1]);
-                    return l.type;
-                }
-            }
-
-            return -1;
-        }
-
         @Override
         public DenseStateFeatures copy() {
-            return new LocationFeatures(numLocations, inLocationPF);
+            return new LocationFeatures(numLocations);
         }
     }
 
