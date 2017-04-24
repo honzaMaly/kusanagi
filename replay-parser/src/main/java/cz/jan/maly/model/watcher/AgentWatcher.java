@@ -1,7 +1,11 @@
 package cz.jan.maly.model.watcher;
 
+import cz.jan.maly.model.features.FeatureNormalizer;
+import cz.jan.maly.model.tracking.State;
 import cz.jan.maly.service.WatcherMediatorService;
+import cz.jan.maly.service.implementation.StateClusteringServiceImpl;
 import lombok.Getter;
+import weka.core.Instance;
 
 import java.util.List;
 import java.util.Set;
@@ -24,6 +28,7 @@ public class AgentWatcher<T extends AgentWatcherType> {
     @Getter
     private final int ID;
 
+    @Getter
     private final List<PlanWatcher> plansToWatch;
 
     public AgentWatcher(T agentWatcherType) {
@@ -33,6 +38,21 @@ public class AgentWatcher<T extends AgentWatcherType> {
         this.plansToWatch = agentWatcherType.getPlanWatchers().stream()
                 .map(AgentWatcherType.PlanWatcherInitializationStrategy::returnPlanWatcher)
                 .collect(Collectors.toList());
+    }
+
+    //todo remove
+    public void cluster() {
+        StateClusteringServiceImpl stateClusteringService = new StateClusteringServiceImpl();
+        plansToWatch.forEach(planWatcher -> {
+            List<State> states = planWatcher.getTrajectory().getTrajectory();
+            List<FeatureNormalizer> normalizers = stateClusteringService.computeFeatureNormalizersBasedOnStates(states, planWatcher.getTrajectory().getNumberOfFeatures());
+            try {
+                List<Instance> instances = stateClusteringService.computeStateRepresentatives(states, normalizers, 100, planWatcher.getTrajectory().getNumberOfFeatures());
+                System.out.println();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**

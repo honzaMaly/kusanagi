@@ -15,6 +15,7 @@ import burlap.shell.visual.VisualExplorer;
 import burlap.visualizer.StatePainter;
 import burlap.visualizer.StateRenderLayer;
 import burlap.visualizer.Visualizer;
+import cz.jan.maly.main.example.EXGridState;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

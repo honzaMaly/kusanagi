@@ -1,4 +1,4 @@
-package cz.jan.maly.main;
+package cz.jan.maly.main.example;
 
 import burlap.mdp.core.state.MutableState;
 import burlap.mdp.core.state.StateUtilities;

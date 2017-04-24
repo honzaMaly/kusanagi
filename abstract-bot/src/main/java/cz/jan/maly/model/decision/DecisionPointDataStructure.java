@@ -43,7 +43,6 @@ public class DecisionPointDataStructure implements Serializable {
             }
         }
 
-
         /**
          * Converts featureVector to Instance
          *

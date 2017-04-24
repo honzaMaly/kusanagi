@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class FileReplayLoaderServiceImpl implements FileReplayLoaderService {
 
-    private static final StorageService STORAGE_SERVICE = StorageServiceImplementation.getInstance();
+    private static final StorageService STORAGE_SERVICE = StorageServiceImp.getInstance();
     private Iterator<File> replayIterator = (new HashSet<File>()).iterator();
 
     private static final Pattern lineWithMatchPattern = Pattern.compile("map\\s=\\s[\\w\\\\\\*\\.\\?-]+");

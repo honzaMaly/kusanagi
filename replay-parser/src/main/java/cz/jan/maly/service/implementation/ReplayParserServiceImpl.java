@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class ReplayParserServiceImpl extends DefaultBWListener implements ReplayParserService {
     private static final String chaosluncherPath = "c:\\Users\\Jan\\Desktop\\Chaosluncher Run With Full Privileges.lnk";
-    private static final StorageService STORAGE_SERVICE = StorageServiceImplementation.getInstance();
+    private static final StorageService STORAGE_SERVICE = StorageServiceImp.getInstance();
     private FileReplayLoaderService fileReplayLoaderService = new FileReplayLoaderServiceImpl();
     private WatcherMediatorService watcherMediatorService = new WatcherMediatorServiceImpl();
     private Optional<Replay> replay;

@@ -28,6 +28,7 @@ import burlap.shell.visual.VisualExplorer;
 import burlap.statehashing.HashableStateFactory;
 import burlap.statehashing.simple.SimpleHashableStateFactory;
 import burlap.visualizer.Visualizer;
+import cz.jan.maly.main.example.EXGridState;
 
 import java.awt.*;
 import java.util.List;

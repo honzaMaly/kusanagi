@@ -1,7 +1,6 @@
 package cz.jan.maly.model.decision;
 
 import java.io.Serializable;
-import java.util.Random;
 
 /**
  * Enumeration of all possible commitments based on policy
@@ -19,14 +18,5 @@ public enum NextActionEnumerations implements Serializable, NextActionStrategy {
         public boolean commit() {
             return false;
         }
-    },
-    RANDOM {
-        @Override
-        public boolean commit() {
-            return RANDOMNESS_GENERATOR.nextBoolean();
-        }
-    };
-
-    private static final Random RANDOMNESS_GENERATOR = new Random();
-
+    }
 }

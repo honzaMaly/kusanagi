@@ -1,6 +1,7 @@
 package cz.jan.maly.model.features;
 
 import java.io.Serializable;
+import java.util.Set;
 import java.util.stream.DoubleStream;
 
 /**
@@ -11,21 +12,22 @@ public class FeatureNormalizer implements Serializable {
     private final double mean;
     private final double std;
 
-    public FeatureNormalizer(DoubleStream possibleValues) {
-        this.mean = computeMean(possibleValues);
-        this.std = computeStandardDeviation(possibleValues, this.mean);
+    public FeatureNormalizer(Set<Double> possibleValues) {
+        this.mean = computeMean(possibleValues.stream().mapToDouble(value -> value));
+        this.std = computeStandardDeviation(possibleValues.stream().mapToDouble(value -> value), this.mean, possibleValues.size());
     }
 
     private double computeMean(DoubleStream doubles) {
         return doubles.average().orElseGet(null);
     }
 
-    private double computeStandardDeviation(DoubleStream doubles, double mean) {
-        return Math.sqrt(doubles.map(d -> Math.pow(d - mean, 2)).sum());
+    private double computeStandardDeviation(DoubleStream doubles, double mean, double count) {
+        return Math.sqrt(doubles.map(d -> Math.pow(d - mean, 2)).sum() / count);
     }
 
     /**
      * Transform value to z-score
+     *
      * @param value
      * @return
      */

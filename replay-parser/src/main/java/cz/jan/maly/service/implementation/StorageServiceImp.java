@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
  * StorageService implementation... as singleton
  * Created by Jan on 21-Apr-17.
  */
-public class StorageServiceImplementation implements StorageService {
-    private static StorageServiceImplementation instance = null;
+public class StorageServiceImp implements StorageService {
+    private static StorageServiceImp instance = null;
 
     //Serializers
     public final Serializer<Replay> replaySerializer = new Replay.ReplaySerializer();
@@ -25,7 +25,7 @@ public class StorageServiceImplementation implements StorageService {
     //databases
     private static final String dbFileReplays = "storage/replays.db";
 
-    private StorageServiceImplementation() {
+    private StorageServiceImp() {
         //singleton
     }
 
@@ -36,9 +36,9 @@ public class StorageServiceImplementation implements StorageService {
         return DBMaker.fileDB(databaseFile).make();
     }
 
-    public static StorageServiceImplementation getInstance() {
+    public static StorageServiceImp getInstance() {
         if (instance == null) {
-            instance = new StorageServiceImplementation();
+            instance = new StorageServiceImp();
         }
         return instance;
     }

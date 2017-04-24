@@ -26,27 +26,13 @@ public class DecisionPoint {
     }
 
     /**
-     * Standardize each part of feature vector according to z-score
-     *
-     * @param featureVector
-     * @return
-     */
-    private double[] normalizeFeatureVector(double[] featureVector) {
-        double[] normalizeFeatureVector = new double[featureVector.length];
-        for (int i = 0; i < featureVector.length; i++) {
-            normalizeFeatureVector[i] = normalizers.get(i).zScoreNormalization(featureVector[i]);
-        }
-        return normalizeFeatureVector;
-    }
-
-    /**
      * For given state (represented by feature vector) return optimal action based on policy
      *
      * @param featureVector
      * @return
      */
     public boolean nextAction(double[] featureVector) {
-        Instance anotherInstance = Configuration.convertVectorToInstance(normalizeFeatureVector(featureVector));
+        Instance anotherInstance = Configuration.convertVectorToInstance(Configuration.normalizeFeatureVector(featureVector, normalizers));
         Optional<StateWithTransition> closestState = states.stream()
                 .min(Comparator.comparingDouble(o -> o.distance(anotherInstance)));
         if (!closestState.isPresent()) {

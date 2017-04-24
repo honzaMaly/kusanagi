@@ -1,5 +1,7 @@
 package cz.jan.maly.model.tracking;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +13,16 @@ import java.util.Optional;
  */
 public class Trajectory implements Serializable {
     private final State firstState;
+
+    @Getter
+    private final int numberOfFeatures;
+
     private State currentState;
 
-    public Trajectory(State firstState) {
+    public Trajectory(State firstState, int numberOfFeatures) {
         this.firstState = firstState;
         this.currentState = firstState;
+        this.numberOfFeatures = numberOfFeatures;
     }
 
     /**

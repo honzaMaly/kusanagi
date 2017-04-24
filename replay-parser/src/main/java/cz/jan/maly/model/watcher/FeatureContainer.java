@@ -4,6 +4,7 @@ import com.rits.cloning.Cloner;
 import cz.jan.maly.model.features.FeatureContainerHeader;
 import cz.jan.maly.model.metadata.FactConverterID;
 import cz.jan.maly.service.WatcherMediatorService;
+import lombok.Getter;
 
 import java.util.Set;
 
@@ -19,11 +20,15 @@ public class FeatureContainer {
     private double[] featureVector;
     private boolean hasChanged;
 
+    @Getter
+    private final int numberOfFeatures;
+
     public FeatureContainer(FeatureContainerHeader containerHeader) {
         this.containerHeader = containerHeader;
+        this.numberOfFeatures = containerHeader.getSizeOfFeatureVector();
 
         //make feature vector
-        featureVector = new double[containerHeader.getSizeOfFeatureVector()];
+        featureVector = new double[numberOfFeatures];
     }
 
     public double[] getFeatureVector() {

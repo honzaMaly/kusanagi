@@ -44,11 +44,8 @@ public class FactConverters {
     });
 
     public static final FactWithOptionalValue<Double> AVAILABLE_MINERALS_COUNT = new FactWithOptionalValue<>(
-            new FactConverterID<>(5, AVAILABLE_MINERALS), aUnit -> {
-        if (aUnit.isPresent()) {
-            return 1;
-        }
-        return 0;
+            new FactConverterID<>(5, AVAILABLE_MINERALS), aDouble -> {
+        return aDouble.orElse(0.0);
     });
 
     public static final FactWithOptionalValue<Boolean> IS_BASE = new FactWithOptionalValue<>(
