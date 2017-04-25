@@ -1,8 +1,8 @@
 package cz.jan.maly.model.decision;
 
 import cz.jan.maly.model.features.FeatureNormalizer;
-import cz.jan.maly.utils.Configuration;
-import weka.core.Instance;
+import jsat.linear.DenseVector;
+import jsat.linear.Vec;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -32,24 +32,16 @@ public class DecisionPointDataStructure implements Serializable {
         /**
          * Create state with transition
          *
-         * @param clusterRepresentative
+         * @param featureVector
          * @param nextAction
          */
-        public StateWithTransition(Instance clusterRepresentative, NextActionEnumerations nextAction) {
+        public StateWithTransition(double[] featureVector, NextActionEnumerations nextAction) {
             this.nextAction = nextAction;
-            this.featureVector = new double[clusterRepresentative.numValues()];
-            for (int i = 0; i < featureVector.length; i++) {
-                featureVector[i] = clusterRepresentative.value(i);
-            }
+            this.featureVector = featureVector.clone();
         }
 
-        /**
-         * Converts featureVector to Instance
-         *
-         * @return
-         */
-        Instance convertVectorToInstance() {
-            return Configuration.convertVectorToInstance(featureVector);
+        public Vec getFeatureVector() {
+            return new DenseVector(featureVector);
         }
 
         @Override

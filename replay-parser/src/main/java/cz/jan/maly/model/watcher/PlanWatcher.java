@@ -27,7 +27,7 @@ public abstract class PlanWatcher {
     protected PlanWatcher(FeatureContainerInitializationStrategy featureContainerInitializationStrategy, DesireKeyID desireKey) {
         this.container = featureContainerInitializationStrategy.returnFeatureContainer();
         this.desireKey = desireKey;
-        this.trajectory = new Trajectory(new State(this.container.getFeatureVector(), isCommitted), this.container.getNumberOfFeatures());
+        this.trajectory = new Trajectory(this.container.getNumberOfFeatures());
     }
 
     /**

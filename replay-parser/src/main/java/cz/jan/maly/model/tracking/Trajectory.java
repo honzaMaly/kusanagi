@@ -5,23 +5,18 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Trajectory - to capture player's decision on commitment given state
  * Created by Jan on 21-Apr-17.
  */
 public class Trajectory implements Serializable {
-    private final State firstState;
-
     @Getter
     private final int numberOfFeatures;
+    @Getter
+    private List<State> states = new ArrayList<>();
 
-    private State currentState;
-
-    public Trajectory(State firstState, int numberOfFeatures) {
-        this.firstState = firstState;
-        this.currentState = firstState;
+    public Trajectory(int numberOfFeatures) {
         this.numberOfFeatures = numberOfFeatures;
     }
 
@@ -31,26 +26,6 @@ public class Trajectory implements Serializable {
      * @param state
      */
     public void addNewState(State state) {
-        currentState.setNextState(state);
-        currentState = state;
+        states.add(state);
     }
-
-    /**
-     * Return trajectory as list (with initial state as state captured after first observation)
-     *
-     * @return
-     */
-    public List<State> getTrajectory() {
-        if (firstState != null) {
-            Optional<State> currentState = firstState.getNextState();
-            List<State> trajectory = new ArrayList<>();
-            while (currentState.isPresent()) {
-                trajectory.add(currentState.get());
-                currentState = currentState.get().getNextState();
-            }
-            return trajectory;
-        }
-        return new ArrayList<>();
-    }
-
 }

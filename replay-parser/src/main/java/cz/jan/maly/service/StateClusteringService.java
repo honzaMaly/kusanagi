@@ -2,7 +2,7 @@ package cz.jan.maly.service;
 
 import cz.jan.maly.model.features.FeatureNormalizer;
 import cz.jan.maly.model.tracking.State;
-import weka.core.Instance;
+import jsat.linear.Vec;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ public interface StateClusteringService {
      *
      * @param states
      * @param normalizers
-     * @param numberOfStates
+     * @param maxNumberOfClusters
      * @param numberOfFeatures
      * @return
      */
-    List<Instance> computeStateRepresentatives(List<State> states, List<FeatureNormalizer> normalizers, int numberOfStates, int numberOfFeatures) throws Exception;
+    List<Vec> computeStateRepresentatives(List<State> states, List<FeatureNormalizer> normalizers, int maxNumberOfClusters, int numberOfFeatures) throws Exception;
 
 }

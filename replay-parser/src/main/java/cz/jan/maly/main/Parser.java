@@ -1,6 +1,7 @@
 package cz.jan.maly.main;
 
 import cz.jan.maly.service.ReplayParserService;
+import cz.jan.maly.service.implementation.DecisionLearnerServiceImpl;
 import cz.jan.maly.service.implementation.ReplayParserServiceImpl;
 
 /**
@@ -9,7 +10,11 @@ import cz.jan.maly.service.implementation.ReplayParserServiceImpl;
 public class Parser {
     private static final ReplayParserService replayParserService = new ReplayParserServiceImpl();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+
+        DecisionLearnerServiceImpl learnerService = new DecisionLearnerServiceImpl();
+        learnerService.learnDecisionMakers();
+
         replayParserService.parseReplays();
     }
 

@@ -28,8 +28,10 @@
         <slf4j.version>1.7.21</slf4j.version>
         <cloning.version>1.9.3</cloning.version>
         <burlap.version>3.0.1</burlap.version>
-        <weka.version>3.8.1</weka.version>
         <mapdb.version>3.0.3</mapdb.version>
+        <commons-io.version>2.5</commons-io.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
+        <jsat.version>0.0.7</jsat.version>
     </properties>
 
     <build>
@@ -96,12 +98,6 @@
             </dependency>
 
             <dependency>
-                <groupId>nz.ac.waikato.cms.weka</groupId>
-                <artifactId>weka-stable</artifactId>
-                <version>${weka.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>edu.brown.cs.burlap</groupId>
                 <artifactId>burlap</artifactId>
                 <version>${burlap.version}</version>
@@ -117,6 +113,24 @@
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${annotations.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.edwardraff</groupId>
+                <artifactId>JSAT</artifactId>
+                <version>${jsat.version}</version>
             </dependency>
 
             <dependency>

@@ -3,7 +3,8 @@ package cz.jan.maly.model.decision;
 import cz.jan.maly.model.features.FeatureNormalizer;
 import cz.jan.maly.utils.Configuration;
 import cz.jan.maly.utils.MyLogger;
-import weka.core.Instance;
+import jsat.linear.DenseVector;
+import jsat.linear.Vec;
 
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +33,7 @@ public class DecisionPoint {
      * @return
      */
     public boolean nextAction(double[] featureVector) {
-        Instance anotherInstance = Configuration.convertVectorToInstance(Configuration.normalizeFeatureVector(featureVector, normalizers));
+        Vec anotherInstance = new DenseVector((Configuration.normalizeFeatureVector(featureVector, normalizers)));
         Optional<StateWithTransition> closestState = states.stream()
                 .min(Comparator.comparingDouble(o -> o.distance(anotherInstance)));
         if (!closestState.isPresent()) {
@@ -47,11 +48,11 @@ public class DecisionPoint {
      * StateWithTransition to compute distance between instances and return next action (commitment) based on policy
      */
     private static class StateWithTransition {
-        private final Instance center;
+        private final Vec center;
         final NextActionEnumerations nextAction;
 
         private StateWithTransition(DecisionPointDataStructure.StateWithTransition stateWithTransition) {
-            this.center = stateWithTransition.convertVectorToInstance();
+            this.center = stateWithTransition.getFeatureVector();
             this.nextAction = stateWithTransition.nextAction;
         }
 
@@ -61,8 +62,8 @@ public class DecisionPoint {
          * @param anotherPoint
          * @return
          */
-        double distance(Instance anotherPoint) {
-            return Configuration.DISTANCE_FUNCTION.distance(center, anotherPoint);
+        double distance(Vec anotherPoint) {
+            return Configuration.DISTANCE_FUNCTION.dist(center, anotherPoint);
         }
 
     }

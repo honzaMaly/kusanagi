@@ -18,5 +18,19 @@ public enum NextActionEnumerations implements Serializable, NextActionStrategy {
         public boolean commit() {
             return false;
         }
+    };
+
+    /**
+     * Return action corresponding to label
+     *
+     * @param commitment
+     * @return
+     */
+    public static NextActionEnumerations returnNextAction(boolean commitment) {
+        if (commitment) {
+            return YES;
+        }
+        return NO;
     }
+
 }

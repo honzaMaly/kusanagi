@@ -16,7 +16,10 @@ public interface WatcherMediatorService {
 
     void removeWatcher(AgentWatcher watcher);
 
-    void clearAllAgents();
+    /**
+     * Remove all agents from register and save theirs trajectories
+     */
+    void clearAllAgentsAndSaveTheirTrajectories();
 
     void watchAgents();
 

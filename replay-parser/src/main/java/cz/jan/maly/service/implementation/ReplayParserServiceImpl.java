@@ -146,16 +146,16 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
         public void onEnd(boolean b) {
             MyLogger.getLogger().info("Game has finished. Processing data...");
 
-            //todo collect all data and save them
-
-            //clear cache
-            watcherMediatorService.clearAllAgents();
-            playersToParse.remove(parsingPlayer.getID());
+            //save trajectories and reset register
+            watcherMediatorService.clearAllAgentsAndSaveTheirTrajectories();
 
             //if all players in queue were parsed, move to next replay
+            playersToParse.remove(parsingPlayer.getID());
             if (playersToParse.isEmpty()) {
                 setNextReplay();
             }
+
+            MyLogger.getLogger().info("Data processed. Moving to next game...");
         }
 
         @Override

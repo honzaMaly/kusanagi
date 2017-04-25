@@ -4,16 +4,20 @@ import cz.jan.maly.model.features.FeatureNormalizer;
 import cz.jan.maly.model.tracking.State;
 import cz.jan.maly.service.StateClusteringService;
 import cz.jan.maly.utils.Configuration;
-import weka.clusterers.SimpleKMeans;
-import weka.core.Attribute;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
+import jsat.SimpleDataSet;
+import jsat.classifiers.DataPoint;
+import jsat.clustering.SeedSelectionMethods;
+import jsat.clustering.kmeans.HamerlyKMeans;
+import jsat.clustering.kmeans.KMeans;
+import jsat.linear.DenseVector;
+import jsat.linear.Vec;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static cz.jan.maly.utils.Configuration.DISTANCE_FUNCTION;
 
 /**
  * Concrete implementation of StateClusteringService
@@ -37,26 +41,23 @@ public class StateClusteringServiceImpl implements StateClusteringService {
     }
 
     @Override
-    public List<Instance> computeStateRepresentatives(List<State> states, List<FeatureNormalizer> normalizers, int numberOfStates, int numberOfFeatures) throws Exception {
+    public List<Vec> computeStateRepresentatives(List<State> states, List<FeatureNormalizer> normalizers, int maxNumberOfClusters, int numberOfFeatures) throws Exception {
 
-        // Declare the feature vector
-        FastVector<Attribute> fastVector = new FastVector<>(numberOfFeatures);
-        for (int i = 0; i < numberOfFeatures; i++) {
-            fastVector.addElement(new Attribute(String.valueOf(i)));
-        }
-        Instances instances = new Instances("TestInstances", fastVector, states.size());
-        instances.addAll(states.stream()
+        //one of the fastest k-means
+        KMeans simpleKMeans = new HamerlyKMeans(DISTANCE_FUNCTION, SeedSelectionMethods.SeedSelection.FARTHEST_FIRST);
+
+        //create data set
+        List<DataPoint> dataPoints = states.stream()
                 .map(State::getFeatureVector)
                 .map(doubles -> Configuration.normalizeFeatureVector(doubles, normalizers))
-                .map(Configuration::convertVectorToInstance)
-                .collect(Collectors.toList()));
+                .map(doubles -> new DataPoint(new DenseVector(doubles)))
+                .collect(Collectors.toList());
+        SimpleDataSet dataSet = new SimpleDataSet(dataPoints);
 
-        //do simple K-Means
-        SimpleKMeans kMeans = new SimpleKMeans();
-        kMeans.setNumClusters(numberOfStates);
-        kMeans.setDistanceFunction(Configuration.DISTANCE_FUNCTION);
-        kMeans.buildClusterer(instances);
+        //do clustering
+        simpleKMeans.cluster(dataSet, maxNumberOfClusters);
 
-        return kMeans.getClusterCentroids();
+        //get means and return them
+        return simpleKMeans.getMeans();
     }
 }

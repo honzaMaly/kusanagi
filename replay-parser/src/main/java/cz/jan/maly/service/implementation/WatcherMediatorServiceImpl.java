@@ -5,11 +5,15 @@ import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSetsForAgentTy
 import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValues;
 import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValuesForAgentType;
 import cz.jan.maly.model.watcher.AgentWatcher;
+import cz.jan.maly.service.StorageService;
 import cz.jan.maly.service.WatcherMediatorService;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -17,11 +21,13 @@ import java.util.stream.Stream;
  * Created by Jan on 18-Apr-17.
  */
 public class WatcherMediatorServiceImpl implements WatcherMediatorService {
-    private final Set<AgentWatcher<?>> watchers = new HashSet<>();
+    private final Set<AgentWatcher<?>> watchers = new HashSet<>(), allWatchers = new HashSet<>();
+    private final StorageService storageService = StorageServiceImp.getInstance();
 
     @Override
     public void addWatcher(AgentWatcher watcher) {
         watchers.add(watcher);
+        allWatchers.add(watcher);
     }
 
     @Override
@@ -30,14 +36,33 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     }
 
     @Override
-    public void clearAllAgents() {
+    public void clearAllAgentsAndSaveTheirTrajectories() {
+
+        //save trajectories
+        allWatchers.stream()
+                //collect watchers by type
+                .collect(Collectors.groupingBy(AgentWatcher::getAgentWatcherType,
+                        Collectors.mapping(Function.identity(), Collectors.toList())))
+                //for each of them get map of trajectories with desires
+                .forEach((agentWatcherType, agentWatchers) -> agentWatchers.stream()
+                        .map(agentWatcher -> (AgentWatcher<?>) agentWatcher)
+                        .flatMap(AgentWatcher::getTrajectories)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                        //save merged entries
+                        .forEach((desireKeyID, trajectories) -> {
+                            storageService.saveTrajectory(agentWatcherType, desireKeyID, trajectories);
+                        }));
+
+        //remove agents from register
         watchers.clear();
+        allWatchers.clear();
     }
 
     @Override
     public void watchAgents() {
 
         //TODO
+
         watchers.forEach(agentWatcher -> agentWatcher.handleTrajectoriesOfPlans(this));
 
     }

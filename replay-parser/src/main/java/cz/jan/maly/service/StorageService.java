@@ -1,8 +1,13 @@
 package cz.jan.maly.service;
 
+import cz.jan.maly.model.metadata.AgentTypeID;
+import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.tracking.Replay;
+import cz.jan.maly.model.tracking.Trajectory;
 
 import java.io.File;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,6 +31,28 @@ public interface StorageService {
      */
     void markReplayAsParsed(Replay replay);
 
-    //todo save replay with both players
+    /**
+     * Save trajectories of given agent type for desire id
+     *
+     * @param agentTypeID
+     * @param desireKeyID
+     * @param trajectories
+     */
+    void saveTrajectory(AgentTypeID agentTypeID, DesireKeyID desireKeyID, List<Trajectory> trajectories);
+
+    /**
+     * Get all parsed agent types with their desires types contained in storage
+     *
+     * @return
+     */
+    Map<AgentTypeID, Set<DesireKeyID>> getParsedAgentTypesWithDesiresTypesContainedInStorage();
+
+    /**
+     * Get stored trajectories for given parameters
+     * @param agentTypeID
+     * @param desireKeyID
+     * @return
+     */
+    List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception;
 
 }
