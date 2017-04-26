@@ -6,22 +6,45 @@ import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValues;
 import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValuesForAgentType;
 import cz.jan.maly.model.watcher.AgentWatcher;
 
+import java.util.stream.Stream;
+
 /**
  * Contract for service to track watchers
  * Created by Jan on 18-Apr-17.
  */
 public interface WatcherMediatorService {
 
-    void addWatcher(AgentWatcher watcher);
+    /**
+     * Add new watcher (for example new unit was created)
+     *
+     * @param watcher
+     */
+    void addWatcher(AgentWatcher<?> watcher);
 
-    void removeWatcher(AgentWatcher watcher);
+    /**
+     * Remove watcher (for example unit was killed)
+     *
+     * @param watcher
+     */
+    void removeWatcher(AgentWatcher<?> watcher);
+
+    /**
+     * Get stream of watchers
+     *
+     * @return
+     */
+    Stream<AgentWatcher<?>> getStreamOfWatchers();
 
     /**
      * Remove all agents from register and save theirs trajectories
      */
     void clearAllAgentsAndSaveTheirTrajectories();
 
-    void watchAgents();
+
+    /**
+     * Method to tell all agents to observe environment and system (this is called each frame)
+     */
+    void tellAgentsToObserveSystemAndHandlePlans();
 
     /**
      * Convert fact to feature value

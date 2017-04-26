@@ -83,6 +83,7 @@ public class AgentsUnitTypes {
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy(dataForDecision -> {
+
                                     if (dataForDecision.getNumberOfCommittedAgents() > dataForDecision.getFeatureValueDesireBeliefSets(MINERAL)) {
                                         return true;
                                     }

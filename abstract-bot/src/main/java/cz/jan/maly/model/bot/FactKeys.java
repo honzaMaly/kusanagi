@@ -108,4 +108,18 @@ public class FactKeys {
         }
     };
 
+    public static final FactKey<Boolean> HAS_RESOURCES_TO_BUILD_POOL = new FactKey<Boolean>("HAS_RESOURCES_TO_BUILD_POOL", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+
+    public static final FactKey<Double> COUNT_OF_POOLS = new FactKey<Double>("COUNT_OF_POOLS", false) {
+        @Override
+        public Double getInitValue() {
+            return 0.0;
+        }
+    };
+
 }

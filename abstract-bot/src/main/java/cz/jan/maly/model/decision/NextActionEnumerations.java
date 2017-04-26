@@ -33,4 +33,17 @@ public enum NextActionEnumerations implements Serializable, NextActionStrategy {
         return NO;
     }
 
+    /**
+     * Return action corresponding to label
+     *
+     * @param commitment
+     * @return
+     */
+    public static NextActionEnumerations returnNextAction(String commitment) {
+        if (commitment.equals("YES")) {
+            return YES;
+        }
+        return NO;
+    }
+
 }

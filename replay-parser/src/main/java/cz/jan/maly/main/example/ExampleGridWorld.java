@@ -1,4 +1,4 @@
-package cz.jan.maly.main;
+package cz.jan.maly.main.example;
 
 import burlap.mdp.auxiliary.DomainGenerator;
 import burlap.mdp.core.StateTransitionProb;
@@ -15,7 +15,6 @@ import burlap.shell.visual.VisualExplorer;
 import burlap.visualizer.StatePainter;
 import burlap.visualizer.StateRenderLayer;
 import burlap.visualizer.Visualizer;
-import cz.jan.maly.main.example.EXGridState;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

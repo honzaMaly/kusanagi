@@ -44,9 +44,7 @@ public class FactConverters {
     });
 
     public static final FactWithOptionalValue<Double> AVAILABLE_MINERALS_COUNT = new FactWithOptionalValue<>(
-            new FactConverterID<>(5, AVAILABLE_MINERALS), aDouble -> {
-        return aDouble.orElse(0.0);
-    });
+            new FactConverterID<>(5, AVAILABLE_MINERALS), aDouble -> aDouble.orElse(0.0));
 
     public static final FactWithOptionalValue<Boolean> IS_BASE = new FactWithOptionalValue<>(
             new FactConverterID<>(6, FactKeys.IS_BASE), aBoolean -> {
@@ -60,5 +58,18 @@ public class FactConverters {
 
     public static final FactWithOptionalValueSet<AUnit> HAS_HATCHERY_COUNT = new FactWithOptionalValueSet<>(
             new FactConverterID<>(7, FactKeys.HAS_HATCHERY), aUnitStream -> aUnitStream.map(aUnitStream1 -> (double) aUnitStream1.count()).orElse(0.0));
+
+    public static final FactWithOptionalValue<Boolean> HAS_RESOURCES_TO_BUILD_POOL = new FactWithOptionalValue<>(
+            new FactConverterID<>(8, FactKeys.HAS_RESOURCES_TO_BUILD_POOL), aBoolean -> {
+        if (aBoolean.isPresent()) {
+            if (aBoolean.get()) {
+                return 1;
+            }
+        }
+        return 0;
+    });
+
+    public static final FactWithOptionalValue<Double> COUNT_OF_POOLS = new FactWithOptionalValue<>(
+            new FactConverterID<>(9, FactKeys.COUNT_OF_POOLS), aDouble -> aDouble.orElse(0.0));
 
 }

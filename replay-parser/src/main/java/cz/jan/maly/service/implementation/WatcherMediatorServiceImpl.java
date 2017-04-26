@@ -21,8 +21,20 @@ import java.util.stream.Stream;
  * Created by Jan on 18-Apr-17.
  */
 public class WatcherMediatorServiceImpl implements WatcherMediatorService {
+    private static WatcherMediatorService instance = null;
     private final Set<AgentWatcher<?>> watchers = new HashSet<>(), allWatchers = new HashSet<>();
     private final StorageService storageService = StorageServiceImp.getInstance();
+
+    private WatcherMediatorServiceImpl() {
+        //singleton
+    }
+
+    public static WatcherMediatorService getInstance() {
+        if (instance == null) {
+            instance = new WatcherMediatorServiceImpl();
+        }
+        return instance;
+    }
 
     @Override
     public void addWatcher(AgentWatcher watcher) {
@@ -33,6 +45,11 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     @Override
     public void removeWatcher(AgentWatcher watcher) {
         watchers.remove(watcher);
+    }
+
+    @Override
+    public Stream<AgentWatcher<?>> getStreamOfWatchers() {
+        return watchers.stream();
     }
 
     @Override
@@ -59,12 +76,12 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     }
 
     @Override
-    public void watchAgents() {
+    public void tellAgentsToObserveSystemAndHandlePlans() {
 
-        //TODO
-
+        //handle trajectories first to keep causality for actions
         watchers.forEach(agentWatcher -> agentWatcher.handleTrajectoriesOfPlans(this));
 
+        watchers.forEach(agentWatcher -> agentWatcher.reason(this));
     }
 
     @Override

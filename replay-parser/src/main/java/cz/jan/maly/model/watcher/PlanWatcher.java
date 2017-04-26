@@ -7,6 +7,7 @@ import cz.jan.maly.service.WatcherMediatorService;
 import lombok.Getter;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Class PlanWatcher track agent commitment to desire given beliefs
@@ -30,6 +31,14 @@ public abstract class PlanWatcher {
         this.trajectory = new Trajectory(this.container.getNumberOfFeatures());
     }
 
+    public void addCommitment() {
+        container.addCommitment();
+    }
+
+    public void removeCommitment() {
+        container.removeCommitment();
+    }
+
     /**
      * Create instance of FeatureContainer
      */
@@ -45,6 +54,13 @@ public abstract class PlanWatcher {
     protected abstract boolean isAgentCommitted();
 
     /**
+     * Get stream of agents to notify when agent has changed commitment to this plan
+     *
+     * @return
+     */
+    protected abstract Stream<AgentWatcher<?>> streamOfAgentsToNotifyAboutCommitment();
+
+    /**
      * If agent transit to new state (either feature vector has changed or commitment) add new state to trajectory
      *
      * @param beliefs
@@ -55,6 +71,10 @@ public abstract class PlanWatcher {
         boolean hasStatusChanged = false;
         if (isCommitted != isAgentCommitted()) {
             isCommitted = !isCommitted;
+
+            //notify other agents that this one is commited to their desire
+            streamOfAgentsToNotifyAboutCommitment().forEach(agentWatcher -> agentWatcher.commitmentByOtherAgentToDesireOfThisAgentHasBeenChanged(isCommitted, desireKey));
+
             hasStatusChanged = true;
         }
         if (container.isStatusUpdated(beliefs, mediatorService, committedToIDs) || hasStatusChanged) {

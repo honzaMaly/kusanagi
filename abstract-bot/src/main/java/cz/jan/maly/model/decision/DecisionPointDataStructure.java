@@ -3,6 +3,7 @@ package cz.jan.maly.model.decision;
 import cz.jan.maly.model.features.FeatureNormalizer;
 import jsat.linear.DenseVector;
 import jsat.linear.Vec;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ public class DecisionPointDataStructure implements Serializable {
      */
     public static class StateWithTransition implements Serializable {
         final double[] featureVector;
+
+        @Getter
         final NextActionEnumerations nextAction;
 
         /**

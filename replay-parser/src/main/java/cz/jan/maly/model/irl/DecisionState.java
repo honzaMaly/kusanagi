@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.Collections;
 import java.util.List;
 
-import static cz.jan.maly.model.irl.DecisionDomain.VAR_STATE;
+import static cz.jan.maly.model.irl.DecisionDomainGenerator.VAR_STATE;
 
 /**
  * Decision state

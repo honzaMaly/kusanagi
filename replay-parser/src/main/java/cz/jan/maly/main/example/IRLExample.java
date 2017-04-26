@@ -1,4 +1,4 @@
-package cz.jan.maly.main;
+package cz.jan.maly.main.example;
 
 import burlap.behavior.functionapproximation.dense.DenseStateFeatures;
 import burlap.behavior.policy.GreedyQPolicy;
@@ -28,7 +28,6 @@ import burlap.shell.visual.VisualExplorer;
 import burlap.statehashing.HashableStateFactory;
 import burlap.statehashing.simple.SimpleHashableStateFactory;
 import burlap.visualizer.Visualizer;
-import cz.jan.maly.main.example.EXGridState;
 
 import java.awt.*;
 import java.util.List;

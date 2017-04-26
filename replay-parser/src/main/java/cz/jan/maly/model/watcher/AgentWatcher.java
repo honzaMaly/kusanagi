@@ -3,10 +3,12 @@ package cz.jan.maly.model.watcher;
 import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.tracking.Trajectory;
 import cz.jan.maly.service.WatcherMediatorService;
+import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,6 +52,27 @@ public class AgentWatcher<T extends AgentWatcherType> {
                 .collect(Collectors.groupingBy(PlanWatcher::getDesireKey,
                         Collectors.mapping(PlanWatcher::getTrajectory, Collectors.toList())))
                 .entrySet().stream();
+    }
+
+    /**
+     * Notify plan that commitment has been changed
+     *
+     * @param status
+     * @param desireKeyID
+     */
+    public void commitmentByOtherAgentToDesireOfThisAgentHasBeenChanged(boolean status, DesireKeyID desireKeyID) {
+        Optional<PlanWatcher> planWatcherToNotify = plansToWatch.stream()
+                .filter(planWatcher -> planWatcher.getDesireKey().equals(desireKeyID))
+                .findAny();
+        if (planWatcherToNotify.isPresent()) {
+            if (status) {
+                planWatcherToNotify.get().addCommitment();
+            } else {
+                planWatcherToNotify.get().removeCommitment();
+            }
+        } else {
+            MyLogger.getLogger().warning("Notifying " + agentWatcherType.getName() + " but this agent does not contain plan for desire " + desireKeyID.getName());
+        }
     }
 
     /**

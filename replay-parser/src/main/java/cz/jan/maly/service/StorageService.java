@@ -1,5 +1,6 @@
 package cz.jan.maly.service;
 
+import cz.jan.maly.model.decision.DecisionPointDataStructure;
 import cz.jan.maly.model.metadata.AgentTypeID;
 import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.tracking.Replay;
@@ -54,5 +55,13 @@ public interface StorageService {
      * @return
      */
     List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception;
+
+    /**
+     * Store learnt DecisionPointDataStructure
+     * @param structure
+     * @param agentTypeID
+     * @param desireKeyID
+     */
+    void storeLearntDecision(DecisionPointDataStructure structure, AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception;
 
 }

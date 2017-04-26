@@ -8,8 +8,8 @@ import burlap.mdp.core.state.annotations.DeepCopyState;
 import java.util.Arrays;
 import java.util.List;
 
-import static cz.jan.maly.main.ExampleGridWorld.VAR_X;
-import static cz.jan.maly.main.ExampleGridWorld.VAR_Y;
+import static cz.jan.maly.main.example.ExampleGridWorld.VAR_X;
+import static cz.jan.maly.main.example.ExampleGridWorld.VAR_Y;
 
 /**
  * Created by Jan on 23-Apr-17.

@@ -22,12 +22,12 @@ public class AgentWatcherType extends AgentTypeID {
     private final Optional<Reasoning> reasoning;
 
     protected AgentWatcherType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys, List<PlanWatcherInitializationStrategy> planWatchers,
-                               Optional<Reasoning> reasoning) {
+                               Reasoning reasoning) {
         super(agentTypeID.getName(), agentTypeID.getID());
         this.factKeys = factKeys;
         this.factSetsKeys = factSetsKeys;
         this.planWatchers = planWatchers;
-        this.reasoning = reasoning;
+        this.reasoning = Optional.ofNullable(reasoning);
     }
 
     /**
@@ -36,7 +36,6 @@ public class AgentWatcherType extends AgentTypeID {
     public static class AgentWatcherTypeBuilder {
         private Set<FactKey<?>> factKeys = new HashSet<>();
         private Set<FactKey<?>> factSetsKeys = new HashSet<>();
-        private Optional<Reasoning> reasoning = Optional.empty();
     }
 
     /**

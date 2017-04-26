@@ -24,7 +24,7 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
     private static final String chaosluncherPath = "c:\\Users\\Jan\\Desktop\\Chaosluncher Run With Full Privileges.lnk";
     private static final StorageService STORAGE_SERVICE = StorageServiceImp.getInstance();
     private FileReplayLoaderService fileReplayLoaderService = new FileReplayLoaderServiceImpl();
-    private WatcherMediatorService watcherMediatorService = new WatcherMediatorServiceImpl();
+    private WatcherMediatorService watcherMediatorService = WatcherMediatorServiceImpl.getInstance();
     private Optional<Replay> replay;
     private final Thread gameListener = new Thread(new GameListener(), "GameListener");
 
@@ -134,6 +134,7 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
                     .get();
 
             //TODO init other agents
+
             AgentWatcherPlayer agentWatcherPlayer = new AgentWatcherPlayer(parsingPlayer);
             agentsWithObservations.add(agentWatcherPlayer);
             watcherMediatorService.addWatcher(agentWatcherPlayer);
@@ -165,11 +166,10 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
             agentsWithObservations.forEach(AgentMakingObservations::makeObservation);
 
             //watch agents, update their additional beliefs and track theirs commitment
-            watcherMediatorService.watchAgents();
-
-            //TODO add logic
-
+            watcherMediatorService.tellAgentsToObserveSystemAndHandlePlans();
         }
+
+        //TODO additional events related to units...
 
         @Override
         public void run() {

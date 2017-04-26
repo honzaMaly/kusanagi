@@ -39,19 +39,19 @@ public class DecisionModel implements FullStateModel {
      * @param a
      * @return
      */
-    public List<StateTransitionProb> stateTransitions(DecisionState from, DecisionAction a) {
-        if (!transitionsProbabilitiesBasedOnActions.containsKey(from) || !transitionsProbabilitiesBasedOnActions.get(from).containsKey(a.getAction())) {
+    public List<StateTransitionProb> stateTransitions(DecisionState from, NextActionEnumerations a) {
+        if (!transitionsProbabilitiesBasedOnActions.containsKey(from) || !transitionsProbabilitiesBasedOnActions.get(from).containsKey(a)) {
             //no possible transition. return this state
             return Collections.singletonList(new StateTransitionProb(from.copy(), 1.0));
         }
-        return transitionsProbabilitiesBasedOnActions.get(from).get(a.getAction()).entrySet().stream()
+        return transitionsProbabilitiesBasedOnActions.get(from).get(a).entrySet().stream()
                 .map(entry -> new StateTransitionProb(entry.getKey().copy(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<StateTransitionProb> stateTransitions(State state, Action action) {
-        return stateTransitions((DecisionState) state, (DecisionAction) action);
+        return stateTransitions((DecisionState) state, NextActionEnumerations.returnNextAction(action.actionName()));
     }
 
     @Override

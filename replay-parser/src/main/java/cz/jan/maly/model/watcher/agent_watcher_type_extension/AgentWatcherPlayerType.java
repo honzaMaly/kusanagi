@@ -10,7 +10,6 @@ import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,7 +22,7 @@ public class AgentWatcherPlayerType extends AgentWatcherType {
 
     @Builder
     private AgentWatcherPlayerType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys,
-                                   List<PlanWatcherInitializationStrategy> planWatchers, Optional<Reasoning> reasoning, PlayerEnvironmentObservation playerEnvironmentObservation) {
+                                   List<PlanWatcherInitializationStrategy> planWatchers, Reasoning reasoning, PlayerEnvironmentObservation playerEnvironmentObservation) {
         super(agentTypeID, factKeys, factSetsKeys, planWatchers, reasoning);
         this.playerEnvironmentObservation = playerEnvironmentObservation;
     }
@@ -34,6 +33,5 @@ public class AgentWatcherPlayerType extends AgentWatcherType {
     public static class AgentWatcherPlayerTypeBuilder extends AgentWatcherTypeBuilder {
         private Set<FactKey<?>> factKeys = new HashSet<>();
         private Set<FactKey<?>> factSetsKeys = new HashSet<>();
-        private Optional<Reasoning> reasoning = Optional.empty();
     }
 }

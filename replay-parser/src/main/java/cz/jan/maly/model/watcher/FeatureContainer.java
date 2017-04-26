@@ -4,6 +4,7 @@ import com.rits.cloning.Cloner;
 import cz.jan.maly.model.features.FeatureContainerHeader;
 import cz.jan.maly.model.metadata.FactConverterID;
 import cz.jan.maly.service.WatcherMediatorService;
+import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
 import java.util.Set;
@@ -23,9 +24,13 @@ public class FeatureContainer {
     @Getter
     private final int numberOfFeatures;
 
+    private final boolean trackCommitmentOfOtherAgents;
+    private int committedAgents = 0;
+
     public FeatureContainer(FeatureContainerHeader containerHeader) {
         this.containerHeader = containerHeader;
         this.numberOfFeatures = containerHeader.getSizeOfFeatureVector();
+        this.trackCommitmentOfOtherAgents = containerHeader.isTrackCommittedOtherAgents();
 
         //make feature vector
         featureVector = new double[numberOfFeatures];
@@ -33,6 +38,17 @@ public class FeatureContainer {
 
     public double[] getFeatureVector() {
         return CLONER.deepClone(featureVector);
+    }
+
+    public void addCommitment() {
+        committedAgents++;
+    }
+
+    public void removeCommitment() {
+        committedAgents--;
+        if (committedAgents < 0) {
+            MyLogger.getLogger().warning("Commitment count is negative.");
+        }
     }
 
     /**
@@ -66,6 +82,16 @@ public class FeatureContainer {
                 }
             }
         });
+
+        //check committed agents
+        if (trackCommitmentOfOtherAgents) {
+            if (featureVector[featureVector.length - 1] != committedAgents) {
+                if (!hasChanged) {
+                    hasChanged = true;
+                }
+                featureVector[featureVector.length - 1] = committedAgents;
+            }
+        }
 
         return hasChanged;
     }

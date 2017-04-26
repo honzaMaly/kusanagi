@@ -27,6 +27,7 @@ public class FeatureContainerHeader {
     private final List<Integer> indexes;
     private final List<Integer> indexesForCommitment;
     private final int sizeOfFeatureVector;
+    private final boolean trackCommittedOtherAgents;
 
     @Builder
     private FeatureContainerHeader(Set<FactWithOptionalValue<?>> convertersForFacts, Set<FactWithOptionalValueSet<?>> convertersForFactSets,
@@ -34,13 +35,14 @@ public class FeatureContainerHeader {
                                    Set<FactWithOptionalValueSets<?>> convertersForFactSetsForGlobalBeliefs,
                                    Set<FactWithSetOfOptionalValuesForAgentType<?>> convertersForFactsForGlobalBeliefsByAgentType,
                                    Set<FactWithOptionalValueSetsForAgentType<?>> convertersForFactSetsForGlobalBeliefsByAgentType,
-                                   Set<DesireKeyID> interestedInCommitments) {
+                                   Set<DesireKeyID> interestedInCommitments, boolean trackCommittedOtherAgents) {
         this.convertersForFacts = convertersForFacts;
         this.convertersForFactSets = convertersForFactSets;
         this.convertersForFactsForGlobalBeliefs = convertersForFactsForGlobalBeliefs;
         this.convertersForFactSetsForGlobalBeliefs = convertersForFactSetsForGlobalBeliefs;
         this.convertersForFactsForGlobalBeliefsByAgentType = convertersForFactsForGlobalBeliefsByAgentType;
         this.convertersForFactSetsForGlobalBeliefsByAgentType = convertersForFactSetsForGlobalBeliefsByAgentType;
+        this.trackCommittedOtherAgents = trackCommittedOtherAgents;
 
         Set<Integer> indexesSet = new HashSet<>();
 
@@ -58,7 +60,12 @@ public class FeatureContainerHeader {
         addIndexes(interestedInCommitments.stream().map(DesireKeyID::getID).collect(Collectors.toList()), indexesSet);
         indexesForCommitment = indexesSet.stream().sorted().collect(Collectors.toList());
 
-        this.sizeOfFeatureVector = indexes.size() + indexesForCommitment.size();
+        //one additional dimension to track commitment by other agents
+        if (trackCommittedOtherAgents) {
+            this.sizeOfFeatureVector = indexes.size() + indexesForCommitment.size() + 1;
+        } else {
+            this.sizeOfFeatureVector = indexes.size() + indexesForCommitment.size();
+        }
     }
 
     /**
@@ -87,6 +94,7 @@ public class FeatureContainerHeader {
         private Set<FactWithSetOfOptionalValuesForAgentType<?>> convertersForFactsForGlobalBeliefsByAgentType = new HashSet<>();
         private Set<FactWithOptionalValueSetsForAgentType<?>> convertersForFactSetsForGlobalBeliefsByAgentType = new HashSet<>();
         private Set<DesireKeyID> interestedInCommitments = new HashSet<>();
+        private boolean trackCommittedOtherAgents = false;
     }
 
 }

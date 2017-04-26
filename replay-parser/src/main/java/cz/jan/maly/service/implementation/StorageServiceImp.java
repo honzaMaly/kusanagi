@@ -1,7 +1,6 @@
 package cz.jan.maly.service.implementation;
 
-import cz.jan.maly.model.bot.AgentTypes;
-import cz.jan.maly.model.bot.DesireKeys;
+import cz.jan.maly.model.decision.DecisionPointDataStructure;
 import cz.jan.maly.model.metadata.AgentTypeID;
 import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.tracking.Replay;
@@ -14,10 +13,12 @@ import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 
 import java.io.File;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static cz.jan.maly.utils.Configuration.getParsedAgentTypesContainedInStorage;
+import static cz.jan.maly.utils.Configuration.getParsedDesireTypesForAgentTypeContainedInStorage;
 
 /**
  * StorageService implementation... as singleton
@@ -31,7 +32,8 @@ public class StorageServiceImp implements StorageService {
 
     //databases
     private static final String storageFolder = "storage";
-    private static final String parsingFolder = "parsing";
+    private static final String parsingFolder = storageFolder + "/parsing";
+    private static final String outputFolder = storageFolder + "/output";
     private static final String dbFileReplays = storageFolder + "/replays.db";
 
     private StorageServiceImp() {
@@ -45,7 +47,7 @@ public class StorageServiceImp implements StorageService {
         return DBMaker.fileDB(databaseFile).make();
     }
 
-    public static StorageServiceImp getInstance() {
+    static StorageService getInstance() {
         if (instance == null) {
             instance = new StorageServiceImp();
         }
@@ -87,7 +89,7 @@ public class StorageServiceImp implements StorageService {
     @Override
     public void saveTrajectory(AgentTypeID agentTypeID, DesireKeyID desireKeyID, List<Trajectory> trajectories) {
         createDirectoryIfItDoesNotExist(agentTypeID.getName(), parsingFolder);
-        String path = storageFolder + "/" + parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db";
+        String path = parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db";
         ArrayList<Trajectory> savedTrajectories;
         try {
             savedTrajectories = SerializationUtil.deserialize(path);
@@ -105,70 +107,20 @@ public class StorageServiceImp implements StorageService {
 
     @Override
     public Map<AgentTypeID, Set<DesireKeyID>> getParsedAgentTypesWithDesiresTypesContainedInStorage() {
-        return getParsedAgentTypesContainedInStorage().stream()
-                .collect(Collectors.toMap(Function.identity(), this::getParsedDesireTypesForAgentTypeContainedInStorage));
+        return getParsedAgentTypesContainedInStorage(parsingFolder).stream()
+                .collect(Collectors.toMap(Function.identity(), t -> getParsedDesireTypesForAgentTypeContainedInStorage(t, parsingFolder)));
     }
 
     @Override
     public List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception {
-        return SerializationUtil.deserialize(storageFolder + "/" + parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db");
+        return SerializationUtil.deserialize(parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db");
     }
 
-    /**
-     * Map static fields of agentTypeId from AgentTypes to folders in storage
-     *
-     * @return
-     */
-    private Set<AgentTypeID> getParsedAgentTypesContainedInStorage() {
-        File directory = new File(storageFolder + "/" + parsingFolder);
-        Set<String> foldersInParsingDirectory = Arrays.stream(directory.listFiles())
-                .filter(File::isDirectory)
-                .map(File::getName)
-                .collect(Collectors.toSet());
-        return Arrays.stream(AgentTypes.class.getDeclaredFields())
-                .filter(field -> Modifier.isStatic(field.getModifiers()))
-                .filter(field -> field.getType().equals(AgentTypeID.class))
-                .map(field -> {
-                            try {
-                                return (AgentTypeID) field.get(null);
-                            } catch (IllegalAccessException e) {
-                                MyLogger.getLogger().warning(e.getLocalizedMessage());
-                            }
-                            return null;
-                        }
-                )
-                .filter(Objects::nonNull)
-                .filter(agentTypeID -> foldersInParsingDirectory.contains(agentTypeID.getName()))
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Map static fields of desireKeyID from DesireKeys to folders in storage
-     *
-     * @return
-     */
-    private Set<DesireKeyID> getParsedDesireTypesForAgentTypeContainedInStorage(AgentTypeID agentTypeID) {
-        File directory = new File(storageFolder + "/" + parsingFolder + "/" + agentTypeID.getName());
-        Set<String> filesInParsingDirectory = Arrays.stream(directory.listFiles())
-                .filter(File::isFile)
-                .map(File::getName)
-                .map(s -> s.replace(".db", ""))
-                .collect(Collectors.toSet());
-        return Arrays.stream(DesireKeys.class.getDeclaredFields())
-                .filter(field -> Modifier.isStatic(field.getModifiers()))
-                .filter(field -> field.getType().equals(DesireKeyID.class))
-                .map(field -> {
-                            try {
-                                return (DesireKeyID) field.get(null);
-                            } catch (IllegalAccessException e) {
-                                MyLogger.getLogger().warning(e.getLocalizedMessage());
-                            }
-                            return null;
-                        }
-                )
-                .filter(Objects::nonNull)
-                .filter(desireKeyID -> filesInParsingDirectory.contains(desireKeyID.getName()))
-                .collect(Collectors.toSet());
+    @Override
+    public void storeLearntDecision(DecisionPointDataStructure structure, AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception {
+        createDirectoryIfItDoesNotExist(agentTypeID.getName(), outputFolder);
+        String path = outputFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db";
+        SerializationUtil.serialize(structure, path);
     }
 
     /**
@@ -177,7 +129,7 @@ public class StorageServiceImp implements StorageService {
      * @param name
      */
     private void createDirectoryIfItDoesNotExist(String name, String directory) {
-        File file = new File(storageFolder + "/" + directory + "/" + name);
+        File file = new File(directory + "/" + name);
         if (!file.exists()) {
             if (file.mkdir()) {
                 MyLogger.getLogger().info("Creating storage directory for " + name);

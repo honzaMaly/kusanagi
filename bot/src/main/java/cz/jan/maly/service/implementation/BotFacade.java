@@ -10,10 +10,7 @@ import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.model.game.wrappers.AbstractPositionWrapper;
 import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.model.game.wrappers.WrapperTypeFactory;
-import cz.jan.maly.service.AgentUnitHandler;
-import cz.jan.maly.service.LocationInitializer;
-import cz.jan.maly.service.MASFacade;
-import cz.jan.maly.service.PlayerInitializer;
+import cz.jan.maly.service.*;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,6 +69,9 @@ public class BotFacade extends DefaultBWListener {
     private Player self;
 
     private Annotator annotator;
+
+    //only one instance to store learnt decision points
+    public static final DecisionLoadingService DECISION_LOADING_SERVICE = DecisionLoadingServiceImpl.getInstance();
 
     public BotFacade(AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy,
                      PlayerInitializerCreationStrategy playerInitializerCreationStrategy,
