@@ -2,7 +2,7 @@ package cz.jan.maly.model.servicies.beliefs;
 
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
-import cz.jan.maly.model.metadata.AgentType;
+import cz.jan.maly.model.metadata.AgentTypeID;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  * Created by Jan on 24-Feb-17.
  */
 public class ReadOnlyMemoryRegister extends MemoryRegister {
-    private final Map<AgentType, Map<Integer, ReadOnlyMemory>> beliefsInSystem;
+    private final Map<AgentTypeID, Map<Integer, ReadOnlyMemory>> beliefsInSystem;
     private final Map<Integer, ReadOnlyMemory> beliefsInSystemByAgents;
 
     ReadOnlyMemoryRegister(Map<Agent, ReadOnlyMemory> dataByOriginator) {
@@ -43,7 +43,7 @@ public class ReadOnlyMemoryRegister extends MemoryRegister {
      * @param agentType
      * @return
      */
-    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentTypeID agentType) {
         return beliefsInSystem.getOrDefault(agentType, new HashMap<>()).values().stream();
     }
 

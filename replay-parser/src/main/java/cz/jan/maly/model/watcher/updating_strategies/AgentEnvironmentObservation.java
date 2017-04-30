@@ -1,6 +1,6 @@
 package cz.jan.maly.model.watcher.updating_strategies;
 
-import bwapi.Unit;
+import cz.jan.maly.model.game.wrappers.AUnitWithCommands;
 import cz.jan.maly.model.watcher.Beliefs;
 
 /**
@@ -13,7 +13,10 @@ public interface AgentEnvironmentObservation {
      * Update beliefs by fields from unit
      * @param aUnit
      * @param beliefs
+     * @param frame
+     *
+     * @return
      */
-    void updateBeliefs(Unit aUnit, Beliefs beliefs);
+    AUnitWithCommands updateBeliefs(AUnitWithCommands aUnit, Beliefs beliefs, int frame);
 
 }

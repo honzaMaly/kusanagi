@@ -19,8 +19,8 @@ public class AUnit {
             .collect(Collectors.toSet());
 
     final Unit unit;
-    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
-    final List<Integer> enemyUnitsInWeaponRangeIds;
+//    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
+//    final List<Integer> enemyUnitsInWeaponRangeIds;
     final List<Unit> friendlyUnitsInRadiusOfSight = new ArrayList<>();
     final List<Integer> friendlyUnitsInRadiusOfSightIds;
     final List<Unit> resourceUnitsInRadiusOfSight = new ArrayList<>();
@@ -155,9 +155,9 @@ public class AUnit {
 //        }
 
         //ids
-        this.enemyUnitsInWeaponRangeIds = this.enemyUnitsInWeaponRange.stream()
-                .map(Unit::getID)
-                .collect(Collectors.toList());
+//        this.enemyUnitsInWeaponRangeIds = this.enemyUnitsInWeaponRange.stream()
+//                .map(Unit::getID)
+//                .collect(Collectors.toList());
 
         //units in radius of sight
         if (!isCreatingUnit && !unit.getPlayer().isNeutral()
@@ -240,13 +240,13 @@ public class AUnit {
         return WrapperTypeFactory.createFrom(type);
     }
 
-    private void addEnemyUnitsInWeaponRange(List<Unit> unitsInWeaponRange) {
-        for (Unit unitInWeaponRange : unitsInWeaponRange) {
-            if (unitInWeaponRange.getPlayer().isEnemy(unit.getPlayer())) {
-                this.enemyUnitsInWeaponRange.add(unitInWeaponRange);
-            }
-        }
-    }
+//    private void addEnemyUnitsInWeaponRange(List<Unit> unitsInWeaponRange) {
+//        for (Unit unitInWeaponRange : unitsInWeaponRange) {
+//            if (unitInWeaponRange.getPlayer().isEnemy(unit.getPlayer())) {
+//                this.enemyUnitsInWeaponRange.add(unitInWeaponRange);
+//            }
+//        }
+//    }
 
     public boolean isFullyHealthy() {
         return getHitPoints() >= getType().getMaxHitPoints();
@@ -335,13 +335,13 @@ public class AUnit {
             super(unit, isCreatingUnit, frameCount);
         }
 
-        public List<AUnitOfPlayer> getEnemyUnitsInWeaponRange() {
-            return enemyUnitsInWeaponRangeIds.stream()
-                    .map(UnitWrapperFactory::getWrappedPlayersUnit)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
+//        public List<AUnitOfPlayer> getEnemyUnitsInWeaponRange() {
+//            return enemyUnitsInWeaponRangeIds.stream()
+//                    .map(UnitWrapperFactory::getWrappedPlayersUnit)
+//                    .filter(Optional::isPresent)
+//                    .map(Optional::get)
+//                    .collect(Collectors.toList());
+//        }
 
         public List<AUnit.Enemy> getFriendlyUnitsInRadiusOfSight() {
             return friendlyUnitsInRadiusOfSightIds.stream()
@@ -377,13 +377,13 @@ public class AUnit {
             super(unit, isCreatingUnit, frameCount);
         }
 
-        public List<AUnit.Enemy> getEnemyUnitsInWeaponRange() {
-            return enemyUnitsInWeaponRangeIds.stream()
-                    .map(UnitWrapperFactory::getWrappedEnemyUnit)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
+//        public List<AUnit.Enemy> getEnemyUnitsInWeaponRange() {
+//            return enemyUnitsInWeaponRangeIds.stream()
+//                    .map(UnitWrapperFactory::getWrappedEnemyUnit)
+//                    .filter(Optional::isPresent)
+//                    .map(Optional::get)
+//                    .collect(Collectors.toList());
+//        }
 
         public List<AUnitOfPlayer> getFriendlyUnitsInRadiusOfSight() {
             return friendlyUnitsInRadiusOfSightIds.stream()

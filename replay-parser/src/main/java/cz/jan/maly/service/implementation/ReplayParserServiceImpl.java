@@ -3,12 +3,11 @@ package cz.jan.maly.service.implementation;
 import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.AgentMakingObservations;
+import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
+import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.model.tracking.Replay;
-import cz.jan.maly.model.watcher.agent_watcher_extension.AgentWatcherPlayer;
-import cz.jan.maly.service.FileReplayLoaderService;
-import cz.jan.maly.service.ReplayParserService;
-import cz.jan.maly.service.StorageService;
-import cz.jan.maly.service.WatcherMediatorService;
+import cz.jan.maly.model.watcher.agent_watcher_extension.*;
+import cz.jan.maly.service.*;
 import cz.jan.maly.utils.MyLogger;
 
 import java.io.File;
@@ -97,9 +96,18 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
         private Mirror mirror = new Mirror();
         private Game currentGame;
         private Player parsingPlayer;
+        private AgentUnitHandler agentUnitHandler = null;
+        //keep track of units watchers
+        private final Map<Integer, UnitWatcher> watchersOfUnits = new HashMap<>();
 
         @Override
         public void onStart() {
+            watchersOfUnits.clear();
+
+            //init types
+            if (agentUnitHandler == null) {
+                agentUnitHandler = new AgentUnitFactory();
+            }
 
             //mark replay as loaded to skipp it next time
             if (playersToParse.isEmpty()) {
@@ -133,15 +141,42 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
                     .findFirst()
                     .get();
 
-            //TODO init other agents
+            WatcherPlayer watcherPlayer = new WatcherPlayer(parsingPlayer);
+            agentsWithObservations.add(watcherPlayer);
+            watcherMediatorService.addWatcher(watcherPlayer);
 
-            AgentWatcherPlayer agentWatcherPlayer = new AgentWatcherPlayer(parsingPlayer);
-            agentsWithObservations.add(agentWatcherPlayer);
-            watcherMediatorService.addWatcher(agentWatcherPlayer);
+            //init base agents
+            BWTA.getBaseLocations().forEach(baseLocation -> {
+                BaseWatcher baseWatcher = new BaseWatcher(ABaseLocationWrapper.wrap(baseLocation), currentGame);
+                agentsWithObservations.add(baseWatcher);
+                watcherMediatorService.addWatcher(baseWatcher);
+            });
+
+            //abstract managers
+            watcherMediatorService.addWatcher(new EcoManagerWatcher());
+            watcherMediatorService.addWatcher(new BuildOrderManagerWatcher());
+            watcherMediatorService.addWatcher(new UnitOrderManagerWatcher());
 
             //speed up game to maximal possible
             currentGame.setLocalSpeed(0);
         }
+
+        @Override
+        public void onUnitCreate(Unit unit) {
+            try {
+                if (parsingPlayer.getID() == unit.getPlayer().getID()) {
+                    Optional<UnitWatcher> unitWatcher = agentUnitHandler.createAgentForUnit(unit, currentGame);
+                    unitWatcher.ifPresent(watcher -> {
+                        agentsWithObservations.add(watcher);
+                        watcherMediatorService.addWatcher(watcher);
+                        watchersOfUnits.put(unit.getID(), watcher);
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
 
         @Override
         public void onEnd(boolean b) {
@@ -162,14 +197,45 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
         @Override
         public void onFrame() {
 
-            //make observations
-            agentsWithObservations.forEach(AgentMakingObservations::makeObservation);
+            try {
 
-            //watch agents, update their additional beliefs and track theirs commitment
-            watcherMediatorService.tellAgentsToObserveSystemAndHandlePlans();
+                //make observations
+                agentsWithObservations.forEach(AgentMakingObservations::makeObservation);
+
+                //watch agents, update their additional beliefs and track theirs commitment
+                watcherMediatorService.tellAgentsToObserveSystemAndHandlePlans();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
-        //TODO additional events related to units...
+        @Override
+        public void onUnitDestroy(Unit unit) {
+
+            try {
+                if (parsingPlayer.getID() == unit.getPlayer().getID()) {
+                    Optional<UnitWatcher> watcher = Optional.ofNullable(watchersOfUnits.remove(unit.getID()));
+                    watcher.ifPresent(unitWatcher -> watcherMediatorService.removeWatcher(unitWatcher));
+                }
+                UnitWrapperFactory.unitDied(unit);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onUnitMorph(Unit unit) {
+            try {
+                if (parsingPlayer.getID() == unit.getPlayer().getID()) {
+                    Optional<UnitWatcher> watcher = Optional.ofNullable(watchersOfUnits.remove(unit.getID()));
+                    watcher.ifPresent(unitWatcher -> watcherMediatorService.removeWatcher(unitWatcher));
+                    onUnitCreate(unit);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         @Override
         public void run() {

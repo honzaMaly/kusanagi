@@ -4,6 +4,7 @@ import cz.jan.maly.model.agent.types.AgentTypeUnit;
 import cz.jan.maly.model.bot.AgentTypes;
 import cz.jan.maly.model.game.wrappers.APosition;
 import cz.jan.maly.model.game.wrappers.AUnit;
+import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
@@ -78,7 +79,7 @@ public class AgentsUnitTypes {
                                     }
                                     return false;
                                 })
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -89,7 +90,7 @@ public class AgentsUnitTypes {
                                     }
                                     return false;
                                 })
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
                                 .build()
                         )
                         .desiresWithIntentionToAct(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS})))
@@ -116,7 +117,7 @@ public class AgentsUnitTypes {
 
                                     //select free nearest mineral to closest hatchery
                                     APosition myPosition = intention.returnFactValueForGivenKey(IS_UNIT).get().getPosition();
-                                    Optional<AUnit> hatchery = intention.returnFactSetValueOfParentIntentionForGivenKey(HAS_HATCHERY).get()
+                                    Optional<AUnitOfPlayer> hatchery = intention.returnFactSetValueOfParentIntentionForGivenKey(HAS_BASE).get()
                                             .min(Comparator.comparingDouble(o -> myPosition.distanceTo(o.getPosition())));
                                     if (hatchery.isPresent()) {
                                         Optional<AUnit> mineralToPick = mineralsToMine.stream()

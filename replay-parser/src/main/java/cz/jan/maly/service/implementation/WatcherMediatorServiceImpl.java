@@ -1,17 +1,17 @@
 package cz.jan.maly.service.implementation;
 
+import cz.jan.maly.model.metadata.AgentTypeID;
+import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSets;
 import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSetsForAgentType;
 import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValues;
 import cz.jan.maly.model.metadata.containers.FactWithSetOfOptionalValuesForAgentType;
+import cz.jan.maly.model.tracking.Trajectory;
 import cz.jan.maly.model.watcher.AgentWatcher;
 import cz.jan.maly.service.StorageService;
 import cz.jan.maly.service.WatcherMediatorService;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,6 +56,7 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     public void clearAllAgentsAndSaveTheirTrajectories() {
 
         //save trajectories
+        Map<AgentTypeID, Map<DesireKeyID, List<Trajectory>>> toPersist = new HashMap<>();
         allWatchers.stream()
                 //collect watchers by type
                 .collect(Collectors.groupingBy(AgentWatcher::getAgentWatcherType,
@@ -64,11 +65,9 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
                 .forEach((agentWatcherType, agentWatchers) -> agentWatchers.stream()
                         .map(agentWatcher -> (AgentWatcher<?>) agentWatcher)
                         .flatMap(AgentWatcher::getTrajectories)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                        //save merged entries
-                        .forEach((desireKeyID, trajectories) -> {
-                            storageService.saveTrajectory(agentWatcherType, desireKeyID, trajectories);
-                        }));
+                        .forEach(desireKeyIDListEntry -> toPersist.computeIfAbsent(agentWatcherType, agentTypeID -> new HashMap<>()).computeIfAbsent(desireKeyIDListEntry.getKey(), desireKeyID -> new ArrayList<>()).addAll(desireKeyIDListEntry.getValue())));
+        //save merged entries
+        toPersist.forEach((agentTypeID, desireKeyIDListMap) -> desireKeyIDListMap.forEach((desireKeyID, trajectories) -> storageService.saveTrajectory(agentTypeID, desireKeyID, trajectories)));
 
         //remove agents from register
         watchers.clear();

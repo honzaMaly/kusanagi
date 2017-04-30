@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class APlayer {
     private static final Map<Integer, APlayer> instances = new ConcurrentHashMap<>();
 
+    @Getter
     private final Player player;
 
     @Getter

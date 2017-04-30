@@ -35,9 +35,20 @@ public class UnitWrapperFactory {
      *
      * @return
      */
-    public static Stream<AUnit.Enemy> getStreamOfAllEnemyUnits() {
+    public static Stream<AUnit.Enemy> getStreamOfAllAliveEnemyUnits() {
         return enemyUnits.values().stream()
                 .filter(AUnit::isAlive);
+    }
+
+    /**
+     * Return all registered player's units alive
+     *
+     * @return
+     */
+    public static Stream<AUnitOfPlayer> getStreamOfAllAlivePlayersUnits() {
+        return playersUnits.values().stream()
+                .filter(AUnit::isAlive)
+                .map(aUnitWithCommands -> aUnitWithCommands);
     }
 
     /**
@@ -164,7 +175,7 @@ public class UnitWrapperFactory {
         //each enemy unit of enemy is player's in 1v1 game
         Set<Unit> playersUnits = new HashSet<>();
         playersUnits.addAll(unit.enemyUnitsInRadiusOfSight);
-        playersUnits.addAll(unit.enemyUnitsInWeaponRange);
+//        playersUnits.addAll(unit.enemyUnitsInWeaponRange);
         playersUnits.forEach(u -> getCurrentWrappedUnitToCommand(u, frameCount, isCreatingUnit));
 
         //wrap enemies units
@@ -185,7 +196,7 @@ public class UnitWrapperFactory {
         //wrap enemy units
         Set<Unit> enemyUnits = new HashSet<>();
         enemyUnits.addAll(unit.enemyUnitsInRadiusOfSight);
-        enemyUnits.addAll(unit.enemyUnitsInWeaponRange);
+//        enemyUnits.addAll(unit.enemyUnitsInWeaponRange);
         enemyUnits.forEach(u -> wrapEnemyUnits(u, frameCount, isCreatingUnit));
 
         //wrap friendly units

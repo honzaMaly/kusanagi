@@ -34,8 +34,8 @@ public class DataForDecision {
     private final Map<FactKey<?>, FactConverter.GlobalBelief<?>> globalBeliefs = new HashMap<>();
     private final Map<FactKey<?>, FactConverter.GlobalBeliefSet<?>> globalBeliefsSets = new HashMap<>();
     //global beliefs by agent type
-    private final Map<FactKey<?>, Map<AgentType, FactConverter.GlobalBeliefForAgentType<?>>> globalBeliefsByAgentType = new HashMap<>();
-    private final Map<FactKey<?>, Map<AgentType, FactConverter.GlobalBeliefSetForAgentType<?>>> globalBSetsByAgentType = new HashMap<>();
+    private final Map<FactKey<?>, Map<AgentTypeID, FactConverter.GlobalBeliefForAgentType<?>>> globalBeliefsByAgentType = new HashMap<>();
+    private final Map<FactKey<?>, Map<AgentTypeID, FactConverter.GlobalBeliefSetForAgentType<?>>> globalBSetsByAgentType = new HashMap<>();
     @Getter
     private int numberOfCommittedAgents = 0;
 

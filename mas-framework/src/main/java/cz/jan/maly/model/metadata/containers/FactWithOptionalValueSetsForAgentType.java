@@ -1,7 +1,7 @@
 package cz.jan.maly.model.metadata.containers;
 
 import cz.jan.maly.model.FeatureRawValueObtainingStrategy;
-import cz.jan.maly.model.metadata.AgentType;
+import cz.jan.maly.model.metadata.AgentTypeID;
 import cz.jan.maly.model.metadata.FactConverterID;
 import lombok.Getter;
 
@@ -14,9 +14,9 @@ import java.util.stream.Stream;
  */
 @Getter
 public class FactWithOptionalValueSetsForAgentType<V> extends FactWithOptionalValueSets<V> {
-    private final AgentType agentType;
+    private final AgentTypeID agentType;
 
-    public FactWithOptionalValueSetsForAgentType(FactConverterID<V> factConverterID, AgentType agentType,
+    public FactWithOptionalValueSetsForAgentType(FactConverterID<V> factConverterID, AgentTypeID agentType,
                                                  FeatureRawValueObtainingStrategy<Stream<Optional<Stream<V>>>> strategyToObtainValue) {
         super(factConverterID, strategyToObtainValue);
         this.agentType = agentType;

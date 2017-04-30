@@ -302,7 +302,7 @@ public abstract class FactConverter<V, K> implements Converter {
      */
     public static class GlobalBeliefForAgentType<V> extends FactConverter<Stream<Optional<V>>, WorkingMemory> {
         private final FactKey<V> factKey;
-        private final AgentType agentType;
+        private final AgentTypeID agentType;
 
         public GlobalBeliefForAgentType(DataForDecision dataForDecision, FactWithSetOfOptionalValuesForAgentType<V> container) {
             super(dataForDecision, container.getStrategyToObtainValue(), container.getID());
@@ -419,7 +419,7 @@ public abstract class FactConverter<V, K> implements Converter {
      */
     public static class GlobalBeliefSetForAgentType<V> extends FactConverter<Stream<Optional<Stream<V>>>, WorkingMemory> {
         private final FactKey<V> factKey;
-        private final AgentType agentType;
+        private final AgentTypeID agentType;
 
         public GlobalBeliefSetForAgentType(DataForDecision dataForDecision, FactWithOptionalValueSetsForAgentType<V> container) {
             super(dataForDecision, container.getStrategyToObtainValue(), container.getID());

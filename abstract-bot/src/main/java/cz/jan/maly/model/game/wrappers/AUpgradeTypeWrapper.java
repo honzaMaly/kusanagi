@@ -5,7 +5,10 @@ import bwapi.UnitType;
 import bwapi.UpgradeType;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -86,4 +89,20 @@ public class AUpgradeTypeWrapper extends AbstractWrapper<UpgradeType> {
         return WrapperTypeFactory.createFrom(whatsRequired);
     }
 
+    //types, only for zerg
+    public static final AUpgradeTypeWrapper METABOLIC_BOOST_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Metabolic_Boost);
+    public static final AUpgradeTypeWrapper ADRENAL_GLANDS_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Adrenal_Glands);
+    public static final AUpgradeTypeWrapper UPGRADE_MISSILE_ATTACK_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Zerg_Missile_Attacks);
+    public static final AUpgradeTypeWrapper UPGRADE_MELEE_ATTACK_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Zerg_Melee_Attacks);
+    public static final AUpgradeTypeWrapper UPGRADE_CARAPACE_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Zerg_Carapace);
+    public static final AUpgradeTypeWrapper MUSCULAR_AUGMENTS_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Muscular_Augments);
+    public static final AUpgradeTypeWrapper GROOVED_SPINES_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Grooved_Spines);
+    public static final AUpgradeTypeWrapper ANTENNAE_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Antennae);
+    public static final AUpgradeTypeWrapper PNEUMATIZED_CARAPACE_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Pneumatized_Carapace);
+    public static final AUpgradeTypeWrapper UPGRADE_FLYER_ATTACK_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Zerg_Flyer_Attacks);
+    public static final AUpgradeTypeWrapper UPGRADE_FLAYER_CARAPACE_TYPE = WrapperTypeFactory.createFrom(UpgradeType.Zerg_Flyer_Carapace);
+
+    static final Set<AUpgradeTypeWrapper> UPGRADE_TYPES = new HashSet<>(Arrays.asList(METABOLIC_BOOST_TYPE, ADRENAL_GLANDS_TYPE, UPGRADE_MISSILE_ATTACK_TYPE,
+            UPGRADE_MELEE_ATTACK_TYPE, UPGRADE_CARAPACE_TYPE, MUSCULAR_AUGMENTS_TYPE, GROOVED_SPINES_TYPE, ANTENNAE_TYPE,
+            PNEUMATIZED_CARAPACE_TYPE, UPGRADE_FLYER_ATTACK_TYPE, UPGRADE_FLAYER_CARAPACE_TYPE));
 }

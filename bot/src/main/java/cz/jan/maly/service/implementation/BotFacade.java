@@ -41,7 +41,7 @@ public class BotFacade extends DefaultBWListener {
 
     @Setter
     @Getter
-    private static boolean annotateMap = true;
+    private static boolean annotateMap = false;
 
     //keep track of agent units
     private final Map<Integer, AgentUnit> agentsWithGameRepresentation = new HashMap<>();

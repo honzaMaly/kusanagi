@@ -1,6 +1,6 @@
 package cz.jan.maly.model.watcher.updating_strategies;
 
-import bwapi.Player;
+import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.model.watcher.Beliefs;
 
 /**
@@ -11,9 +11,11 @@ public interface PlayerEnvironmentObservation {
 
     /**
      * Update beliefs by fields from unit
+     *
      * @param aPlayer
      * @param beliefs
+     * @return
      */
-    void updateBeliefs(Player aPlayer, Beliefs beliefs);
+    APlayer updateBeliefs(APlayer aPlayer, Beliefs beliefs);
 
 }

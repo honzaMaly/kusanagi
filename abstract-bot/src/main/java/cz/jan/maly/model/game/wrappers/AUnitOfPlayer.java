@@ -1,5 +1,6 @@
 package cz.jan.maly.model.game.wrappers;
 
+import bwapi.Order;
 import bwapi.Unit;
 import bwapi.UnitType;
 import lombok.Getter;
@@ -88,6 +89,27 @@ public class AUnitOfPlayer extends AUnit.Players {
     @Getter
     private final boolean isUnderDisruptionWeb;
 
+    @Getter
+    private final Optional<Unit> target;
+
+    @Getter
+    private final Optional<Order> order;
+
+    @Getter
+    private final Optional<Unit> orderTarget;
+
+    @Getter
+    private final Optional<APosition> targetPosition;
+
+    @Getter
+    private final Optional<APosition> orderTargetPosition;
+
+    @Getter
+    private final Optional<Order> secondaryOrder;
+
+    @Getter
+    private final Optional<AUnitCommand> lastCommand;
+
     AUnitOfPlayer(Unit unit, boolean isCreatingUnit, int frameCount) {
         super(unit, isCreatingUnit, frameCount);
 
@@ -144,6 +166,28 @@ public class AUnitOfPlayer extends AUnit.Players {
         this.isHoldingPosition = unit.isHoldingPosition();
         this.isDefenseMatrixed = unit.isDefenseMatrixed();
         this.isUnderDisruptionWeb = unit.isUnderDisruptionWeb();
+
+        if (!isCreatingUnit) {
+            this.target = Optional.ofNullable(unit.getTarget());
+            this.orderTarget = Optional.ofNullable(unit.getOrderTarget());
+        } else {
+            this.target = Optional.empty();
+            this.orderTarget = Optional.empty();
+        }
+
+        this.order = Optional.ofNullable(unit.getOrder());
+        this.lastCommand = AUnitCommand.creteOrEmpty(unit.getLastCommand());
+        if (unit.getTargetPosition() != null) {
+            this.targetPosition = Optional.ofNullable(APosition.wrap(unit.getTargetPosition()));
+        } else {
+            this.targetPosition = Optional.empty();
+        }
+        this.secondaryOrder = Optional.ofNullable(unit.getSecondaryOrder());
+        if (unit.getOrderTargetPosition() != null) {
+            this.orderTargetPosition = Optional.ofNullable(APosition.wrap(unit.getOrderTargetPosition()));
+        } else {
+            this.orderTargetPosition = Optional.empty();
+        }
     }
 
     public List<AUnitTypeWrapper> getTrainingQueue() {

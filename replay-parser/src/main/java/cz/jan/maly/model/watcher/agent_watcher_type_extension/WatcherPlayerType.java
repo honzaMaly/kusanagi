@@ -13,16 +13,16 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Extension of AgentWatcherType to AgentWatcherPlayerType
+ * Extension of AgentWatcherType to WatcherPlayerType
  * Created by Jan on 18-Apr-17.
  */
 @Getter
-public class AgentWatcherPlayerType extends AgentWatcherType {
+public class WatcherPlayerType extends AgentWatcherType {
     private final PlayerEnvironmentObservation playerEnvironmentObservation;
 
     @Builder
-    private AgentWatcherPlayerType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys,
-                                   List<PlanWatcherInitializationStrategy> planWatchers, Reasoning reasoning, PlayerEnvironmentObservation playerEnvironmentObservation) {
+    private WatcherPlayerType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys,
+                              List<PlanWatcherInitializationStrategy> planWatchers, Reasoning reasoning, PlayerEnvironmentObservation playerEnvironmentObservation) {
         super(agentTypeID, factKeys, factSetsKeys, planWatchers, reasoning);
         this.playerEnvironmentObservation = playerEnvironmentObservation;
     }
@@ -30,7 +30,7 @@ public class AgentWatcherPlayerType extends AgentWatcherType {
     /**
      * Builder with default values
      */
-    public static class AgentWatcherPlayerTypeBuilder extends AgentWatcherTypeBuilder {
+    public static class WatcherPlayerTypeBuilder extends AgentWatcherTypeBuilder {
         private Set<FactKey<?>> factKeys = new HashSet<>();
         private Set<FactKey<?>> factSetsKeys = new HashSet<>();
     }

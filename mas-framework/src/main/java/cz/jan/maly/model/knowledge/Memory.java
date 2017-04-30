@@ -2,10 +2,7 @@ package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.FactContainerInterface;
 import cz.jan.maly.model.PlanningTreeInterface;
-import cz.jan.maly.model.metadata.AgentType;
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.DesireParameters;
-import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.*;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
@@ -80,7 +77,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         return strategyToGetMemoryOfAgent.getReadOnlyMemoryForAgent(agentId);
     }
 
-    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentTypeID agentType) {
         return strategyToGetSetOfMemoriesByAgentType.getReadOnlyMemoriesForAgentType(agentType);
     }
 
@@ -208,7 +205,7 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
          * @param agentType
          * @return
          */
-        Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType);
+        Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentTypeID agentType);
     }
 
     /**

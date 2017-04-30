@@ -3,9 +3,7 @@ package cz.jan.maly.model.game.wrappers;
 import bwapi.*;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -285,7 +283,7 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
                 UnitType.Zerg_Sunken_Colony}
         );
 
-        this.isMelee = isType(type, new UnitType[]{UnitType.Terran_SCV, UnitType.Terran_SCV, UnitType.Terran_Firebat, UnitType.Protoss_Probe,
+        this.isMelee = isType(type, new UnitType[]{UnitType.Terran_SCV, UnitType.Terran_Firebat, UnitType.Protoss_Probe,
                 UnitType.Protoss_Zealot, UnitType.Protoss_Dark_Templar, UnitType.Zerg_Drone, UnitType.Zerg_Zergling,
                 UnitType.Zerg_Broodling}
         );
@@ -421,4 +419,40 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         return repairableMechanically || healable;
     }
 
+    //types, only for zerg
+    public static final AUnitTypeWrapper ZERGLING_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Zergling);
+    public static final AUnitTypeWrapper DRONE_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Drone);
+    public static final AUnitTypeWrapper HATCHERY_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Hatchery);
+    public static final AUnitTypeWrapper LARVA_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Larva);
+    public static final AUnitTypeWrapper EGG_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Egg);
+    public static final AUnitTypeWrapper SPAWNING_POOL_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Spawning_Pool);
+    public static final AUnitTypeWrapper OVERLORD_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Overlord);
+    public static final AUnitTypeWrapper HYDRALISK_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Hydralisk);
+    public static final AUnitTypeWrapper MUTALISK_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Mutalisk);
+    public static final AUnitTypeWrapper CREEP_COLONY_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Creep_Colony);
+    public static final AUnitTypeWrapper SUNKEN_COLONY_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Sunken_Colony);
+    public static final AUnitTypeWrapper SPORE_COLONY_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Spore_Colony);
+    public static final AUnitTypeWrapper EXTRACTOR_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Extractor);
+    public static final AUnitTypeWrapper EVOLUTION_CHAMBER_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Evolution_Chamber);
+    public static final AUnitTypeWrapper HYDRALISK_DEN_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Hydralisk_Den);
+    public static final AUnitTypeWrapper LAIR_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Lair);
+    public static final AUnitTypeWrapper SPIRE_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Spire);
+    public static final AUnitTypeWrapper HIVE_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Hive);
+
+    //not used in bot
+    public static final AUnitTypeWrapper SCOURGE_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Scourge);
+    public static final AUnitTypeWrapper LURKER_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Lurker);
+    public static final AUnitTypeWrapper ULTRALISK_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Ultralisk);
+    public static final AUnitTypeWrapper DEFILER_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Defiler);
+    public static final AUnitTypeWrapper GUARDIAN_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Guardian);
+    public static final AUnitTypeWrapper DEVOURER_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Devourer);
+    public static final AUnitTypeWrapper QUEEN_TYPE = WrapperTypeFactory.createFrom(UnitType.Zerg_Queen);
+    public static final Set<AUnitTypeWrapper> OTHER_UNIT_TYPES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            SCOURGE_TYPE, LURKER_TYPE, ULTRALISK_TYPE, DEFILER_TYPE, GUARDIAN_TYPE, DEVOURER_TYPE, QUEEN_TYPE)));
+
+    static final Set<AUnitTypeWrapper> BUILDING_TYPES = new HashSet<>(Arrays.asList(HATCHERY_TYPE, SPAWNING_POOL_TYPE, CREEP_COLONY_TYPE,
+            SUNKEN_COLONY_TYPE, SPORE_COLONY_TYPE, EXTRACTOR_TYPE, EVOLUTION_CHAMBER_TYPE, HYDRALISK_DEN_TYPE, LAIR_TYPE, SPIRE_TYPE, HIVE_TYPE));
+
+    static final Set<AUnitTypeWrapper> UNITS_TYPES = new HashSet<>(Arrays.asList(ZERGLING_TYPE, DRONE_TYPE, LARVA_TYPE, EGG_TYPE, OVERLORD_TYPE,
+            HYDRALISK_TYPE, MUTALISK_TYPE));
 }

@@ -3,6 +3,10 @@ package cz.jan.maly.model.game.wrappers;
 import bwapi.*;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Wrapper for TechType
  * Created by Jan on 27-Mar-17.
@@ -64,4 +68,11 @@ public class ATechTypeWrapper extends AbstractWrapper<TechType> {
     public AUnitTypeWrapper getRequiredUnit() {
         return WrapperTypeFactory.createFrom(requiredUnit);
     }
+
+    //types, only for zerg
+    public static final ATechTypeWrapper RESEARCH_BURROW_TYPE = WrapperTypeFactory.createFrom(TechType.Burrowing);
+    public static final ATechTypeWrapper RESEARCH_LURKER_ASPECT_TYPE = WrapperTypeFactory.createFrom(TechType.Lurker_Aspect);
+
+    static final Set<ATechTypeWrapper> TECH_TYPES = new HashSet<>(Arrays.asList(RESEARCH_BURROW_TYPE, RESEARCH_LURKER_ASPECT_TYPE));
+
 }

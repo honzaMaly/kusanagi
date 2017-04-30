@@ -9,7 +9,7 @@ import cz.jan.maly.model.agent.types.AgentTypeRegion;
 import cz.jan.maly.model.bot.AgentTypes;
 import cz.jan.maly.model.bot.FactConverters;
 import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
-import cz.jan.maly.model.game.wrappers.AUnit;
+import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.FactKey;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import static cz.jan.maly.model.AgentsUnitTypes.HATCHERY;
 import static cz.jan.maly.model.DesiresKeys.AM_I_BASE;
 import static cz.jan.maly.model.DesiresKeys.MINE_MINERALS_IN_BASE;
-import static cz.jan.maly.model.bot.FactConverters.COUNT_OF_MINERALS;
+import static cz.jan.maly.model.bot.FactConverters.COUNT_OF_MINERALS_ON_BASE;
 import static cz.jan.maly.model.bot.FactConverters.HAS_HATCHERY_COUNT;
 import static cz.jan.maly.model.bot.FactKeys.*;
 
@@ -53,14 +53,14 @@ public class AgentLocationInitializer implements LocationInitializer {
                             @Override
                             public boolean act(WorkingMemory memory) {
                                 ABaseLocationWrapper base = memory.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
-                                Set<AUnit> hatcheries = memory.getReadOnlyMemoriesForAgentType(HATCHERY)
+                                Set<AUnitOfPlayer> hatcheries = memory.getReadOnlyMemoriesForAgentType(HATCHERY)
                                         .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT))
                                         .filter(Optional::isPresent)
                                         .map(Optional::get)
                                         .filter(aUnitOfPlayer -> aUnitOfPlayer.getNearestBaseLocation().isPresent())
                                         .filter(aUnitOfPlayer -> aUnitOfPlayer.getNearestBaseLocation().get().isOnSameCoordinates(base))
                                         .collect(Collectors.toSet());
-                                memory.updateFactSetByFacts(HAS_HATCHERY, hatcheries);
+                                memory.updateFactSetByFacts(HAS_BASE, hatcheries);
                                 if (!hatcheries.isEmpty()) {
                                     memory.updateFact(IS_BASE, true);
                                 }
@@ -72,7 +72,7 @@ public class AgentLocationInitializer implements LocationInitializer {
                                 .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefSets(HAS_HATCHERY) == 0)
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefSets(HAS_BASE) == 0)
                                 .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{HAS_HATCHERY_COUNT})))
                                 .build())
                         .build();
@@ -85,7 +85,7 @@ public class AgentLocationInitializer implements LocationInitializer {
                                 .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_BASE) == 1
                                         && dataForDecision.getFeatureValueDesireBeliefSets(MINERAL) > 0)
                                 .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -94,8 +94,8 @@ public class AgentLocationInitializer implements LocationInitializer {
                                         || dataForDecision.getFeatureValueBeliefSets(MINERAL) != dataForDecision.getFeatureValueDesireBeliefSets(MINERAL)
                                 )
                                 .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
-                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS})))
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
+                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
                                 .build()
                         )
                         .build();
@@ -103,7 +103,7 @@ public class AgentLocationInitializer implements LocationInitializer {
 
             })
             .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE})))
-            .usingTypesForFactSets(new HashSet<>(Arrays.asList(new FactKey<?>[]{HAS_HATCHERY})))
+            .usingTypesForFactSets(new HashSet<>(Arrays.asList(new FactKey<?>[]{HAS_BASE})))
             .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{AM_I_BASE})))
             .desiresForOthers(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS_IN_BASE})))
             .build();

@@ -34,7 +34,7 @@ public class DesiresKeys {
     public static final DesireKey MINE_MINERALS_IN_BASE = DesireKey.builder()
             .id(DesireKeys.MINE_MINERALS_IN_BASE)
             .parametersTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE_LOCATION})))
-            .parametersTypesForFactSets(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINERAL, HAS_HATCHERY})))
+            .parametersTypesForFactSets(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINERAL, HAS_BASE})))
             .build();
 
 }

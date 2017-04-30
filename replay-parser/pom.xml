@@ -21,11 +21,6 @@
         </dependency>
 
         <dependency>
-            <groupId>nz.ac.waikato.cms.weka</groupId>
-            <artifactId>weka-stable</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>edu.brown.cs.burlap</groupId>
             <artifactId>burlap</artifactId>
         </dependency>

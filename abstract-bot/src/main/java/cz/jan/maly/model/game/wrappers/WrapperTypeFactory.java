@@ -1,24 +1,22 @@
 package cz.jan.maly.model.game.wrappers;
 
 import bwapi.*;
-import lombok.Getter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+
+import static cz.jan.maly.model.game.wrappers.ATechTypeWrapper.TECH_TYPES;
+import static cz.jan.maly.model.game.wrappers.AUnitTypeWrapper.BUILDING_TYPES;
+import static cz.jan.maly.model.game.wrappers.AUnitTypeWrapper.UNITS_TYPES;
+import static cz.jan.maly.model.game.wrappers.AUpgradeTypeWrapper.UPGRADE_TYPES;
 
 /**
  * Class with static registers to wrap types
  * Created by Jan on 28-Mar-17.
  */
-@Getter
 public class WrapperTypeFactory {
     private static final WrapperTypeRegister<TechType, ATechTypeWrapper> A_TECH_TYPE_REGISTER = new WrapperTypeRegister<>(ATechTypeWrapper::new);
     private static final WrapperTypeRegister<UpgradeType, AUpgradeTypeWrapper> UPGRADE_TYPE_REGISTER = new WrapperTypeRegister<>(AUpgradeTypeWrapper::new);
     private static final WrapperTypeRegister<WeaponType, AWeaponTypeWrapper> WEAPON_TYPE_REGISTER = new WrapperTypeRegister<>(AWeaponTypeWrapper::new);
-    //reference on buildings by race
-    private static final Map<Race, Set<AUnitTypeWrapper>> buildingsByRace = new HashMap<>();
     private static final WrapperTypeRegister<UnitType, AUnitTypeWrapper> UNIT_TYPE_REGISTER = new WrapperTypeRegister<>(AUnitTypeWrapper::new);
 
     /**
@@ -43,13 +41,42 @@ public class WrapperTypeFactory {
 
     static void add(AUnitTypeWrapper type) {
         UNIT_TYPE_REGISTER.addWrappedType(type.type, type);
-        if (type.type.isBuilding()) {
-            buildingsByRace.computeIfAbsent(type.type.getRace(), race -> new HashSet<>()).add(type);
-        }
     }
 
-    static Set<AUnitTypeWrapper> buildingsForRace(Race race) {
-        return buildingsByRace.getOrDefault(race, new HashSet<>());
+    /**
+     * Returns types for race
+     *
+     * @return
+     */
+    public static Set<AUnitTypeWrapper> buildings() {
+        return BUILDING_TYPES;
+    }
+
+    /**
+     * Returns types for race
+     *
+     * @return
+     */
+    public static Set<AUnitTypeWrapper> units() {
+        return UNITS_TYPES;
+    }
+
+    /**
+     * Returns types for race
+     *
+     * @return
+     */
+    public static Set<ATechTypeWrapper> techs() {
+        return TECH_TYPES;
+    }
+
+    /**
+     * Returns types for race
+     *
+     * @return
+     */
+    public static Set<AUpgradeTypeWrapper> upgrades() {
+        return UPGRADE_TYPES;
     }
 
     /**

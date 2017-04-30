@@ -49,9 +49,11 @@ public abstract class PlanWatcher {
     /**
      * Decide if agent is committed based on handcrafted rules
      *
+     * @param mediatorService
+     * @param beliefs
      * @return
      */
-    protected abstract boolean isAgentCommitted();
+    protected abstract boolean isAgentCommitted(WatcherMediatorService mediatorService, Beliefs beliefs);
 
     /**
      * Get stream of agents to notify when agent has changed commitment to this plan
@@ -68,8 +70,9 @@ public abstract class PlanWatcher {
      * @return
      */
     public void addNewStateIfAgentHasTransitedToOne(Beliefs beliefs, WatcherMediatorService mediatorService, Set<Integer> committedToIDs) {
+        double[] currentFeatureState = container.getFeatureVector().clone();
         boolean hasStatusChanged = false;
-        if (isCommitted != isAgentCommitted()) {
+        if (isCommitted != isAgentCommitted(mediatorService, beliefs)) {
             isCommitted = !isCommitted;
 
             //notify other agents that this one is commited to their desire
@@ -78,7 +81,7 @@ public abstract class PlanWatcher {
             hasStatusChanged = true;
         }
         if (container.isStatusUpdated(beliefs, mediatorService, committedToIDs) || hasStatusChanged) {
-            trajectory.addNewState(new State(container.getFeatureVector(), isCommitted));
+            trajectory.addNewState(new State(currentFeatureState, isCommitted));
         }
     }
 
