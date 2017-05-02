@@ -91,7 +91,7 @@ public class Configuration {
                         }
                 )
                 .filter(Objects::nonNull)
-                .filter(desireKeyID -> filesInParsingDirectory.contains(desireKeyID.getName()))
+                .filter(desireKeyID -> filesInParsingDirectory.stream().anyMatch(s -> s.contains(desireKeyID.getName())))
                 .collect(Collectors.toSet());
     }
 

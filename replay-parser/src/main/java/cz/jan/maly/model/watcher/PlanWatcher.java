@@ -25,7 +25,8 @@ public abstract class PlanWatcher {
     @Getter
     private final DesireKeyID desireKey;
 
-    protected PlanWatcher(FeatureContainerInitializationStrategy featureContainerInitializationStrategy, DesireKeyID desireKey) {
+    protected PlanWatcher(FeatureContainerInitializationStrategy featureContainerInitializationStrategy,
+                          DesireKeyID desireKey) {
         this.container = featureContainerInitializationStrategy.returnFeatureContainer();
         this.desireKey = desireKey;
         this.trajectory = new Trajectory(this.container.getNumberOfFeatures());

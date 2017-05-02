@@ -34,7 +34,7 @@ public class DesireKeys {
     public static final DesireKeyID HOLD_GROUND = new DesireKeyID("HOLD_GROUND", 31);
     public static final DesireKeyID HOLD_AIR = new DesireKeyID("HOLD_AIR", 32);
     //defend (base is present)
-    public static final DesireKeyID BUILD_CREEP_COLONY = new DesireKeyID("BUILD_SUNKEN_COLONY", 33);
+    public static final DesireKeyID BUILD_CREEP_COLONY = new DesireKeyID("BUILD_CREEP_COLONY", 33);
     public static final DesireKeyID BUILD_SUNKEN_COLONY = new DesireKeyID("BUILD_SUNKEN_COLONY", 34);
     public static final DesireKeyID BUILD_SPORE_COLONY = new DesireKeyID("BUILD_SPORE_COLONY", 35);
 

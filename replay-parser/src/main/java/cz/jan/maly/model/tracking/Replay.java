@@ -2,6 +2,7 @@ package cz.jan.maly.model.tracking;
 
 import com.google.common.io.Files;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
@@ -24,22 +25,28 @@ public class Replay implements Serializable {
     @Getter
     private final Optional<File> replayFile;
 
+    @Getter
+    @Setter
+    private boolean parsedMoreTimes = false;
+
     public static class ReplaySerializer implements Serializer<Replay>, Serializable {
 
         @Override
         public void serialize(@NotNull DataOutput2 out, @NotNull Replay replay) throws IOException {
             out.writeUTF(replay.file);
+            out.writeBoolean(replay.parsedMoreTimes);
         }
 
         @Override
         public Replay deserialize(@NotNull DataInput2 in, int i) throws IOException {
-            return new Replay(in.readUTF());
+            return new Replay(in.readUTF(), in.readBoolean());
         }
     }
 
-    Replay(String file) {
+    Replay(String file, boolean parsedMoreTimes) {
         this.file = file;
         this.replayFile = getFile();
+        this.parsedMoreTimes = parsedMoreTimes;
     }
 
     public Replay(File replayFile) {

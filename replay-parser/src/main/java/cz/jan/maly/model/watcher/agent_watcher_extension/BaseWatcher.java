@@ -128,7 +128,7 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                     Set<AgentWatcher<?>> workersAroundBase = ms.getStreamOfWatchers()
                             .filter(agentWatcher -> agentWatcher.getAgentWatcherType().getName().equals(DRONE.getName()))
                             .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).isPresent() &&
-                                    agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).get().equals(baseLocation))
+                                    agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).get().equals(baseLocationWrapper))
                             .collect(Collectors.toSet());
                     bl.updateFactSetByFacts(WORKER_ON_BASE, workersAroundBase.stream()
                             .map(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get())

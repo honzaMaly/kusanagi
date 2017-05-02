@@ -21,8 +21,8 @@ public class AgentWatcherType extends AgentTypeID {
     private final List<PlanWatcherInitializationStrategy> planWatchers;
     private final Optional<Reasoning> reasoning;
 
-    protected AgentWatcherType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys, List<PlanWatcherInitializationStrategy> planWatchers,
-                               Reasoning reasoning) {
+    protected AgentWatcherType(AgentTypeID agentTypeID, Set<FactKey<?>> factKeys, Set<FactKey<?>> factSetsKeys,
+                               List<PlanWatcherInitializationStrategy> planWatchers, Reasoning reasoning) {
         super(agentTypeID.getName(), agentTypeID.getID());
         this.factKeys = factKeys;
         this.factSetsKeys = factSetsKeys;
@@ -42,6 +42,12 @@ public class AgentWatcherType extends AgentTypeID {
      * Create instance of PlanWatcher
      */
     public interface PlanWatcherInitializationStrategy {
+
+        /**
+         * Create plan
+         *
+         * @return
+         */
         PlanWatcher returnPlanWatcher();
     }
 

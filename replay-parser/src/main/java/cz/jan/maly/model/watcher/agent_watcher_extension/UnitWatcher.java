@@ -8,6 +8,7 @@ import cz.jan.maly.model.watcher.AgentWatcher;
 import cz.jan.maly.model.watcher.agent_watcher_type_extension.UnitWatcherType;
 
 /**
+ * UnitWatcher
  * Created by Jan on 28-Apr-17.
  */
 public class UnitWatcher extends AgentWatcher<UnitWatcherType> implements AgentMakingObservations {

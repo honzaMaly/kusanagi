@@ -1,7 +1,5 @@
 package cz.jan.maly.model.game.wrappers;
 
-import cz.jan.maly.utils.MyLogger;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,10 +33,6 @@ class WrapperTypeRegister<T, V extends AbstractWrapper<T>> {
      * @return
      */
     V createFrom(T type) {
-        if (type == null) {
-            MyLogger.getLogger().warning("Type is null.");
-            throw new RuntimeException("Type is null.");
-        }
         if (!types.containsKey(type)) {
             return strategyToWrapType.createNewWrapper(type);
         }

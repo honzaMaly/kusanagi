@@ -17,9 +17,10 @@ public interface PolicyLearningService {
      *
      * @param domain
      * @param episodes
+     * @param numberOfSamplesToUse
      * @param numberOfStates
      * @return
      */
-    Policy learnPolicy(SADomain domain, List<Episode> episodes, int numberOfStates);
+    Policy learnPolicy(SADomain domain, List<Episode> episodes, int numberOfStates, int numberOfSamplesToUse);
 
 }

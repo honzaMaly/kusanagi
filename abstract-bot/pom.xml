@@ -31,6 +31,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.edwardraff</groupId>
             <artifactId>JSAT</artifactId>
         </dependency>

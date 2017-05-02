@@ -50,14 +50,16 @@ public interface StorageService {
 
     /**
      * Get stored trajectories for given parameters
+     *
      * @param agentTypeID
      * @param desireKeyID
      * @return
      */
-    List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception;
+    List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID);
 
     /**
      * Store learnt DecisionPointDataStructure
+     *
      * @param structure
      * @param agentTypeID
      * @param desireKeyID

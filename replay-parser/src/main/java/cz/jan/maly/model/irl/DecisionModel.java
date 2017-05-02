@@ -6,10 +6,7 @@ import burlap.mdp.core.state.State;
 import burlap.mdp.singleagent.model.statemodel.FullStateModel;
 import cz.jan.maly.model.decision.NextActionEnumerations;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +15,30 @@ import java.util.stream.Collectors;
  */
 public class DecisionModel implements FullStateModel {
     private final Map<DecisionState, Map<NextActionEnumerations, Map<DecisionState, Double>>> transitionsProbabilitiesBasedOnActions = new HashMap<>();
+
+    /**
+     * Very nasty hack as we do not know what will happen when we decide to take action which nobody took - agent is send
+     * to special state with transitions to itself. As no player is tacking this action it should be fine to use it
+     */
+    public void addExtraTransitionToStateWhenNoActionExists() {
+        DecisionState state = new DecisionState(transitionsProbabilitiesBasedOnActions.size());
+        Map<NextActionEnumerations, Map<DecisionState, Double>> transitionMap = new HashMap<>();
+
+        //dummy map
+        Map<DecisionState, Double> dummyMap = new HashMap<>();
+        dummyMap.put(state, 1.0);
+
+        for (NextActionEnumerations action : NextActionEnumerations.values()) {
+            transitionMap.put(action, dummyMap);
+        }
+        transitionsProbabilitiesBasedOnActions.put(state, transitionMap);
+
+        //now add missing transitions
+        transitionsProbabilitiesBasedOnActions.values().forEach(nextActionEnumerationsMapMap -> Arrays.stream(NextActionEnumerations.values())
+                .filter(actionEnumerations -> !nextActionEnumerationsMapMap.keySet().contains(actionEnumerations))
+                .forEach(actionEnumerations -> nextActionEnumerationsMapMap.put(actionEnumerations, dummyMap)));
+    }
+
 
     /**
      * Add transition based on action and its probability
@@ -40,10 +61,6 @@ public class DecisionModel implements FullStateModel {
      * @return
      */
     public List<StateTransitionProb> stateTransitions(DecisionState from, NextActionEnumerations a) {
-        if (!transitionsProbabilitiesBasedOnActions.containsKey(from) || !transitionsProbabilitiesBasedOnActions.get(from).containsKey(a)) {
-            //no possible transition. return this state
-            return Collections.singletonList(new StateTransitionProb(from.copy(), 1.0));
-        }
         return transitionsProbabilitiesBasedOnActions.get(from).get(a).entrySet().stream()
                 .map(entry -> new StateTransitionProb(entry.getKey().copy(), entry.getValue()))
                 .collect(Collectors.toList());

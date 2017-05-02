@@ -60,7 +60,7 @@ public class AgentWatcher<T extends AgentWatcherType> {
      * @param status
      * @param desireKeyID
      */
-    public void commitmentByOtherAgentToDesireOfThisAgentHasBeenChanged(boolean status, DesireKeyID desireKeyID) {
+    void commitmentByOtherAgentToDesireOfThisAgentHasBeenChanged(boolean status, DesireKeyID desireKeyID) {
         Optional<PlanWatcher> planWatcherToNotify = plansToWatch.stream()
                 .filter(planWatcher -> planWatcher.getDesireKey().equals(desireKeyID))
                 .findAny();
@@ -77,8 +77,6 @@ public class AgentWatcher<T extends AgentWatcherType> {
 
     /**
      * Do reasoning
-     *
-     * @param mediatorService
      */
     public void reason(WatcherMediatorService mediatorService) {
         if (agentWatcherType.getReasoning().isPresent()) {
@@ -89,7 +87,6 @@ public class AgentWatcher<T extends AgentWatcherType> {
     /**
      * Handle trajectories of plans
      *
-     * @param mediatorService
      * @return
      */
     public void handleTrajectoriesOfPlans(WatcherMediatorService mediatorService) {
@@ -97,7 +94,8 @@ public class AgentWatcher<T extends AgentWatcherType> {
                 .filter(PlanWatcher::isCommitted)
                 .map(planWatcher -> planWatcher.getDesireKey().getID())
                 .collect(Collectors.toSet());
-        plansToWatch.forEach(planWatcher -> planWatcher.addNewStateIfAgentHasTransitedToOne(beliefs, mediatorService, committedIDs));
+        //start execution of jobs
+        plansToWatch.parallelStream().forEach(planWatcher -> planWatcher.addNewStateIfAgentHasTransitedToOne(beliefs, mediatorService, committedIDs));
     }
 
     @Override

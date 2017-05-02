@@ -26,7 +26,7 @@ public class FileReplayLoaderServiceImpl implements FileReplayLoaderService {
     private static final StorageService STORAGE_SERVICE = StorageServiceImp.getInstance();
     private Iterator<File> replayIterator = (new HashSet<File>()).iterator();
 
-    private static final Pattern lineWithMatchPattern = Pattern.compile("map\\s=\\s[\\w\\\\\\*\\.\\?-]+");
+    private static final Pattern lineWithMatchPattern = Pattern.compile("map\\s=\\s[\\w\\\\\\*\\.\\?\\-\\s\\[\\]\\)\\(&,]+\\.rep");
 
     //paths
     private static final String replaysPath = "c:\\Program Files (x86)\\StarCraft\\Maps\\replays";

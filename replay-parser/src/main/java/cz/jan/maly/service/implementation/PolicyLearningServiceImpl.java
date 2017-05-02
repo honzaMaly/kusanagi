@@ -15,6 +15,7 @@ import burlap.mdp.singleagent.SADomain;
 import burlap.statehashing.HashableStateFactory;
 import burlap.statehashing.simple.SimpleHashableStateFactory;
 import cz.jan.maly.model.irl.DecisionState;
+import cz.jan.maly.model.irl.MLIRLWithGuard;
 import cz.jan.maly.service.PolicyLearningService;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class PolicyLearningServiceImpl implements PolicyLearningService {
     private static final int steps = 10;
 
     @Override
-    public Policy learnPolicy(SADomain domain, List<Episode> episodes, int numberOfStates) {
+    public Policy learnPolicy(SADomain domain, List<Episode> episodes, int numberOfStates, int numberOfSamplesToUse) {
 
         //create reward function features to use
         LocationFeatures features = new LocationFeatures(numberOfStates);
@@ -38,15 +39,17 @@ public class PolicyLearningServiceImpl implements PolicyLearningService {
         //create a reward function that is linear with respect to those features and has small random
         //parameter values to start
         LinearStateDifferentiableRF rf = new LinearStateDifferentiableRF(features, numberOfStates);
-        for (int i = 0; i < rf.numParameters(); i++) {
+        for (int i = 0; i < rf.numParameters() - 1; i++) {
             rf.setParameter(i, RandomFactory.getMapped(0).nextDouble() * 0.2 - 0.1);
         }
+        //set last "dummy state" to large negative number as we do not want to go there
+        rf.setParameter(rf.numParameters() - 1, MLIRLWithGuard.minReward);
 
         //use either DifferentiableVI or DifferentiableSparseSampling for planning. The latter enables receding horizon IRL,
         //but you will probably want to use a fairly large horizon for this kind of reward function.
-        //DifferentiableVI dplanner = new DifferentiableVI(this.domain, rf, 0.99, beta, new SimpleHashableStateFactory(), 0.01, 100);
         HashableStateFactory hashingFactory = new SimpleHashableStateFactory();
-        DifferentiableSparseSampling dplanner = new DifferentiableSparseSampling(domain, rf, 0.99, hashingFactory, 10, -1, beta);
+//        DifferentiableVI dplanner = new DifferentiableVI(domain, rf, 0.99, beta, hashingFactory, 0.01, 100);
+        DifferentiableSparseSampling dplanner = new DifferentiableSparseSampling(domain, rf, 0.99, hashingFactory, (int) Math.sqrt(numberOfStates), numberOfSamplesToUse, beta);
 
         dplanner.toggleDebugPrinting(doNotPrintDebug);
 
@@ -55,7 +58,7 @@ public class PolicyLearningServiceImpl implements PolicyLearningService {
         request.setBoltzmannBeta(beta);
 
         //run MLIRL on it
-        MLIRL irl = new MLIRL(request, 0.1, 0.1, steps);
+        MLIRL irl = new MLIRLWithGuard(request, 0.1, 0.1, steps);
         irl.performIRL();
 
         return new GreedyQPolicy((QProvider) request.getPlanner());

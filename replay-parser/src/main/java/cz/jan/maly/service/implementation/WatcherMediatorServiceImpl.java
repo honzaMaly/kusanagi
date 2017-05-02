@@ -78,9 +78,8 @@ public class WatcherMediatorServiceImpl implements WatcherMediatorService {
     public void tellAgentsToObserveSystemAndHandlePlans() {
 
         //handle trajectories first to keep causality for actions
-        watchers.forEach(agentWatcher -> agentWatcher.handleTrajectoriesOfPlans(this));
-
-        watchers.forEach(agentWatcher -> agentWatcher.reason(this));
+        watchers.parallelStream().forEach(agentWatcher -> agentWatcher.handleTrajectoriesOfPlans(this));
+        watchers.parallelStream().forEach(agentWatcher -> agentWatcher.reason(this));
     }
 
     @Override

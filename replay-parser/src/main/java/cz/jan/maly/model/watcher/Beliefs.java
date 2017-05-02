@@ -7,10 +7,10 @@ import cz.jan.maly.model.metadata.containers.FactWithOptionalValue;
 import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSet;
 import cz.jan.maly.utils.MyLogger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -20,8 +20,8 @@ import java.util.stream.Stream;
 public class Beliefs {
 
     //own beliefs
-    private final Map<FactKey<?>, Fact<?>> facts = new HashMap<>();
-    private final Map<FactKey<?>, FactSet<?>> factSets = new HashMap<>();
+    private final Map<FactKey<?>, Fact<?>> facts = new ConcurrentHashMap<>();
+    private final Map<FactKey<?>, FactSet<?>> factSets = new ConcurrentHashMap<>();
 
     Beliefs(AgentWatcherType type) {
         type.getFactKeys().forEach(factKey -> facts.put(factKey, factKey.returnEmptyFact()));

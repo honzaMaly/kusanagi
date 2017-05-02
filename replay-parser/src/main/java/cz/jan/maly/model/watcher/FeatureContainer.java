@@ -20,6 +20,7 @@ public class FeatureContainer {
     private final FeatureContainerHeader containerHeader;
     private double[] featureVector;
     private boolean hasChanged;
+    private final Object syncLock = new Object();
 
     @Getter
     private final int numberOfFeatures;
@@ -41,13 +42,17 @@ public class FeatureContainer {
     }
 
     public void addCommitment() {
-        committedAgents++;
+        synchronized (syncLock) {
+            committedAgents++;
+        }
     }
 
     public void removeCommitment() {
-        committedAgents--;
-        if (committedAgents < 0) {
-            MyLogger.getLogger().warning("Commitment count is negative.");
+        synchronized (syncLock) {
+            committedAgents--;
+            if (committedAgents < 0) {
+                MyLogger.getLogger().warning("Commitment count is negative.");
+            }
         }
     }
 
@@ -85,11 +90,13 @@ public class FeatureContainer {
 
         //check committed agents
         if (trackCommitmentOfOtherAgents) {
-            if (featureVector[featureVector.length - 1] != committedAgents) {
-                if (!hasChanged) {
-                    hasChanged = true;
+            synchronized (syncLock) {
+                if (featureVector[featureVector.length - 1] != committedAgents) {
+                    if (!hasChanged) {
+                        hasChanged = true;
+                    }
+                    featureVector[featureVector.length - 1] = committedAgents;
                 }
-                featureVector[featureVector.length - 1] = committedAgents;
             }
         }
 

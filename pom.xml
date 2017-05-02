@@ -32,6 +32,7 @@
         <commons-io.version>2.5</commons-io.version>
         <commons-lang3.version>3.5</commons-lang3.version>
         <jsat.version>0.0.7</jsat.version>
+        <guava.version>21.0</guava.version>
     </properties>
 
     <build>
@@ -131,6 +132,12 @@
                 <groupId>com.edwardraff</groupId>
                 <artifactId>JSAT</artifactId>
                 <version>${jsat.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
             </dependency>
 
             <dependency>

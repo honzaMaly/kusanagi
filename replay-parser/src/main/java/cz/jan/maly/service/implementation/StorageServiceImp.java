@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static cz.jan.maly.utils.Configuration.getParsedAgentTypesContainedInStorage;
 import static cz.jan.maly.utils.Configuration.getParsedDesireTypesForAgentTypeContainedInStorage;
@@ -38,6 +39,9 @@ public class StorageServiceImp implements StorageService {
 
     private StorageServiceImp() {
         //singleton
+        createDirectoryIfItDoesNotExist(storageFolder);
+        createDirectoryIfItDoesNotExist(parsingFolder);
+        createDirectoryIfItDoesNotExist(outputFolder);
     }
 
     /**
@@ -64,6 +68,7 @@ public class StorageServiceImp implements StorageService {
     public Set<File> filterNotPlayedReplays(Set<File> files) {
         DB db = initDatabase(dbFileReplays);
         Set<File> replays = getReplays(db).stream()
+                .filter(Replay::isParsedMoreTimes)
                 .map(Replay::getReplayFile)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -80,6 +85,8 @@ public class StorageServiceImp implements StorageService {
         Set<Replay> replays = getReplays(db);
         if (replays.contains(replay)) {
             MyLogger.getLogger().info("Replay is already contained.");
+            replay.setParsedMoreTimes(true);
+            replays.remove(replay);
         }
         replays.add(replay);
         db.commit();
@@ -89,14 +96,9 @@ public class StorageServiceImp implements StorageService {
     @Override
     public void saveTrajectory(AgentTypeID agentTypeID, DesireKeyID desireKeyID, List<Trajectory> trajectories) {
         createDirectoryIfItDoesNotExist(agentTypeID.getName(), parsingFolder);
-        String path = parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db";
-        ArrayList<Trajectory> savedTrajectories;
-        try {
-            savedTrajectories = SerializationUtil.deserialize(path);
-        } catch (Exception e) {
-            savedTrajectories = new ArrayList<>();
-            MyLogger.getLogger().info("Could not obtain serialized list, creating new one. Due to " + e.getLocalizedMessage());
-        }
+        int freeIndex = getNextAvailableOrderNumberForAgentTypeOfGivenDesire(agentTypeID, desireKeyID);
+        String path = parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + "_" + freeIndex + ".db";
+        ArrayList<Trajectory> savedTrajectories = new ArrayList<>();
         savedTrajectories.addAll(trajectories);
         try {
             SerializationUtil.serialize(savedTrajectories, path);
@@ -112,9 +114,51 @@ public class StorageServiceImp implements StorageService {
     }
 
     @Override
-    public List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception {
-        return SerializationUtil.deserialize(parsingFolder + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db");
+    public List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) {
+        return getFilesForAgentTypeOfGivenDesire(agentTypeID, desireKeyID).stream()
+                .map(File::getPath)
+                .flatMap(s -> {
+                    try {
+                        return ((List<Trajectory>) SerializationUtil.deserialize(s)).stream();
+                    } catch (Exception e) {
+                        MyLogger.getLogger().warning(e.getLocalizedMessage());
+                    }
+                    return Stream.empty();
+                })
+                .collect(Collectors.toList());
     }
+
+    /**
+     * Get next available index to store file
+     *
+     * @param agentTypeID
+     * @param desireKeyID
+     * @return
+     */
+    private int getNextAvailableOrderNumberForAgentTypeOfGivenDesire(AgentTypeID agentTypeID, DesireKeyID desireKeyID) {
+        return getFilesForAgentTypeOfGivenDesire(agentTypeID, desireKeyID).stream()
+                .map(File::getName)
+                .map(s -> s.replace(".db", ""))
+                .map(s -> s.split("_"))
+                //get last word as it is number (should be)
+                .map(strings -> strings[strings.length - 1])
+                .mapToInt(Integer::parseInt)
+                .max().orElse(0) + 1;
+    }
+
+    /**
+     * Get files for AgentType Of given desire
+     *
+     * @param agentTypeID
+     * @param desireKeyID
+     * @return
+     */
+    private Set<File> getFilesForAgentTypeOfGivenDesire(AgentTypeID agentTypeID, DesireKeyID desireKeyID) {
+        return SerializationUtil.getAllFilesInFolder(parsingFolder + "/" + agentTypeID.getName(), "db").stream()
+                .filter(file -> file.getName().contains(desireKeyID.getName()))
+                .collect(Collectors.toSet());
+    }
+
 
     @Override
     public void storeLearntDecision(DecisionPointDataStructure structure, AgentTypeID agentTypeID, DesireKeyID desireKeyID) throws Exception {
@@ -133,6 +177,22 @@ public class StorageServiceImp implements StorageService {
         if (!file.exists()) {
             if (file.mkdir()) {
                 MyLogger.getLogger().info("Creating storage directory for " + name);
+            } else {
+                MyLogger.getLogger().warning("Could not create storage directory for " + name);
+            }
+        }
+    }
+
+    /**
+     * Create story directory for agent
+     *
+     * @param name
+     */
+    private void createDirectoryIfItDoesNotExist(String name) {
+        File file = new File(name);
+        if (!file.exists()) {
+            if (file.mkdir()) {
+                MyLogger.getLogger().info("Creating storage directory for " + name + ". Path is " + file.getPath());
             } else {
                 MyLogger.getLogger().warning("Could not create storage directory for " + name);
             }
