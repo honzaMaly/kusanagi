@@ -5,6 +5,7 @@ import cz.jan.maly.utils.Configuration;
 import cz.jan.maly.utils.MyLogger;
 import jsat.linear.DenseVector;
 import jsat.linear.Vec;
+import lombok.Getter;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * DecisionPoint decide next action based on current state. It is initialized from DecisionPointDataStructure
  * Created by Jan on 23-Apr-17.
  */
+@Getter
 public class DecisionPoint {
     private final List<StateWithTransition> states;
     private final List<FeatureNormalizer> normalizers;
@@ -47,7 +49,8 @@ public class DecisionPoint {
     /**
      * StateWithTransition to compute distance between instances and return next action (commitment) based on policy
      */
-    private static class StateWithTransition {
+    @Getter
+    public static class StateWithTransition {
         private final Vec center;
         final NextActionEnumerations nextAction;
 

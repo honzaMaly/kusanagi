@@ -1,5 +1,7 @@
 package cz.jan.maly.model.features;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.DoubleStream;
@@ -8,6 +10,7 @@ import java.util.stream.DoubleStream;
  * Transform value to z-score based on computed parameters
  * Created by Jan on 23-Apr-17.
  */
+@Getter
 public class FeatureNormalizer implements Serializable {
     private final double mean;
     private final double std;
