@@ -14,9 +14,6 @@ public class Parser {
         //to speed things up when executing parallel stream
         System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "100");
 
-//        DecisionLearnerServiceImpl learnerService = new DecisionLearnerServiceImpl();
-//        learnerService.learnDecisionMakers();
-
         replayParserService.parseReplays();
     }
 

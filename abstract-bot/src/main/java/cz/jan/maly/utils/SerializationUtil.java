@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * A simple class with generic serialize and deserialize method implementations
@@ -46,9 +48,12 @@ public class SerializationUtil {
      * @throws ClassNotFoundException
      */
     public static <T> T deserialize(String fileName) throws Exception {
-        FileInputStream fis = new FileInputStream(fileName);
-        byte[] bytes = IOUtils.toByteArray(fis);
-        fis.close();
+        GZIPInputStream giz = new GZIPInputStream(new FileInputStream(fileName));
+        byte[] bytes = IOUtils.toByteArray(giz);
+        giz.close();
+//        FileInputStream fis = new FileInputStream(fileName);
+//        byte[] bytes = IOUtils.toByteArray(fis);
+//        fis.close();
         return (T) SerializationUtils.deserialize(bytes);
     }
 
@@ -61,7 +66,8 @@ public class SerializationUtil {
      * @throws IOException
      */
     public static <T extends Serializable> void serialize(T object, String fileName) throws Exception {
-        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName));
+        GZIPOutputStream gz = new GZIPOutputStream(new FileOutputStream(fileName));
+        ObjectOutputStream oos = new ObjectOutputStream(gz);
         oos.writeObject(object);
         oos.flush();
         oos.close();

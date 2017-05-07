@@ -31,7 +31,7 @@ public class AgentWatcher<T extends AgentWatcherType> {
     private final int ID;
 
     @Getter
-    private final List<PlanWatcher> plansToWatch;
+    protected final List<PlanWatcher> plansToWatch;
 
     public AgentWatcher(T agentWatcherType) {
         this.agentWatcherType = agentWatcherType;

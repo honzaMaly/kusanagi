@@ -10,10 +10,7 @@ import jsat.linear.distancemetrics.EuclideanDistance;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,6 +19,7 @@ import java.util.stream.Collectors;
  */
 public class Configuration {
     public static final DistanceMetric DISTANCE_FUNCTION = new EuclideanDistance();
+    public static final Random RANDOM = new Random();
 
     /**
      * Standardize each part of feature vector according to normalizers
@@ -33,7 +31,14 @@ public class Configuration {
     public static double[] normalizeFeatureVector(double[] featureVector, List<FeatureNormalizer> normalizers) {
         double[] normalizeFeatureVector = new double[featureVector.length];
         for (int i = 0; i < featureVector.length; i++) {
-            normalizeFeatureVector[i] = normalizers.get(i).zScoreNormalization(featureVector[i]);
+            double normalizedValue = normalizers.get(i).zScoreNormalization(featureVector[i]);
+
+            //nasty hack. due to division by zero when all values of this feature are same...
+            if (Double.isNaN(normalizedValue)) {
+                normalizedValue = RANDOM.nextDouble();
+            }
+
+            normalizeFeatureVector[i] = normalizedValue;
         }
         return normalizeFeatureVector;
     }

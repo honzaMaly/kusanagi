@@ -4,15 +4,16 @@ import bwapi.Game;
 import cz.jan.maly.model.AgentMakingObservations;
 import cz.jan.maly.model.UnitTypeStatus;
 import cz.jan.maly.model.bot.AgentTypes;
+import cz.jan.maly.model.bot.DesireKeys;
 import cz.jan.maly.model.game.wrappers.*;
+import cz.jan.maly.model.metadata.DesireKeyID;
+import cz.jan.maly.model.tracking.Trajectory;
 import cz.jan.maly.model.watcher.*;
 import cz.jan.maly.model.watcher.agent_watcher_type_extension.BaseWatcherType;
 import cz.jan.maly.service.WatcherMediatorService;
+import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,8 +29,9 @@ import static cz.jan.maly.model.bot.FeatureContainerHeaders.HOLDING;
  */
 public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentMakingObservations {
     private final ABaseLocationWrapper baseLocation;
+    private final UpdateChecksStrategy updateChecksStrategy;
 
-    public BaseWatcher(ABaseLocationWrapper baseLocation, Game game) {
+    public BaseWatcher(ABaseLocationWrapper baseLocation, Game game, UpdateChecksStrategy updateChecksStrategy) {
         super(BaseWatcherType.builder()
                 .factKeys(new HashSet<>(Arrays.asList(IS_BASE, IS_ENEMY_BASE, IS_MINERAL_ONLY, IS_ISLAND, IS_START_LOCATION,
                         IS_BASE_LOCATION)))
@@ -151,6 +153,11 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                             .collect(Collectors.toSet()));
                     bl.updateFact(IS_BASE, bl.returnFactSetValueForGivenKey(HAS_BASE).map(Stream::count).orElse(0L) > 0);
                     bl.updateFact(IS_ENEMY_BASE, bl.returnFactValueForGivenKey(IS_BASE).orElse(false) && bl.returnFactSetValueForGivenKey(ENEMY_BUILDING).map(Stream::count).orElse(0L) > 0);
+
+                    //update checks
+                    updateChecksStrategy.updateChecks(bl.returnFactValueForGivenKey(IS_BASE).get(),
+                            bl.returnFactValueForGivenKey(IS_ENEMY_BASE).get());
+
                 })
                 .baseEnvironmentObservation((aBaseLocation, beliefs) -> makeObservation(aBaseLocation, beliefs, game))
                 .agentTypeID(AgentTypes.BASE_LOCATION)
@@ -161,7 +168,10 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
 
                                     @Override
                                     protected boolean isAgentCommitted(WatcherMediatorService mediatorService, Beliefs beliefs) {
-                                        return mediatorService.getStreamOfWatchers()
+
+                                        //holding only in own/enemy base
+                                        return (beliefs.returnFactValueForGivenKey(IS_BASE).get() || beliefs.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                                && mediatorService.getStreamOfWatchers()
                                                 .filter(agentWatcher -> agentWatcher.getBeliefs().isFactKeyForValueInMemory(HOLD_LOCATION))
                                                 .map(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT))
                                                 .filter(Optional::isPresent)
@@ -182,7 +192,10 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
 
                                     @Override
                                     protected boolean isAgentCommitted(WatcherMediatorService mediatorService, Beliefs beliefs) {
-                                        return mediatorService.getStreamOfWatchers()
+
+                                        //holding only in own/enemy base
+                                        return (beliefs.returnFactValueForGivenKey(IS_BASE).get() || beliefs.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                                && mediatorService.getStreamOfWatchers()
                                                 .filter(agentWatcher -> agentWatcher.getBeliefs().isFactKeyForValueInMemory(HOLD_LOCATION))
                                                 .map(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT))
                                                 .filter(Optional::isPresent)
@@ -206,7 +219,9 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                                     @Override
                                     protected boolean isAgentCommitted(WatcherMediatorService mediatorService, Beliefs beliefs) {
                                         ABaseLocationWrapper me = beliefs.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
-                                        return mediatorService.getStreamOfWatchers()
+
+                                        //building colony only in base
+                                        return beliefs.returnFactValueForGivenKey(IS_BASE).get() && mediatorService.getStreamOfWatchers()
                                                 .filter(agentWatcher -> agentWatcher.getAgentWatcherType().getName().equals(CREEP_COLONY.getName()))
                                                 .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).isPresent()
                                                         && agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).get().equals(me))
@@ -227,7 +242,9 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                                     @Override
                                     protected boolean isAgentCommitted(WatcherMediatorService mediatorService, Beliefs beliefs) {
                                         ABaseLocationWrapper me = beliefs.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
-                                        return mediatorService.getStreamOfWatchers()
+
+                                        //building colony only in base
+                                        return beliefs.returnFactValueForGivenKey(IS_BASE).get() && mediatorService.getStreamOfWatchers()
                                                 .filter(agentWatcher -> agentWatcher.getAgentWatcherType().getName().equals(SUNKEN_COLONY.getName()))
                                                 .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).isPresent()
                                                         && agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).get().equals(me))
@@ -248,7 +265,9 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                                     @Override
                                     protected boolean isAgentCommitted(WatcherMediatorService mediatorService, Beliefs beliefs) {
                                         ABaseLocationWrapper me = beliefs.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
-                                        return mediatorService.getStreamOfWatchers()
+
+                                        //building colony only in base
+                                        return beliefs.returnFactValueForGivenKey(IS_BASE).get() && mediatorService.getStreamOfWatchers()
                                                 .filter(agentWatcher -> agentWatcher.getAgentWatcherType().getName().equals(SPORE_COLONY.getName()))
                                                 .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).isPresent()
                                                         && agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).get().equals(me))
@@ -272,6 +291,37 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
         beliefs.updateFact(IS_ISLAND, baseLocation.isIsland());
         beliefs.updateFact(IS_START_LOCATION, baseLocation.isStartLocation());
         beliefs.updateFact(IS_BASE_LOCATION, baseLocation);
+
+        this.updateChecksStrategy = updateChecksStrategy;
+    }
+
+    @Override
+    public Stream<Map.Entry<DesireKeyID, List<Trajectory>>> getTrajectories() {
+        Map<DesireKeyID, List<Trajectory>> map = plansToWatch.stream()
+                .collect(Collectors.groupingBy(PlanWatcher::getDesireKey,
+                        Collectors.mapping(PlanWatcher::getTrajectory, Collectors.toList())));
+
+        //filter trajectories
+        map.forEach((desireKeyID, trajectories) -> {
+
+            //building colony outside of base
+            if (desireKeyID.equals(DesireKeys.BUILD_CREEP_COLONY) || desireKeyID.equals(DesireKeys.BUILD_SPORE_COLONY)
+                    || desireKeyID.equals(DesireKeys.BUILD_SUNKEN_COLONY)) {
+                if (!updateChecksStrategy.isWasEverOurBase()) {
+                    trajectories.clear();
+                }
+            }
+
+            //holding position outside of our or enemy base
+            if (desireKeyID.equals(DesireKeys.HOLD_AIR) || desireKeyID.equals(DesireKeys.HOLD_GROUND)) {
+                if (!updateChecksStrategy.isWasEverOurBase() && !updateChecksStrategy.isWasEverEnemyBase()) {
+                    trajectories.clear();
+                }
+            }
+
+        });
+
+        return map.entrySet().stream();
     }
 
     public void makeObservation() {
@@ -296,5 +346,28 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                 .map(unit -> UnitWrapperFactory.wrapResourceUnits(unit, game.getFrameCount(), false))
                 .collect(Collectors.toSet());
         beliefs.updateFactSetByFacts(GEYSER, geysers);
+    }
+
+    /**
+     * Hack - to check if base was ever ours or enemy's
+     */
+    @Getter
+    public static class UpdateChecksStrategy {
+        private boolean wasEverOurBase = false, wasEverEnemyBase = false;
+
+        /**
+         * Updates checks
+         *
+         * @param isOurBase
+         * @param isEnemyBase
+         */
+        public void updateChecks(boolean isOurBase, boolean isEnemyBase) {
+            if (!wasEverEnemyBase) {
+                wasEverEnemyBase = isEnemyBase;
+            }
+            if (!wasEverOurBase) {
+                wasEverOurBase = isOurBase;
+            }
+        }
     }
 }

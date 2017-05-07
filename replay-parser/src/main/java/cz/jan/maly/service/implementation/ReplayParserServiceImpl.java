@@ -160,7 +160,7 @@ public class ReplayParserServiceImpl extends DefaultBWListener implements Replay
 
                     //init base agents
                     BWTA.getBaseLocations().forEach(baseLocation -> {
-                        BaseWatcher baseWatcher = new BaseWatcher(ABaseLocationWrapper.wrap(baseLocation), currentGame);
+                        BaseWatcher baseWatcher = new BaseWatcher(ABaseLocationWrapper.wrap(baseLocation), currentGame, new BaseWatcher.UpdateChecksStrategy());
                         agentsWithObservations.add(baseWatcher);
                         watcherMediatorService.addWatcher(baseWatcher);
                     });

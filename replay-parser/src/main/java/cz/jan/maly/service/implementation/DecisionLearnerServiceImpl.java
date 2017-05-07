@@ -21,6 +21,7 @@ import cz.jan.maly.utils.Configuration;
 import cz.jan.maly.utils.MyLogger;
 import jsat.linear.DenseVector;
 import jsat.linear.Vec;
+import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Function;
@@ -74,13 +75,44 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
 //        System.out.println();
 //    }
 
+    private static class StateExtended {
+        @Getter
+        private final double[] featureVector;
+        @Getter
+        private final boolean committedWhenTransiting;
+
+        private StateExtended(State state) {
+            this.featureVector = state.getFeatureVector();
+            this.committedWhenTransiting = state.isCommittedWhenTransiting();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            StateExtended that = (StateExtended) o;
+
+            if (committedWhenTransiting != that.committedWhenTransiting) return false;
+            return Arrays.equals(featureVector, that.featureVector);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Arrays.hashCode(featureVector);
+            result = 31 * result + (committedWhenTransiting ? 1 : 0);
+            return result;
+        }
+    }
 
     @Override
     public void learnDecisionMakers() {
         Map<AgentTypeID, Set<DesireKeyID>> data = storageService.getParsedAgentTypesWithDesiresTypesContainedInStorage();
         data.forEach((agentTypeID, desireKeyIDS) -> desireKeyIDS.forEach(desireKeyID -> {
             try {
-                List<Trajectory> trajectories = storageService.getTrajectories(agentTypeID, desireKeyID);
+                MyLogger.getLogger().info("Starting computation for " + desireKeyID.getName() + " of " + agentTypeID.getName());
+
+                List<Trajectory> trajectories = storageService.getRandomListOfTrajectories(agentTypeID, desireKeyID, -1);
 
                 //get number of features for state
                 int numberOfFeatures = trajectories.get(0).getNumberOfFeatures();
@@ -90,6 +122,7 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
                         .map(Trajectory::getStates)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList());
+
                 List<FeatureNormalizer> normalizers = stateClusteringService.computeFeatureNormalizersBasedOnStates(states, numberOfFeatures);
                 List<Vec> classes = stateClusteringService.computeStateRepresentatives(trajectories, states, normalizers);
 
@@ -98,6 +131,8 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
                 for (int i = 0; i < classes.size(); i++) {
                     statesAndTheirMeans.put(new DecisionState(i), classes.get(i));
                 }
+
+                MyLogger.getLogger().info("Creating MDP...");
 
                 //create transitions
                 Map<DecisionState, Map<NextActionEnumerations, Map<DecisionState, Double>>> transitions = new HashMap<>();
@@ -140,6 +175,9 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
 
                             episodes.add(episode);
                         });
+
+                MyLogger.getLogger().info("Transitions ready...");
+
                 Map<DecisionState, Map<NextActionEnumerations, Double>> sums = transitions.keySet().stream()
                         .collect(Collectors.toMap(Function.identity(),
                                 o -> transitions.get(o).entrySet().stream()
@@ -158,13 +196,16 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
                 //learn policy
                 DecisionDomainGenerator decisionDomainGenerator = new DecisionDomainGenerator(decisionModel);
                 SADomain domain = decisionDomainGenerator.generateDomain();
-                Policy policy = policyLearningService.learnPolicy(domain, episodes, classes.size() + 1, episodes.size() / 2);
+
+                MyLogger.getLogger().info("Learning policy...");
+                Policy policy = policyLearningService.learnPolicy(domain, episodes, classes.size() + 1, episodes.size() > 40 ? 40 : episodes.size());
 
                 //form decision point data structure and store it
                 DecisionPointDataStructure decisionPoint = createDecisionPoint(normalizers, statesAndTheirMeans, policy);
                 storageService.storeLearntDecision(decisionPoint, agentTypeID, desireKeyID);
                 MyLogger.getLogger().info("Successfully learn decisions for " + desireKeyID.getName() + " of " + agentTypeID.getName());
             } catch (Exception e) {
+                e.printStackTrace();
                 MyLogger.getLogger().warning(e.getLocalizedMessage());
             }
         }));

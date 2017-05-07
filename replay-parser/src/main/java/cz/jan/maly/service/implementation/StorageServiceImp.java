@@ -114,8 +114,16 @@ public class StorageServiceImp implements StorageService {
     }
 
     @Override
-    public List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID) {
-        return getFilesForAgentTypeOfGivenDesire(agentTypeID, desireKeyID).stream()
+    public List<Trajectory> getRandomListOfTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID, int limit) {
+        List<File> files = new ArrayList<>(getFilesForAgentTypeOfGivenDesire(agentTypeID, desireKeyID));
+        Collections.shuffle(files);
+
+        //unlimited
+        if (limit == -1) {
+            limit = files.size();
+        }
+
+        return files.subList(0, Math.min(limit, files.size())).stream()
                 .map(File::getPath)
                 .flatMap(s -> {
                     try {

@@ -53,9 +53,10 @@ public interface StorageService {
      *
      * @param agentTypeID
      * @param desireKeyID
+     * @param limit
      * @return
      */
-    List<Trajectory> getTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID);
+    List<Trajectory> getRandomListOfTrajectories(AgentTypeID agentTypeID, DesireKeyID desireKeyID, int limit);
 
     /**
      * Store learnt DecisionPointDataStructure
