@@ -58,6 +58,22 @@ public class SerializationUtil {
     }
 
     /**
+     * Deserialize to <T> from given file
+     *
+     * @param inputStream
+     * @param <T>
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public static <T> T deserialize(InputStream inputStream) throws Exception {
+        GZIPInputStream giz = new GZIPInputStream(inputStream);
+        byte[] bytes = IOUtils.toByteArray(giz);
+        giz.close();
+        return (T) SerializationUtils.deserialize(bytes);
+    }
+
+    /**
      * Serialize the given object and save it to file
      *
      * @param object

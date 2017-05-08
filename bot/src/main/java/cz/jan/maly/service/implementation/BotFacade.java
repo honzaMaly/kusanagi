@@ -70,9 +70,6 @@ public class BotFacade extends DefaultBWListener {
 
     private Annotator annotator;
 
-    //only one instance to store learnt decision points
-    public static final DecisionLoadingService DECISION_LOADING_SERVICE = DecisionLoadingServiceImpl.getInstance();
-
     public BotFacade(AgentUnitFactoryCreationStrategy agentUnitFactoryCreationStrategy,
                      PlayerInitializerCreationStrategy playerInitializerCreationStrategy,
                      LocationInitializerCreationStrategy locationInitializerCreationStrategy) {
@@ -128,13 +125,6 @@ public class BotFacade extends DefaultBWListener {
 
         //init base location as agents
         agentsToRun.addAll(BWTA.getBaseLocations().stream()
-                .map(location -> locationInitializer.createAgent(location, this))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet()));
-
-        //init regions
-        agentsToRun.addAll(BWTA.getRegions().stream()
                 .map(location -> locationInitializer.createAgent(location, this))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

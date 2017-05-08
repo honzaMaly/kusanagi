@@ -1,15 +1,15 @@
 package cz.jan.maly.model.features;
 
+import cz.jan.maly.model.knowledge.DataForDecision;
 import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.metadata.FactConverterID;
 import cz.jan.maly.model.metadata.containers.*;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Builder;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +28,8 @@ public class FeatureContainerHeader {
     private final List<Integer> indexesForCommitment;
     private final int sizeOfFeatureVector;
     private final boolean trackCommittedOtherAgents;
+    private final List<StrategyToFillValueInVectorUsingBeliefs<?>> strategiesToFillVectorOrdered = new ArrayList<>();
+    private final List<DesireKeyID> desiresToFillVectorOrdered;
 
     @Builder
     private FeatureContainerHeader(Set<FactWithOptionalValue<?>> convertersForFacts, Set<FactWithOptionalValueSet<?>> convertersForFactSets,
@@ -48,11 +50,29 @@ public class FeatureContainerHeader {
 
         //add indexes
         addIndexes(convertersForFacts.stream().map(FactConverterID::getID).collect(Collectors.toList()), indexesSet);
+        strategiesToFillVectorOrdered.addAll(convertersForFacts.stream()
+                .map(StrategyToFillValueInVectorUsingBeliefs.FromBeliefs::new)
+                .collect(Collectors.toList()));
         addIndexes(convertersForFactSets.stream().map(FactConverterID::getID).collect(Collectors.toList()), indexesSet);
+        strategiesToFillVectorOrdered.addAll(convertersForFactSets.stream()
+                .map(StrategyToFillValueInVectorUsingBeliefs.FromBeliefsSet::new)
+                .collect(Collectors.toList()));
         addIndexes(convertersForFactsForGlobalBeliefs.stream().map(FactConverterID::getID).collect(Collectors.toList()), indexesSet);
+        strategiesToFillVectorOrdered.addAll(convertersForFactsForGlobalBeliefs.stream()
+                .map(StrategyToFillValueInVectorUsingBeliefs.FromGlobalBeliefs::new)
+                .collect(Collectors.toList()));
         addIndexes(convertersForFactSetsForGlobalBeliefs.stream().map(FactConverterID::getID).collect(Collectors.toList()), indexesSet);
+        strategiesToFillVectorOrdered.addAll(convertersForFactSetsForGlobalBeliefs.stream()
+                .map(StrategyToFillValueInVectorUsingBeliefs.FromGlobalBeliefsSets::new)
+                .collect(Collectors.toList()));
         addIndexes(convertersForFactsForGlobalBeliefsByAgentType.stream().map(FactConverterID::getID).collect(Collectors.toList()), indexesSet);
+        strategiesToFillVectorOrdered.addAll(convertersForFactsForGlobalBeliefsByAgentType.stream()
+                .map(StrategyToFillValueInVectorUsingBeliefs.FromGlobalBeliefsByAgentType::new)
+                .collect(Collectors.toList()));
         addIndexes(convertersForFactSetsForGlobalBeliefsByAgentType.stream().map(FactConverterID::getID).collect(Collectors.toList()), indexesSet);
+        strategiesToFillVectorOrdered.addAll(convertersForFactSetsForGlobalBeliefsByAgentType.stream()
+                .map(StrategyToFillValueInVectorUsingBeliefs.FromGlobalBeliefsSetsByAgentType::new)
+                .collect(Collectors.toList()));
         indexes = indexesSet.stream().sorted().collect(Collectors.toList());
 
         //add commitments
@@ -60,12 +80,47 @@ public class FeatureContainerHeader {
         addIndexes(interestedInCommitments.stream().map(DesireKeyID::getID).collect(Collectors.toList()), indexesSet);
         indexesForCommitment = indexesSet.stream().sorted().collect(Collectors.toList());
 
+        //sort strategies to create vector
+        Collections.sort(strategiesToFillVectorOrdered);
+        desiresToFillVectorOrdered = interestedInCommitments.stream()
+                .sorted(Comparator.comparingInt(DesireKeyID::getID))
+                .collect(Collectors.toList());
+
         //one additional dimension to track commitment by other agents
         if (trackCommittedOtherAgents) {
             this.sizeOfFeatureVector = indexes.size() + indexesForCommitment.size() + 1;
         } else {
             this.sizeOfFeatureVector = indexes.size() + indexesForCommitment.size();
         }
+
+        System.out.println();
+    }
+
+    /**
+     * Create feature vector using data for decision
+     *
+     * @param dataForDecision
+     * @return
+     */
+    public double[] formVector(DataForDecision dataForDecision) {
+        double[] vector = new double[sizeOfFeatureVector];
+
+        //do beliefs
+        for (int i = 0; i < strategiesToFillVectorOrdered.size(); i++) {
+            vector[i] = strategiesToFillVectorOrdered.get(i).getValue(dataForDecision);
+        }
+
+        //do commitments
+        for (int i = 0; i < desiresToFillVectorOrdered.size(); i++) {
+            vector[i + strategiesToFillVectorOrdered.size()] = dataForDecision.getFeatureValueMadeCommitmentToType(desiresToFillVectorOrdered.get(i));
+        }
+
+        //do count of committed agents
+        if (trackCommittedOtherAgents) {
+            vector[vector.length - 1] = dataForDecision.getNumberOfCommittedAgents();
+        }
+
+        return vector;
     }
 
     /**
@@ -97,4 +152,114 @@ public class FeatureContainerHeader {
         private boolean trackCommittedOtherAgents = false;
     }
 
+    /**
+     * Strategy to get value of feature using convertor
+     *
+     * @param <V>
+     */
+    private static abstract class StrategyToFillValueInVectorUsingBeliefs<V extends FactConverterID<?>> implements Comparable<StrategyToFillValueInVectorUsingBeliefs<?>> {
+        final V converterID;
+
+        StrategyToFillValueInVectorUsingBeliefs(V converterID) {
+            this.converterID = converterID;
+        }
+
+        /**
+         * Get value of belief
+         *
+         * @param dataForDecision
+         * @return
+         */
+        public abstract double getValue(DataForDecision dataForDecision);
+
+        @Override
+        public int compareTo(@NotNull StrategyToFillValueInVectorUsingBeliefs<?> o) {
+            return Integer.compare(converterID.getID(), o.converterID.getID());
+        }
+
+        /**
+         * For agent's beliefs - single fact
+         */
+        static class FromBeliefs extends StrategyToFillValueInVectorUsingBeliefs<FactWithOptionalValue<?>> {
+            FromBeliefs(FactWithOptionalValue<?> converterID) {
+                super(converterID);
+            }
+
+            @Override
+            public double getValue(DataForDecision dataForDecision) {
+                return dataForDecision.getFeatureValueBeliefs(converterID);
+            }
+        }
+
+        /**
+         * For agent's beliefs - set of fact
+         */
+        static class FromBeliefsSet extends StrategyToFillValueInVectorUsingBeliefs<FactWithOptionalValueSet<?>> {
+            FromBeliefsSet(FactWithOptionalValueSet<?> converterID) {
+                super(converterID);
+            }
+
+            @Override
+            public double getValue(DataForDecision dataForDecision) {
+                return dataForDecision.getFeatureValueBeliefSets(converterID);
+            }
+        }
+
+        /**
+         * For global beliefs - single fact
+         */
+        static class FromGlobalBeliefs extends StrategyToFillValueInVectorUsingBeliefs<FactWithSetOfOptionalValues<?>> {
+            FromGlobalBeliefs(FactWithSetOfOptionalValues<?> converterID) {
+                super(converterID);
+            }
+
+            @Override
+            public double getValue(DataForDecision dataForDecision) {
+                return dataForDecision.getFeatureValueGlobalBeliefs(converterID);
+            }
+        }
+
+        /**
+         * For global beliefs - single fact
+         */
+        static class FromGlobalBeliefsSets extends StrategyToFillValueInVectorUsingBeliefs<FactWithOptionalValueSets<?>> {
+            FromGlobalBeliefsSets(FactWithOptionalValueSets<?> converterID) {
+                super(converterID);
+            }
+
+            @Override
+            public double getValue(DataForDecision dataForDecision) {
+                return dataForDecision.getFeatureValueGlobalBeliefSets(converterID);
+            }
+        }
+
+        /**
+         * For global beliefs - single fact
+         */
+        static class FromGlobalBeliefsByAgentType extends StrategyToFillValueInVectorUsingBeliefs<FactWithSetOfOptionalValuesForAgentType<?>> {
+            FromGlobalBeliefsByAgentType(FactWithSetOfOptionalValuesForAgentType<?> converterID) {
+                super(converterID);
+            }
+
+            @Override
+            public double getValue(DataForDecision dataForDecision) {
+                return dataForDecision.getFeatureValueGlobalBeliefs(converterID);
+            }
+        }
+
+        /**
+         * For global beliefs - single fact
+         */
+        static class FromGlobalBeliefsSetsByAgentType extends StrategyToFillValueInVectorUsingBeliefs<FactWithOptionalValueSetsForAgentType<?>> {
+            FromGlobalBeliefsSetsByAgentType(FactWithOptionalValueSetsForAgentType<?> converterID) {
+                super(converterID);
+            }
+
+            @Override
+            public double getValue(DataForDecision dataForDecision) {
+                return dataForDecision.getFeatureValueGlobalBeliefSets(converterID);
+            }
+        }
+
+    }
 }

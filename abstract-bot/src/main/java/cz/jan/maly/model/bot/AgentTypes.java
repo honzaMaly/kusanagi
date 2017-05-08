@@ -39,6 +39,5 @@ public class AgentTypes {
 
     //tight to place
     public static final AgentTypeID BASE_LOCATION = new AgentTypeID("BASE_LOCATION", 401);
-    public static final AgentTypeID REGION = new AgentTypeID("REGION", 402);
 
 }

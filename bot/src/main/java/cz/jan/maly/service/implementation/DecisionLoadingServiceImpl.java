@@ -1,5 +1,7 @@
 package cz.jan.maly.service.implementation;
 
+import cz.jan.maly.model.bot.AgentTypes;
+import cz.jan.maly.model.bot.DesireKeys;
 import cz.jan.maly.model.decision.DecisionPoint;
 import cz.jan.maly.model.metadata.AgentTypeID;
 import cz.jan.maly.model.metadata.DesireKeyID;
@@ -7,13 +9,11 @@ import cz.jan.maly.service.DecisionLoadingService;
 import cz.jan.maly.utils.MyLogger;
 import cz.jan.maly.utils.SerializationUtil;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static cz.jan.maly.utils.Configuration.getParsedAgentTypesContainedInStorage;
-import static cz.jan.maly.utils.Configuration.getParsedDesireTypesForAgentTypeContainedInStorage;
 
 /**
  * Implementation for DecisionLoadingService
@@ -21,19 +21,8 @@ import static cz.jan.maly.utils.Configuration.getParsedDesireTypesForAgentTypeCo
  */
 public class DecisionLoadingServiceImpl implements DecisionLoadingService {
     private static DecisionLoadingServiceImpl instance = null;
-    private final Map<AgentTypeID, Map<DesireKeyID, DecisionPoint>> cache = new HashMap<>();
-
-    //get path to resources folder root
-    private final String folderPath = this.getClass().getClassLoader().getResource("dummy.txt").getPath().replace("/dummy.txt", "");
-
-    /**
-     * Initialize cache (loads models from resources)
-     */
-    private DecisionLoadingServiceImpl() {
-        getParsedAgentTypesContainedInStorage(folderPath).stream()
-                .collect(Collectors.toMap(Function.identity(), t -> getParsedDesireTypesForAgentTypeContainedInStorage(t, folderPath)))
-                .forEach((agentTypeID, desireKeyIDS) -> desireKeyIDS.forEach(desireKeyID -> loadDecisionPoint(agentTypeID, desireKeyID)));
-    }
+    private final Map<AgentTypeID, Map<DesireKeyID, DecisionPoint>> cache = new ConcurrentHashMap<>();
+    private final ClassLoader classLoader = this.getClass().getClassLoader();
 
     /**
      * Only one instance
@@ -48,6 +37,59 @@ public class DecisionLoadingServiceImpl implements DecisionLoadingService {
     }
 
     /**
+     * Initialize cache (loads models from resources)
+     */
+    private DecisionLoadingServiceImpl() {
+
+        //todo - not effective as all combinations of agent - desire are tried
+        getAgentTypes().stream()
+                .collect(Collectors.toMap(Function.identity(), agentTypeID -> getParsedDesireTypesForAgentTypeContainedInStorage()))
+                .forEach((agentTypeID, desireKeyIDS) -> desireKeyIDS.forEach(desireKeyID -> loadDecisionPoint(agentTypeID, desireKeyID)));
+    }
+
+    /**
+     * Map static fields of agentTypeId from AgentTypes to folders in storage
+     */
+    private Set<AgentTypeID> getAgentTypes() {
+        return Arrays.stream(AgentTypes.class.getDeclaredFields())
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .filter(field -> field.getType().equals(AgentTypeID.class))
+                .map(field -> {
+                            try {
+                                return (AgentTypeID) field.get(null);
+                            } catch (IllegalAccessException e) {
+                                MyLogger.getLogger().warning(e.getLocalizedMessage());
+                            }
+                            return null;
+                        }
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Map static fields of desireKeyID from DesireKeys to folders in storage
+     *
+     * @return
+     */
+    private Set<DesireKeyID> getParsedDesireTypesForAgentTypeContainedInStorage() {
+        return Arrays.stream(DesireKeys.class.getDeclaredFields())
+                .filter(field -> Modifier.isStatic(field.getModifiers()))
+                .filter(field -> field.getType().equals(DesireKeyID.class))
+                .map(field -> {
+                            try {
+                                return (DesireKeyID) field.get(null);
+                            } catch (IllegalAccessException e) {
+                                MyLogger.getLogger().warning(e.getLocalizedMessage());
+                            }
+                            return null;
+                        }
+                )
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * Try to load decision points for given keys and put it in to cache
      *
      * @param agentTypeID
@@ -55,10 +97,14 @@ public class DecisionLoadingServiceImpl implements DecisionLoadingService {
      */
     private void loadDecisionPoint(AgentTypeID agentTypeID, DesireKeyID desireKeyID) {
         try {
-            DecisionPoint decisionPoint = new DecisionPoint(SerializationUtil.deserialize(folderPath + "/" + agentTypeID.getName() + "/" + desireKeyID.getName() + ".db"));
+            DecisionPoint decisionPoint = new DecisionPoint(SerializationUtil.deserialize(classLoader.getResourceAsStream(agentTypeID.getName() + "/" + desireKeyID.getName() + ".db")));
             cache.computeIfAbsent(agentTypeID, id -> new HashMap<>()).put(desireKeyID, decisionPoint);
-        } catch (Exception e) {
-            MyLogger.getLogger().warning(e.getLocalizedMessage());
+
+//            System.out.println(desireKeyID.getName() + " " + decisionPoint.getStates().stream()
+//                    .filter(stateWithTransition -> stateWithTransition.getNextAction().commit())
+//                    .count() + "/" + decisionPoint.getStates().size());
+
+        } catch (Exception ignored) {
         }
     }
 

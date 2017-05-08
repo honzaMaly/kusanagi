@@ -6,12 +6,8 @@ import cz.jan.maly.model.game.wrappers.APosition;
 import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
 import cz.jan.maly.model.knowledge.WorkingMemory;
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstractPlan;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
-import cz.jan.maly.model.metadata.containers.FactWithOptionalValue;
-import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSet;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
@@ -67,34 +63,34 @@ public class AgentsUnitTypes {
 
     public static final AgentTypeUnit DRONE = AgentTypeUnit.builder()
             .agentTypeID(AgentTypes.DRONE)
-            .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{MINING_MINERAL, MINERAL_TO_MINE})))
+            .usingTypesForFacts(new HashSet<>(Arrays.asList(MINING_MINERAL, MINERAL_TO_MINE)))
             .initializationStrategy(type -> {
 
                 //abstract plan to mine minerals in base
                 ConfigurationWithAbstractPlan mineInBase = ConfigurationWithAbstractPlan.builder()
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy(dataForDecision -> {
-                                    if (dataForDecision.getNumberOfCommittedAgents() < dataForDecision.getFeatureValueDesireBeliefSets(MINERAL)) {
+                                    if (dataForDecision.getNumberOfCommittedAgents() < dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_MINERALS_ON_BASE)) {
                                         return true;
                                     }
                                     return false;
                                 })
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
+                                .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy(dataForDecision -> {
 
-                                    if (dataForDecision.getNumberOfCommittedAgents() > dataForDecision.getFeatureValueDesireBeliefSets(MINERAL)) {
+                                    if (dataForDecision.getNumberOfCommittedAgents() > dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_MINERALS_ON_BASE)) {
                                         return true;
                                     }
                                     return false;
                                 })
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
+                                .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
                                 .build()
                         )
-                        .desiresWithIntentionToAct(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS})))
-                        .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{SELECT_MINERAL, UNSELECT_MINERAL})))
+                        .desiresWithIntentionToAct(new HashSet<>(Collections.singletonList(MINE_MINERALS)))
+                        .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(SELECT_MINERAL, UNSELECT_MINERAL)))
                         .build();
                 type.addConfiguration(MINE_MINERALS_IN_BASE, mineInBase, false);
 
@@ -137,10 +133,9 @@ public class AgentsUnitTypes {
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(MINING_MINERAL) == 0
-                                        && dataForDecision.getFeatureValueBeliefs(IS_UNIT) == 0)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        IS_MINING_MINERAL, IS_CARRYING_MINERAL})))
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_MINING_MINERAL) == 0
+                                        && dataForDecision.getFeatureValueBeliefs(IS_CARRYING_MINERAL) == 0)
+                                .beliefTypes(new HashSet<>(Arrays.asList(IS_MINING_MINERAL, IS_CARRYING_MINERAL)))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -161,11 +156,9 @@ public class AgentsUnitTypes {
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(MINING_MINERAL) == 1
-                                        && dataForDecision.getFeatureValueBeliefs(IS_UNIT) == 1)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        IS_MINING_MINERAL, IS_CARRYING_MINERAL
-                                })))
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_MINING_MINERAL) == 1
+                                        && dataForDecision.getFeatureValueBeliefs(IS_CARRYING_MINERAL) == 1)
+                                .beliefTypes(new HashSet<>(Arrays.asList(IS_MINING_MINERAL, IS_CARRYING_MINERAL)))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -189,12 +182,10 @@ public class AgentsUnitTypes {
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(MINERAL_TO_MINE) != 0
-                                        && dataForDecision.getFeatureValueBeliefs(MINING_MINERAL) == 0
-                                        && dataForDecision.getFeatureValueBeliefs(IS_UNIT) == 0)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{
-                                        IS_MINING_MINERAL, IS_CARRYING_MINERAL, HAS_SELECTED_MINERAL_TO_MINE
-                                })))
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(HAS_SELECTED_MINERAL_TO_MINE) != 0
+                                        && dataForDecision.getFeatureValueBeliefs(IS_MINING_MINERAL) == 0
+                                        && dataForDecision.getFeatureValueBeliefs(IS_CARRYING_MINERAL) == 0)
+                                .beliefTypes(new HashSet<>(Arrays.asList(IS_MINING_MINERAL, IS_CARRYING_MINERAL, HAS_SELECTED_MINERAL_TO_MINE)))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()

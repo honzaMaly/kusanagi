@@ -1,30 +1,19 @@
 package cz.jan.maly.service.implementation;
 
 import bwta.BaseLocation;
-import bwta.Region;
 import cz.jan.maly.model.agent.AgentBaseLocation;
-import cz.jan.maly.model.agent.AgentRegion;
 import cz.jan.maly.model.agent.types.AgentTypeBaseLocation;
-import cz.jan.maly.model.agent.types.AgentTypeRegion;
-import cz.jan.maly.model.bot.AgentTypes;
 import cz.jan.maly.model.bot.FactConverters;
 import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
 import cz.jan.maly.model.game.wrappers.AUnitOfPlayer;
 import cz.jan.maly.model.knowledge.WorkingMemory;
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.FactKey;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
-import cz.jan.maly.model.metadata.containers.FactWithOptionalValue;
-import cz.jan.maly.model.metadata.containers.FactWithOptionalValueSet;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.service.LocationInitializer;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static cz.jan.maly.model.AgentsUnitTypes.HATCHERY;
@@ -41,7 +30,6 @@ import static cz.jan.maly.model.bot.FactKeys.*;
 public class AgentLocationInitializer implements LocationInitializer {
 
     public static final AgentTypeBaseLocation BASE_LOCATION = AgentTypeBaseLocation.builder()
-            .agentTypeID(AgentTypes.BASE_LOCATION)
             .initializationStrategy(type -> {
 
                 //todo remove is base from beliefs
@@ -68,12 +56,12 @@ public class AgentLocationInitializer implements LocationInitializer {
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_BASE) == 0)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 0)
+                                .beliefTypes(new HashSet<>(Collections.singletonList(FactConverters.IS_BASE)))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefSets(HAS_BASE) == 0)
-                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{HAS_HATCHERY_COUNT})))
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefSets(HAS_HATCHERY_COUNT) == 0)
+                                .beliefSetTypes(new HashSet<>(Collections.singletonList(HAS_HATCHERY_COUNT)))
                                 .build())
                         .build();
                 type.addConfiguration(AM_I_BASE, amIBase);
@@ -82,45 +70,34 @@ public class AgentLocationInitializer implements LocationInitializer {
                 ConfigurationWithSharedDesire mineMinerals = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MINE_MINERALS_IN_BASE)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_BASE) == 1
-                                        && dataForDecision.getFeatureValueDesireBeliefSets(MINERAL) > 0)
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1
+                                        && dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_MINERALS_ON_BASE) > 0)
+                                .beliefTypes(new HashSet<>(Collections.singletonList(FactConverters.IS_BASE)))
+                                .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
                                 .build()
                         )
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(IS_BASE) == 0
-                                        || dataForDecision.getFeatureValueBeliefSets(MINERAL) == 0
-                                        || dataForDecision.getFeatureValueBeliefSets(MINERAL) != dataForDecision.getFeatureValueDesireBeliefSets(MINERAL)
+                                .decisionStrategy(dataForDecision -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 0
+                                        || dataForDecision.getFeatureValueBeliefSets(COUNT_OF_MINERALS_ON_BASE) == 0
+                                        || dataForDecision.getFeatureValueBeliefSets(COUNT_OF_MINERALS_ON_BASE) != dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_MINERALS_ON_BASE)
                                 )
-                                .beliefTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValue<?>[]{FactConverters.IS_BASE})))
-                                .beliefSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
-                                .parameterValueSetTypes(new HashSet<>(Arrays.asList(new FactWithOptionalValueSet<?>[]{COUNT_OF_MINERALS_ON_BASE})))
+                                .beliefTypes(new HashSet<>(Collections.singletonList(FactConverters.IS_BASE)))
+                                .beliefSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
+                                .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
                                 .build()
                         )
                         .build();
                 type.addConfiguration(MINE_MINERALS_IN_BASE, mineMinerals);
 
             })
-            .usingTypesForFacts(new HashSet<>(Arrays.asList(new FactKey<?>[]{IS_BASE})))
-            .usingTypesForFactSets(new HashSet<>(Arrays.asList(new FactKey<?>[]{HAS_BASE})))
-            .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(new DesireKey[]{AM_I_BASE})))
-            .desiresForOthers(new HashSet<>(Arrays.asList(new DesireKey[]{MINE_MINERALS_IN_BASE})))
-            .build();
-
-    public static final AgentTypeRegion REGION = AgentTypeRegion.builder()
-            .agentTypeID(AgentTypes.REGION)
-            .initializationStrategy(type -> {
-            })
+            .usingTypesForFacts(new HashSet<>(Collections.singletonList(IS_BASE)))
+            .usingTypesForFactSets(new HashSet<>(Collections.singletonList(HAS_BASE)))
+            .desiresWithIntentionToReason(new HashSet<>(Collections.singletonList(AM_I_BASE)))
+            .desiresForOthers(new HashSet<>(Collections.singletonList(MINE_MINERALS_IN_BASE)))
             .build();
 
     @Override
     public Optional<AgentBaseLocation> createAgent(BaseLocation baseLocation, BotFacade botFacade) {
         return Optional.of(new AgentBaseLocation(BASE_LOCATION, botFacade, baseLocation));
-    }
-
-    @Override
-    public Optional<AgentRegion> createAgent(Region region, BotFacade botFacade) {
-        return Optional.of(new AgentRegion(REGION, botFacade, region));
     }
 }
