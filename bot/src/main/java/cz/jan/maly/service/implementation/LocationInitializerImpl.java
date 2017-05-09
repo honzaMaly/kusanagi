@@ -27,7 +27,7 @@ import static cz.jan.maly.model.bot.FactKeys.*;
  * Strategy to initialize player
  * Created by Jan on 05-Apr-17.
  */
-public class AgentLocationInitializer implements LocationInitializer {
+public class LocationInitializerImpl implements LocationInitializer {
 
     public static final AgentTypeBaseLocation BASE_LOCATION = AgentTypeBaseLocation.builder()
             .initializationStrategy(type -> {

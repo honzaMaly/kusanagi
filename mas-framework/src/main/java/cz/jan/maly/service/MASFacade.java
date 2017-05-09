@@ -64,6 +64,7 @@ public class MASFacade implements TerminableService {
      */
     public void addAgentToSystem(Agent agent) {
         agentsInSystem.add(agent);
+        agent.run();
     }
 
     /**

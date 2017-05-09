@@ -4,7 +4,6 @@ import bwapi.*;
 import bwta.BWTA;
 import cz.jan.maly.model.agent.AgentPlayer;
 import cz.jan.maly.model.agent.AgentUnit;
-import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.game.util.Annotator;
 import cz.jan.maly.model.game.wrappers.APlayer;
 import cz.jan.maly.model.game.wrappers.AbstractPositionWrapper;
@@ -16,7 +15,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,9 @@ public class BotFacade extends DefaultBWListener {
     private MASFacade masFacade;
     //executor of game commands
     private GameCommandExecutor gameCommandExecutor;
+
+    //to init abstract agents at the beginning of each game
+    private final AbstractAgentsInitializer abstractAgentsInitializer = new AbstractAgentsInitializerImpl();
 
     //this is created with new game
     private AgentUnitHandler agentUnitFactory;
@@ -110,9 +114,6 @@ public class BotFacade extends DefaultBWListener {
                 .filter(player -> player.isEnemy(self) || player.getID() == self.getID())
                 .collect(Collectors.toList()), self, game);
 
-        //reference on agents
-        List<Agent<?>> agentsToRun = new ArrayList<>();
-
         //init player as another agent
         Optional<APlayer> player = APlayer.wrapPlayer(self);
         if (!player.isPresent()) {
@@ -121,21 +122,22 @@ public class BotFacade extends DefaultBWListener {
         }
         AgentPlayer agentPlayer = playerInitializer.createAgentForPlayer(player.get(), this, game.enemy().getRace());
         masFacade.addAgentToSystem(agentPlayer);
-        agentsToRun.add(agentPlayer);
 
         //init base location as agents
-        agentsToRun.addAll(BWTA.getBaseLocations().stream()
+        BWTA.getBaseLocations().stream()
                 .map(location -> locationInitializer.createAgent(location, this))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toSet()));
+                .forEach(agentBaseLocation -> masFacade.addAgentToSystem(agentBaseLocation));
+
+
+        //init abstract agents
+        abstractAgentsInitializer.initializeAbstractAgents(this)
+                .forEach(agentBaseLocation -> masFacade.addAgentToSystem(agentBaseLocation));
 
         //speed up game to setup value
         game.setLocalSpeed(getGameDefaultSpeed());
         MyLogger.getLogger().info("Local game speed set to " + getGameDefaultSpeed());
-
-        //run new agents
-        agentsToRun.forEach(Agent::run);
     }
 
     @Override
@@ -145,9 +147,6 @@ public class BotFacade extends DefaultBWListener {
             agent.ifPresent(agentObservingGame -> {
                 agentsWithGameRepresentation.put(unit.getID(), agentObservingGame);
                 masFacade.addAgentToSystem(agentObservingGame);
-
-                //start agent
-                agentObservingGame.run();
             });
         }
     }
@@ -200,7 +199,7 @@ public class BotFacade extends DefaultBWListener {
     //TODO handle more events - unit renegade, visibility
 
     /**
-     * Contract for strategy to create new AgentUnitFactory for new game
+     * Contract for strategy to create new AgentUnitHandlerImpl for new game
      */
     public interface AgentUnitFactoryCreationStrategy {
 

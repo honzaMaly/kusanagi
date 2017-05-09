@@ -1,4 +1,4 @@
-package cz.jan.maly.model.agent;
+package cz.jan.maly.model;
 
 import cz.jan.maly.model.features.FeatureContainerHeader;
 import cz.jan.maly.model.knowledge.DataForDecision;

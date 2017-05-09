@@ -18,6 +18,8 @@ public class AgentPlayer extends AgentObservingGame<AgentTypePlayer> {
 
         //add itself to knowledge
         beliefs.updateFact(IS_PLAYER, aPlayer);
-        beliefs.updateFact(ENEMY_RACE, enemyStartingRace);
+        if (!enemyStartingRace.equals(Race.Unknown)) {
+            beliefs.updateFact(ENEMY_RACE, enemyStartingRace);
+        }
     }
 }

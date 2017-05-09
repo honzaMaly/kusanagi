@@ -11,8 +11,8 @@ import cz.jan.maly.utils.MyLogger;
  * AbstractAgent is agent which makes no observation and send no commands to game. It only reasons and share desires
  * Created by Jan on 05-Apr-17.
  */
-class AbstractAgent<K extends AgentType> extends Agent<K> {
-    AbstractAgent(K agentType, BotFacade botFacade) {
+public class AbstractAgent extends Agent<AgentType> {
+    public AbstractAgent(AgentType agentType, BotFacade botFacade) {
         super(agentType, botFacade.getMasFacade());
     }
 

@@ -21,7 +21,7 @@ import static cz.jan.maly.model.game.wrappers.AUnitTypeWrapper.*;
  * Factory to create agent for given unit
  * Created by Jan on 17-Dec-16.
  */
-public class AgentUnitFactory implements AgentUnitHandler {
+public class AgentUnitHandlerImpl implements AgentUnitHandler {
 
     private final Map<AUnitTypeWrapper, AgentTypeUnit> agentConfigurationForUnitType = new HashMap<>();
 

@@ -37,4 +37,9 @@ public class DesiresKeys {
             .parametersTypesForFactSets(new HashSet<>(Arrays.asList(MINERAL, HAS_BASE)))
             .build();
 
+    //for player
+    public static final DesireKey READ_PLAYERS_DATA = DesireKey.builder()
+            .id(DesireKeys.READ_PLAYERS_DATA)
+            .build();
+
 }

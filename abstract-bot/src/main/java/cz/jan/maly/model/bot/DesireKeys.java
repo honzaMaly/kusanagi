@@ -42,6 +42,14 @@ public class DesireKeys {
      * LEARNT DESIRES
      */
 
+    //desires of agent representing player
+    public static final DesireKeyID READ_PLAYERS_DATA = new DesireKeyID("READ_PLAYERS_DATA", 41);
+    public static final DesireKeyID ESTIMATE_ENEMY_FORCE = new DesireKeyID("ESTIMATE_ENEMY_FORCE", 42);
+    public static final DesireKeyID ESTIMATE_OUR_FORCE = new DesireKeyID("ESTIMATE_OUR_FORCE", 43);
+    public static final DesireKeyID UPDATE_ENEMY_RACE = new DesireKeyID("UPDATE_ENEMY_RACE", 44);
+    public static final DesireKeyID REASON_ABOUT_BASES = new DesireKeyID("REASON_ABOUT_BASES", 45);
+
+
     public static final DesireKeyID MINE_MINERAL = new DesireKeyID("MINE_MINERAL", 2);
     public static final DesireKeyID SELECT_MINERAL = new DesireKeyID("SELECT_MINERAL", 3);
     public static final DesireKeyID UNSELECT_MINERAL = new DesireKeyID("UNSELECT_MINERAL", 4);
