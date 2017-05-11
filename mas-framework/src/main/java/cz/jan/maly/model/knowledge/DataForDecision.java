@@ -39,14 +39,17 @@ public class DataForDecision {
     private final Map<FactWithOptionalValueSets<?>, FactConverter.GlobalBeliefSet<?>> globalBeliefsSets = new HashMap<>();
     //global beliefs by agent type
     private final Map<FactWithSetOfOptionalValuesForAgentType<?>, FactConverter.GlobalBeliefForAgentType<?>> globalBeliefsByAgentType = new HashMap<>();
-    private final Map<FactWithOptionalValueSetsForAgentType<?>, FactConverter.GlobalBeliefSetForAgentType<?>> globalBSetsByAgentType = new HashMap<>();
+    private final Map<FactWithOptionalValueSetsForAgentType<?>, FactConverter.GlobalBeliefSetForAgentType<?>> globalBeliefsSetsByAgentType = new HashMap<>();
     @Getter
     private int numberOfCommittedAgents = 0;
 
     //****beliefs for decision point****
-    @Getter
     @Setter
+    @Getter
     private boolean beliefsChanged = true;
+
+    @Getter
+    private final boolean useFactsInMemory;
 
     /**
      * Constructor
@@ -56,6 +59,7 @@ public class DataForDecision {
      * @param desireParameters
      */
     public DataForDecision(DesireKey desireKey, DesireParameters desireParameters, CommitmentDeciderInitializer initializer) {
+        this.useFactsInMemory = initializer.isUseFactsInMemory();
 
         initializer.getDesiresToConsider().forEach(key -> {
             madeCommitmentToTypes.put(key, new FactConverter.BeliefFromKeyPresence(this, key));
@@ -83,7 +87,7 @@ public class DataForDecision {
         initializer.getGlobalBeliefTypesByAgentType().forEach(factWithSetOfOptionalValuesForAgentType ->
                 globalBeliefsByAgentType.put(factWithSetOfOptionalValuesForAgentType, new FactConverter.GlobalBeliefForAgentType<>(this, factWithSetOfOptionalValuesForAgentType)));
         initializer.getGlobalBeliefSetTypesByAgentType().forEach(factWithOptionalValueSetsForAgentType ->
-                globalBSetsByAgentType.put(factWithOptionalValueSetsForAgentType, new FactConverter.GlobalBeliefSetForAgentType<>(this, factWithOptionalValueSetsForAgentType)));
+                globalBeliefsSetsByAgentType.put(factWithOptionalValueSetsForAgentType, new FactConverter.GlobalBeliefSetForAgentType<>(this, factWithOptionalValueSetsForAgentType)));
     }
 
     public double getFeatureValueMadeCommitmentToType(DesireKeyID desireKey) {
@@ -135,7 +139,7 @@ public class DataForDecision {
     }
 
     public double getFeatureValueGlobalBeliefSets(FactWithOptionalValueSetsForAgentType<?> factWithOptionalValueSetsForAgentType) {
-        return globalBSetsByAgentType.get(factWithOptionalValueSetsForAgentType).getValue();
+        return globalBeliefsSetsByAgentType.get(factWithOptionalValueSetsForAgentType).getValue();
     }
 
     /**
@@ -159,7 +163,7 @@ public class DataForDecision {
         this.globalBeliefsSets.values().forEach(belief -> belief.hasUpdatedValueFromRegisterChanged(memory));
 
         this.globalBeliefsByAgentType.values().forEach(globalBelief -> globalBelief.hasUpdatedValueFromRegisterChanged(memory));
-        this.globalBSetsByAgentType.values().forEach(globalBeliefSet -> globalBeliefSet.hasUpdatedValueFromRegisterChanged(memory));
+        this.globalBeliefsSetsByAgentType.values().forEach(globalBeliefSet -> globalBeliefSet.hasUpdatedValueFromRegisterChanged(memory));
     }
 
     /**

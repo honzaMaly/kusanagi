@@ -33,6 +33,16 @@ public class AgentUnitHandlerImpl implements AgentUnitHandler {
         agentConfigurationForUnitType.put(SPAWNING_POOL_TYPE, AgentsUnitTypes.SPAWNING_POOL);
         agentConfigurationForUnitType.put(OVERLORD_TYPE, AgentsUnitTypes.OVERLORD);
         agentConfigurationForUnitType.put(ZERGLING_TYPE, AgentsUnitTypes.ZERGLING);
+        agentConfigurationForUnitType.put(EXTRACTOR_TYPE, AgentsUnitTypes.EXTRACTOR);
+        agentConfigurationForUnitType.put(LAIR_TYPE, AgentsUnitTypes.LAIR);
+        agentConfigurationForUnitType.put(SPIRE_TYPE, AgentsUnitTypes.SPIRE);
+        agentConfigurationForUnitType.put(EVOLUTION_CHAMBER_TYPE, AgentsUnitTypes.EVOLUTION_CHAMBER);
+        agentConfigurationForUnitType.put(HYDRALISK_DEN_TYPE, AgentsUnitTypes.HYDRALISK_DEN);
+        agentConfigurationForUnitType.put(SUNKEN_COLONY_TYPE, AgentsUnitTypes.SUNKEN_COLONY);
+        agentConfigurationForUnitType.put(CREEP_COLONY_TYPE, AgentsUnitTypes.CREEP_COLONY);
+        agentConfigurationForUnitType.put(SPORE_COLONY_TYPE, AgentsUnitTypes.SPORE_COLONY);
+        agentConfigurationForUnitType.put(MUTALISK_TYPE, AgentsUnitTypes.MUTALISK);
+        agentConfigurationForUnitType.put(HYDRALISK_TYPE, AgentsUnitTypes.HYDRALISK);
     }
 
     @Override

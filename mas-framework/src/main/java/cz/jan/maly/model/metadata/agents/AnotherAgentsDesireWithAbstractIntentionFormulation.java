@@ -19,7 +19,8 @@ public class AnotherAgentsDesireWithAbstractIntentionFormulation extends DesireF
             DesireFromAnotherAgent.WithAbstractIntention withAbstractIntention = new DesireFromAnotherAgent.WithAbstractIntention(desireForAgents,
                     memory, getDecisionInDesire(desireForAgents.getDesireKey()), getDecisionInIntention(desireForAgents.getDesireKey()),
                     desiresForOthersByKey.get(desireForAgents.getDesireKey()), desiresWithAbstractIntentionByKey.get(desireForAgents.getDesireKey()), desiresWithIntentionToActByKey.get(desireForAgents.getDesireKey()),
-                    desiresWithIntentionToReasonByKey.get(desireForAgents.getDesireKey()));
+                    desiresWithIntentionToReasonByKey.get(desireForAgents.getDesireKey()),
+                    getReactionInDesire(desireForAgents.getDesireKey()), getReactionInIntention(desireForAgents.getDesireKey()));
             return Optional.of(withAbstractIntention);
         }
         return Optional.empty();

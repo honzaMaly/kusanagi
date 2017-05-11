@@ -6,10 +6,7 @@ import cz.jan.maly.model.AgentMakingObservations;
 import cz.jan.maly.model.UnitTypeStatus;
 import cz.jan.maly.model.UpgradeTypeStatus;
 import cz.jan.maly.model.bot.AgentTypes;
-import cz.jan.maly.model.game.wrappers.APlayer;
-import cz.jan.maly.model.game.wrappers.AUnit;
-import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
-import cz.jan.maly.model.game.wrappers.WrapperTypeFactory;
+import cz.jan.maly.model.game.wrappers.*;
 import cz.jan.maly.model.watcher.AgentWatcher;
 import cz.jan.maly.model.watcher.agent_watcher_type_extension.WatcherPlayerType;
 
@@ -110,7 +107,7 @@ public class WatcherPlayer extends AgentWatcher<WatcherPlayerType> implements Ag
 
                     //enemy race
                     Optional<Race> enemyRace = UnitWrapperFactory.getStreamOfAllAliveEnemyUnits().map(enemy -> enemy.getType().getRace()).findAny();
-                    enemyRace.ifPresent(race -> bl.updateFact(ENEMY_RACE, race));
+                    enemyRace.ifPresent(race -> bl.updateFact(ENEMY_RACE, ARace.getRace(race)));
 
                     //bases
                     bl.updateFactSetByFacts(OUR_BASE, ms.getStreamOfWatchers()

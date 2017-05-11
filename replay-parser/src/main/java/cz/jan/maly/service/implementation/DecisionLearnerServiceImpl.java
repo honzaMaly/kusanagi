@@ -198,7 +198,7 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
                 SADomain domain = decisionDomainGenerator.generateDomain();
 
                 MyLogger.getLogger().info("Learning policy...");
-                Policy policy = policyLearningService.learnPolicy(domain, episodes, classes.size() + 1, episodes.size() > 40 ? 40 : episodes.size());
+                Policy policy = policyLearningService.learnPolicy(domain, episodes, classes.size() + 1, episodes.size() > 80 ? 80 : episodes.size());
 
                 //form decision point data structure and store it
                 DecisionPointDataStructure decisionPoint = createDecisionPoint(normalizers, statesAndTheirMeans, policy);

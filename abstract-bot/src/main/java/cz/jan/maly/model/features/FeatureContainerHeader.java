@@ -92,8 +92,6 @@ public class FeatureContainerHeader {
         } else {
             this.sizeOfFeatureVector = indexes.size() + indexesForCommitment.size();
         }
-
-        System.out.println();
     }
 
     /**

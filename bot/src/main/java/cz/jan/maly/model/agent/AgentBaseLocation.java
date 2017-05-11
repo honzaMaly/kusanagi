@@ -5,8 +5,7 @@ import cz.jan.maly.model.agent.types.AgentTypeBaseLocation;
 import cz.jan.maly.model.game.wrappers.ABaseLocationWrapper;
 import cz.jan.maly.service.implementation.BotFacade;
 
-import static cz.jan.maly.model.bot.FactKeys.IS_BASE_LOCATION;
-import static cz.jan.maly.model.bot.FactKeys.MADE_OBSERVATION_IN_FRAME;
+import static cz.jan.maly.model.bot.FactKeys.*;
 
 /**
  * Agent for base location in game
@@ -21,5 +20,8 @@ public class AgentBaseLocation extends AgentObservingGame<AgentTypeBaseLocation>
         beliefs.updateFact(IS_BASE_LOCATION, ABaseLocationWrapper.wrap(location));
         AgentTypeBaseLocation.updateKnowledgeAboutResources(location, beliefs, 0);
         beliefs.updateFact(MADE_OBSERVATION_IN_FRAME, 0);
+        beliefs.updateFact(IS_MINERAL_ONLY, location.isMineralOnly());
+        beliefs.updateFact(IS_ISLAND, location.isIsland());
+        beliefs.updateFact(IS_START_LOCATION, location.isStartLocation());
     }
 }

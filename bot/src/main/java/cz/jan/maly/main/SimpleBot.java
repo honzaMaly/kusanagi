@@ -1,9 +1,9 @@
 package cz.jan.maly.main;
 
-import cz.jan.maly.service.implementation.LocationInitializerImpl;
 import cz.jan.maly.service.implementation.AgentUnitHandlerImpl;
-import cz.jan.maly.service.implementation.PlayerInitializerImpl;
 import cz.jan.maly.service.implementation.BotFacade;
+import cz.jan.maly.service.implementation.LocationInitializerImpl;
+import cz.jan.maly.service.implementation.PlayerInitializerImpl;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;

@@ -59,7 +59,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
         this.knowledgeMediator = masFacade.getKnowledgeMediator();
         this.agentType = agentType;
         this.beliefs = new WorkingMemory(tree, this.agentType, this.id,
-                at -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoriesForAgentType(at),
+                agentTypeID -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoriesForAgentType(agentTypeID),
                 agentId -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoryForAgent(agentId),
                 () -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemories());
     }

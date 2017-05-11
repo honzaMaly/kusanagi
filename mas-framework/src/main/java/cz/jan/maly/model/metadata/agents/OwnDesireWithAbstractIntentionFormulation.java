@@ -23,7 +23,8 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
             OwnDesire.WithAbstractIntention withAbstractIntention = new OwnDesire.WithAbstractIntention(key,
                     memory, getDecisionInDesire(key), getDecisionInIntention(key),
                     desiresForOthersByKey.get(key), desiresWithAbstractIntentionByKey.get(key), desiresWithIntentionToActByKey.get(key),
-                    desiresWithIntentionToReasonByKey.get(key));
+                    desiresWithIntentionToReasonByKey.get(key),
+                    getReactionInDesire(key), getReactionInIntention(key));
             return Optional.of(withAbstractIntention);
         }
         return Optional.empty();
@@ -49,7 +50,8 @@ public class OwnDesireWithAbstractIntentionFormulation extends DesireFormulation
                             memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
                             formulation.desiresForOthersByKey.get(key),
                             formulation.desiresWithAbstractIntentionByKey.get(key), formulation.desiresWithIntentionToActByKey.get(key),
-                            formulation.desiresWithIntentionToReasonByKey.get(key), parentsDesireParameters);
+                            formulation.desiresWithIntentionToReasonByKey.get(key), parentsDesireParameters,
+                            formulation.getReactionInDesire(key), formulation.getReactionInIntention(key));
                     return Optional.of(withAbstractIntention);
                 }
             }

@@ -7,6 +7,7 @@ import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.metadata.DesireParameters;
 import cz.jan.maly.model.metadata.FactKey;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,13 +18,17 @@ import java.util.stream.Stream;
  * what agent has committed to achieve to. It may contain other desires related to this intention to be consider.
  * Created by Jan on 10-Feb-17.
  */
-public abstract class Intention<T extends InternalDesire<?>> implements FactContainerInterface, DesireKeyIdentificationInterface {
+public abstract class Intention<T extends InternalDesire<?>> implements FactContainerInterface,
+        DesireKeyIdentificationInterface, OnChangeActor, OnDestructionActor {
     protected final CommitmentDecider removeCommitment;
     private final T originalDesire;
+    @Getter
+    private final Optional<ReactionOnChangeStrategy> reactionOnChangeStrategy;
 
-    Intention(T originalDesire, CommitmentDeciderInitializer removeCommitment) {
+    Intention(T originalDesire, CommitmentDeciderInitializer removeCommitment, ReactionOnChangeStrategy reactionOnChangeStrategy) {
         this.originalDesire = originalDesire;
         this.removeCommitment = removeCommitment.initializeCommitmentDecider(originalDesire.desireParameters);
+        this.reactionOnChangeStrategy = Optional.ofNullable(reactionOnChangeStrategy);
     }
 
     public DesireParameters getParametersOfDesire() {
@@ -54,16 +59,25 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
         return originalDesire.returnFactValueForGivenKeyInParameters(factKey);
     }
 
+    @Override
+    public void actOnRemoval() {
+        actOnChange(originalDesire.memory);
+    }
+
     public boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
                                           List<DesireKey> typesAboutToMakeDecision) {
+
+        //TODO - HACK! does not change return value and enables reaction
         return removeCommitment.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                originalDesire.memory);
+                originalDesire.memory) && actOnChange(originalDesire.memory);
     }
 
     public boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
                                           List<DesireKey> typesAboutToMakeDecision, int numberOfCommittedAgents) {
+
+        //TODO - HACK! does not change return value and enables reaction
         return removeCommitment.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                originalDesire.memory, numberOfCommittedAgents);
+                originalDesire.memory, numberOfCommittedAgents) && actOnChange(originalDesire.memory);
     }
 
     /**

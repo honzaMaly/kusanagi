@@ -3,6 +3,7 @@ package cz.jan.maly.model.metadata.agents.configuration;
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import cz.jan.maly.model.planing.IntentionCommand;
+import cz.jan.maly.model.planing.ReactionOnChangeStrategy;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.CommandForIntention;
 import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
@@ -21,8 +22,11 @@ import java.util.Set;
 public class ConfigurationWithCommand<K extends CommandFormulationStrategy<? extends CommandForIntention<?>, ? extends IntentionCommand<?, ?>>> extends CommonConfiguration {
     private K commandCreationStrategy;
 
-    ConfigurationWithCommand(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, K commandCreationStrategy) {
-        super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment);
+    ConfigurationWithCommand(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention,
+                             Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                             K commandCreationStrategy, ReactionOnChangeStrategy reactionOnChangeStrategy, ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+        super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment,
+                reactionOnChangeStrategy, reactionOnChangeStrategyInIntention);
         this.commandCreationStrategy = commandCreationStrategy;
     }
 
@@ -30,8 +34,16 @@ public class ConfigurationWithCommand<K extends CommandFormulationStrategy<? ext
     public static class WithActingCommandDesiredByOtherAgent extends ConfigurationWithCommand<CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent>> {
 
         @Builder
-        private WithActingCommandDesiredByOtherAgent(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy) {
-            super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment, commandCreationStrategy);
+        private WithActingCommandDesiredByOtherAgent(CommitmentDeciderInitializer decisionInDesire,
+                                                     CommitmentDeciderInitializer decisionInIntention,
+                                                     Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                                                     Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                                                     CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy,
+                                                     ReactionOnChangeStrategy reactionOnChangeStrategy,
+                                                     ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+            super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting,
+                    typesOfDesiresToConsiderWhenRemovingCommitment, commandCreationStrategy, reactionOnChangeStrategy,
+                    reactionOnChangeStrategyInIntention);
         }
 
         //builder with default fields
@@ -45,8 +57,15 @@ public class ConfigurationWithCommand<K extends CommandFormulationStrategy<? ext
     public static class WithActingCommandDesiredBySelf extends ConfigurationWithCommand<CommandFormulationStrategy<ActCommand.Own, IntentionCommand.OwnActing>> {
 
         @Builder
-        private WithActingCommandDesiredBySelf(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, CommandFormulationStrategy<ActCommand.Own, IntentionCommand.OwnActing> commandCreationStrategy) {
-            super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment, commandCreationStrategy);
+        private WithActingCommandDesiredBySelf(CommitmentDeciderInitializer decisionInDesire,
+                                               CommitmentDeciderInitializer decisionInIntention,
+                                               Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                                               Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                                               CommandFormulationStrategy<ActCommand.Own, IntentionCommand.OwnActing> commandCreationStrategy,
+                                               ReactionOnChangeStrategy reactionOnChangeStrategy, ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+            super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting,
+                    typesOfDesiresToConsiderWhenRemovingCommitment, commandCreationStrategy, reactionOnChangeStrategy,
+                    reactionOnChangeStrategyInIntention);
         }
 
         //builder with default fields
@@ -60,8 +79,15 @@ public class ConfigurationWithCommand<K extends CommandFormulationStrategy<? ext
     public static class WithReasoningCommandDesiredBySelf extends ConfigurationWithCommand<CommandFormulationStrategy<ReasoningCommand, IntentionCommand.OwnReasoning>> {
 
         @Builder
-        private WithReasoningCommandDesiredBySelf(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, CommandFormulationStrategy<ReasoningCommand, IntentionCommand.OwnReasoning> commandCreationStrategy) {
-            super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment, commandCreationStrategy);
+        private WithReasoningCommandDesiredBySelf(CommitmentDeciderInitializer decisionInDesire,
+                                                  CommitmentDeciderInitializer decisionInIntention,
+                                                  Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                                                  Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                                                  CommandFormulationStrategy<ReasoningCommand, IntentionCommand.OwnReasoning> commandCreationStrategy,
+                                                  ReactionOnChangeStrategy reactionOnChangeStrategy, ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+            super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting,
+                    typesOfDesiresToConsiderWhenRemovingCommitment, commandCreationStrategy, reactionOnChangeStrategy,
+                    reactionOnChangeStrategyInIntention);
         }
 
         //builder with default fields

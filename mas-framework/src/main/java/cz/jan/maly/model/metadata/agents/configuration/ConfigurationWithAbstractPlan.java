@@ -2,6 +2,7 @@ package cz.jan.maly.model.metadata.agents.configuration;
 
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
+import cz.jan.maly.model.planing.ReactionOnChangeStrategy;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,8 +24,10 @@ public class ConfigurationWithAbstractPlan extends CommonConfiguration {
     private ConfigurationWithAbstractPlan(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention,
                                           Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
                                           Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention,
-                                          Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason) {
-        super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment);
+                                          Set<DesireKey> desiresWithIntentionToAct, Set<DesireKey> desiresWithIntentionToReason,
+                                          ReactionOnChangeStrategy reactionOnChangeStrategy, ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+        super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting,
+                typesOfDesiresToConsiderWhenRemovingCommitment, reactionOnChangeStrategy, reactionOnChangeStrategyInIntention);
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;

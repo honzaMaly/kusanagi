@@ -6,6 +6,7 @@ import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstract
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import cz.jan.maly.model.planing.IntentionCommand;
+import cz.jan.maly.model.planing.ReactionOnChangeStrategy;
 import cz.jan.maly.model.planing.command.CommandForIntention;
 import cz.jan.maly.model.planing.command.CommandFormulationStrategy;
 
@@ -20,6 +21,8 @@ import java.util.Set;
 public abstract class DesireFormulation {
     private final Map<DesireKey, CommitmentDeciderInitializer> decisionsByDesire = new HashMap<>();
     private final Map<DesireKey, CommitmentDeciderInitializer> decisionsByIntention = new HashMap<>();
+    private final Map<DesireKey, ReactionOnChangeStrategy> reactionsByIntention = new HashMap<>();
+    private final Map<DesireKey, ReactionOnChangeStrategy> reactionsByDesire = new HashMap<>();
 
     CommitmentDeciderInitializer getDecisionInIntention(DesireKey key) {
         return decisionsByIntention.get(key);
@@ -27,6 +30,14 @@ public abstract class DesireFormulation {
 
     CommitmentDeciderInitializer getDecisionInDesire(DesireKey key) {
         return decisionsByDesire.get(key);
+    }
+
+    ReactionOnChangeStrategy getReactionInIntention(DesireKey key) {
+        return reactionsByIntention.get(key);
+    }
+
+    ReactionOnChangeStrategy getReactionInDesire(DesireKey key) {
+        return reactionsByDesire.get(key);
     }
 
     /**
@@ -38,6 +49,8 @@ public abstract class DesireFormulation {
     void addDesireFormulationConfiguration(DesireKey key, CommonConfiguration configuration) {
         this.decisionsByDesire.put(key, configuration.getDecisionInDesire());
         this.decisionsByIntention.put(key, configuration.getDecisionInIntention());
+        this.reactionsByIntention.put(key, configuration.getReactionOnChangeStrategyInIntention());
+        this.reactionsByDesire.put(key, configuration.getReactionOnChangeStrategy());
     }
 
     /**

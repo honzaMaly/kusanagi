@@ -81,6 +81,10 @@ public abstract class Memory<V extends PlanningTreeInterface> implements FactCon
         return strategyToGetSetOfMemoriesByAgentType.getReadOnlyMemoriesForAgentType(agentType);
     }
 
+    public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
+        return strategyToGetSetOfMemoriesByAgentType.getReadOnlyMemoriesForAgentType(agentType.getAgentTypeID());
+    }
+
     public Stream<ReadOnlyMemory> getReadOnlyMemories() {
         return strategyToGetAllMemories.getReadOnlyMemories();
     }

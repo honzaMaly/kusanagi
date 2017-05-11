@@ -29,6 +29,11 @@ public interface IntentionNodeInterface {
                              List<DesireKey> typesAboutToMakeDecision);
 
     /**
+     * Tell node to act on removal - tell contained intention to update knowledge
+     */
+    void actOnRemoval();
+
+    /**
      * Add own desire key to list + when intermediate node - ask childes
      *
      * @param list

@@ -11,8 +11,9 @@ import lombok.Getter;
  * Created by Jan on 16-Feb-17.
  */
 public abstract class IntentionCommand<V extends InternalDesire<? extends IntentionCommand<?, ?>>, T extends CommandForIntention<? extends IntentionCommand<V, T>>> extends Intention<V> {
-    IntentionCommand(V originalDesire, CommitmentDeciderInitializer removeCommitment) {
-        super(originalDesire, removeCommitment);
+    IntentionCommand(V originalDesire, CommitmentDeciderInitializer removeCommitment,
+                     ReactionOnChangeStrategy reactionOnChangeStrategy) {
+        super(originalDesire, removeCommitment, reactionOnChangeStrategy);
     }
 
     /**
@@ -31,8 +32,9 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
         private final ActCommand.DesiredByAnotherAgent command;
 
         FromAnotherAgent(DesireFromAnotherAgent.WithIntentionWithPlan originalDesire, CommitmentDeciderInitializer removeCommitment,
-                         CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, FromAnotherAgent> commandCreationStrategy) {
-            super(originalDesire, removeCommitment);
+                         CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, FromAnotherAgent> commandCreationStrategy,
+                         ReactionOnChangeStrategy reactionOnChangeStrategy) {
+            super(originalDesire, removeCommitment, reactionOnChangeStrategy);
             this.sharedDesireForAgents = originalDesire.getDesireForAgents();
             this.command = commandCreationStrategy.formCommand(this);
         }
@@ -51,8 +53,9 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
         private final ReasoningCommand command;
 
         OwnReasoning(OwnDesire.Reasoning originalDesire, CommitmentDeciderInitializer removeCommitment,
-                     CommandFormulationStrategy<ReasoningCommand, OwnReasoning> commandCreationStrategy) {
-            super(originalDesire, removeCommitment);
+                     CommandFormulationStrategy<ReasoningCommand, OwnReasoning> commandCreationStrategy,
+                     ReactionOnChangeStrategy reactionOnChangeStrategy) {
+            super(originalDesire, removeCommitment, reactionOnChangeStrategy);
             this.command = commandCreationStrategy.formCommand(this);
         }
 
@@ -69,8 +72,9 @@ public abstract class IntentionCommand<V extends InternalDesire<? extends Intent
         private final ActCommand.Own command;
 
         OwnActing(OwnDesire.Acting originalDesire, CommitmentDeciderInitializer removeCommitment,
-                  CommandFormulationStrategy<ActCommand.Own, OwnActing> commandCreationStrategy) {
-            super(originalDesire, removeCommitment);
+                  CommandFormulationStrategy<ActCommand.Own, OwnActing> commandCreationStrategy,
+                  ReactionOnChangeStrategy reactionOnChangeStrategy) {
+            super(originalDesire, removeCommitment, reactionOnChangeStrategy);
             this.command = commandCreationStrategy.formCommand(this);
         }
 

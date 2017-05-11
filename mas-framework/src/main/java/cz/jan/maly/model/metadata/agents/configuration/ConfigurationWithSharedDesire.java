@@ -2,6 +2,7 @@ package cz.jan.maly.model.metadata.agents.configuration;
 
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
+import cz.jan.maly.model.planing.ReactionOnChangeStrategy;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,8 +19,15 @@ public class ConfigurationWithSharedDesire extends CommonConfiguration {
     private int counts;
 
     @Builder
-    private ConfigurationWithSharedDesire(CommitmentDeciderInitializer decisionInDesire, CommitmentDeciderInitializer decisionInIntention, Set<DesireKey> typesOfDesiresToConsiderWhenCommitting, Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment, DesireKey sharedDesireKey, int counts) {
-        super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting, typesOfDesiresToConsiderWhenRemovingCommitment);
+    private ConfigurationWithSharedDesire(CommitmentDeciderInitializer decisionInDesire,
+                                          CommitmentDeciderInitializer decisionInIntention,
+                                          Set<DesireKey> typesOfDesiresToConsiderWhenCommitting,
+                                          Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment,
+                                          DesireKey sharedDesireKey, int counts,
+                                          ReactionOnChangeStrategy reactionOnChangeStrategy,
+                                          ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+        super(decisionInDesire, decisionInIntention, typesOfDesiresToConsiderWhenCommitting,
+                typesOfDesiresToConsiderWhenRemovingCommitment, reactionOnChangeStrategy, reactionOnChangeStrategyInIntention);
         this.sharedDesireKey = sharedDesireKey;
         this.counts = counts;
     }

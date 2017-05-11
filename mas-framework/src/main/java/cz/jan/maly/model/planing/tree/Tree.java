@@ -348,6 +348,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
                 if (intentionNode != null) {
                     Set<SharedDesireForAgents> sharedDesires = new HashSet<>();
                     intentionNode.collectSharedDesiresForOtherAgentsInSubtree(sharedDesires);
+                    intentionNode.actOnRemoval();
                     return sharedDesires;
                 }
             }

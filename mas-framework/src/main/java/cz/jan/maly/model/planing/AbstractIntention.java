@@ -16,8 +16,8 @@ public class AbstractIntention<T extends InternalDesire<?>> extends Intention<T>
 
     AbstractIntention(T originalDesire, CommitmentDeciderInitializer removeCommitment,
                       Set<DesireKey> desiresForOthers, Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
-                      Set<DesireKey> desiresWithIntentionToReason) {
-        super(originalDesire, removeCommitment);
+                      Set<DesireKey> desiresWithIntentionToReason, ReactionOnChangeStrategy reactionOnChangeStrategy) {
+        super(originalDesire, removeCommitment, reactionOnChangeStrategy);
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;

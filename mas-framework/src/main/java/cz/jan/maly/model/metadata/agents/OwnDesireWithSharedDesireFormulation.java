@@ -25,7 +25,8 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
         if (supportsDesireType(key)) {
             DesireForOthers forOthers = new DesireForOthers(key,
                     memory, getDecisionInDesire(key), getDecisionInIntention(key),
-                    sharedDesireKeyByKey.get(key), countOfAgentsToCommitByKey.get(key));
+                    sharedDesireKeyByKey.get(key), countOfAgentsToCommitByKey.get(key),
+                    getReactionInDesire(key), getReactionInIntention(key));
             return Optional.of(forOthers);
         }
         return Optional.empty();
@@ -62,7 +63,8 @@ public class OwnDesireWithSharedDesireFormulation extends DesireFormulation impl
                     DesireForOthers forOthers = new DesireForOthers(key,
                             memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
                             formulation.sharedDesireKeyByKey.get(key),
-                            formulation.countOfAgentsToCommitByKey.get(key), parentsDesireParameters);
+                            formulation.countOfAgentsToCommitByKey.get(key), parentsDesireParameters,
+                            formulation.getReactionInDesire(key), formulation.getReactionInIntention(key));
                     return Optional.of(forOthers);
                 }
             }

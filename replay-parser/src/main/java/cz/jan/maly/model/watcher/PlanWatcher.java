@@ -15,6 +15,7 @@ import java.util.stream.Stream;
  */
 public abstract class PlanWatcher {
     private final FeatureContainer container;
+    private double[] currentState;
 
     @Getter
     private boolean isCommitted = false;
@@ -30,6 +31,7 @@ public abstract class PlanWatcher {
         this.container = featureContainerInitializationStrategy.returnFeatureContainer();
         this.desireKey = desireKey;
         this.trajectory = new Trajectory(this.container.getNumberOfFeatures());
+        this.currentState = this.container.getFeatureVector().clone();
     }
 
     public void addCommitment() {
@@ -82,8 +84,9 @@ public abstract class PlanWatcher {
             hasStatusChanged = true;
         }
         if (container.isStatusUpdated(beliefs, mediatorService, committedToIDs) || hasStatusChanged) {
-            trajectory.addNewState(new State(currentFeatureState, isCommitted));
+            trajectory.addNewState(new State(currentState, isCommitted));
         }
+        currentState = currentFeatureState;
     }
 
     @Override

@@ -3,6 +3,7 @@ package cz.jan.maly.model.bot;
 import cz.jan.maly.model.features.FeatureContainerHeader;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 import static cz.jan.maly.model.bot.FactConverters.*;
@@ -15,8 +16,8 @@ public class FeatureContainerHeaders {
 
     //ECO manager
     public static final FeatureContainerHeader BUILDING_EXTRACTOR = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    OPPONENTS_RACE, COUNT_OF_DRONES_MORPHING_TO_EXTRACTOR, COUNT_OF_CONSTRUCTING_EXTRACTORS)))
+            .convertersForFactsForGlobalBeliefs(new HashSet<>(Collections.singleton(COUNT_OF_WORKERS)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES, OPPONENTS_RACE)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS, SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG,
                     SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP, SUM_OF_ENEMY_AIR_SHIELDS, SUM_OF_ENEMY_GROUND_SHIELDS,
@@ -26,8 +27,8 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS, SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader TRAINING_WORKER = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES, OPPONENTS_RACE,
-                    COUNT_OF_FREE_LARVAE, COUNT_OF_EGGS_MORPHING_TO_DRONE, COUNT_OF_LARVAE_MORPHING_TO_DRONE)))
+            .convertersForFactsForGlobalBeliefs(new HashSet<>(Collections.singleton(COUNT_OF_WORKERS)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES, OPPONENTS_RACE)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -38,9 +39,9 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader EXPANDING = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_DRONES_MORPHING_TO_BASE, COUNT_OF_CONSTRUCTING_HATCHERIES)))
+            .convertersForFactsForGlobalBeliefs(new HashSet<>(Collections.singleton(COUNT_OF_WORKERS)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -51,23 +52,20 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader INCREASING_CAPACITY = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, COUNT_OF_EGGS_MORPHING_TO_OVERLORD,
-                    COUNT_OF_LARVAE_MORPHING_TO_OVERLORD, CURRENT_POPULATION, MAX_POPULATION)))
-            .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
-                    SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
-                    SUM_OF_ENEMY_AIR_SHIELDS, SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG,
-                    SUM_OF_ENEMY_STATIC_AIR_UNITS, SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS,
-                    SUM_OF_OWN_AIR_DMG, SUM_OF_OWN_GROUND_DMG, SUM_OF_OWN_AIR_HP, SUM_OF_OWN_GROUND_HP, SUM_OF_OWN_STATIC_AIR_DMG,
-                    SUM_OF_OWN_STATIC_GROUND_DMG, SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS,
-                    SUM_OF_OWN_GROUND_UNITS)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(CURRENT_POPULATION, MAX_POPULATION)))
+            .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(SUM_OF_ENEMY_AIR_DMG,
+                    SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP, SUM_OF_ENEMY_AIR_SHIELDS,
+                    SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG, SUM_OF_ENEMY_STATIC_AIR_UNITS,
+                    SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS, SUM_OF_OWN_AIR_DMG,
+                    SUM_OF_OWN_GROUND_DMG, SUM_OF_OWN_AIR_HP, SUM_OF_OWN_GROUND_HP, SUM_OF_OWN_STATIC_AIR_DMG, SUM_OF_OWN_STATIC_GROUND_DMG,
+                    SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS, SUM_OF_OWN_GROUND_UNITS)))
             .build();
 
     //Build order manager
     public static final FeatureContainerHeader BUILDING_POOL = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_DRONES_MORPHING_TO_POOL, COUNT_OF_CONSTRUCTING_POOLS)))
+            .convertersForFactsForGlobalBeliefs(new HashSet<>(Collections.singleton(COUNT_OF_WORKERS)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES, COUNT_OF_ENEMY_BASES,
+                    MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -78,9 +76,8 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader UPGRADING_TO_LAIR = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_CONSTRUCTING_LAIR)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -91,9 +88,8 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader BUILDING_SPIRE = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_DRONES_MORPHING_TO_SPIRE, COUNT_OF_CONSTRUCTING_SPIRE)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -104,9 +100,8 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader BUILDING_HYDRALISK_DEN = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_DRONES_MORPHING_TO_HYDRALISK_DEN, COUNT_OF_CONSTRUCTING_HYDRALISK_DEN)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -117,9 +112,8 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_UNITS)))
             .build();
     public static final FeatureContainerHeader BUILDING_EVOLUTION_CHAMBER = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_WORKERS, COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_DRONES_MORPHING_TO_EVOLUTION_CHAMBER, COUNT_OF_CONSTRUCTING_EVOLUTION_CHAMBER)))
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
                     AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
@@ -133,10 +127,9 @@ public class FeatureContainerHeaders {
     //Unit order manager
     public static final FeatureContainerHeader BOOSTING_AIR = FeatureContainerHeader.builder()
             .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_FREE_LARVAE, COUNT_OF_EGGS_MORPHING_TO_FLAYER, COUNT_OF_LARVAE_MORPHING_TO_FLAYER)))
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
-                    AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
+                    AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
                     SUM_OF_ENEMY_AIR_SHIELDS, SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG,
                     SUM_OF_ENEMY_STATIC_AIR_UNITS, SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS,
@@ -146,10 +139,9 @@ public class FeatureContainerHeaders {
             .build();
     public static final FeatureContainerHeader BOOSTING_GROUND_MELEE = FeatureContainerHeader.builder()
             .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_FREE_LARVAE, COUNT_OF_EGGS_MORPHING_TO_LING, COUNT_OF_LARVAE_MORPHING_TO_LING)))
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
-                    AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
+                    AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
                     SUM_OF_ENEMY_AIR_SHIELDS, SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG,
                     SUM_OF_ENEMY_STATIC_AIR_UNITS, SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS,
@@ -159,10 +151,9 @@ public class FeatureContainerHeaders {
             .build();
     public static final FeatureContainerHeader BOOSTING_GROUND_RANGED = FeatureContainerHeader.builder()
             .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES,
-                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION,
-                    COUNT_OF_FREE_LARVAE, COUNT_OF_EGGS_MORPHING_TO_RANGED, COUNT_OF_LARVAE_MORPHING_TO_RANGED)))
+                    COUNT_OF_ENEMY_BASES, MAP_SIZE, OPPONENTS_RACE, AVAILABLE_BASES, CURRENT_POPULATION, MAX_POPULATION)))
             .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(AVERAGE_COUNT_OF_WORKERS_PER_BASE,
-                    AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE, COUNT_OF_EXTRACTORS,
+                    AVERAGE_COUNT_OF_WORKERS_MINING_MINERALS_PER_BASE, AVERAGE_COUNT_OF_WORKERS_MINING_GAS_PER_BASE,
                     SUM_OF_ENEMY_AIR_DMG, SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP,
                     SUM_OF_ENEMY_AIR_SHIELDS, SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG,
                     SUM_OF_ENEMY_STATIC_AIR_UNITS, SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS,

@@ -20,7 +20,8 @@ public class AnotherAgentsDesireWithIntentionWithActingCommandFormulation extend
         if (supportsDesireType(desireForAgents.getDesireKey())) {
             DesireFromAnotherAgent.WithIntentionWithPlan withPlan = new DesireFromAnotherAgent.WithIntentionWithPlan(desireForAgents,
                     memory, getDecisionInDesire(desireForAgents.getDesireKey()), getDecisionInIntention(desireForAgents.getDesireKey()),
-                    commandsByKey.get(desireForAgents.getDesireKey()));
+                    commandsByKey.get(desireForAgents.getDesireKey()),
+                    getReactionInDesire(desireForAgents.getDesireKey()), getReactionInIntention(desireForAgents.getDesireKey()));
             return Optional.of(withPlan);
         }
         return Optional.empty();

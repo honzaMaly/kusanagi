@@ -29,6 +29,11 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
 
     abstract void formDesireNodeAndReplaceIntentionNode();
 
+    @Override
+    public void actOnRemoval() {
+        intention.actOnRemoval();
+    }
+
     /**
      * Class to extend template - to define intention node without child
      */
@@ -266,14 +271,22 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
                 collectSharedDesiresForOtherAgentsInSubtree(sharedDesires);
                 if (!sharedDesires.isEmpty()) {
                     if (sharingDesireRemovalInSubtreeRoutine.unregisterSharedDesire(sharedDesires, tree)) {
+                        getDesireUpdater().getNodesWithIntention().forEach(IntentionNodeInterface::actOnRemoval);
                         formDesireNodeAndReplaceIntentionNode();
                         return true;
                     }
                 } else {
+                    getDesireUpdater().getNodesWithIntention().forEach(IntentionNodeInterface::actOnRemoval);
                     return true;
                 }
             }
             return false;
+        }
+
+        @Override
+        public void actOnRemoval() {
+            intention.actOnRemoval();
+            getDesireUpdater().getNodesWithIntention().forEach(IntentionNodeInterface::actOnRemoval);
         }
 
         protected abstract boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,

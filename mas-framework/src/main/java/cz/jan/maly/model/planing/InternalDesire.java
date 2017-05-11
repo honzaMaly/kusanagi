@@ -20,54 +20,71 @@ import java.util.stream.Stream;
  * of this are used in planning tree.
  * Created by Jan on 22-Feb-17.
  */
-public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire implements FactContainerInterface {
+public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire
+        implements FactContainerInterface, OnChangeActor, OnDestructionActor {
     final CommitmentDeciderInitializer removeCommitment;
     @Getter
     final boolean isAbstract;
     final WorkingMemory memory;
     private final CommitmentDecider commitmentDecider;
     private final Optional<DesireParameters> parentsDesireParameters;
+    @Getter
+    private final Optional<ReactionOnChangeStrategy> reactionOnChangeStrategy;
 
-    InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                   boolean isAbstract) {
+    InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                   CommitmentDeciderInitializer removeCommitment, boolean isAbstract, ReactionOnChangeStrategy reactionOnChangeStrategy) {
         super(desireKey, memory);
         this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.memory = memory;
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
         this.parentsDesireParameters = Optional.empty();
+        this.reactionOnChangeStrategy = Optional.ofNullable(reactionOnChangeStrategy);
     }
 
-    InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                   boolean isAbstract, DesireParameters parentsDesireParameters) {
+    InternalDesire(DesireKey desireKey, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                   CommitmentDeciderInitializer removeCommitment, boolean isAbstract,
+                   DesireParameters parentsDesireParameters, ReactionOnChangeStrategy reactionOnChangeStrategy) {
         super(desireKey, memory);
         this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.memory = memory;
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
         this.parentsDesireParameters = Optional.of(parentsDesireParameters);
+        this.reactionOnChangeStrategy = Optional.ofNullable(reactionOnChangeStrategy);
     }
 
-    InternalDesire(DesireParameters desireParameters, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                   boolean isAbstract, int originatorId) {
+    InternalDesire(DesireParameters desireParameters, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
+                   CommitmentDeciderInitializer removeCommitment, boolean isAbstract, int originatorId,
+                   ReactionOnChangeStrategy reactionOnChangeStrategy) {
         super(desireParameters, originatorId);
         this.memory = memory;
         this.commitmentDecider = commitmentDecider.initializeCommitmentDecider(desireParameters);
         this.removeCommitment = removeCommitment;
         this.isAbstract = isAbstract;
         this.parentsDesireParameters = Optional.empty();
+        this.reactionOnChangeStrategy = Optional.ofNullable(reactionOnChangeStrategy);
+    }
+
+    @Override
+    public void actOnRemoval() {
+        actOnChange(memory);
     }
 
     public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
                                 List<DesireKey> typesAboutToMakeDecision) {
+
+        //TODO - HACK! does not change return value and enables reaction
         return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                memory);
+                memory) && actOnChange(memory);
     }
 
     public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
                                 List<DesireKey> typesAboutToMakeDecision, int numberOfCommittedAgents) {
+
+        //TODO - HACK! does not change return value and enables reaction
         return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                memory, numberOfCommittedAgents);
+                memory, numberOfCommittedAgents) && actOnChange(memory);
     }
 
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
@@ -83,7 +100,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
     }
 
     public Stream<ReadOnlyMemory> getReadOnlyMemoriesForAgentType(AgentType agentType) {
-        return memory.getReadOnlyMemoriesForAgentType(agentType);
+        return memory.getReadOnlyMemoriesForAgentType(agentType.getAgentTypeID());
     }
 
     public Stream<ReadOnlyMemory> getReadOnlyMemories() {

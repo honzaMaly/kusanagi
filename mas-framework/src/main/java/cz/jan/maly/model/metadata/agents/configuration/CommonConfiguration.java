@@ -2,6 +2,7 @@ package cz.jan.maly.model.metadata.agents.configuration;
 
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
+import cz.jan.maly.model.planing.ReactionOnChangeStrategy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,6 +20,8 @@ public class CommonConfiguration {
     private CommitmentDeciderInitializer decisionInIntention;
     private Set<DesireKey> typesOfDesiresToConsiderWhenCommitting;
     private Set<DesireKey> typesOfDesiresToConsiderWhenRemovingCommitment;
+    private ReactionOnChangeStrategy reactionOnChangeStrategy;
+    private ReactionOnChangeStrategy reactionOnChangeStrategyInIntention;
 
     //builder with default fields
     static class CommonConfigurationBuilder {

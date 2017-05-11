@@ -45,12 +45,11 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                 .reasoning((bl, ms) -> {
                     ABaseLocationWrapper baseLocationWrapper = bl.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
 
-                    //enemies
+                    //enemy's units
                     Set<AUnit.Enemy> enemies = UnitWrapperFactory.getStreamOfAllAliveEnemyUnits().filter(enemy -> {
                         Optional<ABaseLocationWrapper> bL = enemy.getNearestBaseLocation();
                         return bL.isPresent() && bL.get().equals(baseLocationWrapper);
                     }).collect(Collectors.toSet());
-
                     bl.updateFactSetByFacts(ENEMY_BUILDING, enemies.stream().filter(enemy -> enemy.getType().isBuilding()).collect(Collectors.toSet()));
                     bl.updateFactSetByFacts(ENEMY_GROUND, enemies.stream().filter(enemy -> !enemy.getType().isBuilding() && !enemy.getType().isFlyer()).collect(Collectors.toSet()));
                     bl.updateFactSetByFacts(ENEMY_AIR, enemies.stream().filter(enemy -> !enemy.getType().isBuilding() && enemy.getType().isFlyer()).collect(Collectors.toSet()));
@@ -63,8 +62,6 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                     bl.updateFactSetByFacts(OWN_BUILDING, playersUnits.stream().filter(own -> own.getType().isBuilding()).collect(Collectors.toSet()));
                     bl.updateFactSetByFacts(OWN_GROUND, playersUnits.stream().filter(own -> !own.getType().isBuilding() && !own.getType().isFlyer()).collect(Collectors.toSet()));
                     bl.updateFactSetByFacts(OWN_AIR, playersUnits.stream().filter(own -> !own.getType().isBuilding() && own.getType().isFlyer()).collect(Collectors.toSet()));
-
-                    //static defense
                     bl.updateFactSetByFacts(STATIC_DEFENSE, playersUnits.stream()
                             .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.SUNKEN_COLONY_TYPE)
                                     || aUnitOfPlayer.getType().equals(AUnitTypeWrapper.CREEP_COLONY_TYPE)
@@ -127,14 +124,24 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                             .filter(unitTypeStatus -> unitTypeStatus.getUnitTypeWrapper().canAttackGroundUnits())
                             .collect(Collectors.toSet()));
 
+                    //eco concerns
                     Set<AgentWatcher<?>> workersAroundBase = ms.getStreamOfWatchers()
-                            .filter(agentWatcher -> agentWatcher.getAgentWatcherType().getName().equals(DRONE.getName()))
+                            .filter(agentWatcher -> agentWatcher.getAgentWatcherType().getName().equals(DRONE.getName())
+                                    || agentWatcher.getAgentWatcherType().getName().equals(EGG.getName())
+                                    || agentWatcher.getAgentWatcherType().getName().equals(LARVA.getName())
+                            )
+                            .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get().getType().isWorker()
+                                    || (!agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get().getTrainingQueue().isEmpty()
+                                    && agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get().getTrainingQueue().get(0).isWorker()))
                             .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).isPresent() &&
                                     agentWatcher.getBeliefs().returnFactValueForGivenKey(LOCATION).get().equals(baseLocationWrapper))
                             .collect(Collectors.toSet());
                     bl.updateFactSetByFacts(WORKER_ON_BASE, workersAroundBase.stream()
                             .map(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get())
                             .collect(Collectors.toSet()));
+                    workersAroundBase = workersAroundBase.stream()
+                            .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get().getType().isWorker())
+                            .collect(Collectors.toSet());
                     bl.updateFactSetByFacts(WORKER_MINING_MINERALS, workersAroundBase.stream()
                             .filter(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(IS_GATHERING_MINERALS).get())
                             .map(agentWatcher -> agentWatcher.getBeliefs().returnFactValueForGivenKey(REPRESENTS_UNIT).get())
@@ -151,8 +158,10 @@ public class BaseWatcher extends AgentWatcher<BaseWatcherType> implements AgentM
                             .map(o -> (AUnitOfPlayer) o)
                             .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isGasBuilding())
                             .collect(Collectors.toSet()));
+
+                    //status
                     bl.updateFact(IS_BASE, bl.returnFactSetValueForGivenKey(HAS_BASE).map(Stream::count).orElse(0L) > 0);
-                    bl.updateFact(IS_ENEMY_BASE, bl.returnFactValueForGivenKey(IS_BASE).orElse(false) && bl.returnFactSetValueForGivenKey(ENEMY_BUILDING).map(Stream::count).orElse(0L) > 0);
+                    bl.updateFact(IS_ENEMY_BASE, !bl.returnFactValueForGivenKey(IS_BASE).orElse(false) && bl.returnFactSetValueForGivenKey(ENEMY_BUILDING).map(Stream::count).orElse(0L) > 0);
 
                     //update checks
                     updateChecksStrategy.updateChecks(bl.returnFactValueForGivenKey(IS_BASE).get(),

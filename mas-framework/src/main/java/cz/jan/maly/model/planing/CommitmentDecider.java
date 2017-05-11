@@ -29,9 +29,9 @@ public class CommitmentDecider {
     public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
                                 List<DesireKey> typesAboutToMakeDecision, WorkingMemory memory) {
         dataForDecision.updateBeliefs(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision, memory);
-        if (dataForDecision.isBeliefsChanged()) {
+        if (dataForDecision.isBeliefsChanged() || dataForDecision.isUseFactsInMemory()) {
             dataForDecision.setBeliefsChanged(false);
-            return decisionStrategy.shouldCommit(dataForDecision);
+            return decisionStrategy.shouldCommit(dataForDecision, memory);
         } else {
             return false;
         }
@@ -46,9 +46,9 @@ public class CommitmentDecider {
                                 List<DesireKey> typesAboutToMakeDecision, WorkingMemory memory, int numberOfCommittedAgents) {
         dataForDecision.updateBeliefs(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision, memory,
                 numberOfCommittedAgents);
-        if (dataForDecision.isBeliefsChanged()) {
+        if (dataForDecision.isBeliefsChanged() || dataForDecision.isUseFactsInMemory()) {
             dataForDecision.setBeliefsChanged(false);
-            return decisionStrategy.shouldCommit(dataForDecision);
+            return decisionStrategy.shouldCommit(dataForDecision, memory);
         } else {
             return false;
         }

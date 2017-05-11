@@ -24,7 +24,7 @@ import java.util.Set;
  * creation using desire key
  * Created by Jan on 15-Feb-17.
  */
-public class AgentType extends AgentTypeID {
+public class AgentType {
     private final OwnDesireWithAbstractIntentionFormulation.Stacked
             ownDesireWithAbstractIntentionFormulation = new OwnDesireWithAbstractIntentionFormulation.Stacked();
     private final OwnDesireWithIntentionWithActingCommandFormulation.Stacked
@@ -49,6 +49,9 @@ public class AgentType extends AgentTypeID {
     private Set<FactKey<?>> usingTypesForFactSets;
     private boolean isConfigurationInitialized = false;
 
+    @Getter
+    private final AgentTypeID agentTypeID;
+
     /**
      * Define agent type. Together with initial desires
      *
@@ -66,7 +69,7 @@ public class AgentType extends AgentTypeID {
                         Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
                         Set<DesireKey> desiresWithIntentionToReason, Set<FactKey<?>> usingTypesForFacts,
                         Set<FactKey<?>> usingTypesForFactSets, ConfigurationInitializationStrategy initializationStrategy) {
-        super(agentTypeID.getName(), agentTypeID.getID());
+        this.agentTypeID = agentTypeID;
         this.desiresForOthers = desiresForOthers;
         this.desiresWithAbstractIntention = desiresWithAbstractIntention;
         this.desiresWithIntentionToAct = desiresWithIntentionToAct;
@@ -99,6 +102,21 @@ public class AgentType extends AgentTypeID {
         checkSupport(desiresWithIntentionToAct, ownDesireWithIntentionWithActingCommandFormulation);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AgentType agentType = (AgentType) o;
+
+        return agentTypeID.equals(agentType.agentTypeID);
+    }
+
+    @Override
+    public int hashCode() {
+        return agentTypeID.hashCode();
+    }
+
     /**
      * Check if instance of DesireFormulation supports given keys
      *
@@ -110,8 +128,8 @@ public class AgentType extends AgentTypeID {
                 .filter(key -> !desireFormulation.supportsDesireType(key))
                 .findAny();
         if (first.isPresent()) {
-            MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
-            throw new IllegalArgumentException(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
+            MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + agentTypeID.getName());
+            throw new IllegalArgumentException(first.get().getName() + " can't be instantiated in abstract plan for " + agentTypeID.getName());
         }
     }
 
@@ -131,9 +149,13 @@ public class AgentType extends AgentTypeID {
                 .map(Optional::get)
                 .findAny();
         if (first.isPresent()) {
-            MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
-            throw new IllegalArgumentException(first.get().getName() + " can't be instantiated in abstract plan for " + getName());
+            MyLogger.getLogger().warning(first.get().getName() + " can't be instantiated in abstract plan for " + agentTypeID.getName());
+            throw new IllegalArgumentException(first.get().getName() + " can't be instantiated in abstract plan for " + agentTypeID.getName());
         }
+    }
+
+    public String getName() {
+        return agentTypeID.getName();
     }
 
     /**

@@ -17,11 +17,15 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
 
     @Getter
     private final SharedDesireForAgents desireForAgents;
+    final ReactionOnChangeStrategy reactionOnChangeStrategyInIntention;
 
     DesireFromAnotherAgent(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory, CommitmentDeciderInitializer commitmentDecider,
-                           CommitmentDeciderInitializer removeCommitment, boolean isAbstract) {
-        super(desireOriginatedFrom.desireParameters, memory, commitmentDecider, removeCommitment, isAbstract, desireOriginatedFrom.originatorId);
+                           CommitmentDeciderInitializer removeCommitment, boolean isAbstract, ReactionOnChangeStrategy reactionOnChangeStrategy,
+                           ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+        super(desireOriginatedFrom.desireParameters, memory, commitmentDecider, removeCommitment, isAbstract,
+                desireOriginatedFrom.originatorId, reactionOnChangeStrategy);
         this.desireForAgents = desireOriginatedFrom;
+        this.reactionOnChangeStrategyInIntention = reactionOnChangeStrategyInIntention;
     }
 
     public int countOfCommittedAgents() {
@@ -41,8 +45,11 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
                                      CommitmentDeciderInitializer commitmentDecider,
                                      CommitmentDeciderInitializer removeCommitment, Set<DesireKey> desiresForOthers,
                                      Set<DesireKey> desiresWithAbstractIntention, Set<DesireKey> desiresWithIntentionToAct,
-                                     Set<DesireKey> desiresWithIntentionToReason) {
-            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, true);
+                                     Set<DesireKey> desiresWithIntentionToReason,
+                                     ReactionOnChangeStrategy reactionOnChangeStrategy,
+                                     ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, true, reactionOnChangeStrategy,
+                    reactionOnChangeStrategyInIntention);
             this.desiresForOthers = desiresForOthers;
             this.desiresWithAbstractIntention = desiresWithAbstractIntention;
             this.desiresWithIntentionToAct = desiresWithIntentionToAct;
@@ -52,7 +59,7 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
         @Override
         public AbstractIntention<DesireFromAnotherAgent.WithAbstractIntention> formIntention(Agent agent) {
             return new AbstractIntention<>(this, removeCommitment, desiresForOthers, desiresWithAbstractIntention,
-                    desiresWithIntentionToAct, desiresWithIntentionToReason);
+                    desiresWithIntentionToAct, desiresWithIntentionToReason, reactionOnChangeStrategyInIntention);
         }
     }
 
@@ -64,14 +71,18 @@ public abstract class DesireFromAnotherAgent<T extends Intention<? extends Desir
 
         public WithIntentionWithPlan(SharedDesireForAgents desireOriginatedFrom, WorkingMemory memory,
                                      CommitmentDeciderInitializer commitmentDecider, CommitmentDeciderInitializer removeCommitment,
-                                     CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy) {
-            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, false);
+                                     CommandFormulationStrategy<ActCommand.DesiredByAnotherAgent, IntentionCommand.FromAnotherAgent> commandCreationStrategy,
+                                     ReactionOnChangeStrategy reactionOnChangeStrategy,
+                                     ReactionOnChangeStrategy reactionOnChangeStrategyInIntention) {
+            super(desireOriginatedFrom, memory, commitmentDecider, removeCommitment, false, reactionOnChangeStrategy,
+                    reactionOnChangeStrategyInIntention);
             this.commandCreationStrategy = commandCreationStrategy;
         }
 
         @Override
         public IntentionCommand.FromAnotherAgent formIntention(Agent agent) {
-            return new IntentionCommand.FromAnotherAgent(this, removeCommitment, commandCreationStrategy);
+            return new IntentionCommand.FromAnotherAgent(this, removeCommitment, commandCreationStrategy,
+                    reactionOnChangeStrategyInIntention);
         }
     }
 

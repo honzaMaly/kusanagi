@@ -22,7 +22,7 @@ public class ReadOnlyMemoryRegister extends MemoryRegister {
     ReadOnlyMemoryRegister(Map<Agent, ReadOnlyMemory> dataByOriginator) {
         super(dataByOriginator);
         this.beliefsInSystem = dataByOriginator.values().stream()
-                .collect(Collectors.groupingBy(ReadOnlyMemory::getAgentType, Collectors.toMap(ReadOnlyMemory::getAgentId, Function.identity())));
+                .collect(Collectors.groupingBy(o -> o.getAgentType().getAgentTypeID(), Collectors.toMap(ReadOnlyMemory::getAgentId, Function.identity())));
         this.beliefsInSystemByAgents = dataByOriginator.values().stream()
                 .collect(Collectors.toMap(ReadOnlyMemory::getAgentId, Function.identity()));
     }

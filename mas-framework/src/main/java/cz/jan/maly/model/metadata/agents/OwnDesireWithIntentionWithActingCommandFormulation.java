@@ -23,7 +23,8 @@ public class OwnDesireWithIntentionWithActingCommandFormulation extends DesireFo
     public Optional<OwnDesire.Acting> formDesire(DesireKey key, WorkingMemory memory) {
         if (supportsDesireType(key)) {
             OwnDesire.Acting acting = new OwnDesire.Acting(key,
-                    memory, getDecisionInDesire(key), getDecisionInIntention(key), commandsByKey.get(key));
+                    memory, getDecisionInDesire(key), getDecisionInIntention(key), commandsByKey.get(key),
+                    getReactionInDesire(key), getReactionInIntention(key));
             return Optional.of(acting);
         }
         return Optional.empty();
@@ -47,7 +48,8 @@ public class OwnDesireWithIntentionWithActingCommandFormulation extends DesireFo
                 if (formulation.supportsDesireType(key)) {
                     OwnDesire.Acting acting = new OwnDesire.Acting(key,
                             memory, formulation.getDecisionInDesire(key), formulation.getDecisionInIntention(key),
-                            formulation.commandsByKey.get(key), parentsDesireParameters);
+                            formulation.commandsByKey.get(key), parentsDesireParameters,
+                            formulation.getReactionInDesire(key), formulation.getReactionInIntention(key));
                     return Optional.of(acting);
                 }
             }

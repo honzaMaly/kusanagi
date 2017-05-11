@@ -1,38 +1,16 @@
 package cz.jan.maly.model.bot;
 
-import bwapi.Race;
+import cz.jan.maly.model.TypeWrapperStrategy;
 import cz.jan.maly.model.UnitTypeStatus;
 import cz.jan.maly.model.UpgradeTypeStatus;
 import cz.jan.maly.model.game.wrappers.*;
 import cz.jan.maly.model.metadata.FactKey;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 
 /**
  * Basic fact keys - used in agent to relate them with representation
  * Created by Jan on 15-Mar-17.
  */
 public class FactKeys {
-    private final static List<Race> RACES = Arrays.asList(Race.Protoss, Race.Terran, Race.Zerg);
-    private static final Random RANDOM = new Random();
-
-    /**
-     * Return index of race in list
-     *
-     * @param race
-     * @return
-     */
-    static Optional<Integer> getIndexOfRace(Race race) {
-        for (int i = 0; i < RACES.size(); i++) {
-            if (race.toString().equals(RACES.get(i).toString())) {
-                return Optional.of(i);
-            }
-        }
-        return Optional.empty();
-    }
 
     //Facts for base
     public static final FactKey<AUnitOfPlayer> WORKER_ON_BASE = new FactKey<AUnitOfPlayer>("WORKER_ON_BASE", false) {
@@ -108,6 +86,18 @@ public class FactKeys {
         }
     };
     public static final FactKey<AUnitOfPlayer> STATIC_DEFENSE = new FactKey<AUnitOfPlayer>("STATIC_DEFENSE", false) {
+        @Override
+        public AUnitOfPlayer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<AUnit.Enemy> ENEMY_UNIT = new FactKey<AUnit.Enemy>("ENEMY_UNIT", false) {
+        @Override
+        public AUnit.Enemy getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<AUnitOfPlayer> OUR_UNIT = new FactKey<AUnitOfPlayer>("OUR_UNIT", false) {
         @Override
         public AUnitOfPlayer getInitValue() {
             return null;
@@ -200,12 +190,24 @@ public class FactKeys {
             return null;
         }
     };
+    public static final FactKey<TypeWrapperStrategy> MORPH_TO = new FactKey<TypeWrapperStrategy>("MORPH_TO_DRONE", false) {
+        @Override
+        public TypeWrapperStrategy getInitValue() {
+            return null;
+        }
+    };
 
     //for buildings
     public static final FactKey<Boolean> IS_BEING_CONSTRUCT = new FactKey<Boolean>("IS_BEING_CONSTRUCT", false) {
         @Override
         public Boolean getInitValue() {
             return false;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_POOL = new FactKey<ATilePosition>("PLACE_FOR_POOL", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
         }
     };
 
@@ -234,12 +236,12 @@ public class FactKeys {
             return null;
         }
     };
-    public static final FactKey<Race> ENEMY_RACE = new FactKey<Race>("ENEMY_RACE", false) {
+    public static final FactKey<ARace> ENEMY_RACE = new FactKey<ARace>("ENEMY_RACE", false) {
         @Override
-        public Race getInitValue() {
+        public ARace getInitValue() {
 
             //start with randomly picked race
-            return RACES.get(RANDOM.nextInt(RACES.size()));
+            return ARace.getRandomRace();
         }
     };
     public static final FactKey<APlayer> IS_PLAYER = new FactKey<APlayer>("IS_PLAYER", false) {
@@ -363,13 +365,6 @@ public class FactKeys {
     public static final FactKey<AUnitWithCommands> IS_UNIT = new FactKey<AUnitWithCommands>("IS_UNIT", true) {
         @Override
         public AUnitWithCommands getInitValue() {
-            return null;
-        }
-    };
-
-    public static final FactKey<bwta.Region> IS_REGION = new FactKey<bwta.Region>("IS_REGION", false) {
-        @Override
-        public bwta.Region getInitValue() {
             return null;
         }
     };
