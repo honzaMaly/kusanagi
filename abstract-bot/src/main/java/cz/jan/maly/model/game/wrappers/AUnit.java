@@ -18,8 +18,9 @@ public class AUnit {
             UnitType.Resource_Mineral_Field_Type_2, UnitType.Resource_Mineral_Field_Type_3, UnitType.Resource_Vespene_Geyser})
             .collect(Collectors.toSet());
 
+    @Getter
     final Unit unit;
-//    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
+    //    final List<Unit> enemyUnitsInWeaponRange = new ArrayList<>();
 //    final List<Integer> enemyUnitsInWeaponRangeIds;
     final List<Unit> friendlyUnitsInRadiusOfSight = new ArrayList<>();
     final List<Integer> friendlyUnitsInRadiusOfSightIds;
@@ -234,6 +235,12 @@ public class AUnit {
         this.isCarryingMinerals = unit.isCarryingMinerals();
         this.player = APlayer.wrapPlayer(unit.getPlayer());
         unitId = unit.getID();
+    }
+
+    public boolean isDoingSomething() {
+        return isGatheringGas() || isGatheringMinerals() ||
+                isConstructing() || isMoving() || isAccelerating()
+                || isMorphing() || isAttacking();
     }
 
     public AUnitTypeWrapper getType() {

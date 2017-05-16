@@ -5,7 +5,6 @@ import cz.jan.maly.model.tracking.State;
 import cz.jan.maly.model.tracking.Trajectory;
 import cz.jan.maly.service.StateClusteringService;
 import cz.jan.maly.utils.Configuration;
-import cz.jan.maly.utils.MyLogger;
 import jsat.SimpleDataSet;
 import jsat.classifiers.DataPoint;
 import jsat.clustering.SeedSelectionMethods;
@@ -29,7 +28,7 @@ import static cz.jan.maly.utils.Configuration.DISTANCE_FUNCTION;
  * Created by Jan on 24-Apr-17.
  */
 public class StateClusteringServiceImpl implements StateClusteringService {
-    private static final int sampleStates = 25000;
+    private static final int sampleStates = 20000;
     private static final SeedSelectionMethods.SeedSelection SEED_SELECTION_METHOD = SeedSelectionMethods.SeedSelection.MEAN_QUANTILES;
 
     @Override
@@ -50,10 +49,10 @@ public class StateClusteringServiceImpl implements StateClusteringService {
     @Override
     public List<Vec> computeStateRepresentatives(List<Trajectory> trajectories, List<State> states, List<FeatureNormalizer> normalizers) {
         if (states.size() > sampleStates) {
-            int clusterNumberEstimation = estimateClusters(trajectories, normalizers);
-            MyLogger.getLogger().info("Estimated #" + clusterNumberEstimation + " clusters.");
+//            int clusterNumberEstimation = estimateClusters(trajectories, normalizers);
+//            MyLogger.getLogger().info("Estimated #" + clusterNumberEstimation + " clusters.");
             MiniBatchKMeans batchKMeans = new MiniBatchKMeans(DISTANCE_FUNCTION, 200, 250, SEED_SELECTION_METHOD);
-            batchKMeans.cluster(createDataSet(states, normalizers), clusterNumberEstimation);
+            batchKMeans.cluster(createDataSet(states, normalizers), 750);
             return batchKMeans.getMeans();
         }
         return computeStateRepresentatives(states, normalizers);
@@ -65,9 +64,9 @@ public class StateClusteringServiceImpl implements StateClusteringService {
         List<List<Trajectory>> batches = trajectories.stream()
                 .collect(splitByBatchSize(sampleStates));
         Collections.shuffle(batches);
-        return (int) batches.subList(0, Math.min(5, batches.size())).stream()
+        return ((int) batches.subList(0, Math.min(4, batches.size())).stream()
                 .mapToInt(value -> computeStateRepresentatives(value.stream().flatMap(trajectory -> trajectory.getStates().stream()).collect(Collectors.toList()), normalizers).size())
-                .average().orElse(100);
+                .average().orElse(1000));
 //        return computeStateRepresentatives(trajectories.stream().flatMap(trajectory -> trajectory.getStates().stream()).limit(sampleStates).collect(Collectors.toList()), normalizers).size();
     }
 

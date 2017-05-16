@@ -68,7 +68,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
 
     @Override
     public void actOnRemoval() {
-        actOnChange(memory);
+        actOnChange(memory, desireParameters);
     }
 
     public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
@@ -76,7 +76,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
 
         //TODO - HACK! does not change return value and enables reaction
         return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                memory) && actOnChange(memory);
+                memory) && actOnChange(memory, desireParameters);
     }
 
     public boolean shouldCommit(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
@@ -84,7 +84,7 @@ public abstract class InternalDesire<T extends Intention<? extends InternalDesir
 
         //TODO - HACK! does not change return value and enables reaction
         return commitmentDecider.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                memory, numberOfCommittedAgents) && actOnChange(memory);
+                memory, numberOfCommittedAgents) && actOnChange(memory, desireParameters);
     }
 
     public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {

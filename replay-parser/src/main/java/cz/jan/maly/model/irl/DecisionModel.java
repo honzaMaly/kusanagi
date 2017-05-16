@@ -15,23 +15,24 @@ import java.util.stream.Collectors;
  */
 public class DecisionModel implements FullStateModel {
     private final Map<DecisionState, Map<NextActionEnumerations, Map<DecisionState, Double>>> transitionsProbabilitiesBasedOnActions = new HashMap<>();
+    private DecisionState deadEnd;
 
     /**
      * Very nasty hack as we do not know what will happen when we decide to take action which nobody took - agent is send
      * to special state with transitions to itself. As no player is tacking this action it should be fine to use it
      */
     public void addExtraTransitionToStateWhenNoActionExists() {
-        DecisionState state = new DecisionState(transitionsProbabilitiesBasedOnActions.size());
+        deadEnd = new DecisionState(transitionsProbabilitiesBasedOnActions.size());
         Map<NextActionEnumerations, Map<DecisionState, Double>> transitionMap = new HashMap<>();
 
         //dummy map
         Map<DecisionState, Double> dummyMap = new HashMap<>();
-        dummyMap.put(state, 1.0);
+        dummyMap.put(deadEnd, 1.0);
 
         for (NextActionEnumerations action : NextActionEnumerations.values()) {
             transitionMap.put(action, dummyMap);
         }
-        transitionsProbabilitiesBasedOnActions.put(state, transitionMap);
+        transitionsProbabilitiesBasedOnActions.put(deadEnd, transitionMap);
 
         //now add missing transitions
         transitionsProbabilitiesBasedOnActions.values().forEach(nextActionEnumerationsMapMap -> Arrays.stream(NextActionEnumerations.values())
@@ -73,7 +74,12 @@ public class DecisionModel implements FullStateModel {
 
     @Override
     public DecisionState sample(State state, Action action) {
-        List<StateTransitionProb> reachableStates = stateTransitions(state, action);
+        List<StateTransitionProb> reachableStates;
+        try {
+            reachableStates = stateTransitions(state, action);
+        } catch (NullPointerException e) {
+            reachableStates = Collections.singletonList(new StateTransitionProb(deadEnd, 1.0));
+        }
         Collections.shuffle(reachableStates);
 
         //sample random roll

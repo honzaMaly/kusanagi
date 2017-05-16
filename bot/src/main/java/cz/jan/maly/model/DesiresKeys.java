@@ -38,24 +38,26 @@ public class DesiresKeys {
     public static final DesireKey BUILD_WORKER = DesireKey.builder()
             .id(DesireKeys.BUILD_WORKER)
             .build();
+    public static final DesireKey INCREASE_CAPACITY = DesireKey.builder()
+            .id(DesireKeys.INCREASE_CAPACITY)
+            .build();
     public static final DesireKey EXPAND = DesireKey.builder()
             .id(DesireKeys.EXPAND)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
+            .build();
+    public static final DesireKey BUILD_EXTRACTOR = DesireKey.builder()
+            .id(DesireKeys.BUILD_EXTRACTOR)
             .build();
 
     //for unit order manager
     public static final DesireKey BOOST_GROUND_MELEE = DesireKey.builder()
             .id(DesireKeys.BOOST_GROUND_MELEE)
+            .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.ZERGLING_TYPE, FactKeys.MORPH_TO))))
             .build();
 
     //for build order manager
     public static final DesireKey ENABLE_GROUND_MELEE = DesireKey.builder()
             .id(DesireKeys.ENABLE_GROUND_MELEE)
-            .build();
-    public static final DesireKey FIND_PLACE_FOR_POOL = DesireKey.builder()
-            .id(DesireKeys.FIND_PLACE_FOR_POOL)
-            .build();
-    public static final DesireKey CHECK_PLACE_FOR_POOL = DesireKey.builder()
-            .id(DesireKeys.CHECK_PLACE_FOR_POOL)
             .build();
 
     //for base
@@ -77,11 +79,24 @@ public class DesiresKeys {
     public static final DesireKey ENEMIES_IN_LOCATION = DesireKey.builder()
             .id(DesireKeys.ENEMIES_IN_LOCATION)
             .build();
-
     public static final DesireKey MINE_MINERALS_IN_BASE = DesireKey.builder()
             .id(DesireKeys.MINE_MINERALS_IN_BASE)
             .parametersTypesForFacts(new HashSet<>(Collections.singletonList(IS_BASE_LOCATION)))
             .parametersTypesForFactSets(new HashSet<>(Arrays.asList(MINERAL, HAS_BASE)))
+            .build();
+    public static final DesireKey MINE_GAS_IN_BASE = DesireKey.builder()
+            .id(DesireKeys.MINE_GAS_IN_BASE)
+            .parametersTypesForFacts(new HashSet<>(Collections.singletonList(IS_BASE_LOCATION)))
+            .parametersTypesForFactSets(new HashSet<>(Arrays.asList(HAS_EXTRACTOR, HAS_BASE)))
+            .build();
+
+    //scouting
+    public static final DesireKey VISIT = DesireKey.builder()
+            .id(DesireKeys.VISIT)
+            .parametersTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE_LOCATION, LAST_TIME_SCOUTED)))
+            .build();
+    public static final DesireKey WORKER_SCOUT = DesireKey.builder()
+            .id(DesireKeys.WORKER_SCOUT)
             .build();
 
     //morphing
@@ -92,10 +107,16 @@ public class DesiresKeys {
             .id(DesireKeys.MORPH_TO_DRONE)
             .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.DRONE_TYPE, FactKeys.MORPH_TO))))
             .build();
+    public static final DesireKey MORPH_TO_OVERLORD = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_OVERLORD)
+            .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.OVERLORD_TYPE, FactKeys.MORPH_TO))))
+            .build();
     public static final DesireKey MORPH_TO_POOL = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_POOL)
-            .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.SPAWNING_POOL_TYPE, FactKeys.MORPH_TO))))
-            .parametersTypesForFacts(new HashSet<>(Collections.singleton(PLACE_FOR_POOL)))
+            .build();
+    public static final DesireKey MORPH_TO_EXTRACTOR = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_EXTRACTOR)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
             .build();
 
     //for all units
@@ -107,22 +128,34 @@ public class DesiresKeys {
     public static final DesireKey UPDATE_BELIEFS_ABOUT_WORKER_ACTIVITIES = DesireKey.builder()
             .id(DesireKeys.UPDATE_BELIEFS_ABOUT_WORKER_ACTIVITIES)
             .build();
+    public static final DesireKey GO_TO_BASE = DesireKey.builder()
+            .id(DesireKeys.GO_TO_BASE)
+            .build();
+    public static final DesireKey FIND_PLACE_FOR_POOL = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_POOL)
+            .build();
+    public static final DesireKey FIND_PLACE_FOR_HATCHERY = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_HATCHERY)
+            .build();
+    public static final DesireKey FIND_PLACE_FOR_EXTRACTOR = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_EXTRACTOR)
+            .build();
+    public static final DesireKey SELECT_MINERAL = DesireKey.builder()
+            .id(DesireKeys.SELECT_MINERAL)
+            .build();
+    public static final DesireKey MINE_MINERALS = DesireKey.builder()
+            .id(DesireKeys.MINE_MINERAL)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(IS_BASE_LOCATION)))
+            .parametersTypesForFacts(new HashSet<>(Collections.singletonList(MINERAL_TO_MINE)))
+            .build();
+    public static final DesireKey UNSELECT_MINERAL = DesireKey.builder()
+            .id(DesireKeys.UNSELECT_MINERAL)
+            .build();
 
     //for buildings
     public static final DesireKey UPDATE_BELIEFS_ABOUT_CONSTRUCTION = DesireKey.builder()
             .id(DesireKeys.UPDATE_BELIEFS_ABOUT_CONSTRUCTION)
             .build();
 
-    public static final DesireKey MINE_MINERALS = DesireKey.builder()
-            .id(DesireKeys.MINE_MINERAL)
-            .parametersTypesForFacts(new HashSet<>(Collections.singletonList(MINERAL_TO_MINE)))
-            .build();
 
-    public static final DesireKey SELECT_MINERAL = DesireKey.builder()
-            .id(DesireKeys.SELECT_MINERAL)
-            .build();
-
-    public static final DesireKey UNSELECT_MINERAL = DesireKey.builder()
-            .id(DesireKeys.UNSELECT_MINERAL)
-            .build();
 }

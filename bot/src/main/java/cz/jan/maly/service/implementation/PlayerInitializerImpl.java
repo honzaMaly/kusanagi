@@ -11,14 +11,12 @@ import cz.jan.maly.model.game.wrappers.AUnit;
 import cz.jan.maly.model.game.wrappers.UnitWrapperFactory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.service.PlayerInitializer;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static cz.jan.maly.model.DesiresKeys.*;
@@ -39,6 +37,29 @@ public class PlayerInitializerImpl implements PlayerInitializer {
                     ENEMY_GROUND_FORCE_STATUS, LOCKED_UNITS, LOCKED_BUILDINGS, ENEMY_STATIC_AIR_FORCE_STATUS, ENEMY_STATIC_GROUND_FORCE_STATUS,
                     OWN_STATIC_AIR_FORCE_STATUS, OWN_STATIC_GROUND_FORCE_STATUS)))
             .initializationStrategy(type -> {
+
+                //send worker to scout
+                ConfigurationWithSharedDesire sendWorkerScouting = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(WORKER_SCOUT)
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> memory.getReadOnlyMemoriesForAgentType(AgentTypes.BASE_LOCATION)
+                                        .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_START_LOCATION).get())
+                                        .filter(readOnlyMemory -> !readOnlyMemory.returnFactValueForGivenKey(LAST_TIME_SCOUTED).isPresent())
+                                        .count() > 0
+                                        && memory.getReadOnlyMemoriesForAgentType(AgentTypes.DRONE).count() >= 4)
+                                .useFactsInMemory(true)
+                                .build()
+                        )
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> memory.getReadOnlyMemoriesForAgentType(AgentTypes.BASE_LOCATION)
+                                        .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_START_LOCATION).get())
+                                        .filter(readOnlyMemory -> !readOnlyMemory.returnFactValueForGivenKey(LAST_TIME_SCOUTED).isPresent())
+                                        .count() == 0)
+                                .useFactsInMemory(true)
+                                .build())
+                        .counts(1)
+                        .build();
+                type.addConfiguration(WORKER_SCOUT, sendWorkerScouting);
 
                 //read data from player
                 ConfigurationWithCommand.WithReasoningCommandDesiredBySelf readPlayersData = ConfigurationWithCommand.
@@ -194,6 +215,7 @@ public class PlayerInitializerImpl implements PlayerInitializer {
             })
             .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(READ_PLAYERS_DATA, ESTIMATE_ENEMY_FORCE,
                     ESTIMATE_OUR_FORCE, UPDATE_ENEMY_RACE, REASON_ABOUT_BASES)))
+            .desiresForOthers(new HashSet<>(Collections.singletonList(WORKER_SCOUT)))
             .build();
 
     @Override

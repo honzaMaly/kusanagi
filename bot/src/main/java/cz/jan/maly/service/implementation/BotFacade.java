@@ -34,11 +34,11 @@ public class BotFacade extends DefaultBWListener {
 
     @Setter
     @Getter
-    private static int gameDefaultSpeed = 20;
+    private static int gameDefaultSpeed = 0;
 
     @Setter
     @Getter
-    private static long maxFrameExecutionTime = 30;
+    private static long maxFrameExecutionTime = 10;
 
     @Setter
     @Getter
@@ -85,6 +85,9 @@ public class BotFacade extends DefaultBWListener {
 
     @Override
     public void onStart() {
+        //load decision points
+        DecisionLoadingServiceImpl.getInstance();
+
         UnitWrapperFactory.clearCache();
         WrapperTypeFactory.clearCache();
         AbstractPositionWrapper.clearCache();

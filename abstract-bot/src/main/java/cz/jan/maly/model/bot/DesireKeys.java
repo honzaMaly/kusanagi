@@ -56,6 +56,8 @@ public class DesireKeys {
     public static final DesireKeyID ESTIMATE_OUR_FORCE_IN_LOCATION = new DesireKeyID("ESTIMATE_OUR_FORCE_IN_LOCATION", 54);
     public static final DesireKeyID FRIENDLIES_IN_LOCATION = new DesireKeyID("FRIENDLIES_IN_LOCATION", 55);
     public static final DesireKeyID ENEMIES_IN_LOCATION = new DesireKeyID("ENEMIES_IN_LOCATION", 56);
+    public static final DesireKeyID MINE_MINERALS_IN_BASE = new DesireKeyID("MINE_MINERALS_IN_BASE", 57);
+    public static final DesireKeyID MINE_GAS_IN_BASE = new DesireKeyID("MINE_GAS_IN_BASE", 58);
 
     //desires for agent's representing unit
     public static final DesireKeyID SURROUNDING_UNITS_AND_LOCATION = new DesireKeyID("SURROUNDING_UNITS_AND_LOCATION", 101);
@@ -64,22 +66,25 @@ public class DesireKeys {
     public static final DesireKeyID MORPHING_TO = new DesireKeyID("MORPHING_TO", 151);
     public static final DesireKeyID MORPH_TO_DRONE = new DesireKeyID("MORPH_TO_DRONE", 152);
     public static final DesireKeyID MORPH_TO_POOL = new DesireKeyID("MORPH_TO_POOL", 153);
+    public static final DesireKeyID MORPH_TO_OVERLORD = new DesireKeyID("MORPH_TO_OVERLORD", 154);
+    public static final DesireKeyID MORPH_TO_EXTRACTOR = new DesireKeyID("MORPH_TO_EXTRACTOR", 155);
 
     //desires for worker
     public static final DesireKeyID UPDATE_BELIEFS_ABOUT_WORKER_ACTIVITIES = new DesireKeyID("UPDATE_BELIEFS_ABOUT_WORKER_ACTIVITIES", 201);
+    public static final DesireKeyID GO_TO_BASE = new DesireKeyID("GO_TO_BASE", 202);
+    public static final DesireKeyID FIND_PLACE_FOR_POOL = new DesireKeyID("FIND_PLACE_FOR_POOL", 203);
+    public static final DesireKeyID FIND_PLACE_FOR_HATCHERY = new DesireKeyID("FIND_PLACE_FOR_HATCHERY", 204);
+    public static final DesireKeyID FIND_PLACE_FOR_EXTRACTOR = new DesireKeyID("FIND_PLACE_FOR_EXTRACTOR", 205);
+    public static final DesireKeyID MINE_MINERAL = new DesireKeyID("MINE_MINERAL", 206);
+    public static final DesireKeyID SELECT_MINERAL = new DesireKeyID("SELECT_MINERAL", 207);
+    public static final DesireKeyID UNSELECT_MINERAL = new DesireKeyID("UNSELECT_MINERAL", 208);
 
     //desires for buildings
     public static final DesireKeyID UPDATE_BELIEFS_ABOUT_CONSTRUCTION = new DesireKeyID("UPDATE_BELIEFS_ABOUT_CONSTRUCTION", 251);
 
-    //desires for build order manager
-    public static final DesireKeyID FIND_PLACE_FOR_POOL = new DesireKeyID("FIND_PLACE_FOR_POOL", 301);
-    public static final DesireKeyID CHECK_PLACE_FOR_POOL = new DesireKeyID("CHECK_PLACE_FOR_POOL", 302);
-    public static final DesireKeyID BUILD_POOL = new DesireKeyID("BUILD_POOL", 303);
-
-    public static final DesireKeyID MINE_MINERAL = new DesireKeyID("MINE_MINERAL", 2);
-    public static final DesireKeyID SELECT_MINERAL = new DesireKeyID("SELECT_MINERAL", 3);
-    public static final DesireKeyID UNSELECT_MINERAL = new DesireKeyID("UNSELECT_MINERAL", 4);
-    public static final DesireKeyID MINE_MINERALS_IN_BASE = new DesireKeyID("MINE_MINERALS_IN_BASE", 6);
+    //scouting
+    public static final DesireKeyID VISIT = new DesireKeyID("VISIT", 351);
+    public static final DesireKeyID WORKER_SCOUT = new DesireKeyID("WORKER_SCOUT", 352);
 
 
 }

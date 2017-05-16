@@ -61,7 +61,7 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
 
     @Override
     public void actOnRemoval() {
-        actOnChange(originalDesire.memory);
+        actOnChange(originalDesire.memory, originalDesire.desireParameters);
     }
 
     public boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
@@ -69,7 +69,7 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
 
         //TODO - HACK! does not change return value and enables reaction
         return removeCommitment.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                originalDesire.memory) && actOnChange(originalDesire.memory);
+                originalDesire.memory) && actOnChange(originalDesire.memory, originalDesire.desireParameters);
     }
 
     public boolean shouldRemoveCommitment(List<DesireKey> madeCommitmentToTypes, List<DesireKey> didNotMakeCommitmentToTypes,
@@ -77,7 +77,7 @@ public abstract class Intention<T extends InternalDesire<?>> implements FactCont
 
         //TODO - HACK! does not change return value and enables reaction
         return removeCommitment.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision,
-                originalDesire.memory, numberOfCommittedAgents) && actOnChange(originalDesire.memory);
+                originalDesire.memory, numberOfCommittedAgents) && actOnChange(originalDesire.memory, originalDesire.desireParameters);
     }
 
     /**

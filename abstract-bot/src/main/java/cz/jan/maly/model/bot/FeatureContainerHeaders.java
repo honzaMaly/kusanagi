@@ -26,6 +26,15 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_GROUND_DMG, SUM_OF_OWN_AIR_HP, SUM_OF_OWN_GROUND_HP, SUM_OF_OWN_STATIC_AIR_DMG, SUM_OF_OWN_STATIC_GROUND_DMG,
                     SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS, SUM_OF_OWN_GROUND_UNITS)))
             .build();
+    public static final FeatureContainerHeader INCREASING_CAPACITY = FeatureContainerHeader.builder()
+            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(CURRENT_POPULATION, MAX_POPULATION)))
+            .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(SUM_OF_ENEMY_AIR_DMG,
+                    SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP, SUM_OF_ENEMY_AIR_SHIELDS,
+                    SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG, SUM_OF_ENEMY_STATIC_AIR_UNITS,
+                    SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS, SUM_OF_OWN_AIR_DMG,
+                    SUM_OF_OWN_GROUND_DMG, SUM_OF_OWN_AIR_HP, SUM_OF_OWN_GROUND_HP, SUM_OF_OWN_STATIC_AIR_DMG, SUM_OF_OWN_STATIC_GROUND_DMG,
+                    SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS, SUM_OF_OWN_GROUND_UNITS)))
+            .build();
     public static final FeatureContainerHeader TRAINING_WORKER = FeatureContainerHeader.builder()
             .convertersForFactsForGlobalBeliefs(new HashSet<>(Collections.singleton(COUNT_OF_WORKERS)))
             .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_BASES, OPPONENTS_RACE)))
@@ -50,15 +59,6 @@ public class FeatureContainerHeaders {
                     SUM_OF_OWN_AIR_DMG, SUM_OF_OWN_GROUND_DMG, SUM_OF_OWN_AIR_HP, SUM_OF_OWN_GROUND_HP, SUM_OF_OWN_STATIC_AIR_DMG,
                     SUM_OF_OWN_STATIC_GROUND_DMG, SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS,
                     SUM_OF_OWN_GROUND_UNITS)))
-            .build();
-    public static final FeatureContainerHeader INCREASING_CAPACITY = FeatureContainerHeader.builder()
-            .convertersForFactsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(CURRENT_POPULATION, MAX_POPULATION)))
-            .convertersForFactSetsForGlobalBeliefsByAgentType(new HashSet<>(Arrays.asList(SUM_OF_ENEMY_AIR_DMG,
-                    SUM_OF_ENEMY_GROUND_DMG, SUM_OF_ENEMY_AIR_HP, SUM_OF_ENEMY_GROUND_HP, SUM_OF_ENEMY_AIR_SHIELDS,
-                    SUM_OF_ENEMY_GROUND_SHIELDS, SUM_OF_ENEMY_STATIC_AIR_DMG, SUM_OF_ENEMY_STATIC_GROUND_DMG, SUM_OF_ENEMY_STATIC_AIR_UNITS,
-                    SUM_OF_ENEMY_STATIC_GROUND_UNITS, SUM_OF_ENEMY_AIR_UNITS, SUM_OF_ENEMY_GROUND_UNITS, SUM_OF_OWN_AIR_DMG,
-                    SUM_OF_OWN_GROUND_DMG, SUM_OF_OWN_AIR_HP, SUM_OF_OWN_GROUND_HP, SUM_OF_OWN_STATIC_AIR_DMG, SUM_OF_OWN_STATIC_GROUND_DMG,
-                    SUM_OF_OWN_STATIC_AIR_UNITS, SUM_OF_OWN_STATIC_GROUND_UNITS, SUM_OF_OWN_AIR_UNITS, SUM_OF_OWN_GROUND_UNITS)))
             .build();
 
     //Build order manager

@@ -26,6 +26,7 @@ import lombok.Getter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Implementation of DecisionLearnerService
@@ -198,8 +199,18 @@ public class DecisionLearnerServiceImpl implements DecisionLearnerService {
                 SADomain domain = decisionDomainGenerator.generateDomain();
 
                 MyLogger.getLogger().info("Learning policy...");
-                Policy policy = policyLearningService.learnPolicy(domain, episodes, classes.size() + 1, episodes.size() > 80 ? 80 : episodes.size());
-
+                List<Episode> episodesToUse;
+                if (episodes.size() > 35) {
+                    int middle = ((episodes.size() - 25) / 2) + 5;
+                    episodes.sort(Comparator.comparingInt(o -> o.stateSequence.size()));
+                    episodesToUse = Stream.concat(Stream.concat(episodes.subList(episodes.size() - 20, episodes.size()).stream(),
+                            episodes.subList(0, 10).stream()), episodes.subList(middle - 3, middle + 2).stream())
+                            .collect(Collectors.toList());
+                } else {
+                    episodesToUse = new ArrayList<>(episodes);
+                }
+                episodesToUse.sort(Comparator.comparingInt(o -> o.stateSequence.size()));
+                Policy policy = policyLearningService.learnPolicy(domain, episodesToUse, classes.size() + 1, episodesToUse.size());
                 //form decision point data structure and store it
                 DecisionPointDataStructure decisionPoint = createDecisionPoint(normalizers, statesAndTheirMeans, policy);
                 storageService.storeLearntDecision(decisionPoint, agentTypeID, desireKeyID);

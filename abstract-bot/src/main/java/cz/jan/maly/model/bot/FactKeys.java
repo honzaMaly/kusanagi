@@ -204,12 +204,6 @@ public class FactKeys {
             return false;
         }
     };
-    public static final FactKey<ATilePosition> PLACE_FOR_POOL = new FactKey<ATilePosition>("PLACE_FOR_POOL", false) {
-        @Override
-        public ATilePosition getInitValue() {
-            return null;
-        }
-    };
 
     //for player - general facts about the game
     public static final FactKey<Double> AVAILABLE_MINERALS = new FactKey<Double>("AVAILABLE_MINERALS", false) {
@@ -347,17 +341,80 @@ public class FactKeys {
         }
     };
 
+    //fact if system want to build something (it is not present) to stop training workers
+    public static final FactKey<Boolean> UNIT_ORDER_MANAGER_WANTS_BUILD_SOMETHING = new FactKey<Boolean>("UNIT_ORDER_MANAGER_WANTS_BUILD_SOMETHING", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
 
+    //worker
+    public static final FactKey<APosition> PLACE_TO_GO = new FactKey<APosition>("PLACE_TO_GO", true) {
+        @Override
+        public APosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_POOL = new FactKey<ATilePosition>("PLACE_FOR_POOL", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_EXTRACTOR = new FactKey<ATilePosition>("PLACE_FOR_EXTRACTOR", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_EXPANSION = new FactKey<ATilePosition>("PLACE_FOR_EXPANSION", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ABaseLocationWrapper> BASE_TO_MOVE = new FactKey<ABaseLocationWrapper>("BASE_TO_MOVE", false) {
+        @Override
+        public ABaseLocationWrapper getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ABaseLocationWrapper> BASE_TO_SCOUT_BY_WORKER = new FactKey<ABaseLocationWrapper>("BASE_TO_SCOUT_BY_WORKER", true) {
+        @Override
+        public ABaseLocationWrapper getInitValue() {
+            return null;
+        }
+    };
     public static final FactKey<AUnit> MINING_MINERAL = new FactKey<AUnit>("MINING_MINERAL", false) {
         @Override
         public AUnit getInitValue() {
             return null;
         }
     };
-
     public static final FactKey<AUnit> MINERAL_TO_MINE = new FactKey<AUnit>("MINERAL_TO_MINE", true) {
         @Override
         public AUnit getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<AUnitOfPlayer> MINING_IN_EXTRACTOR = new FactKey<AUnitOfPlayer>("MINING_IN_EXTRACTOR", false) {
+        @Override
+        public AUnitOfPlayer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> BUILDING_LAST_CHECK = new FactKey<Integer>("BUILDING_LAST_CHECK", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+
+    //scouting
+    public static final FactKey<Integer> LAST_TIME_SCOUTED = new FactKey<Integer>("LAST_TIME_SCOUTED", false) {
+        @Override
+        public Integer getInitValue() {
             return null;
         }
     };

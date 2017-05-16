@@ -65,10 +65,10 @@ public class AgentTypeUnit extends AgentTypeMakingObservations<Game> {
                     return true;
                 }
             })
-            .reactionOnChangeStrategy(memory -> {
+            .reactionOnChangeStrategy((memory, desireParameters) -> {
                 memory.updateFact(IS_BEING_CONSTRUCT, true);
             })
-            .reactionOnChangeStrategyInIntention(memory -> {
+            .reactionOnChangeStrategyInIntention((memory, desireParameters) -> {
                 memory.updateFact(IS_BEING_CONSTRUCT, false);
             })
             .decisionInDesire(CommitmentDeciderInitializer.builder()
@@ -90,19 +90,26 @@ public class AgentTypeUnit extends AgentTypeMakingObservations<Game> {
                     return true;
                 }
             })
-            .reactionOnChangeStrategy(memory -> {
-                memory.updateFact(IS_MORPHING_TO, memory.returnFactValueForGivenKey(REPRESENTS_UNIT).get().getTrainingQueue().get(0));
+            .reactionOnChangeStrategy((memory, desireParameters) -> {
+                AUnitOfPlayer me = memory.returnFactValueForGivenKey(REPRESENTS_UNIT).get();
+                if (!me.getTrainingQueue().isEmpty()) {
+                    memory.updateFact(IS_MORPHING_TO, me.getTrainingQueue().get(0));
+                } else {
+                    memory.updateFact(IS_MORPHING_TO, me.getType());
+                }
             })
-            .reactionOnChangeStrategyInIntention(memory -> {
+            .reactionOnChangeStrategyInIntention((memory, desireParameters) -> {
                 memory.eraseFactValueForGivenKey(IS_MORPHING_TO);
             })
             .decisionInDesire(CommitmentDeciderInitializer.builder()
-                    .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_TRAINING_QUEUE_EMPTY) == 0)
-                    .beliefTypes(new HashSet<>(Collections.singleton(FactConverters.IS_TRAINING_QUEUE_EMPTY)))
+                    .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_TRAINING_QUEUE_EMPTY) == 0
+                            || dataForDecision.getFeatureValueBeliefs(FactConverters.IS_MORPHING) == 1)
+                    .beliefTypes(new HashSet<>(Arrays.asList(FactConverters.IS_TRAINING_QUEUE_EMPTY, FactConverters.IS_MORPHING)))
                     .build())
             .decisionInIntention(CommitmentDeciderInitializer.builder()
-                    .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_TRAINING_QUEUE_EMPTY) == 1)
-                    .beliefTypes(new HashSet<>(Collections.singleton(FactConverters.IS_TRAINING_QUEUE_EMPTY)))
+                    .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_TRAINING_QUEUE_EMPTY) == 1
+                            || dataForDecision.getFeatureValueBeliefs(FactConverters.IS_MORPHING) == 0)
+                    .beliefTypes(new HashSet<>(Arrays.asList(FactConverters.IS_TRAINING_QUEUE_EMPTY, FactConverters.IS_MORPHING)))
                     .build())
             .build();
 

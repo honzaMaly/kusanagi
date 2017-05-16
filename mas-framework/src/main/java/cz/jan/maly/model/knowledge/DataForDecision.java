@@ -1,9 +1,6 @@
 package cz.jan.maly.model.knowledge;
 
-import cz.jan.maly.model.metadata.DesireKey;
-import cz.jan.maly.model.metadata.DesireKeyID;
-import cz.jan.maly.model.metadata.DesireParameters;
-import cz.jan.maly.model.metadata.FactConverter;
+import cz.jan.maly.model.metadata.*;
 import cz.jan.maly.model.metadata.containers.*;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
 import lombok.Getter;
@@ -12,6 +9,8 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Container with data to be used to decide commitment
@@ -51,6 +50,8 @@ public class DataForDecision {
     @Getter
     private final boolean useFactsInMemory;
 
+    private final DesireParameters desireParameters;
+
     /**
      * Constructor
      *
@@ -60,6 +61,7 @@ public class DataForDecision {
      */
     public DataForDecision(DesireKey desireKey, DesireParameters desireParameters, CommitmentDeciderInitializer initializer) {
         this.useFactsInMemory = initializer.isUseFactsInMemory();
+        this.desireParameters = desireParameters;
 
         initializer.getDesiresToConsider().forEach(key -> {
             madeCommitmentToTypes.put(key, new FactConverter.BeliefFromKeyPresence(this, key));
@@ -90,6 +92,14 @@ public class DataForDecision {
                 globalBeliefsSetsByAgentType.put(factWithOptionalValueSetsForAgentType, new FactConverter.GlobalBeliefSetForAgentType<>(this, factWithOptionalValueSetsForAgentType)));
     }
 
+    public <V> Optional<V> returnFactValueForGivenKey(FactKey<V> factKey) {
+        return desireParameters.returnFactValueForGivenKey(factKey);
+    }
+
+    public <V, S extends Stream<V>> Optional<S> returnFactSetValueForGivenKey(FactKey<V> factKey) {
+        return desireParameters.returnFactSetValueForGivenKey(factKey);
+    }
+
     public double getFeatureValueMadeCommitmentToType(DesireKeyID desireKey) {
         return madeCommitmentToTypes.get(desireKey).getValue();
     }
@@ -100,6 +110,12 @@ public class DataForDecision {
 
     public double getFeatureValueTypesAboutToMakeDecision(DesireKeyID desireKey) {
         return typesAboutToMakeDecision.get(desireKey).getValue();
+    }
+
+    public boolean madeDecisionToAny() {
+        return madeCommitmentToTypes.values().stream()
+                .mapToDouble(FactConverter::getValue)
+                .anyMatch(value -> value > 0);
     }
 
     public double getFeatureValueStaticBeliefs(FactWithOptionalValue<?> factWithOptionalValue) {

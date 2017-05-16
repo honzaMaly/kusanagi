@@ -247,16 +247,17 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
     @Override
     public Map<DesireKey, Long> collectKeysOfCommittedDesiresInTreeCounts() {
         List<DesireKey> list = new ArrayList<>();
-        getNodesWithIntention().forEach(intentionNode -> intentionNode.collectKeysOfCommittedDesiresInSubtree(list));
+        List<IntentionNodeAtTopLevel<?, ?>> intentions = getNodesWithIntention();
+        intentions.forEach(intentionNode -> intentionNode.collectKeysOfCommittedDesiresInSubtree(list));
         return list.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
 
     @Override
     public Map<DesireKey, Long> collectKeysOfDesiresInTreeCounts() {
-        List<DesireKey> list = getNodesWithDesire().stream()
+        List<DesireKey> list = new ArrayList<>(getNodesWithDesire().stream()
                 .map(Node::getDesireKey)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
         getNodesWithIntention().forEach(intentionNode -> intentionNode.collectKeysOfDesiresInSubtree(list));
         return list.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));

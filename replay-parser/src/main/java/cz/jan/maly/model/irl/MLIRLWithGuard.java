@@ -6,6 +6,7 @@ import burlap.behavior.singleagent.learnfromdemo.mlirl.MLIRL;
 import burlap.behavior.singleagent.learnfromdemo.mlirl.MLIRLRequest;
 import burlap.behavior.singleagent.learnfromdemo.mlirl.support.DifferentiableRF;
 import burlap.debugtools.DPrint;
+import burlap.debugtools.RandomFactory;
 
 /**
  * Extension of MLIRL to keep reward function in boundaries
@@ -46,6 +47,9 @@ public class MLIRLWithGuard extends MLIRL {
 
                 //make sure it keeps within boundaries
                 double nexVal = Math.min(Math.max(curVal + this.learningRate * pd.value, minReward), maxReward);
+                if (Double.isNaN(nexVal)) {
+                    nexVal = RandomFactory.getMapped(0).nextDouble() * 0.2 - 0.1;
+                }
 
                 rf.setParameter(pd.parameterId, nexVal);
                 double delta = Math.abs(curVal - nexVal);
@@ -65,7 +69,7 @@ public class MLIRLWithGuard extends MLIRL {
             DPrint.cl(this.debugCode, "RF: " + this.request.getRf().toString());
             DPrint.cl(this.debugCode, "Log likelihood: " + lastLikelihood + " (change: " + likelihoodChange + ")");
 
-            if (Math.abs(likelihoodChange) < this.maxLikelihoodChange) {
+            if (Math.abs(likelihoodChange) < this.maxLikelihoodChange || Double.isNaN(likelihoodChange)) {
                 i++;
                 break;
             }

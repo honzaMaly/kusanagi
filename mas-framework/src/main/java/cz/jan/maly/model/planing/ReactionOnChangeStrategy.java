@@ -1,6 +1,7 @@
 package cz.jan.maly.model.planing;
 
 import cz.jan.maly.model.knowledge.WorkingMemory;
+import cz.jan.maly.model.metadata.DesireParameters;
 
 /**
  * Interface with template for reaction on change strategy
@@ -11,7 +12,8 @@ public interface ReactionOnChangeStrategy {
     /**
      * Strategy to update beliefs
      * @param memory
+     * @param desireParameters
      */
-    void updateBeliefs(WorkingMemory memory);
+    void updateBeliefs(WorkingMemory memory, DesireParameters desireParameters);
 
 }
