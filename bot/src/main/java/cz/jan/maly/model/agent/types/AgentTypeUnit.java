@@ -152,7 +152,7 @@ public class AgentTypeUnit extends AgentTypeMakingObservations<Game> {
 
                 //add facts related to agent - IS_UNIT, REPRESENTS_UNIT
                 Stream.concat(usingTypesForFacts.stream(), Arrays.stream(new FactKey<?>[]{IS_UNIT, REPRESENTS_UNIT,
-                        MADE_OBSERVATION_IN_FRAME, LOCATION})).collect(Collectors.toSet()),
+                        MADE_OBSERVATION_IN_FRAME, LOCATION, IS_UNDER_ATTACK, PLACE_TO_REACH})).collect(Collectors.toSet()),
                 Stream.concat(usingTypesForFactSets.stream(), Arrays.stream(new FactKey<?>[]{ENEMY_BUILDING, ENEMY_AIR,
                         ENEMY_GROUND, OWN_BUILDING, OWN_AIR, OWN_GROUND})).collect(Collectors.toSet()),
                 initializationStrategy, OBSERVING_COMMAND, skipTurnsToMakeObservation);

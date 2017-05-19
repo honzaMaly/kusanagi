@@ -12,6 +12,20 @@ import cz.jan.maly.model.metadata.FactKey;
  */
 public class FactKeys {
 
+    //for eco manager
+    public static final FactKey<Integer> LAST_TIME_EXTRACTOR_BUILD = new FactKey<Integer>("LAST_TIME_EXTRACTOR_BUILD", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> LAST_TIME_HATCHERY_BUILD = new FactKey<Integer>("LAST_TIME_HATCHERY_BUILD", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+
     //Facts for base
     public static final FactKey<AUnitOfPlayer> WORKER_ON_BASE = new FactKey<AUnitOfPlayer>("WORKER_ON_BASE", false) {
         @Override
@@ -43,7 +57,7 @@ public class FactKeys {
             return false;
         }
     };
-    public static final FactKey<AUnitOfPlayer> HAS_BASE = new FactKey<AUnitOfPlayer>("HAS_BASE", true) {
+    public static final FactKey<AUnitOfPlayer> HAS_BASE = new FactKey<AUnitOfPlayer>("HAS_BASE", false) {
         @Override
         public AUnitOfPlayer getInitValue() {
             return null;
@@ -55,7 +69,7 @@ public class FactKeys {
             return false;
         }
     };
-    public static final FactKey<AUnitOfPlayer> HAS_EXTRACTOR = new FactKey<AUnitOfPlayer>("HAS_EXTRACTOR", true) {
+    public static final FactKey<AUnitOfPlayer> HAS_EXTRACTOR = new FactKey<AUnitOfPlayer>("HAS_EXTRACTOR", false) {
         @Override
         public AUnitOfPlayer getInitValue() {
             return null;
@@ -103,6 +117,42 @@ public class FactKeys {
             return null;
         }
     };
+    public static final FactKey<Integer> SUNKEN_COLONY_COUNT = new FactKey<Integer>("SUNKEN_COLONY_COUNT", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> CREEP_COLONY_COUNT = new FactKey<Integer>("CREEP_COLONY_COUNT", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> SPORE_COLONY_COUNT = new FactKey<Integer>("SPORE_COLONY_COUNT", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> LAST_SUNKEN_COLONY_BUILDING_TIME = new FactKey<Integer>("LAST_SUNKEN_COLONY_BUILDING_TIME", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> LAST_CREEP_COLONY_BUILDING_TIME = new FactKey<Integer>("CREEP_COLONY_COUNT", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<AUnit> GEYSER = new FactKey<AUnit>("GEYSER", false) {
+        @Override
+        public AUnit getInitValue() {
+            return null;
+        }
+    };
 
     //facts for workers
     public static final FactKey<Boolean> IS_GATHERING_MINERALS = new FactKey<Boolean>("IS_GATHERING_MINERALS", false) {
@@ -115,6 +165,12 @@ public class FactKeys {
         @Override
         public Boolean getInitValue() {
             return false;
+        }
+    };
+    public static final FactKey<Integer> IDLE_SINCE = new FactKey<Integer>("IDLE_SINCE", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
         }
     };
 
@@ -153,32 +209,6 @@ public class FactKeys {
     public static final FactKey<AUnitOfPlayer> OWN_GROUND = new FactKey<AUnitOfPlayer>("OWN_GROUND", false) {
         @Override
         public AUnitOfPlayer getInitValue() {
-            return null;
-        }
-    };
-
-    //general
-    public static final FactKey<ABaseLocationWrapper> LOCATION = new FactKey<ABaseLocationWrapper>("LOCATION", false) {
-        @Override
-        public ABaseLocationWrapper getInitValue() {
-            return null;
-        }
-    };
-    public static final FactKey<AUnitOfPlayer> REPRESENTS_UNIT = new FactKey<AUnitOfPlayer>("REPRESENTS_UNIT", false) {
-        @Override
-        public AUnitOfPlayer getInitValue() {
-            return null;
-        }
-    };
-    public static final FactKey<Integer> MADE_OBSERVATION_IN_FRAME = new FactKey<Integer>("MADE_OBSERVATION_IN_FRAME", true) {
-        @Override
-        public Integer getInitValue() {
-            return null;
-        }
-    };
-    public static final FactKey<ABaseLocationWrapper> HOLD_LOCATION = new FactKey<ABaseLocationWrapper>("HOLD_LOCATION", false) {
-        @Override
-        public ABaseLocationWrapper getInitValue() {
             return null;
         }
     };
@@ -341,13 +371,6 @@ public class FactKeys {
         }
     };
 
-    //fact if system want to build something (it is not present) to stop training workers
-    public static final FactKey<Boolean> UNIT_ORDER_MANAGER_WANTS_BUILD_SOMETHING = new FactKey<Boolean>("UNIT_ORDER_MANAGER_WANTS_BUILD_SOMETHING", false) {
-        @Override
-        public Boolean getInitValue() {
-            return false;
-        }
-    };
 
     //worker
     public static final FactKey<APosition> PLACE_TO_GO = new FactKey<APosition>("PLACE_TO_GO", true) {
@@ -356,7 +379,31 @@ public class FactKeys {
             return null;
         }
     };
+    public static final FactKey<ATilePosition> PLACE_FOR_CREEP_COLONY = new FactKey<ATilePosition>("PLACE_FOR_CREEP_COLONY", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_SPIRE = new FactKey<ATilePosition>("PLACE_FOR_SPIRE", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_HYDRALISK_DEN = new FactKey<ATilePosition>("PLACE_FOR_HYDRALISK_DEN", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
     public static final FactKey<ATilePosition> PLACE_FOR_POOL = new FactKey<ATilePosition>("PLACE_FOR_POOL", false) {
+        @Override
+        public ATilePosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ATilePosition> PLACE_FOR_EVOLUTION_CHAMBER = new FactKey<ATilePosition>("PLACE_FOR_EVOLUTION_CHAMBER", false) {
         @Override
         public ATilePosition getInitValue() {
             return null;
@@ -419,16 +466,51 @@ public class FactKeys {
         }
     };
 
+    //units
+    public static final FactKey<Boolean> IS_UNDER_ATTACK = new FactKey<Boolean>("IS_UNDER_ATTACK", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+    public static final FactKey<APosition> PLACE_TO_REACH = new FactKey<APosition>("PLACE_TO_REACH", false) {
+        @Override
+        public APosition getInitValue() {
+            return null;
+        }
+    };
+
+    //general
+    public static final FactKey<ABaseLocationWrapper> LOCATION = new FactKey<ABaseLocationWrapper>("LOCATION", false) {
+        @Override
+        public ABaseLocationWrapper getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<AUnitOfPlayer> REPRESENTS_UNIT = new FactKey<AUnitOfPlayer>("REPRESENTS_UNIT", false) {
+        @Override
+        public AUnitOfPlayer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> MADE_OBSERVATION_IN_FRAME = new FactKey<Integer>("MADE_OBSERVATION_IN_FRAME", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<ABaseLocationWrapper> HOLD_LOCATION = new FactKey<ABaseLocationWrapper>("HOLD_LOCATION", false) {
+        @Override
+        public ABaseLocationWrapper getInitValue() {
+            return null;
+        }
+    };
     public static final FactKey<AUnitWithCommands> IS_UNIT = new FactKey<AUnitWithCommands>("IS_UNIT", true) {
         @Override
         public AUnitWithCommands getInitValue() {
             return null;
         }
     };
-    public static final FactKey<AUnit> GEYSER = new FactKey<AUnit>("GEYSER", false) {
-        @Override
-        public AUnit getInitValue() {
-            return null;
-        }
-    };
+
+
 }

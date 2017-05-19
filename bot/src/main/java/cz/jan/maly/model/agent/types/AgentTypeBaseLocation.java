@@ -62,7 +62,8 @@ public class AgentTypeBaseLocation extends AgentTypeMakingObservations<Game> {
 
                 //add facts related to agent
                 Stream.concat(usingTypesForFacts.stream(), Arrays.stream(new FactKey<?>[]{IS_BASE_LOCATION,
-                        MADE_OBSERVATION_IN_FRAME, IS_MINERAL_ONLY, IS_ISLAND, IS_START_LOCATION, IS_BASE_LOCATION, LAST_TIME_SCOUTED}))
+                        MADE_OBSERVATION_IN_FRAME, IS_MINERAL_ONLY, IS_ISLAND, IS_START_LOCATION, IS_BASE_LOCATION,
+                        LAST_TIME_SCOUTED, BASE_TO_MOVE}))
                         .collect(Collectors.toSet()),
 
                 //add fact set related to resources

@@ -274,7 +274,7 @@ public class AUnitTypeWrapper extends AbstractWrapper<UnitType> {
         this.isGasBuilding = type.isBuilding() && isType(type, new UnitType[]{UnitType.Terran_Refinery, UnitType.Protoss_Assimilator, UnitType.Zerg_Extractor});
         this.isSupplyUnit = isType(type, new UnitType[]{UnitType.Protoss_Pylon, UnitType.Terran_Supply_Depot, UnitType.Zerg_Overlord});
         this.isMilitaryBuilding = type.isBuilding() && isType(type, new UnitType[]{UnitType.Terran_Bunker, UnitType.Terran_Missile_Turret, UnitType.Protoss_Photon_Cannon,
-                UnitType.Zerg_Sunken_Colony, UnitType.Zerg_Spore_Colony}
+                UnitType.Zerg_Sunken_Colony, UnitType.Zerg_Spore_Colony, UnitType.Zerg_Creep_Colony}
         );
         this.isMilitaryBuildingAntiAir = isMilitaryBuilding && isType(type, new UnitType[]{UnitType.Terran_Bunker,
                 UnitType.Protoss_Photon_Cannon, UnitType.Zerg_Spore_Colony}

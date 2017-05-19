@@ -92,6 +92,6 @@ public class CommitmentDeciderInitializer {
         private Set<FactWithOptionalValueSets<?>> globalBeliefSetTypes = new HashSet<>();
         private Set<FactWithSetOfOptionalValuesForAgentType<?>> globalBeliefTypesByAgentType = new HashSet<>();
         private Set<FactWithOptionalValueSetsForAgentType<?>> globalBeliefSetTypesByAgentType = new HashSet<>();
-        private boolean useFactsInMemory = false;
+        private boolean useFactsInMemory = true;
     }
 }

@@ -1,15 +1,18 @@
 package cz.jan.maly.service.implementation;
 
 import bwta.BaseLocation;
+import cz.jan.maly.model.Decider;
 import cz.jan.maly.model.UnitTypeStatus;
 import cz.jan.maly.model.agent.AgentBaseLocation;
 import cz.jan.maly.model.agent.types.AgentTypeBaseLocation;
 import cz.jan.maly.model.bot.AgentTypes;
+import cz.jan.maly.model.bot.DesireKeys;
 import cz.jan.maly.model.bot.FactConverters;
 import cz.jan.maly.model.game.wrappers.*;
 import cz.jan.maly.model.knowledge.ReadOnlyMemory;
 import cz.jan.maly.model.knowledge.WorkingMemory;
 import cz.jan.maly.model.metadata.FactKey;
+import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstractPlan;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithCommand;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
@@ -21,9 +24,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static cz.jan.maly.model.DesiresKeys.*;
-import static cz.jan.maly.model.bot.FactConverters.COUNT_OF_EXTRACTORS_ON_BASE;
-import static cz.jan.maly.model.bot.FactConverters.COUNT_OF_MINERALS_ON_BASE;
+import static cz.jan.maly.model.bot.AgentTypes.HATCHERY;
+import static cz.jan.maly.model.bot.AgentTypes.LAIR;
+import static cz.jan.maly.model.bot.FactConverters.*;
 import static cz.jan.maly.model.bot.FactKeys.*;
+import static cz.jan.maly.model.bot.FactKeys.IS_BASE;
+import static cz.jan.maly.model.bot.FactKeys.IS_ENEMY_BASE;
+import static cz.jan.maly.model.bot.FactKeys.LAST_TIME_SCOUTED;
+import static cz.jan.maly.model.bot.FeatureContainerHeaders.DEFENSE;
+import static cz.jan.maly.model.bot.FeatureContainerHeaders.HOLDING;
 
 /**
  * Strategy to initialize player
@@ -49,6 +58,14 @@ public class LocationInitializerImpl implements LocationInitializer {
                                         .mapToInt(AUnit::getFrameCount)
                                         .max();
                                 frameWhenLastVisited.ifPresent(integer -> memory.updateFact(LAST_TIME_SCOUTED, integer));
+
+                                //base status
+                                boolean isBase = memory.returnFactSetValueForGivenKey(HAS_BASE).map(Stream::count).orElse(0L) > 0;
+                                memory.updateFact(IS_BASE, isBase);
+
+                                //todo it is not our base and (it has enemy buildings on it || we haven't visited all base locations and this one is unvisited base location)
+                                memory.updateFact(IS_ENEMY_BASE, !isBase
+                                        && memory.returnFactSetValueForGivenKey(ENEMY_BUILDING).map(Stream::count).orElse(0L) > 0);
                                 return true;
                             }
                         })
@@ -100,12 +117,16 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 .useFactsInMemory(true)
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                //todo stay if it is enemy base
                                 .decisionStrategy((dataForDecision, memory) -> {
 
                                     //do not visit our base location
                                     if (dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1.0) {
                                         return true;
+                                    }
+
+                                    //stay if it is enemy base
+                                    if (dataForDecision.getFeatureValueBeliefs(FactConverters.IS_ENEMY_BASE) == 1.0) {
+                                        return false;
                                     }
 
                                     //not visit anything
@@ -123,7 +144,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                                     //new visit
                                     return (dataForDecision.getFeatureValueDesireBeliefs(FactConverters.LAST_TIME_SCOUTED) < dataForDecision.getFeatureValueBeliefs(FactConverters.LAST_TIME_SCOUTED));
                                 })
-                                .beliefTypes(new HashSet<>(Arrays.asList(FactConverters.IS_BASE, FactConverters.LAST_TIME_SCOUTED)))
+                                .beliefTypes(new HashSet<>(Arrays.asList(FactConverters.IS_BASE, FactConverters.LAST_TIME_SCOUTED, FactConverters.IS_ENEMY_BASE)))
                                 .parameterValueTypes(new HashSet<>(Collections.singleton(FactConverters.LAST_TIME_SCOUTED)))
                                 .build())
                         .counts(1)
@@ -152,7 +173,13 @@ public class LocationInitializerImpl implements LocationInitializer {
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> true)
+                                .decisionStrategy((dataForDecision, memory) -> {
+                                    ABaseLocationWrapper base = memory.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
+                                    return UnitWrapperFactory.getStreamOfAllAliveEnemyUnits().filter(enemy -> {
+                                        Optional<ABaseLocationWrapper> bL = enemy.getNearestBaseLocation();
+                                        return bL.isPresent() && bL.get().equals(base);
+                                    }).count() > 0;
+                                })
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> true)
@@ -177,17 +204,43 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 memory.updateFactSetByFacts(OWN_BUILDING, playersUnits.stream().filter(own -> own.getType().isBuilding()).collect(Collectors.toSet()));
                                 memory.updateFactSetByFacts(OWN_GROUND, playersUnits.stream().filter(own -> !own.getType().isBuilding() && !own.getType().isFlyer()).collect(Collectors.toSet()));
                                 memory.updateFactSetByFacts(OWN_AIR, playersUnits.stream().filter(own -> !own.getType().isBuilding() && own.getType().isFlyer()).collect(Collectors.toSet()));
-                                memory.updateFactSetByFacts(STATIC_DEFENSE, playersUnits.stream()
-                                        .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.SUNKEN_COLONY_TYPE)
-                                                || aUnitOfPlayer.getType().equals(AUnitTypeWrapper.CREEP_COLONY_TYPE)
-                                                || aUnitOfPlayer.getType().equals(AUnitTypeWrapper.SPORE_COLONY_TYPE))
+
+                                //find new static defense buildings
+                                if (memory.returnFactSetValueForGivenKey(OWN_BUILDING)
+                                        .orElse(Stream.empty())
+                                        .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isMilitaryBuilding())
+                                        .count() > 0) {
+                                    memory.updateFactSetByFacts(STATIC_DEFENSE, memory.returnFactSetValueForGivenKey(OWN_BUILDING).orElse(Stream.empty())
+                                            .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isMilitaryBuilding())
+                                            .collect(Collectors.toSet()));
+                                }
+
+                                //eco buildings
+                                memory.updateFactSetByFacts(HAS_BASE, Stream.concat(memory.getReadOnlyMemoriesForAgentType(HATCHERY)
+                                                .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT).get())
+                                                .filter(aUnitOfPlayer -> aUnitOfPlayer.getNearestBaseLocation().isPresent())
+                                                .filter(aUnitOfPlayer -> base.equals(aUnitOfPlayer.getNearestBaseLocation().orElse(null))),
+                                        memory.getReadOnlyMemoriesForAgentType(LAIR)
+                                                .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(REPRESENTS_UNIT).get())
+                                                .filter(aUnitOfPlayer -> aUnitOfPlayer.getNearestBaseLocation().isPresent())
+                                                .filter(aUnitOfPlayer -> base.equals(aUnitOfPlayer.getNearestBaseLocation().orElse(null)))
+                                ).collect(Collectors.toSet()));
+                                memory.updateFactSetByFacts(HAS_EXTRACTOR, memory.returnFactSetValueForGivenKey(OWN_BUILDING).orElse(Stream.empty())
+                                        .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isGasBuilding())
                                         .collect(Collectors.toSet()));
+
 
                                 return true;
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> true)
+                                .decisionStrategy((dataForDecision, memory) -> {
+                                    ABaseLocationWrapper base = memory.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
+                                    return UnitWrapperFactory.getStreamOfAllAlivePlayersUnits().filter(enemy -> {
+                                        Optional<ABaseLocationWrapper> bL = enemy.getNearestBaseLocation();
+                                        return bL.isPresent() && bL.get().equals(base);
+                                    }).count() > 0;
+                                })
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> true)
@@ -204,20 +257,12 @@ public class LocationInitializerImpl implements LocationInitializer {
                         OWN_STATIC_AIR_FORCE_STATUS, OWN_STATIC_GROUND_FORCE_STATUS, OWN_AIR_FORCE_STATUS, OWN_GROUND_FORCE_STATUS));
 
                 //eco concerns
-                ConfigurationWithCommand.WithReasoningCommandDesiredBySelf ecoCorncerns = ConfigurationWithCommand.
+                ConfigurationWithCommand.WithReasoningCommandDesiredBySelf ecoConcerns = ConfigurationWithCommand.
                         WithReasoningCommandDesiredBySelf.builder()
                         .commandCreationStrategy(intention -> new ReasoningCommand(intention) {
                             @Override
                             public boolean act(WorkingMemory memory) {
                                 ABaseLocationWrapper base = memory.returnFactValueForGivenKey(IS_BASE_LOCATION).get();
-
-                                //eco buildings
-                                memory.updateFactSetByFacts(HAS_BASE, memory.returnFactSetValueForGivenKey(OWN_BUILDING).orElse(Stream.empty())
-                                        .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isBase())
-                                        .collect(Collectors.toSet()));
-                                memory.updateFactSetByFacts(HAS_EXTRACTOR, memory.returnFactSetValueForGivenKey(OWN_BUILDING).orElse(Stream.empty())
-                                        .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isGasBuilding())
-                                        .collect(Collectors.toSet()));
 
                                 //workers
                                 Set<ReadOnlyMemory> workersAroundBase = memory.getReadOnlyMemories()
@@ -248,37 +293,14 @@ public class LocationInitializerImpl implements LocationInitializer {
                             }
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> true)
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1.0)
+                                .beliefTypes(new HashSet<>(Collections.singleton(FactConverters.IS_BASE)))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> true)
                                 .build())
                         .build();
-                type.addConfiguration(ECO_STATUS_IN_LOCATION, ecoCorncerns);
-
-                //status concerns
-                ConfigurationWithCommand.WithReasoningCommandDesiredBySelf baseStatus = ConfigurationWithCommand.
-                        WithReasoningCommandDesiredBySelf.builder()
-                        .commandCreationStrategy(intention -> new ReasoningCommand(intention) {
-                            @Override
-                            public boolean act(WorkingMemory memory) {
-                                boolean isBase = memory.returnFactSetValueForGivenKey(HAS_BASE).map(Stream::count).orElse(0L) > 0;
-                                memory.updateFact(IS_BASE, isBase);
-
-                                //todo it is not our base and (it has enemy buildings on it || we haven't visited all base locations and this one is unvisited base location)
-                                memory.updateFact(IS_ENEMY_BASE, !isBase
-                                        && memory.returnFactSetValueForGivenKey(ENEMY_BUILDING).map(Stream::count).orElse(0L) > 0);
-                                return true;
-                            }
-                        })
-                        .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> true)
-                                .build())
-                        .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> true)
-                                .build())
-                        .build();
-                type.addConfiguration(BASE_STATUS, baseStatus);
+                type.addConfiguration(ECO_STATUS_IN_LOCATION, ecoConcerns);
 
                 //Make request to start mining. Remove request when there are no more minerals to mine or there is no hatchery to bring mineral in
                 ConfigurationWithSharedDesire mineMinerals = ConfigurationWithSharedDesire.builder()
@@ -306,6 +328,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                 //Make request to start mining gas. Remove request when there are no extractors or there is no hatchery to bring mineral in
                 ConfigurationWithSharedDesire mineGas = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MINE_GAS_IN_BASE)
+                        .counts(4)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1
                                         && dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_EXTRACTORS_ON_BASE) > 0)
@@ -323,8 +346,199 @@ public class LocationInitializerImpl implements LocationInitializer {
                         .build();
                 type.addConfiguration(MINE_GAS_IN_BASE, mineGas);
 
+                //build creep colony
+                ConfigurationWithSharedDesire buildCreepColony = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(MORPH_TO_CREEP_COLONY)
+                        .counts(1)
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.updateFact(LAST_CREEP_COLONY_BUILDING_TIME,
+                                memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null)))
+                        .reactionOnChangeStrategy((memory, desireParameters) -> {
+                            long countOfCreepColonies = memory.returnFactSetValueForGivenKey(STATIC_DEFENSE).orElse(Stream.empty())
+                                    .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.CREEP_COLONY_TYPE))
+                                    .count()
+                                    //workers building creep colony
+                                    + memory.returnFactSetValueForGivenKey(WORKER_ON_BASE).orElse(Stream.empty())
+                                    .filter(AUnit::isMorphing)
+                                    .filter(aUnitOfPlayer -> !aUnitOfPlayer.getTrainingQueue().isEmpty())
+                                    .map(aUnitOfPlayer -> aUnitOfPlayer.getTrainingQueue().get(0))
+                                    .filter(typeWrapper -> typeWrapper.equals(AUnitTypeWrapper.CREEP_COLONY_TYPE))
+                                    .count();
+                            memory.updateFact(CREEP_COLONY_COUNT, (int) countOfCreepColonies);
+                        })
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
+                                        && (memory.returnFactValueForGivenKey(LAST_CREEP_COLONY_BUILDING_TIME).orElse(0) + 100
+                                        < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
+                                        && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE)) <= 1
+                                        && !dataForDecision.madeDecisionToAny()
+                                        && dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_POOLS) > 0
+                                        && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_CREEP_COLONY, dataForDecision, DEFENSE))
+                                .globalBeliefTypes(DEFENSE.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(DEFENSE.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(Stream.concat(DEFENSE.getConvertersForFactsForGlobalBeliefsByAgentType().stream(),
+                                        Stream.of(COUNT_OF_POOLS)).collect(Collectors.toSet()))
+                                .globalBeliefSetTypesByAgentType(DEFENSE.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(DEFENSE.getConvertersForFacts())
+                                .beliefSetTypes(Stream.concat(DEFENSE.getConvertersForFactSets().stream(),
+                                        Stream.of(BASE_IS_COMPLETED, COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                                COUNT_OF_CREEP_COLONIES_AT_BASE)).collect(Collectors.toSet()))
+                                .desiresToConsider(new HashSet<>(Collections.singleton(BUILD_CREEP_COLONY)))
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || memory.returnFactValueForGivenKey(CREEP_COLONY_COUNT).orElse(0) !=
+                                        (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                                + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE))
+                                )
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                        COUNT_OF_CREEP_COLONIES_AT_BASE)))
+                                .useFactsInMemory(true)
+                                .build())
+                        .build();
+                type.addConfiguration(BUILD_CREEP_COLONY, buildCreepColony);
+
+                //common plan to build creep colony for sunken/spore colony
+                ConfigurationWithSharedDesire buildCreepColonyCommon = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(MORPH_TO_CREEP_COLONY)
+                        .counts(1)
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE)) == 0
+                                        && !dataForDecision.madeDecisionToAny())
+                                .beliefSetTypes(Stream.of(BASE_IS_COMPLETED, COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                        COUNT_OF_CREEP_COLONIES_AT_BASE).collect(Collectors.toSet()))
+                                .desiresToConsider(new HashSet<>(Collections.singleton(BUILD_CREEP_COLONY)))
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE)) > 0
+                                )
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                        COUNT_OF_CREEP_COLONIES_AT_BASE)))
+                                .useFactsInMemory(true)
+                                .build())
+                        .build();
+
+                //build sunken as abstract plan
+                ConfigurationWithAbstractPlan buildSunkenAbstract = ConfigurationWithAbstractPlan.builder()
+                        .reactionOnChangeStrategy((memory, desireParameters) -> {
+                            long countOfSunkenColonies = memory.returnFactSetValueForGivenKey(STATIC_DEFENSE).orElse(Stream.empty())
+                                    .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.SUNKEN_COLONY_TYPE))
+                                    .count()
+                                    //creep colonies morphing to sunken
+                                    + memory.returnFactSetValueForGivenKey(STATIC_DEFENSE).orElse(Stream.empty())
+                                    .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.CREEP_COLONY_TYPE))
+                                    .filter(aUnitOfPlayer -> !aUnitOfPlayer.getTrainingQueue().isEmpty())
+                                    .map(aUnitOfPlayer -> aUnitOfPlayer.getTrainingQueue().get(0))
+                                    .filter(typeWrapper -> typeWrapper.equals(AUnitTypeWrapper.SUNKEN_COLONY_TYPE))
+                                    .count();
+                            memory.updateFact(SUNKEN_COLONY_COUNT, (int) countOfSunkenColonies);
+                        })
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.updateFact(LAST_SUNKEN_COLONY_BUILDING_TIME,
+                                memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null)))
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
+                                        && (memory.returnFactValueForGivenKey(LAST_SUNKEN_COLONY_BUILDING_TIME).orElse(0) + 100
+                                        < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
+                                        && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SUNKEN_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SUNKEN_COLONIES_AT_BASE)) <= 4
+                                        && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_SUNKEN_COLONY, dataForDecision, DEFENSE))
+                                .globalBeliefTypes(DEFENSE.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(DEFENSE.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(DEFENSE.getConvertersForFactsForGlobalBeliefsByAgentType())
+                                .globalBeliefSetTypesByAgentType(DEFENSE.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(DEFENSE.getConvertersForFacts())
+                                .beliefSetTypes(Stream.concat(DEFENSE.getConvertersForFactSets().stream(),
+                                        Stream.of(BASE_IS_COMPLETED, COUNT_OF_SUNKEN_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                                COUNT_OF_SUNKEN_COLONIES_AT_BASE)).collect(Collectors.toSet()))
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || memory.returnFactValueForGivenKey(SUNKEN_COLONY_COUNT).orElse(0) !=
+                                        (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SUNKEN_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                                + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SUNKEN_COLONIES_AT_BASE))
+                                )
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(COUNT_OF_SUNKEN_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                        COUNT_OF_SUNKEN_COLONIES_AT_BASE)))
+                                .useFactsInMemory(true)
+                                .build())
+                        .desiresForOthers(new HashSet<>(Arrays.asList(BUILD_CREEP_COLONY, BUILD_SUNKEN_COLONY)))
+                        .build();
+                type.addConfiguration(BUILD_SUNKEN_COLONY, buildSunkenAbstract, true);
+                type.addConfiguration(BUILD_CREEP_COLONY, BUILD_SUNKEN_COLONY, buildCreepColonyCommon);
+                ConfigurationWithSharedDesire buildSunken = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(MORPH_TO_SUNKEN_COLONY)
+                        .counts(1)
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> true)
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> false)
+                                .build())
+                        .build();
+                type.addConfiguration(BUILD_SUNKEN_COLONY, BUILD_SUNKEN_COLONY, buildSunken);
+
+                //todo +  prereq. - spore colony
+
+                //hold ground
+                ConfigurationWithSharedDesire holdGround = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(HOLD_GROUND)
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> (memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                        && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_GROUND, dataForDecision, HOLDING))
+                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
+                                .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(HOLDING.getConvertersForFacts())
+                                .beliefSetTypes(HOLDING.getConvertersForFactSets())
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> (!memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || !memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                        || !Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_GROUND, dataForDecision, HOLDING))
+                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
+                                .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(HOLDING.getConvertersForFacts())
+                                .beliefSetTypes(HOLDING.getConvertersForFactSets())
+                                .build())
+                        .build();
+                type.addConfiguration(HOLD_GROUND, holdGround);
+
+                //hold air
+                ConfigurationWithSharedDesire holdAir = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(HOLD_AIR)
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> (memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                        && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_AIR, dataForDecision, HOLDING))
+                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
+                                .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(HOLDING.getConvertersForFacts())
+                                .beliefSetTypes(HOLDING.getConvertersForFactSets())
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> (!memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || !memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                        || !Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_AIR, dataForDecision, HOLDING))
+                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
+                                .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(HOLDING.getConvertersForFacts())
+                                .beliefSetTypes(HOLDING.getConvertersForFactSets())
+                                .build())
+                        .build();
+                type.addConfiguration(HOLD_AIR, holdAir);
             })
-            .usingTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE, IS_ENEMY_BASE)))
+            .usingTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE, IS_ENEMY_BASE, BASE_TO_MOVE, SUNKEN_COLONY_COUNT,
+                    SPORE_COLONY_COUNT, CREEP_COLONY_COUNT, LAST_SUNKEN_COLONY_BUILDING_TIME, LAST_CREEP_COLONY_BUILDING_TIME)))
             .usingTypesForFactSets(new HashSet<>(Arrays.asList(WORKER_ON_BASE, ENEMY_BUILDING, ENEMY_AIR,
                     ENEMY_GROUND, HAS_BASE, HAS_EXTRACTOR, OWN_BUILDING, OWN_AIR, OWN_GROUND,
                     WORKER_MINING_MINERALS, WORKER_MINING_GAS, OWN_AIR_FORCE_STATUS, OWN_BUILDING_STATUS,
@@ -332,10 +546,12 @@ public class LocationInitializerImpl implements LocationInitializer {
                     ENEMY_GROUND_FORCE_STATUS, LOCKED_UNITS, LOCKED_BUILDINGS, ENEMY_STATIC_AIR_FORCE_STATUS,
                     ENEMY_STATIC_GROUND_FORCE_STATUS, OWN_STATIC_AIR_FORCE_STATUS, OWN_STATIC_GROUND_FORCE_STATUS,
                     STATIC_DEFENSE, ENEMY_UNIT, OUR_UNIT)))
-            .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(BASE_STATUS, ECO_STATUS_IN_LOCATION,
+            .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(ECO_STATUS_IN_LOCATION,
                     FRIENDLIES_IN_LOCATION, ENEMIES_IN_LOCATION, ESTIMATE_ENEMY_FORCE_IN_LOCATION, ESTIMATE_OUR_FORCE_IN_LOCATION,
                     VISIT)))
-            .desiresForOthers(new HashSet<>(Arrays.asList(MINE_MINERALS_IN_BASE, VISIT, MINE_GAS_IN_BASE)))
+            .desiresForOthers(new HashSet<>(Arrays.asList(MINE_MINERALS_IN_BASE, VISIT, MINE_GAS_IN_BASE,
+                    BUILD_CREEP_COLONY, HOLD_GROUND, HOLD_AIR)))
+            .desiresWithAbstractIntention(new HashSet<>(Arrays.asList(BUILD_SUNKEN_COLONY)))
             .build();
 
     @Override

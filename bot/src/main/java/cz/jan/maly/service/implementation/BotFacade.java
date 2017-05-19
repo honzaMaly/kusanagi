@@ -38,7 +38,7 @@ public class BotFacade extends DefaultBWListener {
 
     @Setter
     @Getter
-    private static long maxFrameExecutionTime = 10;
+    private static long maxFrameExecutionTime = 20;
 
     @Setter
     @Getter

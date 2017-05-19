@@ -277,6 +277,7 @@ public abstract class IntentionNodeAtTopLevel<V extends Intention<? extends Inte
                     }
                 } else {
                     getDesireUpdater().getNodesWithIntention().forEach(IntentionNodeInterface::actOnRemoval);
+                    formDesireNodeAndReplaceIntentionNode();
                     return true;
                 }
             }

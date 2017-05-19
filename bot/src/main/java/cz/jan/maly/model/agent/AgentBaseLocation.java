@@ -23,5 +23,6 @@ public class AgentBaseLocation extends AgentObservingGame<AgentTypeBaseLocation>
         beliefs.updateFact(IS_MINERAL_ONLY, location.isMineralOnly());
         beliefs.updateFact(IS_ISLAND, location.isIsland());
         beliefs.updateFact(IS_START_LOCATION, location.isStartLocation());
+        beliefs.updateFact(BASE_TO_MOVE, beliefs.returnFactValueForGivenKey(IS_BASE_LOCATION).get());
     }
 }

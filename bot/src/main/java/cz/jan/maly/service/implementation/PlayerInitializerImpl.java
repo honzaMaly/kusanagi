@@ -28,6 +28,12 @@ import static cz.jan.maly.model.bot.FactKeys.*;
  * Created by Jan on 05-Apr-17.
  */
 public class PlayerInitializerImpl implements PlayerInitializer {
+    private static final Random RANDOM = new Random();
+
+    private static int getOrderOfWorkerToSendToScout() {
+        int randomSeed = RANDOM.nextInt(18);
+        return randomSeed - 5 > 0 ? randomSeed : 6;
+    }
 
     private static final AgentTypePlayer PLAYER = AgentTypePlayer.builder()
             .agentTypeID(AgentTypes.PLAYER)
@@ -46,7 +52,7 @@ public class PlayerInitializerImpl implements PlayerInitializer {
                                         .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_START_LOCATION).get())
                                         .filter(readOnlyMemory -> !readOnlyMemory.returnFactValueForGivenKey(LAST_TIME_SCOUTED).isPresent())
                                         .count() > 0
-                                        && memory.getReadOnlyMemoriesForAgentType(AgentTypes.DRONE).count() >= 4)
+                                        && memory.getReadOnlyMemoriesForAgentType(AgentTypes.DRONE).count() >= getOrderOfWorkerToSendToScout())
                                 .useFactsInMemory(true)
                                 .build()
                         )

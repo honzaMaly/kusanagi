@@ -54,16 +54,43 @@ public class DesiresKeys {
             .id(DesireKeys.BOOST_GROUND_MELEE)
             .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.ZERGLING_TYPE, FactKeys.MORPH_TO))))
             .build();
+    public static final DesireKey BOOST_GROUND_RANGED = DesireKey.builder()
+            .id(DesireKeys.BOOST_GROUND_RANGED)
+            .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.HYDRALISK_TYPE, FactKeys.MORPH_TO))))
+            .build();
+    public static final DesireKey BOOST_AIR = DesireKey.builder()
+            .id(DesireKeys.BOOST_AIR)
+            .staticFactValues(new HashSet<>(Collections.singletonList(new Fact<>(() -> AUnitTypeWrapper.MUTALISK_TYPE, FactKeys.MORPH_TO))))
+            .build();
 
     //for build order manager
     public static final DesireKey ENABLE_GROUND_MELEE = DesireKey.builder()
             .id(DesireKeys.ENABLE_GROUND_MELEE)
             .build();
+    public static final DesireKey ENABLE_GROUND_RANGED = DesireKey.builder()
+            .id(DesireKeys.ENABLE_GROUND_RANGED)
+            .build();
+    public static final DesireKey ENABLE_STATIC_ANTI_AIR = DesireKey.builder()
+            .id(DesireKeys.ENABLE_STATIC_ANTI_AIR)
+            .build();
+    public static final DesireKey ENABLE_AIR = DesireKey.builder()
+            .id(DesireKeys.ENABLE_AIR)
+            .build();
+    public static final DesireKey UPGRADE_TO_LAIR = DesireKey.builder()
+            .id(DesireKeys.UPGRADE_TO_LAIR)
+            .build();
+
+    //attack
+    public static final DesireKey HOLD_GROUND = DesireKey.builder()
+            .id(DesireKeys.HOLD_GROUND)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(IS_BASE_LOCATION)))
+            .build();
+    public static final DesireKey HOLD_AIR = DesireKey.builder()
+            .id(DesireKeys.HOLD_AIR)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(IS_BASE_LOCATION)))
+            .build();
 
     //for base
-    public static final DesireKey BASE_STATUS = DesireKey.builder()
-            .id(DesireKeys.BASE_STATUS)
-            .build();
     public static final DesireKey ECO_STATUS_IN_LOCATION = DesireKey.builder()
             .id(DesireKeys.ECO_STATUS_IN_LOCATION)
             .build();
@@ -78,6 +105,15 @@ public class DesiresKeys {
             .build();
     public static final DesireKey ENEMIES_IN_LOCATION = DesireKey.builder()
             .id(DesireKeys.ENEMIES_IN_LOCATION)
+            .build();
+    public static final DesireKey BUILD_SPORE_COLONY = DesireKey.builder()
+            .id(DesireKeys.BUILD_SPORE_COLONY)
+            .build();
+    public static final DesireKey BUILD_CREEP_COLONY = DesireKey.builder()
+            .id(DesireKeys.BUILD_SPORE_COLONY)
+            .build();
+    public static final DesireKey BUILD_SUNKEN_COLONY = DesireKey.builder()
+            .id(DesireKeys.BUILD_SUNKEN_COLONY)
             .build();
     public static final DesireKey MINE_MINERALS_IN_BASE = DesireKey.builder()
             .id(DesireKeys.MINE_MINERALS_IN_BASE)
@@ -114,8 +150,29 @@ public class DesiresKeys {
     public static final DesireKey MORPH_TO_POOL = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_POOL)
             .build();
+    public static final DesireKey MORPH_TO_SPIRE = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_SPIRE)
+            .build();
+    public static final DesireKey MORPH_TO_EVOLUTION_CHAMBER = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_EVOLUTION_CHAMBER)
+            .build();
+    public static final DesireKey MORPH_TO_HYDRALISK_DEN = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_HYDRALISK_DEN)
+            .build();
     public static final DesireKey MORPH_TO_EXTRACTOR = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_EXTRACTOR)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
+            .build();
+    public static final DesireKey MORPH_TO_SPORE_COLONY = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_SPORE_COLONY)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
+            .build();
+    public static final DesireKey MORPH_TO_CREEP_COLONY = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_CREEP_COLONY)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
+            .build();
+    public static final DesireKey MORPH_TO_SUNKEN_COLONY = DesireKey.builder()
+            .id(DesireKeys.MORPH_TO_SUNKEN_COLONY)
             .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
             .build();
 
@@ -134,11 +191,23 @@ public class DesiresKeys {
     public static final DesireKey FIND_PLACE_FOR_POOL = DesireKey.builder()
             .id(DesireKeys.FIND_PLACE_FOR_POOL)
             .build();
+    public static final DesireKey FIND_PLACE_FOR_CREEP_COLONY = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_CREEP_COLONY)
+            .build();
     public static final DesireKey FIND_PLACE_FOR_HATCHERY = DesireKey.builder()
             .id(DesireKeys.FIND_PLACE_FOR_HATCHERY)
             .build();
     public static final DesireKey FIND_PLACE_FOR_EXTRACTOR = DesireKey.builder()
             .id(DesireKeys.FIND_PLACE_FOR_EXTRACTOR)
+            .build();
+    public static final DesireKey FIND_PLACE_FOR_SPIRE = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_SPIRE)
+            .build();
+    public static final DesireKey FIND_PLACE_FOR_EVOLUTION_CHAMBER = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_EVOLUTION_CHAMBER)
+            .build();
+    public static final DesireKey FIND_PLACE_FOR_HYDRALISK_DEN = DesireKey.builder()
+            .id(DesireKeys.FIND_PLACE_FOR_HYDRALISK_DEN)
             .build();
     public static final DesireKey SELECT_MINERAL = DesireKey.builder()
             .id(DesireKeys.SELECT_MINERAL)
@@ -151,11 +220,21 @@ public class DesiresKeys {
     public static final DesireKey UNSELECT_MINERAL = DesireKey.builder()
             .id(DesireKeys.UNSELECT_MINERAL)
             .build();
+    public static final DesireKey MINE_GAS = DesireKey.builder()
+            .id(DesireKeys.MINE_GAS)
+            .build();
 
     //for buildings
     public static final DesireKey UPDATE_BELIEFS_ABOUT_CONSTRUCTION = DesireKey.builder()
             .id(DesireKeys.UPDATE_BELIEFS_ABOUT_CONSTRUCTION)
             .build();
 
+    //units
+    public static final DesireKey MOVE_AWAY_FROM_DANGER = DesireKey.builder()
+            .id(DesireKeys.MOVE_AWAY_FROM_DANGER)
+            .build();
+    public static final DesireKey MOVE_TO_POSITION = DesireKey.builder()
+            .id(DesireKeys.MOVE_TO_POSITION)
+            .build();
 
 }
