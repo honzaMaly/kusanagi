@@ -2,7 +2,7 @@ package cz.jan.maly.model.knowledge;
 
 import cz.jan.maly.model.metadata.AgentType;
 import cz.jan.maly.model.metadata.FactKey;
-import cz.jan.maly.model.planing.tree.Tree;
+import cz.jan.maly.model.planing.heap.HeapOfTrees;
 import cz.jan.maly.utils.MyLogger;
 
 import java.util.Map;
@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
  * Represents agent's own memory
  * Created by Jan on 24-Feb-17.
  */
-public class WorkingMemory extends Memory<Tree> {
-    public WorkingMemory(Tree tree, AgentType agentType, int agentId,
+public class WorkingMemory extends Memory<HeapOfTrees> {
+    public WorkingMemory(HeapOfTrees heapOfTrees, AgentType agentType, int agentId,
                          StrategyToGetSetOfMemoriesByAgentType strategyToGetSetOfMemoriesByAgentType,
                          StrategyToGetMemoryOfAgent strategyToGetMemoryOfAgent, StrategyToGetAllMemories strategyToGetAllMemories) {
-        super(tree, agentType, agentId, strategyToGetSetOfMemoriesByAgentType, strategyToGetMemoryOfAgent, strategyToGetAllMemories);
+        super(heapOfTrees, agentType, agentId, strategyToGetSetOfMemoriesByAgentType, strategyToGetMemoryOfAgent, strategyToGetAllMemories);
     }
 
 

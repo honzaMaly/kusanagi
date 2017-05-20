@@ -4,8 +4,8 @@ import com.rits.cloning.Cloner;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 import cz.jan.maly.service.implementation.AgentsRegister;
+import cz.jan.maly.service.implementation.BeliefMediator;
 import cz.jan.maly.service.implementation.DesireMediator;
-import cz.jan.maly.service.implementation.KnowledgeMediator;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +45,7 @@ public class MASFacade implements TerminableService {
 
     //shared knowledge mediator
     @Getter
-    private final KnowledgeMediator knowledgeMediator = new KnowledgeMediator();
+    private final BeliefMediator beliefMediator = new BeliefMediator();
 
     private final Set<Agent> agentsInSystem = new HashSet<>();
 
@@ -84,7 +84,7 @@ public class MASFacade implements TerminableService {
     public void terminate() {
         agentsInSystem.forEach(agent -> agent.terminateAgent(true));
         desireMediator.terminate();
-        knowledgeMediator.terminate();
+        beliefMediator.terminate();
     }
 
     /**

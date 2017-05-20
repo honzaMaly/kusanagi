@@ -1,4 +1,4 @@
-package cz.jan.maly.model.planing.tree;
+package cz.jan.maly.model.planing.heap;
 
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.*;
@@ -67,8 +67,8 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
                 if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                     IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent node = new IntentionNodeNotTopLevel.WithDesireForOthers.TopLevelParent(parent, desire);
                     SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                    if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
-                        tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                    if (sharingDesireRoutine.sharedDesire(sharedDesire, heapOfTrees)) {
+                        heapOfTrees.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
                         parent.replaceDesireByIntentionWithDesireForOthers(this, node);
                         return Optional.of(node);
                     }
@@ -91,8 +91,8 @@ public abstract class DesireNodeNotTopLevel<T extends InternalDesire<? extends I
                 if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                     IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent node = new IntentionNodeNotTopLevel.WithDesireForOthers.NotTopLevelParent(parent, desire);
                     SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                    if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
-                        tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                    if (sharingDesireRoutine.sharedDesire(sharedDesire, heapOfTrees)) {
+                        heapOfTrees.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
                         parent.replaceDesireByIntentionWithDesireForOthers(this, node);
                         return Optional.of(node);
                     }

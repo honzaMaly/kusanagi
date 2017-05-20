@@ -14,6 +14,7 @@ import cz.jan.maly.model.metadata.DesireKeyID;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithAbstractPlan;
 import cz.jan.maly.model.metadata.agents.configuration.ConfigurationWithSharedDesire;
 import cz.jan.maly.model.planing.CommitmentDeciderInitializer;
+import cz.jan.maly.model.planing.ReactionOnChangeStrategy;
 import cz.jan.maly.service.AbstractAgentsInitializer;
 
 import java.util.*;
@@ -359,7 +360,7 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                                 .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_SPIRES) == 0)
                                 .globalBeliefTypesByAgentType(new HashSet<>(Collections.singletonList(COUNT_OF_SPIRES)))
                                 .build())
-                        .desiresForOthers(new HashSet<>(Arrays.asList(BOOST_GROUND_MELEE, BOOST_GROUND_RANGED)))
+                        .desiresForOthers(new HashSet<>(Collections.singletonList(BOOST_AIR)))
                         .build();
                 type.addConfiguration(HOLD_AIR, airPosition, false);
                 ConfigurationWithSharedDesire buildMutas = ConfigurationWithSharedDesire.builder()
@@ -396,13 +397,31 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                 .build();
     }
 
+    private static final ReactionOnChangeStrategy FIND_MAIN_BASE = (memory, desireParameters) -> {
+        Optional<ABaseLocationWrapper> ourBase = memory.getReadOnlyMemoriesForAgentType(AgentTypes.BASE_LOCATION)
+                .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_BASE).get())
+                .filter(readOnlyMemory -> readOnlyMemory.returnFactSetValueForGivenKey(HAS_BASE).get()
+                        .anyMatch(aUnitOfPlayer -> !aUnitOfPlayer.isMorphing() && !aUnitOfPlayer.isBeingConstructed()))
+                .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_BASE_LOCATION).get())
+                .filter(ABaseLocationWrapper::isStartLocation)
+                .findAny();
+        if (ourBase.isPresent()) {
+            memory.updateFact(BASE_TO_MOVE, ourBase.get());
+        } else {
+            memory.eraseFactValueForGivenKey(BASE_TO_MOVE);
+        }
+    };
+
     private static final AgentType BUILDING_ORDER_MANAGER = AgentType.builder()
             .agentTypeID(AgentTypes.BUILDING_ORDER_MANAGER)
+            .usingTypesForFacts(new HashSet<>(Collections.singletonList(BASE_TO_MOVE)))
             .initializationStrategy(type -> {
 
                 ConfigurationWithSharedDesire buildPool = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MORPH_TO_POOL)
                         .counts(1)
+                        .reactionOnChangeStrategy(FIND_MAIN_BASE)
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.eraseFactValueForGivenKey(BASE_TO_MOVE))
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) ->
                                         dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_POOLS) == 0
@@ -427,6 +446,8 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                 //build pool if not present
                 ConfigurationWithSharedDesire buildPoolCommon = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MORPH_TO_POOL)
+                        .reactionOnChangeStrategy(FIND_MAIN_BASE)
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.eraseFactValueForGivenKey(BASE_TO_MOVE))
                         .counts(1)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) ->
@@ -516,6 +537,10 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                 type.addConfiguration(ENABLE_GROUND_RANGED, buildHydraliskDen, true);
                 ConfigurationWithSharedDesire bdDen = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MORPH_TO_HYDRALISK_DEN)
+                        .reactionOnChangeStrategy(FIND_MAIN_BASE)
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> {
+                            memory.eraseFactValueForGivenKey(BASE_TO_MOVE);
+                        })
                         .counts(1)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> true)
@@ -577,6 +602,8 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                 type.addConfiguration(ENABLE_AIR, buildSpire, true);
                 ConfigurationWithSharedDesire bdSpire = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MORPH_TO_SPIRE)
+                        .reactionOnChangeStrategy(FIND_MAIN_BASE)
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.eraseFactValueForGivenKey(BASE_TO_MOVE))
                         .counts(1)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> true)
@@ -715,8 +742,7 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                 type.addConfiguration(ENABLE_STATIC_ANTI_AIR, MORPH_TO_SPORE_COLONY, buildEC);
 
             })
-            //todo ENABLE_STATIC_ANTI_AIR
-            .desiresForOthers(new HashSet<>(Arrays.asList(ENABLE_GROUND_MELEE)))
+            .desiresForOthers(new HashSet<>(Arrays.asList(ENABLE_GROUND_MELEE, ENABLE_STATIC_ANTI_AIR)))
             .desiresWithAbstractIntention(new HashSet<>(Arrays.asList(UPGRADE_TO_LAIR, ENABLE_GROUND_RANGED,
                     ENABLE_AIR)))
             .build();

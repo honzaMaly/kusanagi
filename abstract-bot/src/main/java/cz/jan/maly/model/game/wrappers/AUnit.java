@@ -259,8 +259,8 @@ public class AUnit {
         return getHitPoints() >= getType().getMaxHitPoints();
     }
 
-    public int getHPPercent() {
-        return 100 * getHitPoints() / getType().getMaxHitPoints();
+    public double getHPPercent() {
+        return ((double) getHitPoints()) / ((double) getType().getMaxHitPoints());
     }
 
     public boolean isWounded() {

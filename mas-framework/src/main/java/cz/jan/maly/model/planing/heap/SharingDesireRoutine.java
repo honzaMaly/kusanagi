@@ -1,25 +1,20 @@
-package cz.jan.maly.model.planing.tree;
+package cz.jan.maly.model.planing.heap;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.planing.SharedDesireForAgents;
+import cz.jan.maly.model.planing.SharedDesireInRegister;
 import cz.jan.maly.utils.MyLogger;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * Routine for shared desires removal from mediator
+ * Routine for sharing desire with mediator
  * Created by Jan on 13-Mar-17.
  */
-public class SharingDesireRemovalInSubtreeRoutine implements ResponseReceiverInterface<Boolean> {
+class SharingDesireRoutine implements ResponseReceiverInterface<Boolean> {
     private final Object lockMonitor = new Object();
-    private Boolean unregistered = false;
+    private Boolean registered = false;
 
-    boolean unregisterSharedDesire(Set<SharedDesireForAgents> sharedDesires, Tree tree) {
-
-        //share desire and wait for response of registration
+    boolean sharedDesire(SharedDesireInRegister sharedDesire, HeapOfTrees heapOfTrees) {
         synchronized (lockMonitor) {
-            if (tree.getAgent().getDesireMediator().unregisterDesires(new HashSet<>(sharedDesires), this)) {
+            if (heapOfTrees.getAgent().getDesireMediator().registerDesire(sharedDesire, this)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {
@@ -27,8 +22,7 @@ public class SharingDesireRemovalInSubtreeRoutine implements ResponseReceiverInt
                 }
 
                 //is desire register, if so, make intention out of it
-                if (unregistered) {
-                    tree.removeSharedDesiresForOtherAgents(sharedDesires);
+                if (registered) {
                     return true;
                 } else {
                     MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
@@ -43,9 +37,8 @@ public class SharingDesireRemovalInSubtreeRoutine implements ResponseReceiverInt
 
         //notify waiting method to decide commitment
         synchronized (lockMonitor) {
-            this.unregistered = response;
+            this.registered = response;
             lockMonitor.notify();
         }
     }
-
 }

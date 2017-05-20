@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Template class for memory - it stores facts, sets of facts, agent type and commitment process in form of tree, and provide
+ * Template class for memory - it stores facts, sets of facts, agent type and commitment process in form of heap, and provide
  * access to this data
  * Created by Jan on 16-Feb-17.
  */

@@ -1,9 +1,9 @@
-package cz.jan.maly.model.planing.tree.visitors;
+package cz.jan.maly.model.planing.heap.visitors;
 
 import cz.jan.maly.model.metadata.DesireKey;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
-import cz.jan.maly.model.planing.tree.*;
+import cz.jan.maly.model.planing.heap.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,15 +18,15 @@ import java.util.stream.Collectors;
  * Created by Jan on 22-Feb-17.
  */
 public class CommitmentDecider implements TreeVisitorInterface {
-    private final Tree tree;
+    private final HeapOfTrees heapOfTrees;
 
-    public CommitmentDecider(Tree tree) {
-        this.tree = tree;
+    public CommitmentDecider(HeapOfTrees heapOfTrees) {
+        this.heapOfTrees = heapOfTrees;
     }
 
     @Override
     public void visitTree() {
-        branch(tree);
+        branch(heapOfTrees);
     }
 
     /**

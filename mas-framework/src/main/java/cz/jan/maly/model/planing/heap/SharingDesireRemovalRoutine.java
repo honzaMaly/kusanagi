@@ -1,20 +1,22 @@
-package cz.jan.maly.model.planing.tree;
+package cz.jan.maly.model.planing.heap;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
-import cz.jan.maly.model.planing.SharedDesireInRegister;
+import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.utils.MyLogger;
 
 /**
- * Routine for sharing desire with mediator
+ * Routine for sharing desire removal from mediator
  * Created by Jan on 13-Mar-17.
  */
-class SharingDesireRoutine implements ResponseReceiverInterface<Boolean> {
+class SharingDesireRemovalRoutine implements ResponseReceiverInterface<Boolean> {
     private final Object lockMonitor = new Object();
-    private Boolean registered = false;
+    private Boolean unregistered = false;
 
-    boolean sharedDesire(SharedDesireInRegister sharedDesire, Tree tree) {
+    boolean unregisterSharedDesire(SharedDesireForAgents sharedDesire, HeapOfTrees heapOfTrees) {
+
+        //share desire and wait for response of registration
         synchronized (lockMonitor) {
-            if (tree.getAgent().getDesireMediator().registerDesire(sharedDesire, this)) {
+            if (heapOfTrees.getAgent().getDesireMediator().unregisterDesire(sharedDesire, this)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {
@@ -22,7 +24,8 @@ class SharingDesireRoutine implements ResponseReceiverInterface<Boolean> {
                 }
 
                 //is desire register, if so, make intention out of it
-                if (registered) {
+                if (unregistered) {
+                    heapOfTrees.removeSharedDesireForOtherAgents(sharedDesire);
                     return true;
                 } else {
                     MyLogger.getLogger().warning(this.getClass().getSimpleName() + ": desire for others was not registered.");
@@ -37,8 +40,9 @@ class SharingDesireRoutine implements ResponseReceiverInterface<Boolean> {
 
         //notify waiting method to decide commitment
         synchronized (lockMonitor) {
-            this.registered = response;
+            this.unregistered = response;
             lockMonitor.notify();
         }
     }
+
 }

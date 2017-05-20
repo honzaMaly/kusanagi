@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Read only copy of agent's planning tree to be shared with other agents
+ * Read only copy of agent's planning heap to be shared with other agents
  * Created by Jan on 28-Feb-17.
  */
 public class PlanningTreeOfAnotherAgent implements PlanningTreeInterface {

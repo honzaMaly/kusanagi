@@ -1,30 +1,30 @@
-package cz.jan.maly.model.planing.tree.visitors;
+package cz.jan.maly.model.planing.heap.visitors;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.agents.Agent;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
-import cz.jan.maly.model.planing.tree.*;
+import cz.jan.maly.model.planing.heap.*;
 import cz.jan.maly.utils.MyLogger;
 
 /**
- * CommandExecutor visitor traverse tree to get to leafs. When agent is committed to desire in leaf and it contains
+ * CommandExecutor visitor traverse heapOfTrees to get to leafs. When agent is committed to desire in leaf and it contains
  * command to be executed it sends command to agent to handle it
  * Created by Jan on 22-Feb-17.
  */
 public class CommandExecutor implements TreeVisitorInterface, ResponseReceiverInterface<Boolean> {
     private final Object lockMonitor = new Object();
-    private final Tree tree;
+    private final HeapOfTrees heapOfTrees;
     private final Agent<?> agent;
 
-    public CommandExecutor(Tree tree, Agent<?> agent) {
-        this.tree = tree;
+    public CommandExecutor(HeapOfTrees heapOfTrees, Agent<?> agent) {
+        this.heapOfTrees = heapOfTrees;
         this.agent = agent;
     }
 
     @Override
     public void visitTree() {
-        branch(tree);
+        branch(heapOfTrees);
     }
 
     /**

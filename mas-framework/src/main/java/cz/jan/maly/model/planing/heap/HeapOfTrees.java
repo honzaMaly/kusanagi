@@ -1,4 +1,4 @@
-package cz.jan.maly.model.planing.tree;
+package cz.jan.maly.model.planing.heap;
 
 import cz.jan.maly.model.PlanningTreeInterface;
 import cz.jan.maly.model.ResponseReceiverInterface;
@@ -19,10 +19,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Facade for planning tree. Tree manages nodes at top level.
+ * Facade for planning heapOfTrees. HeapOfTrees manages nodes at top level.
  * Created by Jan on 28-Feb-17.
  */
-public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>>, ResponseReceiverInterface<Boolean> {
+public class HeapOfTrees implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<?>, IntentionNodeAtTopLevel<?, ?>>, ResponseReceiverInterface<Boolean> {
     private final Map<SharedDesire, SharedDesireForAgents> sharedDesiresForOtherAgents = new HashMap<>();
     private final Map<SharedDesire, SharedDesireForAgents> sharedDesiresByOtherAgents = new HashMap<>();
 
@@ -44,7 +44,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
     //to aggregate data
     private final List<ChildNodeManipulation<? extends IntentionNodeAtTopLevel<?, ?>, ? extends DesireNodeAtTopLevel<?>>> registers = new ArrayList<>();
 
-    public Tree(Agent<?> agent) {
+    public HeapOfTrees(Agent<?> agent) {
         this.agent = agent;
         registers.add(manipulationWithAbstractDesiresFromOthers);
         registers.add(manipulationWithDesiresFromOthers);
@@ -59,7 +59,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
     }
 
     /**
-     * Initialize top level of tree with desires' types specified in agent type
+     * Initialize top level of heapOfTrees with desires' types specified in agent type
      *
      * @param desireRegister
      */
@@ -192,7 +192,7 @@ public class Tree implements PlanningTreeInterface, Parent<DesireNodeAtTopLevel<
     }
 
     /**
-     * Returns read only copy of this tree to be shared with other agents
+     * Returns read only copy of this heapOfTrees to be shared with other agents
      *
      * @return
      */

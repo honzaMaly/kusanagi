@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 /**
  * Class extending Desire describes template for internal desires agents may want to commit to. Concrete implementation
- * of this are used in planning tree.
+ * of this are used in planning heap.
  * Created by Jan on 22-Feb-17.
  */
 public abstract class InternalDesire<T extends Intention<? extends InternalDesire<?>>> extends Desire

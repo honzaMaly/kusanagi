@@ -1,4 +1,4 @@
-package cz.jan.maly.model.planing.tree;
+package cz.jan.maly.model.planing.heap;
 
 import cz.jan.maly.model.ResponseReceiverInterface;
 import cz.jan.maly.model.metadata.DesireKey;
@@ -15,8 +15,8 @@ import java.util.Optional;
 public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends Intention>> extends Node.TopLevel implements DesireNodeInterface<IntentionNodeAtTopLevel<?, ?>> {
     final T desire;
 
-    private DesireNodeAtTopLevel(Tree tree, T desire) {
-        super(tree, desire.getDesireParameters());
+    private DesireNodeAtTopLevel(HeapOfTrees heapOfTrees, T desire) {
+        super(heapOfTrees, desire.getDesireParameters());
         this.desire = desire;
     }
 
@@ -31,8 +31,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     static class ForOthers extends DesireNodeAtTopLevel<DesireForOthers> {
         private final SharingDesireRoutine sharingDesireRoutine = new SharingDesireRoutine();
 
-        ForOthers(Tree tree, DesireForOthers desire) {
-            super(tree, desire);
+        ForOthers(HeapOfTrees heapOfTrees, DesireForOthers desire) {
+            super(heapOfTrees, desire);
         }
 
         @Override
@@ -41,8 +41,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
             if (desire.shouldCommit(madeCommitmentToTypes, didNotMakeCommitmentToTypes, typesAboutToMakeDecision)) {
                 IntentionNodeAtTopLevel.WithDesireForOthers node = new IntentionNodeAtTopLevel.WithDesireForOthers(parent, desire);
                 SharedDesireInRegister sharedDesire = node.intention.makeDesireToShare();
-                if (sharingDesireRoutine.sharedDesire(sharedDesire, tree)) {
-                    tree.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
+                if (sharingDesireRoutine.sharedDesire(sharedDesire, heapOfTrees)) {
+                    heapOfTrees.addSharedDesireForOtherAgents(node.intention.getSharedDesire());
                     parent.replaceDesireByIntention(this, node);
                     return Optional.of(node);
                 }
@@ -59,8 +59,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
     abstract static class FromAnotherAgent<V extends DesireFromAnotherAgent<? extends Intention>> extends DesireNodeAtTopLevel<V> implements ResponseReceiverInterface<Optional<SharedDesireForAgents>> {
         private final Object lockMonitor = new Object();
 
-        FromAnotherAgent(Tree tree, V desire) {
-            super(tree, desire);
+        FromAnotherAgent(HeapOfTrees heapOfTrees, V desire) {
+            super(heapOfTrees, desire);
         }
 
         abstract IntentionNodeAtTopLevel<?, ?> formIntentionNodeAndReplaceSelfInParent();
@@ -72,7 +72,7 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
                     typesAboutToMakeDecision, desire.countOfCommittedAgents())) {
 
                 synchronized (lockMonitor) {
-                    if (tree.getAgent().getDesireMediator().addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
+                    if (heapOfTrees.getAgent().getDesireMediator().addCommitmentToDesire(parent.getAgent(), desire.getDesireForAgents(), this)) {
 
                         //wait for registered
                         try {
@@ -105,8 +105,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
          * Concrete implementation, desire forms intention with abstract plan
          */
         static class WithAbstractIntention extends FromAnotherAgent<DesireFromAnotherAgent.WithAbstractIntention> {
-            WithAbstractIntention(Tree tree, DesireFromAnotherAgent.WithAbstractIntention desire) {
-                super(tree, desire);
+            WithAbstractIntention(HeapOfTrees heapOfTrees, DesireFromAnotherAgent.WithAbstractIntention desire) {
+                super(heapOfTrees, desire);
             }
 
             @Override
@@ -121,8 +121,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
          * Concrete implementation, desire forms intention with concrete plan (command)
          */
         static class WithIntentionWithPlan extends FromAnotherAgent<DesireFromAnotherAgent.WithIntentionWithPlan> {
-            WithIntentionWithPlan(Tree tree, DesireFromAnotherAgent.WithIntentionWithPlan desire) {
-                super(tree, desire);
+            WithIntentionWithPlan(HeapOfTrees heapOfTrees, DesireFromAnotherAgent.WithIntentionWithPlan desire) {
+                super(heapOfTrees, desire);
             }
 
             @Override
@@ -141,8 +141,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
      * @param <V>
      */
     abstract static class Own<V extends OwnDesire<? extends Intention>> extends DesireNodeAtTopLevel<V> {
-        Own(Tree tree, V desire) {
-            super(tree, desire);
+        Own(HeapOfTrees heapOfTrees, V desire) {
+            super(heapOfTrees, desire);
         }
 
         @Override
@@ -160,8 +160,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
          * Concrete implementation, desire forms intention with abstract plan
          */
         static class WithAbstractIntention extends Own<OwnDesire.WithAbstractIntention> {
-            WithAbstractIntention(Tree tree, OwnDesire.WithAbstractIntention desire) {
-                super(tree, desire);
+            WithAbstractIntention(HeapOfTrees heapOfTrees, OwnDesire.WithAbstractIntention desire) {
+                super(heapOfTrees, desire);
             }
 
             @Override
@@ -176,8 +176,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
          * Concrete implementation, desire forms intention with acting command
          */
         static class WithActingCommand extends Own<OwnDesire.Acting> {
-            WithActingCommand(Tree tree, OwnDesire.Acting desire) {
-                super(tree, desire);
+            WithActingCommand(HeapOfTrees heapOfTrees, OwnDesire.Acting desire) {
+                super(heapOfTrees, desire);
             }
 
             @Override
@@ -192,8 +192,8 @@ public abstract class DesireNodeAtTopLevel<T extends InternalDesire<? extends In
          * Concrete implementation, desire forms intention with reasoning command
          */
         static class WithReasoningCommand extends Own<OwnDesire.Reasoning> {
-            WithReasoningCommand(Tree tree, OwnDesire.Reasoning desire) {
-                super(tree, desire);
+            WithReasoningCommand(HeapOfTrees heapOfTrees, OwnDesire.Reasoning desire) {
+                super(heapOfTrees, desire);
             }
 
             @Override

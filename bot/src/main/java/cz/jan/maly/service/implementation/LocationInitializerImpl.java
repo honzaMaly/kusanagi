@@ -479,7 +479,65 @@ public class LocationInitializerImpl implements LocationInitializer {
                         .build();
                 type.addConfiguration(BUILD_SUNKEN_COLONY, BUILD_SUNKEN_COLONY, buildSunken);
 
-                //todo +  prereq. - spore colony
+                //spore colony as abstract plan
+                ConfigurationWithAbstractPlan buildSporeColonyAbstract = ConfigurationWithAbstractPlan.builder()
+                        .reactionOnChangeStrategy((memory, desireParameters) -> {
+                            long countOfSporeColonies = memory.returnFactSetValueForGivenKey(STATIC_DEFENSE).orElse(Stream.empty())
+                                    .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.SPORE_COLONY_TYPE))
+                                    .count()
+                                    //creep colonies morphing to sunken
+                                    + memory.returnFactSetValueForGivenKey(STATIC_DEFENSE).orElse(Stream.empty())
+                                    .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().equals(AUnitTypeWrapper.CREEP_COLONY_TYPE))
+                                    .filter(aUnitOfPlayer -> !aUnitOfPlayer.getTrainingQueue().isEmpty())
+                                    .map(aUnitOfPlayer -> aUnitOfPlayer.getTrainingQueue().get(0))
+                                    .filter(typeWrapper -> typeWrapper.equals(AUnitTypeWrapper.SPORE_COLONY_TYPE))
+                                    .count();
+                            memory.updateFact(SPORE_COLONY_COUNT, (int) countOfSporeColonies);
+                        })
+                        .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.updateFact(LAST_SPORE_COLONY_BUILDING_TIME,
+                                memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null)))
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
+                                        && (memory.returnFactValueForGivenKey(LAST_SPORE_COLONY_BUILDING_TIME).orElse(0) + 100
+                                        < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
+                                        && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SPORE_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SPORE_COLONIES_AT_BASE)) <= 4
+                                        && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_SPORE_COLONY, dataForDecision, DEFENSE))
+                                .globalBeliefTypes(DEFENSE.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefSetTypes(DEFENSE.getConvertersForFactSetsForGlobalBeliefs())
+                                .globalBeliefTypesByAgentType(DEFENSE.getConvertersForFactsForGlobalBeliefsByAgentType())
+                                .globalBeliefSetTypesByAgentType(DEFENSE.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .beliefTypes(DEFENSE.getConvertersForFacts())
+                                .beliefSetTypes(Stream.concat(DEFENSE.getConvertersForFactSets().stream(),
+                                        Stream.of(BASE_IS_COMPLETED, COUNT_OF_SPORE_COLONIES_AT_BASE,
+                                                COUNT_OF_SPORE_COLONIES_AT_BASE_IN_CONSTRUCTION)).collect(Collectors.toSet()))
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        || memory.returnFactValueForGivenKey(SPORE_COLONY_COUNT).orElse(0) !=
+                                        (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SPORE_COLONIES_AT_BASE_IN_CONSTRUCTION)
+                                                + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SPORE_COLONIES_AT_BASE))
+                                )
+                                .beliefSetTypes(new HashSet<>(Arrays.asList(COUNT_OF_SPORE_COLONIES_AT_BASE_IN_CONSTRUCTION,
+                                        COUNT_OF_SPORE_COLONIES_AT_BASE)))
+                                .useFactsInMemory(true)
+                                .build())
+                        .desiresForOthers(new HashSet<>(Arrays.asList(BUILD_CREEP_COLONY, BUILD_SPORE_COLONY)))
+                        .build();
+                type.addConfiguration(BUILD_SPORE_COLONY, buildSporeColonyAbstract, true);
+                type.addConfiguration(BUILD_CREEP_COLONY, BUILD_SPORE_COLONY, buildCreepColonyCommon);
+                ConfigurationWithSharedDesire buildSporeColony = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(MORPH_TO_SPORE_COLONY)
+                        .counts(1)
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> true)
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> false)
+                                .build())
+                        .build();
+                type.addConfiguration(BUILD_SPORE_COLONY, BUILD_SPORE_COLONY, buildSporeColony);
+
 
                 //hold ground
                 ConfigurationWithSharedDesire holdGround = ConfigurationWithSharedDesire.builder()
@@ -538,7 +596,8 @@ public class LocationInitializerImpl implements LocationInitializer {
                 type.addConfiguration(HOLD_AIR, holdAir);
             })
             .usingTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE, IS_ENEMY_BASE, BASE_TO_MOVE, SUNKEN_COLONY_COUNT,
-                    SPORE_COLONY_COUNT, CREEP_COLONY_COUNT, LAST_SUNKEN_COLONY_BUILDING_TIME, LAST_CREEP_COLONY_BUILDING_TIME)))
+                    SPORE_COLONY_COUNT, CREEP_COLONY_COUNT, LAST_SUNKEN_COLONY_BUILDING_TIME, LAST_CREEP_COLONY_BUILDING_TIME,
+                    LAST_SPORE_COLONY_BUILDING_TIME)))
             .usingTypesForFactSets(new HashSet<>(Arrays.asList(WORKER_ON_BASE, ENEMY_BUILDING, ENEMY_AIR,
                     ENEMY_GROUND, HAS_BASE, HAS_EXTRACTOR, OWN_BUILDING, OWN_AIR, OWN_GROUND,
                     WORKER_MINING_MINERALS, WORKER_MINING_GAS, OWN_AIR_FORCE_STATUS, OWN_BUILDING_STATUS,
@@ -551,7 +610,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                     VISIT)))
             .desiresForOthers(new HashSet<>(Arrays.asList(MINE_MINERALS_IN_BASE, VISIT, MINE_GAS_IN_BASE,
                     BUILD_CREEP_COLONY, HOLD_GROUND, HOLD_AIR)))
-            .desiresWithAbstractIntention(new HashSet<>(Arrays.asList(BUILD_SUNKEN_COLONY)))
+            .desiresWithAbstractIntention(new HashSet<>(Arrays.asList(BUILD_SUNKEN_COLONY, BUILD_SPORE_COLONY)))
             .build();
 
     @Override

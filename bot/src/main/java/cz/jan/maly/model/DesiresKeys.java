@@ -149,15 +149,19 @@ public class DesiresKeys {
             .build();
     public static final DesireKey MORPH_TO_POOL = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_POOL)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
             .build();
     public static final DesireKey MORPH_TO_SPIRE = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_SPIRE)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
             .build();
     public static final DesireKey MORPH_TO_EVOLUTION_CHAMBER = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_EVOLUTION_CHAMBER)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
             .build();
     public static final DesireKey MORPH_TO_HYDRALISK_DEN = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_HYDRALISK_DEN)
+            .parametersTypesForFacts(new HashSet<>(Collections.singleton(BASE_TO_MOVE)))
             .build();
     public static final DesireKey MORPH_TO_EXTRACTOR = DesireKey.builder()
             .id(DesireKeys.MORPH_TO_EXTRACTOR)

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Contract for planning tree (and read only version of it shared with other agents) with methods to get
+ * Contract for planning heap (and read only version of it shared with other agents) with methods to get
  * some metadata about planning
  * Created by Jan on 28-Feb-17.
  */
@@ -42,12 +42,12 @@ public interface PlanningTreeInterface {
     int countOfSharedDesires();
 
     /**
-     * Method to get counts of types of intentions in tree
+     * Method to get counts of types of intentions in heap
      */
     Map<DesireKey, Long> collectKeysOfCommittedDesiresInTreeCounts();
 
     /**
-     * Method to get counts of types of desires in tree
+     * Method to get counts of types of desires in heap
      */
     Map<DesireKey, Long> collectKeysOfDesiresInTreeCounts();
 

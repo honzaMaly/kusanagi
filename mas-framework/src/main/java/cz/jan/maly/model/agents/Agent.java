@@ -14,14 +14,14 @@ import cz.jan.maly.model.planing.SharedDesireForAgents;
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ObservingCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
-import cz.jan.maly.model.planing.tree.Tree;
-import cz.jan.maly.model.planing.tree.visitors.CommandExecutor;
-import cz.jan.maly.model.planing.tree.visitors.CommitmentDecider;
-import cz.jan.maly.model.planing.tree.visitors.CommitmentRemovalDecider;
+import cz.jan.maly.model.planing.heap.HeapOfTrees;
+import cz.jan.maly.model.planing.heap.visitors.CommandExecutor;
+import cz.jan.maly.model.planing.heap.visitors.CommitmentDecider;
+import cz.jan.maly.model.planing.heap.visitors.CommitmentRemovalDecider;
 import cz.jan.maly.service.MASFacade;
 import cz.jan.maly.service.MediatorTemplate;
+import cz.jan.maly.service.implementation.BeliefMediator;
 import cz.jan.maly.service.implementation.DesireMediator;
-import cz.jan.maly.service.implementation.KnowledgeMediator;
 import cz.jan.maly.utils.MyLogger;
 import lombok.Getter;
 
@@ -43,11 +43,11 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     @Getter
     private final DesireMediator desireMediator;
     @Getter
-    private final KnowledgeMediator knowledgeMediator;
-    private final Tree tree = new Tree(this);
-    private final CommandExecutor commandExecutor = new CommandExecutor(tree, this);
-    private final CommitmentDecider commitmentDecider = new CommitmentDecider(tree);
-    private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(tree);
+    private final BeliefMediator beliefMediator;
+    private final HeapOfTrees heapOfTrees = new HeapOfTrees(this);
+    private final CommandExecutor commandExecutor = new CommandExecutor(heapOfTrees, this);
+    private final CommitmentDecider commitmentDecider = new CommitmentDecider(heapOfTrees);
+    private final CommitmentRemovalDecider commitmentRemovalDecider = new CommitmentRemovalDecider(heapOfTrees);
     private final Object isAliveLockMonitor = new Object();
     //to handle main routine of agent
     private boolean isAlive = true;
@@ -56,12 +56,12 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
     protected Agent(E agentType, MASFacade masFacade) {
         this.id = masFacade.getAgentsRegister().getFreeId();
         this.desireMediator = masFacade.getDesireMediator();
-        this.knowledgeMediator = masFacade.getKnowledgeMediator();
+        this.beliefMediator = masFacade.getBeliefMediator();
         this.agentType = agentType;
-        this.beliefs = new WorkingMemory(tree, this.agentType, this.id,
-                agentTypeID -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoriesForAgentType(agentTypeID),
-                agentId -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemoryForAgent(agentId),
-                () -> knowledgeMediator.getSnapshotOfRegister().getReadOnlyMemories());
+        this.beliefs = new WorkingMemory(heapOfTrees, this.agentType, this.id,
+                agentTypeID -> beliefMediator.getSnapshotOfRegister().getReadOnlyMemoriesForAgentType(agentTypeID),
+                agentId -> beliefMediator.getSnapshotOfRegister().getReadOnlyMemoryForAgent(agentId),
+                () -> beliefMediator.getSnapshotOfRegister().getReadOnlyMemories());
     }
 
     @Override
@@ -92,7 +92,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
 
     void shareKnowledge(Worker worker) {
         synchronized (lockMonitor) {
-            if (knowledgeMediator.registerKnowledge(beliefs.cloneMemory(), this, worker)) {
+            if (beliefMediator.registerBelief(beliefs.cloneMemory(), this, worker)) {
                 try {
                     lockMonitor.wait();
                 } catch (InterruptedException e) {
@@ -100,14 +100,14 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 }
             }
         }
-        waitForMediatorNextUpdate(knowledgeMediator);
+        waitForMediatorNextUpdate(beliefMediator);
     }
 
     private void removeAgent(boolean removeFromKnowledge) {
         desireMediator.removeAgentFromRegister(this, this);
-        tree.removeCommitmentToSharedDesires();
+        heapOfTrees.removeCommitmentToSharedDesires();
         if (removeFromKnowledge) {
-            knowledgeMediator.removeAgent(this, this);
+            beliefMediator.removeAgent(this, this);
         }
     }
 
@@ -283,7 +283,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
 
             //init agent
             doRoutine(this);
-            tree.initTopLevelDesires(desireMediator.getSnapshotOfRegister());
+            heapOfTrees.initTopLevelDesires(desireMediator.getSnapshotOfRegister());
 
             while (true) {
 
@@ -299,7 +299,7 @@ public abstract class Agent<E extends AgentType> implements AgentTypeBehaviourFa
                 commitmentRemovalDecider.visitTree();
                 doRoutine(this);
                 waitForMediatorNextUpdate(desireMediator);
-                tree.updateDesires(desireMediator.getSnapshotOfRegister());
+                heapOfTrees.updateDesires(desireMediator.getSnapshotOfRegister());
             }
 
             removeAgent(removeAgentFromGlobalBeliefs);

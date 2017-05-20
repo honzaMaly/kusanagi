@@ -1,17 +1,17 @@
-package cz.jan.maly.model.planing.tree;
+package cz.jan.maly.model.planing.heap;
 
 import cz.jan.maly.model.planing.command.ActCommand;
 import cz.jan.maly.model.planing.command.ReasoningCommand;
 
 /**
- * Interface to be implemented by visitor of decision tree. Execution pay 3 different types of visit to tree. Using
+ * Interface to be implemented by visitor of decision heapOfTrees. Execution pay 3 different types of visit to heapOfTrees. Using
  * design pattern Visitor enables to have logic to handle flow implemented by concrete visitor.
  * Created by Jan on 21-Feb-17.
  */
 public interface TreeVisitorInterface {
 
     /**
-     * Visit tree
+     * Visit heapOfTrees
      */
     void visitTree();
 

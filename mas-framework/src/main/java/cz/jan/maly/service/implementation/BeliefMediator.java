@@ -14,9 +14,9 @@ import cz.jan.maly.service.MediatorTemplate;
  * Class defines method to access queue.
  * Created by Jan on 24-Feb-17.
  */
-public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, WorkingMemoryRegister> {
+public class BeliefMediator extends MediatorTemplate<ReadOnlyMemoryRegister, WorkingMemoryRegister> {
 
-    public KnowledgeMediator() {
+    public BeliefMediator() {
         super(new WorkingMemoryRegister(), MASFacade::getLengthOfIntervalBeforeUpdatingRegisterWithMemory);
     }
 
@@ -27,7 +27,7 @@ public class KnowledgeMediator extends MediatorTemplate<ReadOnlyMemoryRegister, 
      * @param responseReceiver
      * @return
      */
-    public boolean registerKnowledge(ReadOnlyMemory readOnlyMemory, Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
+    public boolean registerBelief(ReadOnlyMemory readOnlyMemory, Agent owner, ResponseReceiverInterface<Boolean> responseReceiver) {
         return addToQueue(new QueuedItemInterfaceWithResponse<Boolean>() {
             @Override
             public Boolean executeCode() {
