@@ -291,7 +291,6 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
             .desiresForOthers(new HashSet<>(Arrays.asList(BUILD_WORKER, INCREASE_CAPACITY, EXPAND, BUILD_EXTRACTOR)))
             .build();
 
-    //todo
     private static final AgentType UNIT_ORDER_MANAGER = AgentType.builder()
             .agentTypeID(AgentTypes.UNIT_ORDER_MANAGER)
             .initializationStrategy(type -> {
