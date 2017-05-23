@@ -522,6 +522,12 @@ public class FactConverters {
             .map(Optional::get)
             .filter(typeWrapper -> typeWrapper.equals(AUnitTypeWrapper.EVOLUTION_CHAMBER_TYPE))
             .count(), DRONE);
+    public static final FactWithSetOfOptionalValuesForAgentType<AUnitOfPlayer> COUNT_OF_HATCHERIES_BEGINNING_CONSTRUCTION = new FactWithSetOfOptionalValuesForAgentType<>(
+            new FactConverterID<>(418, FactKeys.REPRESENTS_UNIT), optionalStream -> (double) optionalStream.filter(Optional::isPresent)
+            .map(Optional::get)
+            .filter(aUnitOfPlayer -> !aUnitOfPlayer.getTrainingQueue().isEmpty())
+            .filter(aUnitOfPlayer -> aUnitOfPlayer.getTrainingQueue().get(0).equals(AUnitTypeWrapper.HATCHERY_TYPE))
+            .count(), DRONE);
 
     //"barracks"
     public static final FactWithOptionalValue<AUnitOfPlayer> IS_TRAINING_QUEUE_EMPTY = new FactWithOptionalValue<>(
@@ -602,4 +608,15 @@ public class FactConverters {
             .map(Optional::get)
             .filter(AUnit::isIdle)
             .count(), DRONE);
+    public static final FactWithOptionalValue<AUnitWithCommands> IS_CONSTRUCTING_BUILDING = new FactWithOptionalValue<>(
+            new FactConverterID<>(711, IS_UNIT), aUnit -> aUnit.get().isConstructing()
+            || aUnit.get().isMorphing()
+            || !aUnit.get().getTrainingQueue().isEmpty() ? 1.0 : 0.0
+    );
+
+    ////5 pool hack
+    public static final FactWithSetOfOptionalValues<Boolean> CAN_TRANSIT_FROM_5_POOL = new FactWithSetOfOptionalValues<>(
+            new FactConverterID<>(801, FactKeys.TRANSIT_FROM_5_POOL), optionalStream -> optionalStream
+            .filter(Optional::isPresent)
+            .anyMatch(Optional::get) ? 1.0 : 0.0);
 }

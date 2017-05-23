@@ -463,6 +463,12 @@ public class FactKeys {
             return null;
         }
     };
+    public static final FactKey<Boolean> HAS_ENOUGH_RESOURCES = new FactKey<Boolean>("HAS_ENOUGH_RESOURCES", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
 
     //scouting
     public static final FactKey<Integer> LAST_TIME_SCOUTED = new FactKey<Integer>("LAST_TIME_SCOUTED", false) {
@@ -482,6 +488,12 @@ public class FactKeys {
     public static final FactKey<APosition> PLACE_TO_REACH = new FactKey<APosition>("PLACE_TO_REACH", false) {
         @Override
         public APosition getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> TIME_OF_HOLD_COMMAND = new FactKey<Integer>("TIME_OF_HOLD_COMMAND", false) {
+        @Override
+        public Integer getInitValue() {
             return null;
         }
     };
@@ -518,5 +530,36 @@ public class FactKeys {
         }
     };
 
+    ////////HACK - 5 POOL
+    public static final FactKey<Integer> MORPHED_WORKERS = new FactKey<Integer>("MORPHED_WORKERS", true) {
+        @Override
+        public Integer getInitValue() {
+            return 0;
+        }
+    };
+    public static final FactKey<Boolean> TRANSIT_FROM_5_POOL = new FactKey<Boolean>("TRANSIT_FROM_5_POOL", false) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+    public static final FactKey<Boolean> WERE_6_LINGS_MORPHED = new FactKey<Boolean>("WERE_6_LINGS_MORPHED", true) {
+        @Override
+        public Boolean getInitValue() {
+            return false;
+        }
+    };
+    public static final FactKey<AUnitOfPlayer> LING = new FactKey<AUnitOfPlayer>("LING", true) {
+        @Override
+        public AUnitOfPlayer getInitValue() {
+            return null;
+        }
+    };
+    public static final FactKey<Integer> TIME_OF_LAST_DRONE = new FactKey<Integer>("TIME_OF_LAST_DRONE", true) {
+        @Override
+        public Integer getInitValue() {
+            return 0;
+        }
+    };
 
 }

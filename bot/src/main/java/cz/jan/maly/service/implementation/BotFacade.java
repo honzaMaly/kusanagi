@@ -140,6 +140,7 @@ public class BotFacade extends DefaultBWListener {
 
         //speed up game to setup value
         game.setLocalSpeed(getGameDefaultSpeed());
+
         MyLogger.getLogger().info("Local game speed set to " + getGameDefaultSpeed());
     }
 

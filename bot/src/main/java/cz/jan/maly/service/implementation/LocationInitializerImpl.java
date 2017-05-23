@@ -24,8 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static cz.jan.maly.model.DesiresKeys.*;
-import static cz.jan.maly.model.bot.AgentTypes.HATCHERY;
-import static cz.jan.maly.model.bot.AgentTypes.LAIR;
+import static cz.jan.maly.model.bot.AgentTypes.*;
 import static cz.jan.maly.model.bot.FactConverters.*;
 import static cz.jan.maly.model.bot.FactKeys.*;
 import static cz.jan.maly.model.bot.FactKeys.IS_BASE;
@@ -330,9 +329,11 @@ public class LocationInitializerImpl implements LocationInitializer {
                         .sharedDesireKey(MINE_GAS_IN_BASE)
                         .counts(4)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
+                                        && dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1
                                         && dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_EXTRACTORS_ON_BASE) > 0)
                                 .beliefTypes(new HashSet<>(Collections.singletonList(FactConverters.IS_BASE)))
+                                .globalBeliefTypes(new HashSet<>(Collections.singletonList(CAN_TRANSIT_FROM_5_POOL)))
                                 .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_EXTRACTORS_ON_BASE)))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -366,7 +367,8 @@ public class LocationInitializerImpl implements LocationInitializer {
                             memory.updateFact(CREEP_COLONY_COUNT, (int) countOfCreepColonies);
                         })
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
+                                        && dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
                                         && (memory.returnFactValueForGivenKey(LAST_CREEP_COLONY_BUILDING_TIME).orElse(0) + 100
                                         < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
                                         && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION)
@@ -374,7 +376,8 @@ public class LocationInitializerImpl implements LocationInitializer {
                                         && !dataForDecision.madeDecisionToAny()
                                         && dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_POOLS) > 0
                                         && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_CREEP_COLONY, dataForDecision, DEFENSE))
-                                .globalBeliefTypes(DEFENSE.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefTypes(Stream.concat(DEFENSE.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .globalBeliefSetTypes(DEFENSE.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(Stream.concat(DEFENSE.getConvertersForFactsForGlobalBeliefsByAgentType().stream(),
                                         Stream.of(COUNT_OF_POOLS)).collect(Collectors.toSet()))
@@ -438,13 +441,15 @@ public class LocationInitializerImpl implements LocationInitializer {
                         .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.updateFact(LAST_SUNKEN_COLONY_BUILDING_TIME,
                                 memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null)))
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
+                                        && dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
                                         && (memory.returnFactValueForGivenKey(LAST_SUNKEN_COLONY_BUILDING_TIME).orElse(0) + 100
                                         < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
                                         && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SUNKEN_COLONIES_AT_BASE_IN_CONSTRUCTION)
                                         + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SUNKEN_COLONIES_AT_BASE)) <= 4
                                         && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_SUNKEN_COLONY, dataForDecision, DEFENSE))
-                                .globalBeliefTypes(DEFENSE.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefTypes(Stream.concat(DEFENSE.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .globalBeliefSetTypes(DEFENSE.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(DEFENSE.getConvertersForFactsForGlobalBeliefsByAgentType())
                                 .globalBeliefSetTypesByAgentType(DEFENSE.getConvertersForFactSetsForGlobalBeliefsByAgentType())
@@ -497,13 +502,15 @@ public class LocationInitializerImpl implements LocationInitializer {
                         .reactionOnChangeStrategyInIntention((memory, desireParameters) -> memory.updateFact(LAST_SPORE_COLONY_BUILDING_TIME,
                                 memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(null)))
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
+                                        && dataForDecision.getFeatureValueBeliefSets(BASE_IS_COMPLETED) == 1.0
                                         && (memory.returnFactValueForGivenKey(LAST_SPORE_COLONY_BUILDING_TIME).orElse(0) + 100
                                         < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
                                         && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SPORE_COLONIES_AT_BASE_IN_CONSTRUCTION)
                                         + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_SPORE_COLONIES_AT_BASE)) <= 4
                                         && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_SPORE_COLONY, dataForDecision, DEFENSE))
-                                .globalBeliefTypes(DEFENSE.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefTypes(Stream.concat(DEFENSE.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .globalBeliefSetTypes(DEFENSE.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(DEFENSE.getConvertersForFactsForGlobalBeliefsByAgentType())
                                 .globalBeliefSetTypesByAgentType(DEFENSE.getConvertersForFactSetsForGlobalBeliefsByAgentType())
@@ -542,11 +549,19 @@ public class LocationInitializerImpl implements LocationInitializer {
                 //hold ground
                 ConfigurationWithSharedDesire holdGround = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(HOLD_GROUND)
+                        .reactionOnChangeStrategy((memory, desireParameters) -> memory.updateFact(TIME_OF_HOLD_COMMAND,
+                                memory.getReadOnlyMemoriesForAgentType(PLAYER)
+                                        .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME))
+                                        .filter(Optional::isPresent)
+                                        .map(Optional::get)
+                                        .findAny().orElse(null)))
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> (memory.returnFactValueForGivenKey(IS_BASE).get()
-                                        || memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
-                                        && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_GROUND, dataForDecision, HOLDING))
-                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
+                                .decisionStrategy((dataForDecision, memory) ->
+                                        dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
+                                                && memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get()
+                                                && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_GROUND, dataForDecision, HOLDING))
+                                .globalBeliefTypes(Stream.concat(HOLDING.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
                                 .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
@@ -554,9 +569,9 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 .beliefSetTypes(HOLDING.getConvertersForFactSets())
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> (!memory.returnFactValueForGivenKey(IS_BASE).get()
-                                        || !memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
-                                        || !Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_GROUND, dataForDecision, HOLDING))
+                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get()
+                                        || !Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_GROUND, dataForDecision, HOLDING)
+                                )
                                 .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
                                 .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
@@ -570,11 +585,18 @@ public class LocationInitializerImpl implements LocationInitializer {
                 //hold air
                 ConfigurationWithSharedDesire holdAir = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(HOLD_AIR)
+                        .reactionOnChangeStrategy((memory, desireParameters) -> memory.updateFact(TIME_OF_HOLD_COMMAND,
+                                memory.getReadOnlyMemoriesForAgentType(PLAYER)
+                                        .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME))
+                                        .filter(Optional::isPresent)
+                                        .map(Optional::get)
+                                        .findAny().orElse(null)))
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> (memory.returnFactValueForGivenKey(IS_BASE).get()
-                                        || memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
+                                        && memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get()
                                         && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_AIR, dataForDecision, HOLDING))
-                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
+                                .globalBeliefTypes(Stream.concat(HOLDING.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
                                 .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
@@ -582,8 +604,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 .beliefSetTypes(HOLDING.getConvertersForFactSets())
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> (!memory.returnFactValueForGivenKey(IS_BASE).get()
-                                        || !memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get())
+                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get()
                                         || !Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_AIR, dataForDecision, HOLDING))
                                 .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
                                 .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
@@ -594,10 +615,30 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 .build())
                         .build();
                 type.addConfiguration(HOLD_AIR, holdAir);
+
+                //defend base
+                ConfigurationWithSharedDesire defend = ConfigurationWithSharedDesire.builder()
+                        .sharedDesireKey(DEFEND)
+                        .reactionOnChangeStrategy((memory, desireParameters) -> memory.updateFact(TIME_OF_HOLD_COMMAND,
+                                memory.getReadOnlyMemoriesForAgentType(PLAYER)
+                                        .map(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME))
+                                        .filter(Optional::isPresent)
+                                        .map(Optional::get)
+                                        .findAny().orElse(null)))
+                        .decisionInDesire(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        && memory.returnFactSetValueForGivenKey(ENEMY_UNIT).orElse(Stream.empty()).count() > 0)
+                                .build())
+                        .decisionInIntention(CommitmentDeciderInitializer.builder()
+                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_BASE).get()
+                                        && memory.returnFactSetValueForGivenKey(ENEMY_UNIT).orElse(Stream.empty()).count() == 0)
+                                .build())
+                        .build();
+                type.addConfiguration(DEFEND, defend);
             })
             .usingTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE, IS_ENEMY_BASE, BASE_TO_MOVE, SUNKEN_COLONY_COUNT,
                     SPORE_COLONY_COUNT, CREEP_COLONY_COUNT, LAST_SUNKEN_COLONY_BUILDING_TIME, LAST_CREEP_COLONY_BUILDING_TIME,
-                    LAST_SPORE_COLONY_BUILDING_TIME)))
+                    LAST_SPORE_COLONY_BUILDING_TIME, TIME_OF_HOLD_COMMAND)))
             .usingTypesForFactSets(new HashSet<>(Arrays.asList(WORKER_ON_BASE, ENEMY_BUILDING, ENEMY_AIR,
                     ENEMY_GROUND, HAS_BASE, HAS_EXTRACTOR, OWN_BUILDING, OWN_AIR, OWN_GROUND,
                     WORKER_MINING_MINERALS, WORKER_MINING_GAS, OWN_AIR_FORCE_STATUS, OWN_BUILDING_STATUS,
@@ -609,7 +650,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                     FRIENDLIES_IN_LOCATION, ENEMIES_IN_LOCATION, ESTIMATE_ENEMY_FORCE_IN_LOCATION, ESTIMATE_OUR_FORCE_IN_LOCATION,
                     VISIT)))
             .desiresForOthers(new HashSet<>(Arrays.asList(MINE_MINERALS_IN_BASE, VISIT, MINE_GAS_IN_BASE,
-                    BUILD_CREEP_COLONY, HOLD_GROUND, HOLD_AIR)))
+                    BUILD_CREEP_COLONY, HOLD_GROUND, HOLD_AIR, DEFEND)))
             .desiresWithAbstractIntention(new HashSet<>(Arrays.asList(BUILD_SUNKEN_COLONY, BUILD_SPORE_COLONY)))
             .build();
 

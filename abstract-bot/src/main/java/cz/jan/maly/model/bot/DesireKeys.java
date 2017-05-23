@@ -31,8 +31,10 @@ public class DesireKeys {
     public static final DesireKeyID BOOST_GROUND_RANGED = new DesireKeyID("BOOST_GROUND_RANGED", 23);
 
     //BASE_LOCATION's desires
-    public static final DesireKeyID HOLD_GROUND = new DesireKeyID("HOLD_GROUND", 31);
-    public static final DesireKeyID HOLD_AIR = new DesireKeyID("HOLD_AIR", 32);
+    public static final DesireKeyID HOLD_GROUND = new DesireKeyID("HOLD_GROUND", 30);
+    public static final DesireKeyID HOLD_AIR = new DesireKeyID("HOLD_AIR", 31);
+    public static final DesireKeyID DEFEND = new DesireKeyID("DEFEND", 32);
+
     //defend (base is present)
     public static final DesireKeyID BUILD_CREEP_COLONY = new DesireKeyID("BUILD_CREEP_COLONY", 33);
     public static final DesireKeyID BUILD_SUNKEN_COLONY = new DesireKeyID("BUILD_SUNKEN_COLONY", 34);
@@ -88,6 +90,9 @@ public class DesireKeys {
     public static final DesireKeyID FIND_PLACE_FOR_HYDRALISK_DEN = new DesireKeyID("FIND_PLACE_FOR_HYDRALISK_DEN", 211);
     public static final DesireKeyID FIND_PLACE_FOR_CREEP_COLONY = new DesireKeyID("FIND_PLACE_FOR_CREEP_COLONY", 212);
     public static final DesireKeyID FIND_PLACE_FOR_EVOLUTION_CHAMBER = new DesireKeyID("FIND_PLACE_FOR_EVOLUTION_CHAMBER", 213);
+    public static final DesireKeyID REASON_ABOUT_RESOURCES = new DesireKeyID("REASON_ABOUT_RESOURCES", 214);
+    public static final DesireKeyID BUILD = new DesireKeyID("BUILD", 215);
+    public static final DesireKeyID RETURN_CARGO = new DesireKeyID("RETURN_CARGO", 216);
 
     //desires for buildings
     public static final DesireKeyID UPDATE_BELIEFS_ABOUT_CONSTRUCTION = new DesireKeyID("UPDATE_BELIEFS_ABOUT_CONSTRUCTION", 251);
@@ -97,8 +102,13 @@ public class DesireKeys {
     public static final DesireKeyID WORKER_SCOUT = new DesireKeyID("WORKER_SCOUT", 352);
 
     //units
-    public static final DesireKeyID REASON_ABOUT_DANGER = new DesireKeyID("REASON_ABOUT_DANGER", 401);
     public static final DesireKeyID MOVE_AWAY_FROM_DANGER = new DesireKeyID("MOVE_AWAY_FROM_DANGER", 402);
     public static final DesireKeyID MOVE_TO_POSITION = new DesireKeyID("MOVE_TO_POSITION", 403);
+    public static final DesireKeyID ATTACK = new DesireKeyID("ATTACK", 404);
+
+    ////////HACK - 5 POOL
+    public static final DesireKeyID DO_5_POOL = new DesireKeyID("DO_5_POOL", 501);
+    public static final DesireKeyID REASON_ABOUT_TRANSITION = new DesireKeyID("REASON_ABOUT_TRANSITION", 502);
+    public static final DesireKeyID FIND_ENEMY_BASE = new DesireKeyID("FIND_ENEMY_BASE", 503);
 
 }

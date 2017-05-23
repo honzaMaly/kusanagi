@@ -83,11 +83,15 @@ public class DesiresKeys {
     //attack
     public static final DesireKey HOLD_GROUND = DesireKey.builder()
             .id(DesireKeys.HOLD_GROUND)
-            .parametersTypesForFacts(new HashSet<>(Collections.singleton(IS_BASE_LOCATION)))
+            .parametersTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE_LOCATION, TIME_OF_HOLD_COMMAND)))
             .build();
     public static final DesireKey HOLD_AIR = DesireKey.builder()
             .id(DesireKeys.HOLD_AIR)
-            .parametersTypesForFacts(new HashSet<>(Collections.singleton(IS_BASE_LOCATION)))
+            .parametersTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE_LOCATION, TIME_OF_HOLD_COMMAND)))
+            .build();
+    public static final DesireKey DEFEND = DesireKey.builder()
+            .id(DesireKeys.DEFEND)
+            .parametersTypesForFacts(new HashSet<>(Arrays.asList(IS_BASE_LOCATION, TIME_OF_HOLD_COMMAND)))
             .build();
 
     //for base
@@ -227,6 +231,15 @@ public class DesiresKeys {
     public static final DesireKey MINE_GAS = DesireKey.builder()
             .id(DesireKeys.MINE_GAS)
             .build();
+    public static final DesireKey REASON_ABOUT_RESOURCES = DesireKey.builder()
+            .id(DesireKeys.REASON_ABOUT_RESOURCES)
+            .build();
+    public static final DesireKey BUILD = DesireKey.builder()
+            .id(DesireKeys.BUILD)
+            .build();
+    public static final DesireKey RETURN_CARGO = DesireKey.builder()
+            .id(DesireKeys.RETURN_CARGO)
+            .build();
 
     //for buildings
     public static final DesireKey UPDATE_BELIEFS_ABOUT_CONSTRUCTION = DesireKey.builder()
@@ -239,6 +252,20 @@ public class DesiresKeys {
             .build();
     public static final DesireKey MOVE_TO_POSITION = DesireKey.builder()
             .id(DesireKeys.MOVE_TO_POSITION)
+            .build();
+    public static final DesireKey ATTACK = DesireKey.builder()
+            .id(DesireKeys.ATTACK)
+            .build();
+
+    //5 pool hack
+    public static final DesireKey DO_5_POOL = DesireKey.builder()
+            .id(DesireKeys.DO_5_POOL)
+            .build();
+    public static final DesireKey REASON_ABOUT_TRANSITION = DesireKey.builder()
+            .id(DesireKeys.REASON_ABOUT_TRANSITION)
+            .build();
+    public static final DesireKey FIND_ENEMY_BASE = DesireKey.builder()
+            .id(DesireKeys.FIND_ENEMY_BASE)
             .build();
 
 }
