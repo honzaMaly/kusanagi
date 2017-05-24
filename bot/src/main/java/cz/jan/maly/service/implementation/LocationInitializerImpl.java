@@ -315,10 +315,12 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 0
                                         || dataForDecision.getFeatureValueBeliefSets(COUNT_OF_MINERALS_ON_BASE) == 0
                                         || dataForDecision.getFeatureValueBeliefSets(COUNT_OF_MINERALS_ON_BASE) != dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_MINERALS_ON_BASE)
+                                        || (dataForDecision.madeDecisionToAny() && memory.returnFactSetValueForGivenKey(WORKER_MINING_GAS).orElse(Stream.empty()).count() == 0)
                                 )
                                 .beliefTypes(new HashSet<>(Collections.singletonList(FactConverters.IS_BASE)))
                                 .beliefSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
                                 .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_MINERALS_ON_BASE)))
+                                .desiresToConsider(new HashSet<>(Collections.singleton(MINE_GAS_IN_BASE)))
                                 .build()
                         )
                         .build();
@@ -327,11 +329,14 @@ public class LocationInitializerImpl implements LocationInitializer {
                 //Make request to start mining gas. Remove request when there are no extractors or there is no hatchery to bring mineral in
                 ConfigurationWithSharedDesire mineGas = ConfigurationWithSharedDesire.builder()
                         .sharedDesireKey(MINE_GAS_IN_BASE)
-                        .counts(4)
+                        .counts(2)
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
                                         && dataForDecision.getFeatureValueBeliefs(FactConverters.IS_BASE) == 1
-                                        && dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_EXTRACTORS_ON_BASE) > 0)
+                                        && dataForDecision.getFeatureValueDesireBeliefSets(COUNT_OF_EXTRACTORS_ON_BASE) > 0
+                                        && memory.returnFactSetValueForGivenKey(OWN_BUILDING).orElse(Stream.empty())
+                                        .filter(aUnitOfPlayer -> aUnitOfPlayer.getType().isGasBuilding())
+                                        .anyMatch(aUnitOfPlayer -> !aUnitOfPlayer.isBeingConstructed() && !aUnitOfPlayer.isMorphing()))
                                 .beliefTypes(new HashSet<>(Collections.singletonList(FactConverters.IS_BASE)))
                                 .globalBeliefTypes(new HashSet<>(Collections.singletonList(CAN_TRANSIT_FROM_5_POOL)))
                                 .parameterValueSetTypes(new HashSet<>(Collections.singletonList(COUNT_OF_EXTRACTORS_ON_BASE)))
@@ -372,7 +377,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                                         && (memory.returnFactValueForGivenKey(LAST_CREEP_COLONY_BUILDING_TIME).orElse(0) + 100
                                         < memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).orElse(0))
                                         && (dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE_IN_CONSTRUCTION)
-                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE)) <= 1
+                                        + dataForDecision.getFeatureValueBeliefSets(COUNT_OF_CREEP_COLONIES_AT_BASE)) == 0
                                         && !dataForDecision.madeDecisionToAny()
                                         && dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_POOLS) > 0
                                         && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.BUILD_CREEP_COLONY, dataForDecision, DEFENSE))
@@ -631,7 +636,7 @@ public class LocationInitializerImpl implements LocationInitializer {
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(IS_BASE).get()
-                                        && memory.returnFactSetValueForGivenKey(ENEMY_UNIT).orElse(Stream.empty()).count() == 0)
+                                        || memory.returnFactSetValueForGivenKey(ENEMY_UNIT).orElse(Stream.empty()).count() == 0)
                                 .build())
                         .build();
                 type.addConfiguration(DEFEND, defend);
@@ -649,7 +654,7 @@ public class LocationInitializerImpl implements LocationInitializer {
             .desiresWithIntentionToReason(new HashSet<>(Arrays.asList(ECO_STATUS_IN_LOCATION,
                     FRIENDLIES_IN_LOCATION, ENEMIES_IN_LOCATION, ESTIMATE_ENEMY_FORCE_IN_LOCATION, ESTIMATE_OUR_FORCE_IN_LOCATION,
                     VISIT)))
-            .desiresForOthers(new HashSet<>(Arrays.asList(MINE_MINERALS_IN_BASE, VISIT, MINE_GAS_IN_BASE,
+            .desiresForOthers(new HashSet<>(Arrays.asList(VISIT, MINE_GAS_IN_BASE, MINE_MINERALS_IN_BASE,
                     BUILD_CREEP_COLONY, HOLD_GROUND, HOLD_AIR, DEFEND)))
             .desiresWithAbstractIntention(new HashSet<>(Arrays.asList(BUILD_SUNKEN_COLONY, BUILD_SPORE_COLONY)))
             .build();

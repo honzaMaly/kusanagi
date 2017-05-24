@@ -2,6 +2,8 @@ package cz.jan.maly.model;
 
 import bwapi.Order;
 import bwapi.Position;
+import bwapi.TilePosition;
+import bwta.BWTA;
 import cz.jan.maly.model.agent.types.AgentTypeUnit;
 import cz.jan.maly.model.bot.AgentTypes;
 import cz.jan.maly.model.bot.FactKeys;
@@ -618,7 +620,7 @@ public class AgentsUnitTypes {
                         })
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
                                 .decisionStrategy((dataForDecision, memory) -> dataForDecision.madeDecisionToAny()
-                                        || memory.returnFactValueForGivenKey(PLACE_TO_GO).get().distanceTo(memory.returnFactValueForGivenKey(REPRESENTS_UNIT).get().getPosition()) < 10)
+                                        || memory.returnFactValueForGivenKey(PLACE_TO_GO).get().distanceTo(memory.returnFactValueForGivenKey(REPRESENTS_UNIT).get().getPosition()) < 1)
                                 .desiresToConsider(new HashSet<>(Arrays.asList(WORKER_SCOUT, EXPAND,
                                         MORPH_TO_POOL, MORPH_TO_SPIRE, MORPH_TO_HYDRALISK_DEN, MORPH_TO_EXTRACTOR,
                                         MORPH_TO_CREEP_COLONY, MORPH_TO_EVOLUTION_CHAMBER, MINE_MINERALS_IN_BASE,
@@ -717,11 +719,11 @@ public class AgentsUnitTypes {
                         .decisionStrategy((dataForDecision, memory) ->
                                         dataForDecision.madeDecisionToAny()
 //                                        || (dataForDecision.getFeatureValueBeliefs(IS_CONSTRUCTING_BUILDING) != 0
-//                                                && !memory.returnFactValueForGivenKey(placeForBuilding).isPresent()
-//                                                //wait for minerals
-//                                                && (dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_MINERALS) > typeOfBuilding.getMineralPrice()
-//                                                && dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_GAS) > typeOfBuilding.getGasPrice()
-//                                                && dataForDecision.getFeatureValueBeliefs(MADE_BUILDING_LAST_CHECK) + 300 < dataForDecision.getFeatureValueBeliefs(LAST_OBSERVATION)))
+                                                && !memory.returnFactValueForGivenKey(placeForBuilding).isPresent()
+                                                //wait for minerals
+                                                && (dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_MINERALS) > typeOfBuilding.getMineralPrice()
+                                                && dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_GAS) > typeOfBuilding.getGasPrice()
+                                                && dataForDecision.getFeatureValueBeliefs(MADE_BUILDING_LAST_CHECK) + 300 < dataForDecision.getFeatureValueBeliefs(LAST_OBSERVATION))
                         )
                         .beliefTypes(new HashSet<>(Arrays.asList(MADE_BUILDING_LAST_CHECK, LAST_OBSERVATION, IS_CONSTRUCTING_BUILDING)))
                         .globalBeliefTypesByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_MINERALS, COUNT_OF_GAS, COUNT_OF_IDLE_DRONES)))
@@ -767,7 +769,15 @@ public class AgentsUnitTypes {
                     @Override
                     public boolean act(WorkingMemory memory) {
                         memory.updateFact(BUILDING_LAST_CHECK, memory.returnFactValueForGivenKey(MADE_OBSERVATION_IN_FRAME).get());
-                        intention.returnFactValueForGivenKey(IS_UNIT).get().move(intention.returnFactValueForGivenKey(BASE_TO_MOVE).get());
+
+                        AUnitWithCommands me = intention.returnFactValueForGivenKey(IS_UNIT).get();
+                        APosition destination = intention.returnFactValueForGivenKey(BASE_TO_MOVE).get().getPosition();
+                        List<TilePosition> path = BWTA.getShortestPath(me.getPosition().getATilePosition().getWrappedPosition(), destination.getATilePosition().getWrappedPosition());
+                        if (!path.isEmpty()){
+                            me.move(ATilePosition.wrap(path.get(path.size()/2)));
+                        } else {
+                            me.move(destination);
+                        }
                         return true;
                     }
                 })
@@ -817,7 +827,7 @@ public class AgentsUnitTypes {
                             if (!memory.returnFactValueForGivenKey(placeForBuilding).isPresent()) {
 
                                 Optional<APosition> aPlaceToGo = memory.returnFactValueForGivenKey(PLACE_TO_GO);
-                                if (!aPlaceToGo.isPresent() || me.getPosition().distanceTo(aPlaceToGo.get()) < 3) {
+                                if (!aPlaceToGo.isPresent() || me.getPosition().distanceTo(aPlaceToGo.get()) < 2) {
                                     Optional<ReadOnlyMemory> memoryOptional = memory.getReadOnlyMemoriesForAgentType(AgentTypes.BASE_LOCATION)
                                             .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_BASE_LOCATION).get().equals(me.getNearestBaseLocation().orElse(null)))
                                             .findAny();

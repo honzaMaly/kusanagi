@@ -25,8 +25,20 @@ public class FactKeys {
             return null;
         }
     };
+    public static final FactKey<Integer> LAST_TIME_OVERLORD_TRAINED = new FactKey<Integer>("LAST_TIME_OVERLORD_TRAINED", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
 
     //Facts for base
+    public static final FactKey<Integer> LAST_TIME_GAS_COMMAND = new FactKey<Integer>("LAST_TIME_GAS_COMMAND", false) {
+        @Override
+        public Integer getInitValue() {
+            return null;
+        }
+    };
     public static final FactKey<AUnitOfPlayer> WORKER_ON_BASE = new FactKey<AUnitOfPlayer>("WORKER_ON_BASE", false) {
         @Override
         public AUnitOfPlayer getInitValue() {
@@ -540,7 +552,7 @@ public class FactKeys {
     public static final FactKey<Boolean> TRANSIT_FROM_5_POOL = new FactKey<Boolean>("TRANSIT_FROM_5_POOL", false) {
         @Override
         public Boolean getInitValue() {
-            return false;
+            return true;
         }
     };
     public static final FactKey<Boolean> WERE_6_LINGS_MORPHED = new FactKey<Boolean>("WERE_6_LINGS_MORPHED", true) {

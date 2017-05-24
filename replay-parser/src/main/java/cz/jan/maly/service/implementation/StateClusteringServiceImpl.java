@@ -52,7 +52,7 @@ public class StateClusteringServiceImpl implements StateClusteringService {
 //            int clusterNumberEstimation = estimateClusters(trajectories, normalizers);
 //            MyLogger.getLogger().info("Estimated #" + clusterNumberEstimation + " clusters.");
             MiniBatchKMeans batchKMeans = new MiniBatchKMeans(DISTANCE_FUNCTION, 200, 250, SEED_SELECTION_METHOD);
-            batchKMeans.cluster(createDataSet(states, normalizers), 750);
+            batchKMeans.cluster(createDataSet(states, normalizers), 1500);
             return batchKMeans.getMeans();
         }
         return computeStateRepresentatives(states, normalizers);

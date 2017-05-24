@@ -97,9 +97,15 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                                         Stream.of(COUNT_OF_MORPHING_OVERLORDS, CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CURRENT_POPULATION)
-                                        < dataForDecision.getFeatureValueGlobalBeliefs(MAX_POPULATION))
-                                .globalBeliefTypesByAgentType(new HashSet<>(Arrays.asList(CURRENT_POPULATION, MAX_POPULATION)))
+                                .decisionStrategy((dataForDecision, memory) ->
+                                        !Decider.getDecision(AgentTypes.ECO_MANAGER, DesireKeys.INCREASE_CAPACITY, dataForDecision, INCREASING_CAPACITY)
+                                                || dataForDecision.getFeatureValueGlobalBeliefs(CURRENT_POPULATION)
+                                                < dataForDecision.getFeatureValueGlobalBeliefs(MAX_POPULATION))
+                                .globalBeliefTypesByAgentType(Stream.concat(INCREASING_CAPACITY.getConvertersForFactsForGlobalBeliefsByAgentType().stream(),
+                                        Stream.of(CURRENT_POPULATION, MAX_POPULATION)).collect(Collectors.toSet()))
+                                .globalBeliefSetTypesByAgentType(INCREASING_CAPACITY.getConvertersForFactSetsForGlobalBeliefsByAgentType())
+                                .globalBeliefTypes(Stream.concat(INCREASING_CAPACITY.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(COUNT_OF_MORPHING_OVERLORDS, CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
                                 .build())
                         .build();
                 type.addConfiguration(INCREASE_CAPACITY, trainOverlord);
@@ -170,13 +176,18 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                                 .globalBeliefSetTypesByAgentType(EXPANDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> !memory.returnFactValueForGivenKey(BASE_TO_MOVE).isPresent()
-                                        || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HATCHERIES_IN_CONSTRUCTION) > 0
-                                        || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HATCHERIES_BEING_CONSTRUCT) > 0
-                                        || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HATCHERIES_BEGINNING_CONSTRUCTION) > 0
+                                .decisionStrategy((dataForDecision, memory) ->
+                                        !Decider.getDecision(AgentTypes.ECO_MANAGER, DesireKeys.EXPAND, dataForDecision, EXPANDING)
+                                                || !memory.returnFactValueForGivenKey(BASE_TO_MOVE).isPresent()
+                                                || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HATCHERIES_IN_CONSTRUCTION) > 0
+                                                || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HATCHERIES_BEING_CONSTRUCT) > 0
+                                                || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HATCHERIES_BEGINNING_CONSTRUCTION) > 0
                                 )
-                                .globalBeliefTypes(Stream.of(COUNT_OF_HATCHERIES_IN_CONSTRUCTION).collect(Collectors.toSet()))
-                                .globalBeliefTypesByAgentType(Stream.of(COUNT_OF_HATCHERIES_BEING_CONSTRUCT, COUNT_OF_HATCHERIES_BEGINNING_CONSTRUCTION).collect(Collectors.toSet()))
+                                .globalBeliefTypes(Stream.concat(EXPANDING.getConvertersForFactsForGlobalBeliefs().stream(),
+                                        Stream.of(COUNT_OF_HATCHERIES_IN_CONSTRUCTION, CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
+                                .globalBeliefTypesByAgentType(Stream.concat(EXPANDING.getConvertersForFactsForGlobalBeliefsByAgentType().stream(),
+                                        Stream.of(COUNT_OF_HATCHERIES_BEING_CONSTRUCT, COUNT_OF_HETCH, COUNT_OF_MINERALS, COUNT_OF_HATCHERIES, COUNT_OF_HATCHERIES_BEGINNING_CONSTRUCTION)).collect(Collectors.toSet()))
+                                .globalBeliefSetTypesByAgentType(EXPANDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())
                                 .build())
                         .build();
                 type.addConfiguration(EXPAND, expand);
@@ -319,8 +330,10 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                                 .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
                                         && (dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_POOLS) > 0
                                         || dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_HYDRALISK_DENS) > 0)
+                                        && dataForDecision.getFeatureValueGlobalBeliefs(COUNT_OF_MINERALS) >= 300
                                 )
-                                .globalBeliefTypesByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_POOLS, COUNT_OF_HYDRALISK_DENS)))
+                                .globalBeliefTypesByAgentType(new HashSet<>(Arrays.asList(COUNT_OF_POOLS, COUNT_OF_HYDRALISK_DENS,
+                                        COUNT_OF_MINERALS)))
                                 .globalBeliefTypes(new HashSet<>(Collections.singletonList(CAN_TRANSIT_FROM_5_POOL)))
                                 .build())
                         .decisionInIntention(CommitmentDeciderInitializer.builder()
@@ -356,7 +369,7 @@ public class AbstractAgentsInitializerImpl implements AbstractAgentsInitializer 
                                 .build())
                         .build();
                 type.addConfiguration(BOOST_GROUND_RANGED, HOLD_GROUND, buildHydras);
-
+//
                 //abstract plan to build units based on position requests
                 ConfigurationWithAbstractPlan airPosition = ConfigurationWithAbstractPlan.builder()
                         .decisionInDesire(CommitmentDeciderInitializer.builder()

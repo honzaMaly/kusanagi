@@ -1,0 +1,210 @@
+\begin{thebibliography}{10}
+
+\bibitem{csn690}
+{ČSN}~ISO 690.
+\newblock Informace a dokumentace -- pravidla pro bibliografické odkazy a
+  citace informačních zdrojů, duben 2011.
+\newblock \url{http://www.citace.cz/}.
+
+\bibitem{CSN:016910}
+{ČSN}~01 6910.
+\newblock Úprava písemností zpracovaných textovými editory, duben 2007.
+\newblock \url{http://typotypo.wz.cz/csn016910.pdf}.
+
+\bibitem{longtable}
+David Carlisle.
+\newblock {\em The longtable package}, February 2004.
+\newblock
+  \url{http://mirrors.ctan.org/macros/latex/required/tools/longtable.pdf}.
+
+\bibitem{biber}
+Fran\c{c}ois Charette and Philip Kime.
+\newblock {Biber}.
+\newblock \url{http://biblatex-biber.sourceforge.net/}.
+
+\bibitem{Chen86}
+Pehong Chen.
+\newblock {\em Index Preparation and Processing}, 1986.
+
+\bibitem{jemny}
+Michael Doob.
+\newblock {\em Jemný úvod do \TeX{}u}.
+\newblock CSTUG, 1997.
+\newblock \url{ftp://math.feld.cvut.cz/pub/cstex/doc/jemny.tar.gz}.
+
+\bibitem{bibtex}
+Alexander Feder.
+\newblock {Bib\TeX}.
+\newblock \url{http://www.bibtex.org/}.
+
+\bibitem{CVUT-FEL:smernice}
+ČVUT FEL.
+\newblock Směrnice děkana pro magisterské státní závěrečné zkoušky na
+  {ČVUT FEL}, 2012.
+\newblock \url{http://www.fel.cvut.cz/rozvoj/smerniceMSZZ.html}.
+
+\bibitem{latexgraphicscompanion2nd}
+Michel Goossens, Frank Mittelbach, Sebastian Rahtz, Denis Roegel, and Herbert
+  Voss.
+\newblock {\em {\LaTeX} Graphics Companion}.
+\newblock Addison-Wesley, edition 2 edition, August 2007.
+
+\bibitem{grafman}
+{\em Grafický manuál identity Českého vysokého učení technického v
+  Praze}.
+\newblock Reklamní a umělecká agentura Klubko 55.
+  \url{http://www.cvut.cz/informace-pro-media/graficky-manual}.
+
+\bibitem{LatinModern}
+Bogusław Jackowski and Janusz~M. Nowacki.
+\newblock {Latin Modern} font family.
+\newblock \url{http://oldwww.gust.org.pl/projects/e-foundry/latin-modern}.
+
+\bibitem{bibtex8}
+Niel Kempson and Alejandro Aguilar-Sierra.
+\newblock {Bib\TeX 8}, 1996.
+\newblock \url{http://www.ctan.org/tex-archive/biblio/bibtex/8-bit}.
+
+\bibitem{texbook}
+Donald~Ervin Knuth.
+\newblock {\em Computer \& Typesetting A: The~{\TeX}book}.
+\newblock Addison Wesley, 1994.
+
+\bibitem{Kopka04}
+Helmut Kopka and Patrick~W. Daly.
+\newblock {\em Guide to {\LaTeX}}.
+\newblock Addison-Wesley, edition 4 edition, November 2003.
+
+\bibitem{Lamport87}
+Leslie Lamport.
+\newblock {\em {MakeIndex}: An Index Processor For \LaTeX{}}, February 1987.
+
+\bibitem{biblatex}
+Philipp Lehman.
+\newblock {Bib\LaTeX}, 2012.
+\newblock
+  \url{http://ftp.cstug.cz/pub/tex/CTAN/help/Catalogue/entries/biblatex.html}.
+
+\bibitem{latexcompanion2nd}
+Frank Mittelbach, Michel Goossens, Johannes Braams, David Carlisle, and Chris
+  Rowley.
+\newblock {\em {\LaTeX} Companion}.
+\newblock Addison-Wesley, edition 2 edition, April 2004.
+
+\bibitem{csbibtex}
+Petr Novotný.
+\newblock {CSBib\TeX}, 1994.
+\newblock \url{http://math.feld.cvut.cz/olsak/cstex/csbibtex.txt}.
+
+\bibitem{Oetiker11}
+Tobias Oetiker, Hubert Partl, Irene Hyna, and Elisabeth Schlegl.
+\newblock {\em The not so short introduction to {\LaTeX2e}}, 2011.
+\newblock \url{http://tobi.oetiker.ch/lshort/lshort.pdf}.
+
+\bibitem{nestrucLaTeX}
+Tobias Oetiker, Hubert Partl, Irene Hyna, Elisabeth Schlegl, Michal Kočer, and
+  Pavel Sýkora.
+\newblock {\em Nepříliš stručný úvod do systému {\LaTeX}}, 1998.
+\newblock \url{www.penguin.cz/~kocer/texty/lshort2e/lshort2e-cz.pdf}.
+
+\bibitem{vlna}
+Petr Olšák.
+\newblock Program vlna.
+\newblock \url{ftp://math.feld.cvut.cz/olsak/vlna/}.
+
+\bibitem{csplain}
+Petr Olšák.
+\newblock {\csplain}, 1992--2013.
+\newblock \url{http://petr.olsak.net/csplain.html}.
+
+\bibitem{tst}
+Petr Olšák.
+\newblock {\em Typografický systém {\TeX}}.
+\newblock Konvoj Brno, 1998.
+\newblock \url{http://petr.olsak.net/tst.html}.
+
+\bibitem{prvni}
+Petr Olšák.
+\newblock {\em První setkání s \TeX{}em}, 1999, 2012.
+\newblock \url{http://petr.olsak.net/ftp/cstex/doc/prvni.pdf}.
+
+\bibitem{tbn}
+Petr Olšák.
+\newblock {\em {\TeX}book naruby}.
+\newblock Konvoj Brno, 2001.
+\newblock \url{http://petr.olsak.net/tbn.html}.
+
+\bibitem{opmac}
+Petr Olšák.
+\newblock {OPmac}, 2012.
+\newblock \url{http://petr.olsak.net/opmac.html}.
+
+\bibitem{tpp}
+Petr Olšák.
+\newblock {\em \TeX{} pro pragmatiky}, 2013.
+\newblock \url{http://petr.olsak.net/tpp.html}.
+
+\bibitem{Patashnik88a}
+Oren Patashnik.
+\newblock {\em {Bib\TeX}ing}, January 1988.
+
+\bibitem{epslatex}
+Keith Reckdahl.
+\newblock {\em Using Imported Graphics in {\LaTeX} and {pdf\LaTeX}}, January
+  2006.
+\newblock \url{http://mirrors.ctan.org/info/epslatex/english/epslatex.pdf}.
+
+\bibitem{Rybicka02}
+Jiří Rybička.
+\newblock {\em {\LaTeX} pro začátečníky}.
+\newblock Konvoj, edition 3 edition, 2002.
+
+\bibitem{xindy}
+Joachim Schrod.
+\newblock {Xindy}.
+\newblock \url{http://xindy.sourceforge.net/}.
+
+\bibitem{amsmath}
+American~Mathematical Society.
+\newblock {\em User's Guide for the amsmath Package}, December 1999.
+\newblock \url{ftp://ftp.ams.org/pub/tex/doc/amsmath/amsldoc.pdf}.
+
+\bibitem{texlive}
+{\TeX{}Live}, 2012.
+\newblock \url{http://www.tug.org/texlive/}.
+
+\bibitem{texniccenter}
+{\TeX{}nicCenter}.
+\newblock \url{http://www.texniccenter.org/}.
+
+\bibitem{texworks}
+{\TeX{}works}.
+\newblock \url{http://www.tug.org/texworks/}.
+
+\bibitem{CVUT-FEL:zaverecne-prace}
+Ludmila Tichá, Zdeňka Civínová, Michaela Morysková, Ilona Trtíková, and
+  Lenka Němečková.
+\newblock Jak psát vysokoškolské závěrečné práce, 2012.
+\newblock \url{http://knihovna.cvut.cz/studium/jak-psat-vskp/}.
+
+\bibitem{Wagner92}
+Zdeněk Wagner.
+\newblock {\em {CsIndex} v.2.11 czech/slovak implementation of -- česká
+  slovenská implementace programu {MakeIndex}}, August 1992.
+\newblock \url{http://mi21.vsb.cz/sites/mi21.vsb.cz/files/csindex.pdf}.
+
+\bibitem{xemacs}
+{XEmacs}.
+\newblock \url{http://www.xemacs.org/}.
+
+\bibitem{zyka}
+Vít Zýka.
+\newblock {\em FELthesis -- \LaTeX{} templates for thesis on CTU FEL}, 2012.
+\newblock \url{http://zyka.net/felthesis/felthesis.zip}.
+
+\bibitem{CVUT-FEL-rocenka11}
+FEL ČVUT~v Praze.
+\newblock Výroční zpráva za rok 2011, 2012.
+\newblock \url{http://www.fel.cvut.cz/rozvoj/vyrocni-zprava2011.pdf}.
+
+\end{thebibliography}

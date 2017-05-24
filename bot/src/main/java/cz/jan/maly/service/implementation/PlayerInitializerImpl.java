@@ -180,7 +180,7 @@ public class PlayerInitializerImpl implements PlayerInitializer {
                                 } else {
 
                                     //if all of these units are dead or we have 20 lings- transit to next phase
-                                    memory.updateFact(TRANSIT_FROM_5_POOL, memory.returnFactValueForGivenKey(IS_PLAYER).get().getMinerals() > 300);
+                                    memory.updateFact(TRANSIT_FROM_5_POOL, memory.returnFactValueForGivenKey(IS_PLAYER).get().getMinerals() > 100);
                                 }
                                 return true;
                             }
@@ -204,7 +204,7 @@ public class PlayerInitializerImpl implements PlayerInitializer {
                                         .filter(readOnlyMemory -> readOnlyMemory.returnFactValueForGivenKey(IS_START_LOCATION).get())
                                         .filter(readOnlyMemory -> !readOnlyMemory.returnFactValueForGivenKey(LAST_TIME_SCOUTED).isPresent())
                                         .count() > 0
-                                        && memory.getReadOnlyMemoriesForAgentType(AgentTypes.DRONE).count() > 4)
+                                        && memory.getReadOnlyMemoriesForAgentType(AgentTypes.DRONE).count() > 8)
                                 .useFactsInMemory(true)
                                 .build()
                         )
