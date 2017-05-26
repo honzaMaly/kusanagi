@@ -542,7 +542,7 @@ public class FactKeys {
         }
     };
 
-    ////////HACK - 5 POOL
+    ////////HACK - 5 POOL, this may help bot in some scenarios (but in most it is counter productive)
     public static final FactKey<Integer> MORPHED_WORKERS = new FactKey<Integer>("MORPHED_WORKERS", true) {
         @Override
         public Integer getInitValue() {
@@ -552,6 +552,7 @@ public class FactKeys {
     public static final FactKey<Boolean> TRANSIT_FROM_5_POOL = new FactKey<Boolean>("TRANSIT_FROM_5_POOL", false) {
         @Override
         public Boolean getInitValue() {
+            //set true to turn off 5 pool
             return true;
         }
     };

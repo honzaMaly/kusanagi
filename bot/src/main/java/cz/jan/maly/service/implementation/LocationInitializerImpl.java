@@ -597,11 +597,9 @@ public class LocationInitializerImpl implements LocationInitializer {
                                         .map(Optional::get)
                                         .findAny().orElse(null)))
                         .decisionInDesire(CommitmentDeciderInitializer.builder()
-                                .decisionStrategy((dataForDecision, memory) -> dataForDecision.getFeatureValueGlobalBeliefs(CAN_TRANSIT_FROM_5_POOL) != 0
-                                        && memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get()
+                                .decisionStrategy((dataForDecision, memory) -> memory.returnFactValueForGivenKey(IS_ENEMY_BASE).get()
                                         && Decider.getDecision(AgentTypes.BASE_LOCATION, DesireKeys.HOLD_AIR, dataForDecision, HOLDING))
-                                .globalBeliefTypes(Stream.concat(HOLDING.getConvertersForFactsForGlobalBeliefs().stream(),
-                                        Stream.of(CAN_TRANSIT_FROM_5_POOL)).collect(Collectors.toSet()))
+                                .globalBeliefTypes(HOLDING.getConvertersForFactsForGlobalBeliefs())
                                 .globalBeliefSetTypes(HOLDING.getConvertersForFactSetsForGlobalBeliefs())
                                 .globalBeliefTypesByAgentType(HOLDING.getConvertersForFactsForGlobalBeliefsByAgentType())
                                 .globalBeliefSetTypesByAgentType(HOLDING.getConvertersForFactSetsForGlobalBeliefsByAgentType())

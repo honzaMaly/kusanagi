@@ -715,7 +715,6 @@
 \def\printttline{\llap{\locc\Blue\sevenss\the\ttline\kern.5em\indent}}
 
 \fi
-
  
 %%% Blue centered tables
 
@@ -830,8 +829,7 @@
    \def\url##1{\unskip\hfil\break{\typosize[10/]\nobreak\space\oriurl{##1}}}
 }
 \def\printbib{\hangindent=2\iindent
-   \ifx\citelinkA\empty \noindent\hskip2\iindent \llap{[\the\bibnum] }%
-   \else \noindent \fi
+   \citelinkA\empty \noindent\hskip2\iindent \llap{[\the\bibnum] }%
 }
 \addto\bibskip{\vskip-\parskip}
 
