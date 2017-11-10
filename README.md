@@ -1,7 +1,4 @@
 # kusanagi
 A Starcraft Broodwar bot
 
-
-
-//TODO - add description
-//TODO - wiki with usage, instalation, techniques explained,...
+Moved to https://github.com/Game-Group-AIC/kusanagi
